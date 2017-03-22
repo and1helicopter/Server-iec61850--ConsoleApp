@@ -36,6 +36,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\iec61850dotnet.dll</HintPath>
     </Reference>
+    <Reference Include="ModbusLibraryNew">
+      <HintPath>.\ModbusLibraryNew.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,11 +49,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModBus\ModBus.cs" />
+    <Compile Include="ModBus\ScopeConfig.cs" />
+    <Compile Include="Parser\SCLParser.cs" />
+    <Compile Include="Parser\StructDataObj.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\UniSerialPort\UniSerialPort.csproj">
+      <Project>{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}</Project>
+      <Name>UniSerialPort</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

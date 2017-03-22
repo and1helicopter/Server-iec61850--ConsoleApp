@@ -1,0 +1,19 @@
+D:\WORK\C PROJECTS\AsynchSerialPort\bin\Debug\AsynchSerialPort.dll
+D:\WORK\C PROJECTS\AsynchSerialPort\bin\Debug\AsynchSerialPort.pdb
+D:\WORK\C PROJECTS\AsynchSerialPort\obj\Debug\AsynchSerialPort.dll
+D:\WORK\C PROJECTS\AsynchSerialPort\obj\Debug\AsynchSerialPort.pdb
+D:\WORK\C PROJECTS\AsynchSerialPort\obj\Debug\UniSerialPort.csprojResolveAssemblyReference.cache
+D:\WORK\C PROJECTS\UniSerialPort\bin\Debug\AsynchSerialPort.dll
+D:\WORK\C PROJECTS\UniSerialPort\bin\Debug\AsynchSerialPort.pdb
+D:\WORK\C PROJECTS\UniSerialPort\obj\Debug\AsynchSerialPort.dll
+D:\WORK\C PROJECTS\UniSerialPort\obj\Debug\AsynchSerialPort.pdb
+D:\Проекты\C PROJECTS\UniSerialPort\bin\Debug\AsynchSerialPort.dll
+D:\Проекты\C PROJECTS\UniSerialPort\bin\Debug\AsynchSerialPort.pdb
+D:\Проекты\C PROJECTS\UniSerialPort\obj\Debug\UniSerialPort.csprojResolveAssemblyReference.cache
+D:\Проекты\C PROJECTS\UniSerialPort\obj\Debug\AsynchSerialPort.dll
+D:\Проекты\C PROJECTS\UniSerialPort\obj\Debug\AsynchSerialPort.pdb
+C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\bin\Debug\AsynchSerialPort.dll
+C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\bin\Debug\AsynchSerialPort.pdb
+C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\obj\Debug\UniSerialPort.csprojResolveAssemblyReference.cache
+C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\obj\Debug\AsynchSerialPort.dll
+C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\obj\Debug\AsynchSerialPort.pdb

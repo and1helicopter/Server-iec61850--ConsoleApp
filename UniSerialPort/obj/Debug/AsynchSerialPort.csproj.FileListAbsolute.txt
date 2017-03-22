@@ -1,0 +1,4 @@
+D:\WORK\C PROJECTS\AsynchSerialPort\bin\Debug\AsynchSerialPort.dll
+D:\WORK\C PROJECTS\AsynchSerialPort\bin\Debug\AsynchSerialPort.pdb
+D:\WORK\C PROJECTS\AsynchSerialPort\obj\Debug\AsynchSerialPort.dll
+D:\WORK\C PROJECTS\AsynchSerialPort\obj\Debug\AsynchSerialPort.pdb
