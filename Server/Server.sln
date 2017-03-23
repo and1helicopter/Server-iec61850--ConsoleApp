@@ -7,20 +7,41 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniSerialPort", "..\UniSerialPort\UniSerialPort.csproj", "{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADSPLibrary", "..\ADSPLibrary\ADSPLibrary.csproj", "{00A4442A-0190-4215-9E05-2DF03BF070AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModBusLibrary", "..\ModBusLibrary\ModBusLibrary.csproj", "{30188FF0-11C6-4302-8B16-F30EEBEF8761}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Test|Any CPU = Test|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3C4808E2-457C-43D1-8DEE-D732513737D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C4808E2-457C-43D1-8DEE-D732513737D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C4808E2-457C-43D1-8DEE-D732513737D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C4808E2-457C-43D1-8DEE-D732513737D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C4808E2-457C-43D1-8DEE-D732513737D9}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{3C4808E2-457C-43D1-8DEE-D732513737D9}.Test|Any CPU.Build.0 = Release|Any CPU
 		{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}.Test|Any CPU.Build.0 = Release|Any CPU
+		{00A4442A-0190-4215-9E05-2DF03BF070AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00A4442A-0190-4215-9E05-2DF03BF070AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00A4442A-0190-4215-9E05-2DF03BF070AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00A4442A-0190-4215-9E05-2DF03BF070AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00A4442A-0190-4215-9E05-2DF03BF070AA}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{00A4442A-0190-4215-9E05-2DF03BF070AA}.Test|Any CPU.Build.0 = Test|Any CPU
+		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Test|Any CPU.Build.0 = Test|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

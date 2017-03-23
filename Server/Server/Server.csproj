@@ -61,6 +61,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ADSPLibrary\ADSPLibrary.csproj">
+      <Project>{00A4442A-0190-4215-9E05-2DF03BF070AA}</Project>
+      <Name>ADSPLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\UniSerialPort\UniSerialPort.csproj">
       <Project>{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}</Project>
       <Name>UniSerialPort</Name>

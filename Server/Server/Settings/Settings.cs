@@ -12,20 +12,22 @@ namespace Server.Settings
             public static string Language { get;  private set; }
             public static bool DownloadScope { get; private set; }
             public static string TypeScope { get; private set; }
+            public static int ComtradeType { get; private set; }
             public static string PathScope { get; private set; }
             public static ushort ConfigurationAddr { get; private set; }
             public static ushort OscilCmndAddr { get; private set; }
-
+            public static string OscilNominalFrequency { get; private set; }
 
             public static void ChangeLanguge(string lang)
             {
                 Language = lang == "rus" ? "rus" : "eng";
             }
 
-            public static void ChangeScope(bool download, string type)
+            public static void ChangeScope(bool download, string type, string comtrade)
             {
                 DownloadScope = download;
                 TypeScope = type == "txt" ? "txt" : "comtrade";
+                ComtradeType = comtrade == "2013" ? 3 : 2;
             }
 
             public static void ChangeAddrScope(ushort configAddr, ushort cmndAddr)
@@ -38,6 +40,11 @@ namespace Server.Settings
             {
                 //"vmd-filestore" + путь до папки где лежат осциллограммы
                 PathScope = path;
+            }
+
+            public static void ChangeOscilNominalFrequency(string nominFreq)
+            {
+                OscilNominalFrequency = nominFreq;
             }
         }
 

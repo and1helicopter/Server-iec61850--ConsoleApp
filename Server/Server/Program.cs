@@ -30,8 +30,11 @@ namespace Server
 
             Settings.Settings.ConfigModBus.ShowPortSettings();
 
+
+            Settings.Settings.ConfigGlobal.ChangeOscilNominalFrequency("50");
+            Settings.Settings.ConfigGlobal.ChangePathScope(@"vmd-filestore\Scope\");
             Settings.Settings.ConfigGlobal.ChangeAddrScope(512, 4092);
-            Settings.Settings.ConfigGlobal.ChangeScope(true, "txt");
+            Settings.Settings.ConfigGlobal.ChangeScope(true, "comtrade", "1999");
 
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020a, "%");
