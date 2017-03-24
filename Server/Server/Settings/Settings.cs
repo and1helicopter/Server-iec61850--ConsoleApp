@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
+using System.Text;
+using System.Xml;
 
 namespace Server.Settings
 {
@@ -54,107 +57,87 @@ namespace Server.Settings
         {
             public static int BaudRate { get; private set; }
 
-            private static void ChangeBaudRate(byte serialPortSpeedIndex)
+            private static void ChangeBaudRate(int baudRate)
             {
-                switch (serialPortSpeedIndex)
+                switch (baudRate)
                 {
-                    case 0:
-                    {
+                    case 9600:
                         BaudRate = 9600;
                         return;
-                    }
-                    case 1:
-                    {
+                    case 19200:
                         BaudRate = 19200;
                         return;
-                    }
-                    case 2:
-                    {
+                    case 38400:
                         BaudRate = 38400;
                         return;
-                    }
-                    case 3:
-                    {
+                    case 57600:
                         BaudRate = 57600;
                         return;
-                    }
-                    case 4:
-                    {
+                    case 115200:
                         BaudRate = 115200;
                         return;
-                    }
-                    case 5:
-                    {
+                    case 230400:
                         BaudRate = 230400;
                         return;
-                    }
+                    default:
+                        BaudRate = 9600;
+                        break;
                 }
-                BaudRate = 9600;
             }
 
             public static Parity SerialPortParity { get; private set; }
 
-            private static void ChangeSerialPortParity(byte serialPortParityIndex)
+            private static void ChangeSerialPortParity(string serialPortParity)
             {
-                switch (serialPortParityIndex)
+                switch (serialPortParity)
                 {
-                    case 0:
-                    {
+                    case @"Odd":
                         SerialPortParity = Parity.Odd;
                         return;
-                    }
-                    case 1:
-                    {
+                    case @"Even":
                         SerialPortParity = Parity.Even;
                         return;
-                    }
-                    case 2:
-                    {
+                    case @"None":
                         SerialPortParity = Parity.None;
                         return;
-                    }
+                    default:
+                        SerialPortParity = Parity.Odd;
+                        break;
                 }
-                SerialPortParity = Parity.Odd;
             }
 
             public static StopBits SerialPortStopBits { get; private set; }
 
-            private static void ChangeSerialPortStopBits(byte serialPortParityIndex)
+            private static void ChangeSerialPortStopBits(string serialPortStopBits)
             {
-                switch (serialPortParityIndex)
+                switch (serialPortStopBits)
                 {
-                    case 0:
+                    case @"One":
                     {
                         SerialPortStopBits = StopBits.One;
                         return;
                     }
-                    case 1:
-                    {
-                        SerialPortStopBits = StopBits.One;
-                        return;
-                    }
-                    case 2:
+                    case @"Two":
                     {
                         SerialPortStopBits = StopBits.Two;
                         return;
                     }
+                    default:
+                        SerialPortStopBits = StopBits.One;
+                        break;
                 }
-                SerialPortStopBits = StopBits.One;
+
             }
 
             public static string ComPortName { get; private set; }
 
-            private static void ChangeComPortName(byte comPortIndex)
+            private static void ChangeComPortName(string comPort)
             {
                 ReadPortList();
 
                 if (_portList.Count != 0)
                 {
-                    if (comPortIndex >= _portList.Count)
-                    {
-                        ComPortName = _portList[0];
-                    }
-                    ComPortName = _portList[comPortIndex];
+                    ComPortName = _portList.Contains(comPort) ? comPort : _portList[0];
                 }
                 else
                 {
@@ -196,21 +179,113 @@ namespace Server.Settings
                         : $"BaudRate:{BaudRate} - Parity:{SerialPortParity} - StopBits:{SerialPortStopBits} - ComPortName:{ComPortName}");
             }
 
-            public static void InitPort(byte serialPortSpeedIndex, byte serialPortParityIndex, byte comPortIndex)
+            public static void InitPort(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort)
             {
                 ChangeBaudRate(serialPortSpeedIndex);
-                ChangeSerialPortParity(serialPortParityIndex);
-                ChangeSerialPortStopBits(serialPortParityIndex);
-                ChangeComPortName(comPortIndex);
+                ChangeSerialPortParity(serialPortParity);
+                ChangeSerialPortStopBits(serialPortStopBits);
+                ChangeComPortName(comPort);
             }
         }
+
+        /* Настройки Server  */
+
+        public static class ConfigServer
+        {
+            public static int PortServer { get; private set; }
+
+            public static void ChangePortServer(int portServer)
+            {
+                PortServer = portServer;
+            }
+
+        }
+
 
         /* Настройки начальных параметров */
         public static void InitStartSettings()
         {
             ConfigGlobal.ChangeLanguge("eng");
-            ConfigModBus.InitPort(0,0,0);
+            ConfigModBus.InitPort(0, "Odd", "One", "COM1");
         }
 
+
+
+        public static void ReadSettings()
+        {
+            
+        }
+
+        public static void SaveSettings()
+        {
+            string savePath = "Settings.xml";
+
+            FileStream fs = new FileStream(savePath, FileMode.Create);
+            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+            {
+                Formatting = Formatting.Indented
+            };
+
+            /*Global Settings*/
+            xmlOut.WriteStartDocument();
+            xmlOut.WriteStartElement("Settings");
+            /////////////////////////////////////////////////////////////
+
+            xmlOut.WriteStartElement("Settings Global");
+
+            xmlOut.WriteStartElement("Language", ConfigGlobal.Language);
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("DownloadScope", Convert.ToString(ConfigGlobal.DownloadScope));
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("TypeScope", ConfigGlobal.TypeScope);
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("ComtradeType", ConfigGlobal.ComtradeType == 3 ? "2013" : "1999");
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("ConfigurationAddr", Convert.ToString(ConfigGlobal.ConfigurationAddr));
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("OscilCmndAddr", Convert.ToString(ConfigGlobal.OscilCmndAddr));
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("PathScope", ConfigGlobal.PathScope);
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("OscilNominalFrequency", ConfigGlobal.OscilNominalFrequency);
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteEndElement();
+            /*ModBus Settings*/
+            xmlOut.WriteStartElement("Settings ModBus");
+
+            xmlOut.WriteStartElement("BaudRate", Convert.ToString(ConfigModBus.BaudRate));
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("SerialPortParity", Convert.ToString(ConfigModBus.SerialPortParity));
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteStartElement("SerialPortStopBits", Convert.ToString(ConfigModBus.SerialPortStopBits));
+            xmlOut.WriteEndElement();
+            
+            xmlOut.WriteStartElement("ComPortName", Convert.ToString(ConfigModBus.ComPortName));
+            xmlOut.WriteEndElement();
+            
+            xmlOut.WriteEndElement();
+            /*Server Settings*/
+            xmlOut.WriteStartElement("Settings Server");
+
+            xmlOut.WriteStartElement("PortServer", Convert.ToString(ConfigServer.PortServer));
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteEndElement();
+
+            xmlOut.WriteEndElement();
+            xmlOut.WriteEndDocument();
+            xmlOut.Close();
+            fs.Close();
+        }
     }
 }

@@ -25,9 +25,11 @@ namespace Server
             Settings.Settings.InitStartSettings();
 
             Settings.Settings.ConfigModBus.ShowPortList();
-            Settings.Settings.ConfigModBus.InitPort(4,0,0);
+            Settings.Settings.ConfigModBus.InitPort(115200, "Odd", "One", "COM1");
 
             Settings.Settings.ConfigModBus.ShowPortSettings();
+
+            Settings.Settings.ConfigServer.ChangePortServer(102);
 
 
             Settings.Settings.ConfigGlobal.ChangeOscilNominalFrequency("50");
@@ -59,6 +61,8 @@ namespace Server
                 Console.WriteLine($@"{item.addrDataObj}  {item.nameDataObj} {item.formatDataObj}");
             }
 
+            Settings.Settings.SaveSettings();
+
             ModBus.ModBus.ConfigModBusPort();
             ModBus.ModBus.OpenModBusPort();
             /*
@@ -82,7 +86,7 @@ namespace Server
 
             ConfigServer("myModel.cfg");
 
-            StartServer(102);
+            StartServer(Settings.Settings.ConfigServer.PortServer);
 
             Thread myThread = new Thread(RuningServer)
             {

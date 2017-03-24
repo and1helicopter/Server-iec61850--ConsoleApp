@@ -78,7 +78,6 @@ namespace Server.ModBus
 
         private static void downloadDataTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-
             DataRequest();
         }
 
