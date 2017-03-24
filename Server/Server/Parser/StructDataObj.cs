@@ -16,6 +16,7 @@ namespace Server.Parser
             public ushort addrDataObj { get; private set; }
             public string formatDataObj { get; private set; }
             public long valueDataObj { get; set; }
+            public bool SendRequestDataObj { get; set; }
 
             public DataObj(string name, ushort addr, string format)
             {

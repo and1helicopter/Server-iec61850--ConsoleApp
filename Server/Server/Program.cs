@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using IEC61850.Server;
 using IEC61850.Common;
 using System.Threading;
+using Server.Parser;
 
 namespace Server
 {
@@ -11,14 +11,14 @@ namespace Server
         static IedServer _iedServer;
         static IedModel _iedModel;
 
-        static bool running = true;
+        static bool _running = true;
 
         public static void Main(string[] args)
         {
            /* run until Ctrl-C is pressed */
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e) {
                 e.Cancel = true;
-                running = false;
+                _running = false;
 
                 StopServer();
             };
@@ -26,7 +26,6 @@ namespace Server
 
             Settings.Settings.ConfigModBus.ShowPortList();
             Settings.Settings.ConfigModBus.InitPort(4,0,0);
-            Console.ReadKey();
 
             Settings.Settings.ConfigModBus.ShowPortSettings();
 
@@ -36,10 +35,13 @@ namespace Server
             Settings.Settings.ConfigGlobal.ChangeAddrScope(512, 4092);
             Settings.Settings.ConfigGlobal.ChangeScope(true, "comtrade", "1999");
 
+            /*
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020a, "%");
-            Parser.StructDataObj.AddStructDataObj("%", 0x020b, "%");
-            Parser.StructDataObj.AddStructDataObj("%", 0x020c, "%");
+            */
+            StructDataObj.AddStructDataObj("LD0/MMXU1.TotVAr.mag.f", 0x020b, "float");
+            StructDataObj.AddStructDataObj("LD0/MMXU1.TotW.mag.f", 0x020c, "float");
+            /*
             Parser.StructDataObj.AddStructDataObj("%", 0x020d, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020e, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x0210, "%");
@@ -47,13 +49,14 @@ namespace Server
             Parser.StructDataObj.AddStructDataObj("-", 0x0223, "-");
             Parser.StructDataObj.AddStructDataObj("-", 0x0221, "-");
             Parser.StructDataObj.AddStructDataObj("-", 0x0217, "-");
+            */
 
 
 
 
-            foreach (var item in Parser.StructDataObj.structDataObj)
+            foreach (var item in StructDataObj.structDataObj)
             {
-                Console.WriteLine($"{item.addrDataObj}  {item.nameDataObj} {item.formatDataObj}");
+                Console.WriteLine($@"{item.addrDataObj}  {item.nameDataObj} {item.formatDataObj}");
             }
 
             ModBus.ModBus.ConfigModBusPort();
@@ -73,7 +76,6 @@ namespace Server
             //ModBus.ModBus ModBusPort = new ModBus.ModBus();
 
 
-            Console.ReadKey();
             
 
             ConfigFile();
@@ -95,16 +97,18 @@ namespace Server
 
         private static void RuningServer()
         {
-            while (running)
+            while (_running)
             {
-                //Console.WriteLine($"Thread: {Thread.CurrentThread.Name}");
-
-
                 _iedServer.LockDataModel();
+
+                lock (ModBus.ModBus.Locker)
+                {
+                    UpdateData();
+                }
 
                 _iedServer.UnlockDataModel();
 
-                //Thread.Sleep(100);
+                Thread.Sleep(50);
             }
         }
 
@@ -124,11 +128,11 @@ namespace Server
             {
                 _iedServer = new IedServer(_iedModel);
                 _iedServer.Start(portNum);
-                Console.WriteLine("Server started");
+                Console.WriteLine(@"Server started");
             }
             else
             {
-                Console.WriteLine("No valid data model found!");
+                Console.WriteLine(@"No valid data model found!");
             }
         }
 
@@ -139,11 +143,11 @@ namespace Server
                 _iedServer.Stop();
                 _iedServer.Destroy();
 
-                Console.WriteLine("Server stoped");
+                Console.WriteLine(@"Server stoped");
             }
             else
             {
-                Console.WriteLine("No valid Server found!");
+                Console.WriteLine(@"No valid Server found!");
             }
 
             Console.ReadKey();
@@ -162,12 +166,13 @@ namespace Server
 
         private static void UpdateData()
         {
-            
-        }
+            foreach (var item in StructDataObj.structDataObj)
+            {
+                if(item.formatDataObj == "float")
+                _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(item.nameDataObj), Convert.ToSingle(item.valueDataObj));
 
-        private static void DownloadScope()
-        {
-            
+                _iedServer.UpdateUTCTimeAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference("LD0/MMXU1.TotW.t"), DateTime.Now);
+            }
         }
     }
 }

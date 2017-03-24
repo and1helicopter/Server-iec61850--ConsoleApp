@@ -1,9 +1,7 @@
 ﻿using ADSPLibrary;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Net.Mime;
 using System.Text;
 using System.Timers;
 using UniSerialPort;
@@ -14,6 +12,8 @@ namespace Server.ModBus
     public static class ModBus
     {
         private static AsynchSerialPort _serialPort = new AsynchSerialPort();
+
+        public static object Locker = new object();
 
         private static readonly Timer DownloadDataTimer = new Timer()
         {
@@ -96,6 +96,7 @@ namespace Server.ModBus
                 return;
             }
 
+            
             if (Parser.StructDataObj.structDataObj.Count != 0)
             {
                 if (_currentIndex == Parser.StructDataObj.structDataObj.Count)
@@ -103,7 +104,14 @@ namespace Server.ModBus
                     _currentIndex = 0;
                 }
 
-                _serialPort.GetDataRTU(Parser.StructDataObj.structDataObj[_currentIndex].addrDataObj, 1, UpdateData);
+                if (!Parser.StructDataObj.structDataObj[_currentIndex].SendRequestDataObj)
+                {
+                    lock (Locker)
+                    {
+                        _serialPort.GetDataRTU(Parser.StructDataObj.structDataObj[_currentIndex].addrDataObj, 1, UpdateData);
+                        Parser.StructDataObj.structDataObj[_currentIndex].SendRequestDataObj = true;
+                    }
+                }
             }
         }
 
@@ -112,6 +120,7 @@ namespace Server.ModBus
             if (dataOk)
             {
                 Parser.StructDataObj.structDataObj[_currentIndex].valueDataObj = Convert.ToInt64(paramRtu[0]);
+                Parser.StructDataObj.structDataObj[_currentIndex].SendRequestDataObj = false;
                 _currentIndex++;
             }
         }
@@ -144,72 +153,116 @@ namespace Server.ModBus
         {
             if (_loadConfigStep == 0)                //Количество каналов 
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 67), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 67), 1, UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 1)                //Количество осциллограмм 
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 66), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 66), 1,UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 2)                //Предыстория 
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 68), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 68), 1,UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 3)                //Делитель
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 69), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 69), 1,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 4)                //Режим работы
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 70), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 70), 1,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 5)                //Размер осциллограммы 
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 64), 2, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 64), 2,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 6)                //Частота выборки
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 2), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 2), 1,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 7)                //Весь размер под осциллограммы 
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 376), 2, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 376), 2,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 8)                //Размер одной выборки
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 3), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 3), 1,
+                        UpdateScopeConfig);
+                }
                 return;
             }
             if (_loadConfigStep == 9)                //Количество выборок на предысторию 
             {
-                _serialPort.GetDataRTU(Settings.Settings.ConfigGlobal.OscilCmndAddr, 2, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU(Settings.Settings.ConfigGlobal.OscilCmndAddr, 2, UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 10)                //Статус осциллогрофа
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 378), 2, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 378), 2,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 11)                //Адреса каналов 
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 32), 32, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 32), 32,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
@@ -221,67 +274,116 @@ namespace Server.ModBus
 
             if (_loadConfigStep == 13)                //Название каналов 
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 71 + 16 * _indexChannel), 16, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU(
+                        (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 71 + 16 * _indexChannel), 16,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 14)                //Фаза каналов 
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 583 + _indexChannel), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU(
+                        (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 583 + _indexChannel), 1,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 15)                //CCBM каналов
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 615 + 8 * _indexChannel), 8, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU(
+                        (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 615 + 8 * _indexChannel), 8,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 16)                //Измеерение каналов
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 871 + 4 * _indexChannel), 4, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU(
+                        (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 871 + 4 * _indexChannel), 4,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 17)                //Type каналов
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 999 + _indexChannel), 1, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU(
+                        (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 999 + _indexChannel), 1,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 18)                //
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1031), 16, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1031), 16,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 19)                //
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1047), 8, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1047), 8,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 20)                //
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1055), 4, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1055), 4,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 21)                //
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1059), 4, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1059), 4,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 22)                //
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1063), 4, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1063), 4,
+                        UpdateScopeConfig);
+                }
                 return;
             }
 
             if (_loadConfigStep == 23)                //
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1067), 4, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1067), 4,
+                        UpdateScopeConfig);
+                }
             }
         }
 
@@ -550,7 +652,11 @@ namespace Server.ModBus
 
         private static void ScopeStatusRequest()
         {
-            _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 8), 32, UpdateScopeStatus);
+            lock (Locker)
+            {
+                _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 8), 32,
+                    UpdateScopeStatus);
+            }
         }
 
         private static void UpdateScopeStatus(bool dataOk, ushort[] paramRtu)
@@ -604,9 +710,14 @@ namespace Server.ModBus
             {
                 //Загрузка номера выборки на котором заканчивается осциллограмма 
                 case 0:
+                {
+                    lock (Locker)
                     {
-                        _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe);
+                        _serialPort.GetDataRTU(
+                            (ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2,
+                            UpdateScopoe);
                     }
+                }
                     break;
 
                 //Загрузка данных
@@ -617,8 +728,11 @@ namespace Server.ModBus
                         _writeArr[0] = 0x0001;
                         _writeArr[1] = Convert.ToUInt16((oscilLoadTemp << 16) >> 16);
                         _writeArr[2] = Convert.ToUInt16(oscilLoadTemp >> 16);
-
-                        _serialPort.SetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 5), ScopeDownloadRequestGet, RequestPriority.Normal, _writeArr);
+                        lock (Locker)
+                        {
+                            _serialPort.SetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 5),
+                                ScopeDownloadRequestGet, RequestPriority.Normal, _writeArr);
+                        }
                     }
                     break;
             }
@@ -628,7 +742,11 @@ namespace Server.ModBus
         {
             if (dataOk)
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 40), 32, UpdateScopoe);
+                lock (Locker)
+                {
+                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 40), 32,
+                        UpdateScopoe);
+                }
             }
         }
 
@@ -675,7 +793,10 @@ namespace Server.ModBus
 
         private static void SaveToFileRequest()
         {
-            _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 136 + _indexDownloadScope  * 6), 6, SaveToFile);
+            lock (Locker)
+            {
+                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
+            }
         }
 
         private static void SaveToFile(bool dataOk, ushort[] paramRtu)
