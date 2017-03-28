@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Ports;
 using System.Xml.Linq;
@@ -134,9 +135,9 @@ namespace Server.Settings
             {
                 ReadPortList();
 
-                if (_portList.Count != 0)
+                if (PortList.Count != 0)
                 {
-                    ComPortName = _portList.Contains(comPort) ? comPort : _portList[0];
+                    ComPortName = PortList.Contains(comPort) ? comPort : PortList[0];
                 }
                 else
                 {
@@ -146,28 +147,28 @@ namespace Server.Settings
             }
 
             //Список всех COM-портов на компьютере
-            private static List<string> _portList = new List<string>();
+            private static readonly List<string> PortList = new List<string>();
 
             private static void ReadPortList()
             {
                 string[] portStrList = SerialPort.GetPortNames();
-                _portList.Clear();
+                PortList.Clear();
                 foreach (string port in portStrList)
                 {
-                    _portList.Add(port);
+                    PortList.Add(port);
                 }
-                _portList.Sort();
+                PortList.Sort();
             }
 
             public static void ShowPortList()
             {
                 ReadPortList();
 
-                foreach (var item in _portList)
+                foreach (var item in PortList)
                 {
                     Console.WriteLine(ConfigGlobal.Language == "rus"
-                        ? $"COM порт: {item} - Индекс: {_portList.IndexOf(item)}"
-                        : $"COM port: {item} - Index: {_portList.IndexOf(item)}");
+                        ? $"COM порт: {item} - Индекс: {PortList.IndexOf(item)}"
+                        : $"COM port: {item} - Index: {PortList.IndexOf(item)}");
                 }
             }
 
@@ -210,6 +211,7 @@ namespace Server.Settings
 
 
 
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public static void ReadSettings()
         {
             //задаем путь к нашему рабочему файлу XML
@@ -220,27 +222,32 @@ namespace Server.Settings
             var xElement = doc.Element("Settings");
             if (xElement != null)
             {
-                var elSG = xElement.Element("Settings_Global");
-                if (elSG != null)
+                var elSg = xElement.Element("Settings_Global");
+                if (elSg != null)
                 {
-                    ConfigGlobal.ChangeLanguge(elSG.Attribute("Language").Value);
-                    ConfigGlobal.ChangeScope(Convert.ToBoolean(elSG.Attribute("DownloadScope").Value), elSG.Attribute("TypeScope").Value, elSG.Attribute("ComtradeType").Value);
-                    ConfigGlobal.ChangeAddrScope(Convert.ToUInt16(elSG.Attribute("ConfigurationAddr").Value), Convert.ToUInt16(elSG.Attribute("OscilCmndAddr").Value));
-                    ConfigGlobal.ChangePathScope(elSG.Attribute("PathScope").Value);
-                    ConfigGlobal.ChangeOscilNominalFrequency(elSG.Attribute("OscilNominalFrequency").Value);
+                    ConfigGlobal.ChangeLanguge(elSg.Attribute("Language") != null ? elSg.Attribute("Language").Value : "eng");
+                    ConfigGlobal.ChangeScope(elSg.Attribute("DownloadScope") != null ? Convert.ToBoolean(elSg.Attribute("DownloadScope").Value) : false,
+                        elSg.Attribute("TypeScope") != null ? elSg.Attribute("TypeScope").Value : "comtrade",
+                        elSg.Attribute("ComtradeType") != null ? elSg.Attribute("ComtradeType").Value:"1999");
+                    ConfigGlobal.ChangeAddrScope(elSg.Attribute("ConfigurationAddr") != null ? Convert.ToUInt16(elSg.Attribute("ConfigurationAddr").Value) : (ushort)512,
+                        elSg.Attribute("OscilCmndAddr") != null ? Convert.ToUInt16(elSg.Attribute("OscilCmndAddr").Value):(ushort)4092);
+                    ConfigGlobal.ChangePathScope(elSg.Attribute("PathScope") != null ? elSg.Attribute("PathScope").Value : @"vmd - filestore\");
+                    ConfigGlobal.ChangeOscilNominalFrequency(elSg.Attribute("OscilNominalFrequency") != null ? elSg.Attribute("OscilNominalFrequency").Value : "50");
                 }
-                var elSM = xElement.Element("Settings_ModBus");
-                if (elSM != null)
+                var elSm = xElement.Element("Settings_ModBus");
+                if (elSm != null)
                 {
-                    ConfigModBus.InitPort(Convert.ToInt32(elSM.Attribute("BaudRate").Value), Convert.ToString(elSM.Attribute("SerialPortParity").Value), Convert.ToString(elSM.Attribute("SerialPortStopBits").Value), Convert.ToString(elSM.Attribute("ComPortName").Value));
+                    ConfigModBus.InitPort(elSm.Attribute("BaudRate") != null ? Convert.ToInt32(elSm.Attribute("BaudRate").Value): 115200,
+                        elSm.Attribute("SerialPortParity") != null ? Convert.ToString(elSm.Attribute("SerialPortParity").Value):"Odd",
+                        elSm.Attribute("SerialPortStopBits") != null ? Convert.ToString(elSm.Attribute("SerialPortStopBits").Value):"One",
+                        elSm.Attribute("ComPortName") != null ? Convert.ToString(elSm.Attribute("ComPortName").Value):"COM1");
                 }
-                var elSS = xElement.Element("Settings_Server");
-                if (elSS != null)
+                var elSs = xElement.Element("Settings_Server");
+                if (elSs != null)
                 {
-                    ConfigServer.ChangePortServer(Convert.ToInt32(elSS.Attribute("PortServer").Value));
+                    ConfigServer.ChangePortServer(elSs.Attribute("PortServer") != null ? Convert.ToInt32(elSs.Attribute("PortServer").Value): 102);
                 }
             }
-
         }
 
         public static void SaveSettings()
