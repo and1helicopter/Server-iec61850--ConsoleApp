@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
-using System.Text;
-using System.Xml;
+using System.Xml.Linq;
 
 namespace Server.Settings
 {
@@ -213,7 +212,35 @@ namespace Server.Settings
 
         public static void ReadSettings()
         {
-            
+            //задаем путь к нашему рабочему файлу XML
+            string filePath = @"Settings.xml";
+            //читаем данные из файла
+            XDocument doc = XDocument.Load(filePath);
+
+            var xElement = doc.Element("Settings");
+            if (xElement != null)
+            {
+                var elSG = xElement.Element("Settings_Global");
+                if (elSG != null)
+                {
+                    ConfigGlobal.ChangeLanguge(elSG.Attribute("Language").Value);
+                    ConfigGlobal.ChangeScope(Convert.ToBoolean(elSG.Attribute("DownloadScope").Value), elSG.Attribute("TypeScope").Value, elSG.Attribute("ComtradeType").Value);
+                    ConfigGlobal.ChangeAddrScope(Convert.ToUInt16(elSG.Attribute("ConfigurationAddr").Value), Convert.ToUInt16(elSG.Attribute("OscilCmndAddr").Value));
+                    ConfigGlobal.ChangePathScope(elSG.Attribute("PathScope").Value);
+                    ConfigGlobal.ChangeOscilNominalFrequency(elSG.Attribute("OscilNominalFrequency").Value);
+                }
+                var elSM = xElement.Element("Settings_ModBus");
+                if (elSM != null)
+                {
+                    ConfigModBus.InitPort(Convert.ToInt32(elSM.Attribute("BaudRate").Value), Convert.ToString(elSM.Attribute("SerialPortParity").Value), Convert.ToString(elSM.Attribute("SerialPortStopBits").Value), Convert.ToString(elSM.Attribute("ComPortName").Value));
+                }
+                var elSS = xElement.Element("Settings_Server");
+                if (elSS != null)
+                {
+                    ConfigServer.ChangePortServer(Convert.ToInt32(elSS.Attribute("PortServer").Value));
+                }
+            }
+
         }
 
         public static void SaveSettings()
@@ -221,70 +248,28 @@ namespace Server.Settings
             string savePath = "Settings.xml";
 
             FileStream fs = new FileStream(savePath, FileMode.Create);
-            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
-            {
-                Formatting = Formatting.Indented
-            };
-
-            /*Global Settings*/
-            xmlOut.WriteStartDocument();
-            xmlOut.WriteStartElement("Settings");
-            /////////////////////////////////////////////////////////////
-
-            xmlOut.WriteStartElement("Settings Global");
-
-            xmlOut.WriteStartElement("Language", ConfigGlobal.Language);
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("DownloadScope", Convert.ToString(ConfigGlobal.DownloadScope));
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("TypeScope", ConfigGlobal.TypeScope);
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("ComtradeType", ConfigGlobal.ComtradeType == 3 ? "2013" : "1999");
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("ConfigurationAddr", Convert.ToString(ConfigGlobal.ConfigurationAddr));
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("OscilCmndAddr", Convert.ToString(ConfigGlobal.OscilCmndAddr));
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("PathScope", ConfigGlobal.PathScope);
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("OscilNominalFrequency", ConfigGlobal.OscilNominalFrequency);
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteEndElement();
-            /*ModBus Settings*/
-            xmlOut.WriteStartElement("Settings ModBus");
-
-            xmlOut.WriteStartElement("BaudRate", Convert.ToString(ConfigModBus.BaudRate));
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("SerialPortParity", Convert.ToString(ConfigModBus.SerialPortParity));
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteStartElement("SerialPortStopBits", Convert.ToString(ConfigModBus.SerialPortStopBits));
-            xmlOut.WriteEndElement();
             
-            xmlOut.WriteStartElement("ComPortName", Convert.ToString(ConfigModBus.ComPortName));
-            xmlOut.WriteEndElement();
-            
-            xmlOut.WriteEndElement();
-            /*Server Settings*/
-            xmlOut.WriteStartElement("Settings Server");
+            XDocument xDocument =
+                new XDocument(
+                    new XElement("Settings",
+                        new XElement("Settings_Global",
+                            new XAttribute("Language", ConfigGlobal.Language),
+                            new XAttribute("DownloadScope", Convert.ToString(ConfigGlobal.DownloadScope)),
+                            new XAttribute("TypeScope", ConfigGlobal.TypeScope),
+                            new XAttribute("ComtradeType", ConfigGlobal.ComtradeType == 3 ? "2013" : "1999"),
+                            new XAttribute("ConfigurationAddr", Convert.ToString(ConfigGlobal.ConfigurationAddr)),
+                            new XAttribute("OscilCmndAddr", Convert.ToString(ConfigGlobal.OscilCmndAddr)),
+                            new XAttribute("PathScope", ConfigGlobal.PathScope),
+                            new XAttribute("OscilNominalFrequency", ConfigGlobal.OscilNominalFrequency)),
+                        new XElement("Settings_ModBus",
+                            new XAttribute("BaudRate", Convert.ToString(ConfigModBus.BaudRate)),
+                            new XAttribute("SerialPortParity", Convert.ToString(ConfigModBus.SerialPortParity)),
+                            new XAttribute("SerialPortStopBits", Convert.ToString(ConfigModBus.SerialPortStopBits)),
+                            new XAttribute("ComPortName", Convert.ToString(ConfigModBus.ComPortName))),
+                        new XElement("Settings_Server",
+                            new XAttribute("PortServer", Convert.ToString(ConfigServer.PortServer)))));
 
-            xmlOut.WriteStartElement("PortServer", Convert.ToString(ConfigServer.PortServer));
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteEndElement();
-
-            xmlOut.WriteEndElement();
-            xmlOut.WriteEndDocument();
-            xmlOut.Close();
+            xDocument.Save(fs);
             fs.Close();
         }
     }

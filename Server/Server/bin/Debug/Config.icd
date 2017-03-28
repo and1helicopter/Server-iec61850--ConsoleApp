@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SCL xmlns="http://www.iec.ch/61850/2003/SCL">
+   <Header id="straton 1" nameStructure="IEDName"/>
+   <Communication>
+      <SubNetwork name="SubNetworkName" type="8-MMS">
+         <Text/>
+         <ConnectedAP iedName="ESSrv" apName="AccPoint">
+            <Address>
+               <P type="IP">192.168.1.10</P>
+               <P type="IP-SUBNET">255.255.255.0</P>
+               <P type="IP-GATEWAY">192.168.1.1</P>
+               <P type="OSI-TSEL">0001</P>
+               <P type="OSI-SSEL">0001</P>
+               <P type="OSI-PSEL">00000001</P>
+               <P type="OSI-AP-TITLE">1,1,999,1,1</P>
+               <P type="OSI-AE-QUALIFIER">12</P>
+               <P type="MAC-ADDRESS">00-30-56-A9-8D-87</P>
+            </Address>
+         </ConnectedAP>
+      </SubNetwork>
+   </Communication>
+   <IED name="ESSrv" type="STS-2P" manufacturer="Energocomplekt">
+      <Services>
+         <GetDirectory/>
+         <GetDataObjectDefinition/>
+         <DataObjectDirectory/>
+         <GetDataSetValue/>
+         <SetDataSetValue/>
+         <DataSetDirectory/>
+         <ConfDataSet maxAttributes="0" max="10"/>
+         <DynDataSet maxAttributes="100" max="10"/>
+         <ReadWrite/>
+         <ConfReportControl max="5"/>
+         <GetCBValues/>
+         <ReportSettings rptID="Fix" optFields="Fix" bufTime="Fix" trgOps="Fix" intgPd="Fix" cbName="Fix" datSet="Fix"/>
+         <GOOSE max="10"/>
+         <FileHandling/>
+      </Services>
+      <AccessPoint name="AccPoint">
+         <Server>
+            <Authentication/>
+            <LDevice inst="LD0">
+               <LN0 lnClass="LLN0" lnType="LLN0" inst="">
+                  <DOI name="NamPlt" desc="">
+                     <DAI name="vendor" valKind="Set">
+                        <Val>Energocomplekt</Val>
+                     </DAI>
+                     <DAI name="swRev" valKind="Set">
+                        <Val>1.0.0</Val>
+                     </DAI>
+                     <DAI name="d" valKind="Set">
+                        <Val>STS-2P IEC61850 Server</Val>
+                     </DAI>
+                     <DAI name="ldNs">
+                        <Val>IEC61850-7-410</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="Mod" desc="">
+                     <DAI name="stVal" valKind="Set">
+                        <Val>1</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="Health" desc="">
+                     <DAI name="stVal">
+                        <Val>1</Val>
+                     </DAI>
+                  </DOI>
+               </LN0>
+               <LN lnClass="LPHD" lnType="tLPHD" inst="1">
+                  <DOI name="PhyNam" desc="">
+                     <DAI name="vendor" valKind="Set">
+                        <Val>Energocomplekt</Val>
+                     </DAI>
+                     <DAI name="serNum">
+                        <Val>1103</Val>
+                     </DAI>
+                     <DAI name="model">
+                        <Val>STS-2P-150-450</Val>
+                     </DAI>
+                     <DAI name="location">
+                        <Val>Chirkeyskaya GES</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="PhyHealth" desc="">
+                     <DAI name="stVal">
+                        <Val>Ok</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="Proxy" desc="">
+                     <DAI name="stVal">
+                        <Val>0</Val>
+                     </DAI>
+                  </DOI>
+               </LN>
+               <LN lnClass="CALH" lnType="tCALH" inst="1">
+                  <DOI name="Mod" desc="">
+                     <DAI name="ctlModel">
+                        <Val>status-only</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="GrAlm" desc="">
+                     <DAI name="dU">
+                        <Val>Аварийная сигнализация</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="GrWrn" desc="">
+                     <DAI name="dU">
+                        <Val>Предупредит. сигнализация</Val>
+                     </DAI>
+                  </DOI>
+               </LN>
+               <LN lnClass="DEXC" lnType="tDEXC" inst="1"/>
+               <LN lnClass="GGIO" lnType="tGGIO_4Alm" inst="1" prefix="4Alm_"/>
+               <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="1" prefix="4AnIn_"/>
+               <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="2" prefix="4AnIn_"/>
+               <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_"/>
+               <LN lnClass="GGIO" lnType="tGGIO_4IntIn" inst="1" prefix="4II_"/>
+               <LN lnClass="GGIO" lnType="tGGIO_8SPCO" inst="1" prefix="8DO_">
+                  <DOI name="SPCSO1" desc="">
+                     <DAI name="ctlModel" valKind="Set">
+                        <Val>direct-with-normal-security</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="SPCSO2" desc="">
+                     <DAI name="ctlModel" valKind="Set">
+                        <Val>direct-with-normal-security</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="SPCSO3" desc="">
+                     <DAI name="ctlModel" valKind="Set">
+                        <Val>direct-with-normal-security</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="SPCSO4" desc="">
+                     <DAI name="ctlModel" valKind="Set">
+                        <Val>direct-with-normal-security</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="SPCSO5" desc="">
+                     <DAI name="ctlModel" valKind="Set">
+                        <Val>direct-with-normal-security</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="SPCSO6" desc="">
+                     <DAI name="ctlModel" valKind="Set">
+                        <Val>direct-with-normal-security</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="SPCSO7" desc="">
+                     <DAI name="ctlModel" valKind="Set">
+                        <Val>direct-with-normal-security</Val>
+                     </DAI>
+                  </DOI>
+                  <DOI name="SPCSO8" desc="">
+                     <DAI name="ctlModel" valKind="Set">
+                        <Val>direct-with-normal-security</Val>
+                     </DAI>
+                  </DOI>
+               </LN>
+               <LN lnClass="MMXU" lnType="tMMXU" inst="1"/>
+            </LDevice>
+        </Server>
+      </AccessPoint>
+   </IED>
+   <DataTypeTemplates>
+      <LNodeType id="LLN0" lnClass="LLN0" desc="61850-7-4: 5.3.4 LN: Logical node zero Name: LLN0">
+         <DO name="Mod" type="INC" desc="Controllable enumerated status"/>
+         <DO name="Beh" type="INS" desc="Enumerated status"/>
+         <DO name="Health" type="INS" desc="Enumerated status"/>
+         <DO name="NamPlt" type="LPL" desc="Logical Node name plate"/>
+      </LNodeType>
+      <LNodeType id="tLPHD" lnClass="LPHD" desc="61850-7-4: 5.3.2 LN: Physical device Name: LPHD">
+         <DO name="PhyNam" type="DPL" desc="Device name plate"/>
+         <DO name="PhyHealth" type="INS" desc="Enumerated status"/>
+         <DO name="Proxy" type="SPS" desc="Single Point Status"/>
+      </LNodeType>
+      <LNodeType id="tCALH" lnClass="CALH" desc="5.6.2 LN: Alarm handling Name: CALH">
+         <DO name="Mod" type="INC"/>
+         <DO name="Beh" type="INS"/>
+         <DO name="Health" type="INS"/>
+         <DO name="NamPlt" type="LPL"/>
+         <DO name="GrAlm" type="SPS"/>
+         <DO name="GrWrn" type="SPS"/>
+      </LNodeType>
+      <LNodeType id="tGGIO_4IntIn" lnClass="GGIO" desc="61850-7-4: 5.7.2 LN: Generic process I/O: GGIO">
+         <DO name="Mod" type="INC"/>
+         <DO name="Beh" type="INS"/>
+         <DO name="Health" type="INS"/>
+         <DO name="NamPlt" type="LPL"/>
+         <DO name="IntIn1" type="INS"/>
+         <DO name="IntIn2" type="INS"/>
+         <DO name="IntIn3" type="INS"/>
+         <DO name="IntIn4" type="INS"/>
+      </LNodeType>
+      <LNodeType id="tGGIO_4Ind" lnClass="GGIO" desc="61850-7-4: 5.7.2 LN: Generic process I/O: GGIO">
+         <DO name="Mod" type="INC"/>
+         <DO name="Beh" type="INS"/>
+         <DO name="Health" type="INS"/>
+         <DO name="NamPlt" type="LPL"/>
+         <DO name="Ind1" type="SPS"/>
+         <DO name="Ind2" type="SPS"/>
+         <DO name="Ind3" type="SPS"/>
+         <DO name="Ind4" type="SPS"/>
+      </LNodeType>
+      <LNodeType id="tGGIO_4Alm" lnClass="GGIO" desc="61850-7-4: 5.7.2 LN: Generic process I/O: GGIO">
+         <DO name="Mod" type="INC"/>
+         <DO name="Beh" type="INS"/>
+         <DO name="Health" type="INS"/>
+         <DO name="NamPlt" type="LPL"/>
+         <DO name="Alm1" type="SPS"/>
+         <DO name="Alm2" type="SPS"/>
+         <DO name="Alm3" type="SPS"/>
+         <DO name="Alm4" type="SPS"/>
+      </LNodeType>
+      <LNodeType id="tGGIO_4AnIn" lnClass="GGIO" desc="61850-7-4: 5.7.2 LN: Generic process I/O: GGIO">
+         <DO name="Mod" type="INC"/>
+         <DO name="Beh" type="INS"/>
+         <DO name="Health" type="INS"/>
+         <DO name="NamPlt" type="LPL"/>
+         <DO name="AnIn1" type="MV"/>
+         <DO name="AnIn2" type="MV"/>
+         <DO name="AnIn3" type="MV"/>
+         <DO name="AnIn4" type="MV"/>
+      </LNodeType>
+      <LNodeType id="tGGIO_8SPCO" lnClass="GGIO" desc="Single point controllable status output 1-8">
+         <DO name="Mod" type="INC"/>
+         <DO name="Beh" type="INS"/>
+         <DO name="Health" type="INS"/>
+         <DO name="NamPlt" type="LPL"/>
+         <DO name="SPCSO1" type="SPC"/>
+         <DO name="SPCSO2" type="SPC"/>
+         <DO name="SPCSO3" type="SPC"/>
+         <DO name="SPCSO4" type="SPC"/>
+         <DO name="SPCSO5" type="SPC"/>
+         <DO name="SPCSO6" type="SPC"/>
+         <DO name="SPCSO7" type="SPC"/>
+         <DO name="SPCSO8" type="SPC"/>
+      </LNodeType>
+      <LNodeType id="tMMXU" lnClass="MMXU" desc="61850-7-4: 5.10.7 LN: Measurement Name: MMXU">
+         <DO name="Mod" type="INC"/>
+         <DO name="Beh" type="INS"/>
+         <DO name="Health" type="INS"/>
+         <DO name="NamPlt" type="LPL"/>
+         <DO name="TotW" type="MV"/>
+         <DO name="TotVAr" type="MV"/>
+      </LNodeType>
+      <LNodeType id="tDEXC" lnClass="DEXC" desc="61850-7-420: 6.2.3 LN: Excitation Name: DEXC">
+         <DO name="Mod" type="INC" desc="Controllable enumerated status"/>
+         <DO name="Beh" type="INS" desc="Enumerated status"/>
+         <DO name="GenExcit" type="SPS" desc="Excitation state"/>
+         <DO name="FlshAlm" type="SPS" desc="Field flashing failure"/>
+         <DO name="PwrSupAlm" type="SPS" desc="Power system failure"/>
+         <DO name="DCAlm" type="SPS" desc="DC system failure"/>
+         <DO name="ACAlm" type="SPS" desc="AC system failure"/>
+         <DO name="UPSAlm" type="SPS" desc="UPS failure"/>
+         <DO name="BlkA" type="SPS" desc="Operation blocked due to current "/>
+         <DO name="BlkV" type="SPS" desc="Operation blocked due to voltage"/>
+         <DO name="MaxHiVLim" type="SPS" desc="Maximum allowed voltage set-point reached"/>
+         <DO name="MaxLoVLim" type="SPS" desc="Minimum allowed voltage set-point reached"/>
+         <DO name="DroopV" type="SPS" desc="Voltage droop status"/>
+         <DO name="PowStab" type="SPS" desc="Power system stabilizer present"/>
+      </LNodeType>
+      <DOType id="DPC" cdc="DPC" desc="Double Point Controllable">
+         <DA name="stVal" bType="Dbpos" fc="ST" dchg="true" desc="intermediate-state | off | on | bad-state"/>
+         <DA name="ctlModel" type="CtlModels" bType="Enum" fc="CF"/>
+         <DA name="q" bType="Quality" fc="ST" qchg="true"/>
+         <DA name="t" bType="Timestamp" fc="ST"/>
+      </DOType>
+      <DOType id="DPL" cdc="DPL" desc="Device name Plate">
+         <DA name="vendor" bType="VisString255" fc="DC"/>
+         <DA name="serNum" bType="VisString255" fc="DC"/>
+         <DA name="model" bType="VisString255" fc="DC"/>
+         <DA name="location" bType="VisString255" fc="DC"/>
+      </DOType>
+      <DOType id="INC" cdc="INC" desc="Integer status Controllable">
+         <DA name="stVal" bType="INT32" fc="ST" dchg="true"/>
+         <DA name="q" bType="Quality" fc="ST" qchg="true"/>
+         <DA name="t" bType="Timestamp" fc="ST"/>
+         <DA name="ctlModel" type="CtlModels" bType="Enum" fc="CF"/>
+      </DOType>
+      <DOType id="INS" cdc="INS" desc="Integer status">
+         <DA name="stVal" bType="INT32" fc="ST" dchg="true"/>
+         <DA name="q" bType="Quality" fc="ST" qchg="true"/>
+         <DA name="t" bType="Timestamp" fc="ST"/>
+      </DOType>
+      <DOType id="LPL" cdc="LPL" desc="Logical node name Plate">
+         <DA name="vendor" bType="VisString255" fc="DC"/>
+         <DA name="swRev" bType="VisString255" fc="DC"/>
+         <DA name="d" bType="VisString255" fc="DC"/>
+         <DA name="ldNs" bType="VisString255" fc="EX"/>
+      </DOType>
+      <DOType id="MV" cdc="MV" desc="Measured Value">
+         <DA name="mag" type="AnalogueValue" bType="Struct" fc="MX" dchg="true"/>
+         <DA name="instMag" type="AnalogueValue" bType="Struct" fc="MX" dchg="true"/>
+         <DA name="units" type="Unit" bType="Struct" fc="CF"/>
+         <DA name="sVC" type="MagSVC" bType="Struct" fc="CF"/>
+         <DA name="rangeC" type="RangeConfig" bType="Struct" fc="CF"/>
+         <DA name="q" bType="Quality" fc="MX" qchg="true"/>
+         <DA name="t" bType="Timestamp" fc="MX"/>
+         <DA name="d" bType="VisString255" fc="DC"/>
+      </DOType>
+      <DOType id="SPC" cdc="SPC" desc="Single Point Controllable">
+         <DA name="stVal" bType="BOOLEAN" fc="ST" dchg="true" desc="FALSE | TRUE"/>
+         <DA name="ctlModel" type="CtlModels" bType="Enum" fc="CF"/>
+         <DA name="Oper" type="SPCOperate_0" bType="Struct" fc="CO"/>
+         <DA name="q" bType="Quality" fc="ST" qchg="true"/>
+         <DA name="t" bType="Timestamp" fc="ST"/>
+         <DA name="d" bType="VisString255" fc="DC"/>
+      </DOType>
+      <DOType id="SPS" cdc="SPS" desc="Single Point Status">
+         <DA name="stVal" bType="BOOLEAN" fc="ST" dchg="true" desc="TRUE | FALSE"/>
+         <DA name="q" bType="Quality" fc="ST" qchg="true"/>
+         <DA name="t" bType="Timestamp" fc="ST"/>
+         <DA name="dU" bType="Unicode255" fc="DC"/>
+      </DOType>
+      <DAType id="AnalogueValue">
+         <BDA name="f" bType="FLOAT32" desc="The value of f shall be the FLOAT representation of the measured value. f shall represent the technological value in SI units."/>
+      </DAType>
+      <DAType id="IntegerValue">
+         <BDA name="i" bType="INT32" desc="The value of i shall be an integer representation of the measured value."/>
+      </DAType>
+      <DAType id="MagSVC">
+         <BDA name="scaleFactor" bType="FLOAT32"/>
+         <BDA name="offset" bType="FLOAT32"/>
+      </DAType>
+      <DAType id="Originator_0">
+         <BDA name="orCat" type="OrCat" bType="Enum"/>
+         <BDA name="orIdent" bType="Octet64"/>
+      </DAType>
+      <DAType id="RangeConfig">
+         <BDA name="hhLim" type="AnalogueValue" bType="Struct"/>
+         <BDA name="hLim" type="AnalogueValue" bType="Struct"/>
+         <BDA name="lLim" type="AnalogueValue" bType="Struct"/>
+         <BDA name="llLim" type="AnalogueValue" bType="Struct"/>
+         <BDA name="min" type="AnalogueValue" bType="Struct"/>
+         <BDA name="max" type="AnalogueValue" bType="Struct"/>
+      </DAType>
+      <DAType id="SPCOperate_0">
+         <BDA name="ctlVal" bType="BOOLEAN"/>
+         <BDA name="origin" type="Originator_0" bType="Struct"/>
+         <BDA name="ctlNum" bType="INT8U"/>
+         <BDA name="T" bType="Timestamp"/>
+         <BDA name="Test" bType="BOOLEAN"/>
+         <BDA name="Check" bType="Check"/>
+      </DAType>
+      <DAType id="Unit">
+         <BDA name="SIUnit" type="SIUnit" bType="Enum"/>
+         <BDA name="multiplier" type="multiplier" bType="Enum"/>
+      </DAType>
+      <EnumType id="Mod">
+         <EnumVal ord="1">on</EnumVal>
+         <EnumVal ord="2">blocked</EnumVal>
+         <EnumVal ord="3">test</EnumVal>
+         <EnumVal ord="4">test/blocked</EnumVal>
+         <EnumVal ord="5">off</EnumVal>
+      </EnumType>
+      <EnumType id="Beh">
+         <EnumVal ord="1">on</EnumVal>
+         <EnumVal ord="2">blocked</EnumVal>
+         <EnumVal ord="3">test</EnumVal>
+         <EnumVal ord="4">test/blocked</EnumVal>
+         <EnumVal ord="5">off</EnumVal>
+      </EnumType>
+      <EnumType id="Health">
+         <EnumVal ord="1">Ok</EnumVal>
+         <EnumVal ord="2">Warning</EnumVal>
+         <EnumVal ord="3">Alarm</EnumVal>
+      </EnumType>
+      <EnumType id="CtlModels">
+         <EnumVal ord="0">status-only</EnumVal>
+         <EnumVal ord="1">direct-with-normal-security</EnumVal>
+         <EnumVal ord="2">sbo-with-normal-security</EnumVal>
+         <EnumVal ord="3">direct-with-enhanced-security</EnumVal>
+         <EnumVal ord="4">sbo-with-enhanced-security</EnumVal>
+      </EnumType>
+      <EnumType id="Dbpos">
+         <EnumVal ord="0">intermediate</EnumVal>
+         <EnumVal ord="1">off</EnumVal>
+         <EnumVal ord="2">on</EnumVal>
+         <EnumVal ord="3">bad</EnumVal>
+      </EnumType>
+      <EnumType id="multiplier">
+         <EnumVal ord="-24">y</EnumVal>
+         <EnumVal ord="-21">z</EnumVal>
+         <EnumVal ord="-18">a</EnumVal>
+         <EnumVal ord="-15">f</EnumVal>
+         <EnumVal ord="-12">p</EnumVal>
+         <EnumVal ord="-9">n</EnumVal>
+         <EnumVal ord="-6">µ</EnumVal>
+         <EnumVal ord="-3">m</EnumVal>
+         <EnumVal ord="-2">c</EnumVal>
+         <EnumVal ord="-1">d</EnumVal>
+         <EnumVal ord="0"/>
+         <EnumVal ord="1">da</EnumVal>
+         <EnumVal ord="2">h</EnumVal>
+         <EnumVal ord="3">k</EnumVal>
+         <EnumVal ord="6">M</EnumVal>
+         <EnumVal ord="9">G</EnumVal>
+         <EnumVal ord="12">T</EnumVal>
+         <EnumVal ord="15">P</EnumVal>
+         <EnumVal ord="18">E</EnumVal>
+         <EnumVal ord="21">Z</EnumVal>
+         <EnumVal ord="24">Y</EnumVal>
+      </EnumType>
+      <EnumType id="SIUnit">
+         <EnumVal ord="1"/>
+         <EnumVal ord="2">m</EnumVal>
+         <EnumVal ord="3">kg</EnumVal>
+         <EnumVal ord="4">s</EnumVal>
+         <EnumVal ord="5">A</EnumVal>
+         <EnumVal ord="6">K</EnumVal>
+         <EnumVal ord="7">mol</EnumVal>
+         <EnumVal ord="8">cd</EnumVal>
+         <EnumVal ord="9">deg</EnumVal>
+         <EnumVal ord="10">rad</EnumVal>
+         <EnumVal ord="11">sr</EnumVal>
+         <EnumVal ord="21">Gy</EnumVal>
+         <EnumVal ord="22">q</EnumVal>
+         <EnumVal ord="23">C</EnumVal>
+         <EnumVal ord="24">Sv</EnumVal>
+         <EnumVal ord="25">F</EnumVal>
+         <EnumVal ord="26">C</EnumVal>
+         <EnumVal ord="27">S</EnumVal>
+         <EnumVal ord="28">H</EnumVal>
+         <EnumVal ord="29">V</EnumVal>
+         <EnumVal ord="30">ohm</EnumVal>
+         <EnumVal ord="31">J</EnumVal>
+         <EnumVal ord="32">N</EnumVal>
+         <EnumVal ord="33">Hz</EnumVal>
+         <EnumVal ord="34">lx</EnumVal>
+         <EnumVal ord="35">Lm</EnumVal>
+         <EnumVal ord="36">Wb</EnumVal>
+         <EnumVal ord="37">T</EnumVal>
+         <EnumVal ord="38">W</EnumVal>
+         <EnumVal ord="39">Pa</EnumVal>
+         <EnumVal ord="41">m2</EnumVal>
+         <EnumVal ord="42">m3</EnumVal>
+         <EnumVal ord="43">m/s</EnumVal>
+         <EnumVal ord="44">m/s2</EnumVal>
+         <EnumVal ord="45">m3/s</EnumVal>
+         <EnumVal ord="46">m/m3</EnumVal>
+         <EnumVal ord="47">M</EnumVal>
+         <EnumVal ord="48">kg/m3</EnumVal>
+         <EnumVal ord="49">m2/s</EnumVal>
+         <EnumVal ord="50">W/m K</EnumVal>
+         <EnumVal ord="51">J/K</EnumVal>
+         <EnumVal ord="52">ppm</EnumVal>
+         <EnumVal ord="53">1/s</EnumVal>
+         <EnumVal ord="54">rad/s</EnumVal>
+         <EnumVal ord="61">VA</EnumVal>
+         <EnumVal ord="62">W</EnumVal>
+         <EnumVal ord="63">VAr</EnumVal>
+         <EnumVal ord="64">theta</EnumVal>
+         <EnumVal ord="65">cos(theta)</EnumVal>
+         <EnumVal ord="66">Vs</EnumVal>
+         <EnumVal ord="67">V2</EnumVal>
+         <EnumVal ord="68">As</EnumVal>
+         <EnumVal ord="69">A2</EnumVal>
+         <EnumVal ord="70">A2t</EnumVal>
+         <EnumVal ord="71">VAh</EnumVal>
+         <EnumVal ord="72">Wh</EnumVal>
+         <EnumVal ord="73">VArh</EnumVal>
+         <EnumVal ord="74">V/Hz</EnumVal>
+      </EnumType>
+      <EnumType id="OrCat">
+         <EnumVal ord="0">not-supported</EnumVal>
+         <EnumVal ord="1">bay-control</EnumVal>
+         <EnumVal ord="2">station-control</EnumVal>
+         <EnumVal ord="3">remote-control</EnumVal>
+         <EnumVal ord="4">automatic-bay</EnumVal>
+         <EnumVal ord="5">automatic-station</EnumVal>
+         <EnumVal ord="6">automatic-remote</EnumVal>
+         <EnumVal ord="7">maintenance</EnumVal>
+         <EnumVal ord="8">process</EnumVal>
+      </EnumType>
+   </DataTypeTemplates>
+</SCL>

@@ -22,20 +22,10 @@ namespace Server
 
                 StopServer();
             };
-            Settings.Settings.InitStartSettings();
+          
+            Settings.Settings.ReadSettings();
 
-            Settings.Settings.ConfigModBus.ShowPortList();
-            Settings.Settings.ConfigModBus.InitPort(115200, "Odd", "One", "COM1");
-
-            Settings.Settings.ConfigModBus.ShowPortSettings();
-
-            Settings.Settings.ConfigServer.ChangePortServer(102);
-
-
-            Settings.Settings.ConfigGlobal.ChangeOscilNominalFrequency("50");
-            Settings.Settings.ConfigGlobal.ChangePathScope(@"vmd-filestore\Scope\");
-            Settings.Settings.ConfigGlobal.ChangeAddrScope(512, 4092);
-            Settings.Settings.ConfigGlobal.ChangeScope(true, "comtrade", "1999");
+            SCLParser.ParseFile();
 
             /*
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
@@ -52,10 +42,7 @@ namespace Server
             Parser.StructDataObj.AddStructDataObj("-", 0x0221, "-");
             Parser.StructDataObj.AddStructDataObj("-", 0x0217, "-");
             */
-
-
-
-
+            
             foreach (var item in StructDataObj.structDataObj)
             {
                 Console.WriteLine($@"{item.addrDataObj}  {item.nameDataObj} {item.formatDataObj}");
@@ -101,6 +88,8 @@ namespace Server
 
         private static void RuningServer()
         {
+            _iedServer.UpdateVisibleStringAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference("LD0/LPHD1.PhyNam.vendor"), @"Energocomplekt");
+            
             while (_running)
             {
                 _iedServer.LockDataModel();

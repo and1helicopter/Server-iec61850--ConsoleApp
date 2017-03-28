@@ -7,6 +7,11 @@ namespace Server.Parser
 {
     public class SCLParser
     {
-     
+        public static void ParseFile()
+        {
+            string filePath = @"Config.icd";
+            //читаем данные из файла
+            XDocument doc = XDocument.Load(filePath);
+        }
     }
 }
