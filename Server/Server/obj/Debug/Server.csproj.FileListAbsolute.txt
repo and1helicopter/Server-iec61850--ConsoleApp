@@ -12,3 +12,6 @@ C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)
 C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\ModBusLibrary.dll
 C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\ADSPLibrary.pdb
 C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\ModBusLibrary.pdb
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\Server.exe.config
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\obj\Debug\Server.exe
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\obj\Debug\Server.pdb
