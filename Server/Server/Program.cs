@@ -25,7 +25,8 @@ namespace Server
           
             Settings.Settings.ReadSettings();
 
-            SCLParser.ParseFile();
+            SCLParser sclParser = new SCLParser();
+            sclParser.ParseFile();
 
             /*
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");

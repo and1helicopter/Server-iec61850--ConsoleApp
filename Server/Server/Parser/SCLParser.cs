@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
-using System.Xml.XPath;
 
 namespace Server.Parser
 {
     public class SCLParser
     {
-        public static void ParseFile()
+        public void ParseFile()
         {
             string filePath = @"Config.icd";
             //читаем данные из файла
@@ -54,62 +51,80 @@ namespace Server.Parser
 
                 ParseEnum(doc);
 
-                JoinToModel();
+                JoinLnToLd();
             }
         }
 
-        private static void JoinToModel()
+        private void JoinLnToLd()
         {
-            JoinLNtoLD();
+            AddDo(StructModelObj.Model);
         }
 
-        private static void JoinLNtoLD()
+        private void AddDo(StructModelObj.NodeModel model)
         {
-            foreach (var LD in StructModelObj.Model.ListLD)
+            foreach (var ld in model.ListLD)
             {
-                AddDO(LD.ListLN);
-            }
-        }
-
-        private static void AddDO(List<StructModelObj.NodeLN> ListLN)
-        {
-            foreach (var LN in ListLN)
-            {
-                foreach (var TempLN in StructModelObj.ListTempLN)
+                foreach (var ln in ld.ListLN)
                 {
-                    if (LN.LnClassLN == TempLN.LnClassLN)
+                    foreach (var tempLn in StructModelObj.ListTempLN)
                     {
-                        foreach (var TempDO in TempLN.ListDO)
+                        if (ln.LnClassLN == tempLn.LnClassLN)
                         {
-                            LN.ListDO.Add(TempDO);
-                            AddDA(LN);
+                            foreach (var tempDo in tempLn.ListDO)
+                            {
+                                StructModelObj.NodeDO DO = new StructModelObj.NodeDO(tempDo.NameDO, tempDo.TypeDO);
+
+                                ln.ListDO.Add(DO);
+                                AddDa(ln.ListDO);
+                            }
+                            break;
                         }
                     }
                 }
             }
         }
 
-        private static void AddDA(StructModelObj.NodeLN LN)
+        private void AddDa(List<StructModelObj.NodeDO> DO)
         {
-            foreach (var tempDO in StructModelObj.ListTempDO)
+            foreach (var tempDo in StructModelObj.ListTempDO)
             {
-                if (LN.ListDO.Last().TypeDO == tempDO.TypeDO)
+                if (DO.Last().TypeDO == tempDo.TypeDO)
                 {
-                    foreach (var TempDA in tempDO.ListDA)
+                    foreach (var tempDa in tempDo.ListDA)
                     {
-                        LN.ListDO.Last().ListDA.Add(TempDA);
-                        /*
-                            AddBDA(LN.ListDO.Last().ListDA);
-                        */
+                        StructModelObj.NodeDA da = new StructModelObj.NodeDA(tempDa.NameDA, tempDa.FCDA, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
+
+                        DO.Last().ListDA.Add(da);
+
+                        if (DO.Last().ListDA.Last().TypeDA != null && DO.Last().ListDA.Last().BTypeDA != "Enum (Integer)")
+                        {
+                            AddBda(DO.Last().ListDA.Last());
+                        }
                     }
+                    break;
                 }
             }
         }
 
-        private static void AddBDA(List<StructModelObj.NodeDA> listDa)
-        {
-            
 
+        private static void AddBda(StructModelObj.NodeDA listDa)
+        {
+            foreach (var listTempDa in StructModelObj.ListTempDA)
+            {
+                if (listDa.TypeDA == listTempDa.NameTypeDA)
+                {
+                    foreach (var tempDa in listTempDa.ListDA)
+                    {
+                        StructModelObj.NodeDA da = new StructModelObj.NodeDA(tempDa.NameDA, tempDa.FCDA, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
+
+                        listDa.ListDA.Add(da);
+                        if (listDa.ListDA.Last().TypeDA != null)
+                        {
+                            AddBda(listDa.ListDA.Last());
+                        }
+                    }
+                }
+            }
         }
 
         private static void ParseLN(XDocument doc)
