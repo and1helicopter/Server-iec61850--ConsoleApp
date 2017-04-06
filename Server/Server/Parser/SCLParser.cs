@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -43,7 +44,7 @@ namespace Server.Parser
                     }
                 }
                 
-                ParseLN(doc);
+                ParseLn(doc);
 
                 ParseDO(doc);
 
@@ -52,6 +53,93 @@ namespace Server.Parser
                 ParseEnum(doc);
 
                 JoinLnToLd();
+
+                SaveFileConfig();
+            }
+        }
+
+        private void SaveFileConfig()
+        {
+            string savePath = "test.cfg";
+            string str;
+            byte[] array;
+            FileStream fs = new FileStream(savePath, FileMode.Create);
+
+            str = $"MODEL({StructModelObj.Model.NameModel}){{\n";
+            array = System.Text.Encoding.Default.GetBytes(str);
+            fs.Write(array, 0, array.Length);
+
+            foreach (var ld in StructModelObj.Model.ListLD)
+            {
+                // Syntax: LD(<logical device name>){…}
+                str = $"LD({ld.NameModel}){{\n";
+                array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+                foreach (var ln in ld.ListLN)
+                {
+                    // Syntax: LN(<logical node name>){…}
+                    str = $"LN({ln.NameLN}){{\n";
+                    array = System.Text.Encoding.Default.GetBytes(str);
+                    fs.Write(array, 0, array.Length);
+                    foreach (var DO in ln.ListDO)
+                    {
+                        // Syntax: DO(<data object name> <nb of array elements>){…}
+                        str = $"DO({DO.NameDO} {0}){{\n";
+                        array = System.Text.Encoding.Default.GetBytes(str);
+                        fs.Write(array, 0, array.Length);
+
+                        SaveDA(fs, DO.ListDA);
+
+                        str = "}\n";
+                        array = System.Text.Encoding.Default.GetBytes(str);
+                        fs.Write(array, 0, array.Length);
+                    }
+
+                    str = "}\n";
+                    array = System.Text.Encoding.Default.GetBytes(str);
+                    fs.Write(array, 0, array.Length);
+                }
+
+                str = "}\n";
+                array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+            }
+
+            str = "}\n";
+            array = System.Text.Encoding.Default.GetBytes(str);
+            fs.Write(array, 0, array.Length);
+
+            fs.Close();
+        }
+
+        private void SaveDA(FileStream fs,List<StructModelObj.NodeDA> listDa)
+        {
+            // DA(<data attribute name> <nb of array elements> <type> <FC> <trigger options> <sAddr>)[=value];
+            // Constructed>
+            // DA(<data attribute name> <nb of array elements> 27 <FC> <trigger options> <sAddr>){…}
+            string str;
+            byte[] array;
+
+            foreach (var da in listDa)
+            {
+                if (da.ListDA.Count == 0)
+                {
+                    str = $"DA({da.NameDA} {0} {0} {0} {0} {0})\n";
+                    array = System.Text.Encoding.Default.GetBytes(str);
+                    fs.Write(array, 0, array.Length);
+                }
+                else
+                {
+                    str = $"DA({da.NameDA} {0} {0} {0} {0} {0}){{\n";
+                    array = System.Text.Encoding.Default.GetBytes(str);
+                    fs.Write(array, 0, array.Length);
+
+                    SaveDA(fs, da.ListDA);
+
+                    str = "}\n";
+                    array = System.Text.Encoding.Default.GetBytes(str);
+                    fs.Write(array, 0, array.Length);
+                }
             }
         }
 
@@ -127,28 +215,33 @@ namespace Server.Parser
             }
         }
 
-        private static void ParseLN(XDocument doc)
+        private static void ParseLn(XDocument doc)
         {
-            IEnumerable<XElement> xLN = (from x in doc.Descendants()
+            IEnumerable<XElement> xLn = (from x in doc.Descendants()
                                          where x.Name.LocalName == "LNodeType"
                                          select x).ToList();
 
-            foreach (var LN in xLN)
+            foreach (var ln in xLn)
             {
-                var xlnClass = LN.Attribute("lnClass");
-                var xid = LN.Attribute("id"); 
+                var xlnClass = ln.Attribute("lnClass");
+                var xid = ln.Attribute("id"); 
                 if (xlnClass != null && xid != null)
                 {
                     StructModelObj.ListTempLN.Add(new StructModelObj.NodeLN(xlnClass.Value, xid.Value));
-                    IEnumerable<XElement> xDOElements = (from x in LN.Descendants()
+                    IEnumerable<XElement> xDoElements = (from x in ln.Descendants()
                                                          where x.Name.LocalName == "DO"
                                                          select x).ToList();
-                    foreach (var DO in xDOElements)
+                    foreach (var DO in xDoElements)
                     {
-                        var nameDO = DO.Attribute("name").Value;
-                        var typeDO = DO.Attribute("type").Value;
+                        var xNameDo = DO.Attribute("name");
+                        var xTypeDo = DO.Attribute("type");
+                        if (xNameDo != null && xTypeDo != null)
+                        {
+                            var nameDo = xNameDo.Value;
+                            var typeDo = xTypeDo.Value;
 
-                        StructModelObj.ListTempLN.Last().AddDOToLN(new StructModelObj.NodeDO(nameDO, typeDO));
+                            StructModelObj.ListTempLN.Last().AddDOToLN(new StructModelObj.NodeDO(nameDo, typeDo));
+                        }
                     }
                 }
             }

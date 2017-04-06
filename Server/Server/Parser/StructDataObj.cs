@@ -121,6 +121,7 @@ namespace Server.Parser
             public string TypeDA { get; private set; }
             public byte TrgOpsDA { get; private set; }
             public string CountDA { get; private set; }
+            public string Value { get; set; }
 
             public List<NodeDA> ListDA = new List<NodeDA>();
 
