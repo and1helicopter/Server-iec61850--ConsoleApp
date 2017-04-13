@@ -25,15 +25,15 @@ namespace Server
           
             Settings.Settings.ReadSettings();
 
-            SCLParser sclParser = new SCLParser();
+            SclParser sclParser = new SclParser();
             sclParser.ParseFile();
 
             /*
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020a, "%");
             */
-            StructDataObj.AddStructDataObj("LD0/MMXU1.TotVAr.mag.f", 0x020b, "float");
-            StructDataObj.AddStructDataObj("LD0/MMXU1.TotW.mag.f", 0x020c, "float");
+            StructDataObj.AddStructDataObj("LD0/MMXU1.TotVAr.mag.f", 0x020b, "A", "NONE", "float");
+            StructDataObj.AddStructDataObj("LD0/MMXU1.TotW.mag.f", 0x020c, "A", "NONE", "float");
             /*
             Parser.StructDataObj.AddStructDataObj("%", 0x020d, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020e, "%");
@@ -46,7 +46,7 @@ namespace Server
             
             foreach (var item in StructDataObj.structDataObj)
             {
-                Console.WriteLine($@"{item.addrDataObj}  {item.nameDataObj} {item.formatDataObj}");
+                Console.WriteLine($@"{item.AddrDataObj}  {item.NameDataObj} {item.ConvertDataObj}");
             }
 
             Settings.Settings.SaveSettings();
@@ -72,15 +72,12 @@ namespace Server
 
             ConfigFile();
 
-            ConfigServer("myModel.cfg");
+            ConfigServer("test.cfg");
+            //ConfigServer("myModel.cfg");
 
             StartServer(Settings.Settings.ConfigServer.PortServer);
 
-            Thread myThread = new Thread(RuningServer)
-            {
-                Name = "Thread Server"
-            };
-            myThread.Start();
+
 
            // RuningServer();
 
@@ -122,6 +119,15 @@ namespace Server
             {
                 _iedServer = new IedServer(_iedModel);
                 _iedServer.Start(portNum);
+
+                StaticUpdateData();
+
+                Thread myThread = new Thread(RuningServer)
+                {
+                    Name = "Thread Server"
+                };
+                myThread.Start();
+
                 Console.WriteLine(@"Server started");
             }
             else
@@ -146,6 +152,12 @@ namespace Server
 
             Console.ReadKey();
         }
+
+        private static void StaticUpdateData()
+        {
+            SclParser.UpdateStaticDataObj();
+        }
+
         /*
         private static void ConnectModBus(ushort addr, string port, string speed, byte parity)
         {
@@ -162,8 +174,8 @@ namespace Server
         {
             foreach (var item in StructDataObj.structDataObj)
             {
-                if(item.formatDataObj == "float")
-                _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(item.nameDataObj), Convert.ToSingle(item.valueDataObj));
+                if(item.ConvertDataObj == "float")
+                _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(item.NameDataObj), Convert.ToSingle(item.ValueDataObj));
 
                 _iedServer.UpdateUTCTimeAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference("LD0/MMXU1.TotW.t"), DateTime.Now);
             }

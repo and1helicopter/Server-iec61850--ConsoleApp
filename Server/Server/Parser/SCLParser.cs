@@ -6,7 +6,7 @@ using System.Xml.Linq;
 
 namespace Server.Parser
 {
-    public class SCLParser
+    public class SclParser
     {
         public void ParseFile()
         {
@@ -18,92 +18,71 @@ namespace Server.Parser
             {
                 XNamespace xNamespace = doc.Root.Name.Namespace;
 
-                XElement xIED = doc.Root.Element(xNamespace + "IED");
+                XElement xIed = doc.Root.Element(xNamespace + "IED");
 
-                StructModelObj.Model = new StructModelObj.NodeModel(xIED.Attribute("name").Value);
+                if (xIed != null)
+                {
+                    var xAttribute = xIed.Attribute("name");
+                    if (xAttribute != null)
+                        StructModelObj.Model = new StructModelObj.NodeModel(xAttribute.Value);
+                }
 
-                IEnumerable<XElement> xLD = (from x in doc.Descendants()
+                IEnumerable<XElement> xLd = (from x in doc.Descendants()
                                              where x.Name.LocalName == "LDevice"
                                              select x).ToList();
 
-                foreach (var LD in xLD)
+                foreach (var ld in xLd)
                 {
-                    var xAttribute = LD.Attribute("inst");
+                    var xAttribute = ld.Attribute("inst");
                     if (xAttribute != null)
                     {
                         StructModelObj.Model.AddListLD(new StructModelObj.NodeLD(xAttribute.Value));
 
-                        IEnumerable<XElement> xLN = LD.Elements().ToList();
+                        IEnumerable<XElement> xLn = ld.Elements().ToList();
 
-                        foreach (var LN in xLN)
-                        { 
-                            var nameLN = LN.Attribute("lnClass").Value + LN.Attribute("inst").Value;
-                            var lnClassLN = LN.Attribute("lnType").Value;
-                            StructModelObj.Model.ListLD.Last().ListLN.Add(new StructModelObj.NodeLN(nameLN, lnClassLN));
+                        foreach (var ln in xLn)
+                        {
+                            var xAttributelnClass = ln.Attribute("lnClass");
+                            var xAttributeinst = ln.Attribute("inst");
+                            if (xAttributelnClass != null && xAttributeinst != null)
+                            {
+                                var nameLn = xAttributelnClass.Value + xAttributeinst.Value;
+                                var xAttributelnType = ln.Attribute("lnType");
+                                if (xAttributelnType != null)
+                                {
+                                    var lnClassLn = xAttributelnType.Value;
+                                    StructModelObj.Model.ListLD.Last().ListLN.Add(new StructModelObj.NodeLN(nameLn, lnClassLn));
+                                }
+                            }
                         }
                     }
                 }
                 
                 ParseLn(doc);
-
-                ParseDO(doc);
-
+                ParseDo(doc);
                 ParseDA(doc);
-
                 ParseEnum(doc);
-
+                
                 JoinLnToLd();
 
+                ParseDefultParam(doc);
+                
                 SaveFileConfig();
             }
         }
 
+
+
         private void SaveFileConfig()
         {
             string savePath = "test.cfg";
-            string str;
-            byte[] array;
             FileStream fs = new FileStream(savePath, FileMode.Create);
 
-            str = $"MODEL({StructModelObj.Model.NameModel}){{\n";
-            array = System.Text.Encoding.Default.GetBytes(str);
+            string str = $"MODEL({StructModelObj.Model.NameModel}){{\n";
+            var array = System.Text.Encoding.Default.GetBytes(str);
             fs.Write(array, 0, array.Length);
 
-            foreach (var ld in StructModelObj.Model.ListLD)
-            {
-                // Syntax: LD(<logical device name>){…}
-                str = $"LD({ld.NameModel}){{\n";
-                array = System.Text.Encoding.Default.GetBytes(str);
-                fs.Write(array, 0, array.Length);
-                foreach (var ln in ld.ListLN)
-                {
-                    // Syntax: LN(<logical node name>){…}
-                    str = $"LN({ln.NameLN}){{\n";
-                    array = System.Text.Encoding.Default.GetBytes(str);
-                    fs.Write(array, 0, array.Length);
-                    foreach (var DO in ln.ListDO)
-                    {
-                        // Syntax: DO(<data object name> <nb of array elements>){…}
-                        str = $"DO({DO.NameDO} {0}){{\n";
-                        array = System.Text.Encoding.Default.GetBytes(str);
-                        fs.Write(array, 0, array.Length);
-
-                        SaveDA(fs, DO.ListDA);
-
-                        str = "}\n";
-                        array = System.Text.Encoding.Default.GetBytes(str);
-                        fs.Write(array, 0, array.Length);
-                    }
-
-                    str = "}\n";
-                    array = System.Text.Encoding.Default.GetBytes(str);
-                    fs.Write(array, 0, array.Length);
-                }
-
-                str = "}\n";
-                array = System.Text.Encoding.Default.GetBytes(str);
-                fs.Write(array, 0, array.Length);
-            }
+            SaveLd(fs, StructModelObj.Model.ListLD);
 
             str = "}\n";
             array = System.Text.Encoding.Default.GetBytes(str);
@@ -112,35 +91,292 @@ namespace Server.Parser
             fs.Close();
         }
 
-        private void SaveDA(FileStream fs,List<StructModelObj.NodeDA> listDa)
+        private void SaveLd(FileStream fs, List<StructModelObj.NodeLD> listLd)
+        {
+            foreach (var ld in listLd)
+            {
+                // Syntax: LD(<logical device name>){…}
+                string str = $"LD({ld.NameModel}){{\n";
+                var array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+
+                SaveLn(fs, ld.ListLN);
+
+                str = "}\n";
+                array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+            }
+        }
+
+        private void SaveLn(FileStream fs, List<StructModelObj.NodeLN> listLn)
+        {
+            foreach (var ln in listLn)
+            {
+                // Syntax: LN(<logical node name>){…}
+                string str = $"LN({ln.NameLN}){{\n";
+                var array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+
+                SaveDo(fs, ln.ListDO);
+
+                str = "}\n";
+                array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+            }
+
+        }
+
+        private void SaveDo(FileStream fs, List<StructModelObj.NodeDO> listDo)
+        {
+            foreach (var DO in listDo)
+            {
+                // Syntax: DO(<data object name> <nb of array elements>){…}
+                string str = $"DO({DO.NameDO} {0}){{\n";
+                var array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+
+                SaveDa(fs, DO.ListDA);
+
+                str = "}\n";
+                array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+            }
+        }
+
+        private void SaveDa(FileStream fs,List<StructModelObj.NodeDA> listDa)
         {
             // DA(<data attribute name> <nb of array elements> <type> <FC> <trigger options> <sAddr>)[=value];
             // Constructed>
             // DA(<data attribute name> <nb of array elements> 27 <FC> <trigger options> <sAddr>){…}
-            string str;
-            byte[] array;
-
             foreach (var da in listDa)
             {
+                string str;
+                byte[] array;
                 if (da.ListDA.Count == 0)
                 {
-                    str = $"DA({da.NameDA} {0} {0} {0} {0} {0})\n";
+                    str = $"DA({da.NameDA} {0} {MapLibiecType(da.BTypeDA)} {MapLibiecFc(da.FCDA)} {0} {0})";
+                    if (da.NameDA == "ctlModel")
+                    {
+                        str += " value = 0\n";
+                    }
+                    else
+                    {
+                        str += "\n";
+                    }
                     array = System.Text.Encoding.Default.GetBytes(str);
                     fs.Write(array, 0, array.Length);
                 }
                 else
                 {
-                    str = $"DA({da.NameDA} {0} {0} {0} {0} {0}){{\n";
+                    str = $"DA({da.NameDA} {0} {MapLibiecType(da.BTypeDA)} {MapLibiecFc(da.FCDA)} {0} {0}){{\n";
                     array = System.Text.Encoding.Default.GetBytes(str);
                     fs.Write(array, 0, array.Length);
 
-                    SaveDA(fs, da.ListDA);
+                    SaveDa(fs, da.ListDA);
 
                     str = "}\n";
                     array = System.Text.Encoding.Default.GetBytes(str);
                     fs.Write(array, 0, array.Length);
                 }
             }
+        }
+
+        int MapLibiecType(string dataType)
+        {
+            int type = 0;
+            switch (dataType.ToUpper())
+            {
+                case "BOOLEAN":
+                    type = (int)LibIecDataAttributeType.BOOLEAN;
+                    break;
+                case "INT8":
+                    type = (int)LibIecDataAttributeType.INT8;
+                    break;
+                case "INT16":
+                    type = (int)LibIecDataAttributeType.INT16;
+                    break;
+                case "INT32":
+                    type = (int)LibIecDataAttributeType.INT32;
+                    break;
+                case "ENUM":
+                    type = (int)LibIecDataAttributeType.INT32;
+                    break;
+                case "INT64":
+                    type = (int)LibIecDataAttributeType.INT64;
+                    break;
+                case "INT128":
+                    type = (int)LibIecDataAttributeType.INT128;
+                    break;
+                case "INT8U":
+                    type = (int)LibIecDataAttributeType.INT8U;
+                    break;
+                case "INT16U":
+                    type = (int)LibIecDataAttributeType.INT16U;
+                    break;
+                case "INT24U":
+                    type = (int)LibIecDataAttributeType.INT24U;
+                    break;
+                case "INT32U":
+                    type = (int)LibIecDataAttributeType.INT32U;
+                    break;
+                case "FLOAT32":
+                    type = (int)LibIecDataAttributeType.FLOAT32;
+                    break;
+                case "FLOAT64":
+                    type = (int)LibIecDataAttributeType.FLOAT64;
+                    break;
+                case "ENUMERATED":
+                    type = (int)LibIecDataAttributeType.ENUMERATED;
+                    break;
+                case "OCTET_STRING_64":
+                    type = (int)LibIecDataAttributeType.OCTET_STRING_64;
+                    break;
+                case "OCTET64":
+                    type = (int)LibIecDataAttributeType.OCTET_STRING_64;
+                    break;
+                case "OCTET_STRING_6":
+                    type = (int)LibIecDataAttributeType.OCTET_STRING_6;
+                    break;
+                case "OCTET6":
+                    type = (int)LibIecDataAttributeType.OCTET_STRING_6;
+                    break;
+                case "OCTET_STRING_8":
+                    type = (int)LibIecDataAttributeType.OCTET_STRING_8;
+                    break;
+                case "OCTET8":
+                    type = (int)LibIecDataAttributeType.OCTET_STRING_8;
+                    break;
+                case "VISIBLE_STRING_32":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_32;
+                    break;
+                case "VISSTRING32":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_32;
+                    break;
+                case "VISIBLE_STRING_64":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_64;
+                    break;
+                case "VISSTRING64":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_64;
+                    break;
+                case "VISIBLE_STRING_65":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_65;
+                    break;
+                case "VISSTRING65":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_65;
+                    break;
+                case "VISIBLE_STRING_129":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_129;
+                    break;
+                case "VISSTRING129":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_129;
+                    break;
+                case "VISIBLE_STRING_255":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_255;
+                    break;
+                case "VISSTRING255":
+                    type = (int)LibIecDataAttributeType.VISIBLE_STRING_255;
+                    break;
+                case "UNICODE_STRING_255":
+                    type = (int)LibIecDataAttributeType.UNICODE_STRING_255;
+                    break;
+                case "UNICODE255":
+                    type = (int)LibIecDataAttributeType.UNICODE_STRING_255;
+                    break;
+                case "TIMESTAMP":
+                    type = (int)LibIecDataAttributeType.TIMESTAMP;
+                    break;
+                case "QUALITY":
+                    type = (int)LibIecDataAttributeType.QUALITY;
+                    break;
+                case "CHECK":
+                    type = (int)LibIecDataAttributeType.CHECK;
+                    break;
+                case "CODEDENUM":
+                    type = (int)LibIecDataAttributeType.CODEDENUM;
+                    break;
+                case "GENERIC_BITSTRING":
+                    type = (int)LibIecDataAttributeType.GENERIC_BITSTRING;
+                    break;
+                case "CONSTRUCTED":
+                    type = (int)LibIecDataAttributeType.CONSTRUCTED;
+                    break;
+                case "STRUCT":
+                    type = (int)LibIecDataAttributeType.CONSTRUCTED;
+                    break;
+                case "ENTRY_TIME":
+                    type = (int)LibIecDataAttributeType.ENTRY_TIME;
+                    break;
+                case "PHYCOMADDR":
+                    type = (int)LibIecDataAttributeType.PHYCOMADDR;
+                    break;
+            }
+            return type;
+        }
+
+        int MapLibiecFc(string fc)
+        {
+
+            int fco;
+            if (fc != null)
+            {
+                switch (fc.ToUpper())
+                {
+                    case "ST":
+                        fco = (int) LibIecFunctionalConstraint.FC_ST;
+                        break;
+                    case "MX":
+                        fco = (int) LibIecFunctionalConstraint.FC_MX;
+                        break;
+                    case "SP":
+                        fco = (int) LibIecFunctionalConstraint.FC_SP;
+                        break;
+                    case "SV":
+                        fco = (int) LibIecFunctionalConstraint.FC_SV;
+                        break;
+                    case "CF":
+                        fco = (int) LibIecFunctionalConstraint.FC_CF;
+                        break;
+                    case "DC":
+                        fco = (int) LibIecFunctionalConstraint.FC_DC;
+                        break;
+                    case "SG":
+                        fco = (int) LibIecFunctionalConstraint.FC_SG;
+                        break;
+                    case "SE":
+                        fco = (int) LibIecFunctionalConstraint.FC_SE;
+                        break;
+                    case "SR":
+                        fco = (int) LibIecFunctionalConstraint.FC_SR;
+                        break;
+                    case "OR":
+                        fco = (int) LibIecFunctionalConstraint.FC_OR;
+                        break;
+                    case "BL":
+                        fco = (int) LibIecFunctionalConstraint.FC_BL;
+                        break;
+                    case "EX":
+                        fco = (int) LibIecFunctionalConstraint.FC_EX;
+                        break;
+                    case "CO":
+                        fco = (int) LibIecFunctionalConstraint.FC_CO;
+                        break;
+                    case "ALL":
+                        fco = (int) LibIecFunctionalConstraint.FC_ALL;
+                        break;
+                    case "NONE":
+                        fco = (int) LibIecFunctionalConstraint.FC_NONE;
+                        break;
+                    default:
+                        fco = -1;
+                        break;
+                }
+            }
+            else
+            {
+                fco = -1;
+            }
+
+            return fco;
         }
 
         private void JoinLnToLd()
@@ -184,9 +420,9 @@ namespace Server.Parser
 
                         DO.Last().ListDA.Add(da);
 
-                        if (DO.Last().ListDA.Last().TypeDA != null && DO.Last().ListDA.Last().BTypeDA != "Enum (Integer)")
+                        if (DO.Last().ListDA.Last().TypeDA != null && DO.Last().ListDA.Last().BTypeDA != "Enum")
                         {
-                            AddBda(DO.Last().ListDA.Last());
+                            AddBda(DO.Last().ListDA.Last(), da.FCDA);
                         }
                     }
                     break;
@@ -195,7 +431,7 @@ namespace Server.Parser
         }
 
 
-        private static void AddBda(StructModelObj.NodeDA listDa)
+        private static void AddBda(StructModelObj.NodeDA listDa, string fcDa)
         {
             foreach (var listTempDa in StructModelObj.ListTempDA)
             {
@@ -203,12 +439,12 @@ namespace Server.Parser
                 {
                     foreach (var tempDa in listTempDa.ListDA)
                     {
-                        StructModelObj.NodeDA da = new StructModelObj.NodeDA(tempDa.NameDA, tempDa.FCDA, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
+                        StructModelObj.NodeDA da = new StructModelObj.NodeDA(tempDa.NameDA, tempDa.FCDA ?? fcDa, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
 
                         listDa.ListDA.Add(da);
                         if (listDa.ListDA.Last().TypeDA != null)
                         {
-                            AddBda(listDa.ListDA.Last());
+                            AddBda(listDa.ListDA.Last(), da.FCDA);
                         }
                     }
                 }
@@ -247,13 +483,13 @@ namespace Server.Parser
             }
         }
 
-        private static void ParseDO(XDocument doc)
+        private static void ParseDo(XDocument doc)
         {
-            IEnumerable<XElement> xDO = (from x in doc.Descendants()
+            IEnumerable<XElement> xDo = (from x in doc.Descendants()
                                          where x.Name.LocalName == "DOType"
                                          select x).ToList();
 
-            foreach (var DO in xDO)
+            foreach (var DO in xDo)
             {
                 var nameDO = DO.Attribute("id").Value;
                 var typeDO = DO.Attribute("cdc").Value;
@@ -277,10 +513,10 @@ namespace Server.Parser
                     var trgOpsDA = TriggerOptions.NONE;
                     var countDA = DA.Attribute("count") != null ? DA.Attribute("count").Value : "0";
 
-                    if (bTypeDA.Equals("Enum"))
-                    {
-                        bTypeDA = String.Concat(bTypeDA, " (Integer)");
-                    }
+                    //if (bTypeDA.Equals("Enum"))
+                    //{
+                    //    bTypeDA = String.Concat(bTypeDA, " (Integer)");
+                    //}
 
                     var dchgDA = DA.Attribute("dchg");
                     if ((dchgDA != null ? dchgDA.Value : "false").ToLower() == "true")
@@ -325,10 +561,10 @@ namespace Server.Parser
                     var trgOpsBDA = TriggerOptions.NONE;
                     var countBDA = BDA.Attribute("count") != null ? BDA.Attribute("count").Value : "0";
 
-                    if (bTypeBDA.Equals("Enum"))
-                    {
-                        bTypeBDA = String.Concat(bTypeBDA, " (Integer)");
-                    }
+                    //if (bTypeBDA.Equals("Enum"))
+                    //{
+                    //    bTypeBDA = String.Concat(bTypeBDA, " (Integer)");
+                    //}
 
                     var dchgBDA = BDA.Attribute("dchg");
                     if ((dchgBDA != null ? dchgBDA.Value : "false").ToLower() == "true")
@@ -372,9 +608,78 @@ namespace Server.Parser
                 }
             }
         }
+
+        private void ParseDefultParam(XDocument doc)
+        {
+            IEnumerable<XElement> xLd = (from x in doc.Descendants()
+                where x.Name.LocalName == "LDevice"
+                select x).ToList();
+
+            foreach (var lditem in xLd)
+            {
+                var xAttributeinst = lditem.Attribute("inst");
+                if (xAttributeinst != null)
+                {
+                    var ld = xAttributeinst.Value;
+
+                    IEnumerable<XElement> xLn = lditem.Elements().ToList();
+
+                    foreach (var lnitem in xLn)
+                    {
+                        var xAttributelnClass = lnitem.Attribute("lnClass");
+                        var xAttributeinbbst = lnitem.Attribute("inst");
+                       
+                        
+                        if (xAttributelnClass != null && xAttributeinbbst != null)
+                        { 
+                            var ln = xAttributelnClass.Value + xAttributeinbbst.Value;
+
+                            IEnumerable<XElement> xDoi = lnitem.Elements().ToList();
+
+                            foreach (var doiitem in xDoi)
+                            {
+                                var xAttributeDoi = doiitem.Attribute("name");
+                                if (xAttributeDoi != null)
+                                {
+                                    var doi = xAttributeDoi.Value;
+
+                                    IEnumerable<XElement> xDai = doiitem.Elements().ToList();
+
+                                    foreach (var daiitem in xDai)
+                                    {
+                                        var xAttributeDai = daiitem.Attribute("name");
+                                        if (xAttributeDai != null)
+                                        {
+                                            var dai = xAttributeDai.Value;
+                                            var value = daiitem.Value;
+                                            StructDefultDataObj.AddStructDefultDataObj(ld, ln, doi, dai, value);
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void UpdateStaticDataObj()
+        {
+            foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
+            {
+                foreach (var itemDo in StructModelObj.ListTempDO)
+                {
+
+                }
+            }
+        }
+
     }
+
+
     
-    public enum TriggerOptions
+    enum TriggerOptions
     {
         NONE = 0,
         DATA_CHANGED = 1,
@@ -382,5 +687,71 @@ namespace Server.Parser
         DATA_UPDATE = 4,
         INTEGRITY = 8,
         GI = 16
+    }
+
+    enum LibIecDataAttributeType
+    {
+        BOOLEAN = 0,/* int */
+        INT8 = 1,   /* int8_t */
+        INT16 = 2,  /* int16_t */
+        INT32 = 3,  /* int32_t */
+        INT64 = 4,  /* int64_t */
+        INT128 = 5, /* no native mapping! */
+        INT8U = 6,  /* uint8_t */
+        INT16U = 7, /* uint16_t */
+        INT24U = 8, /* uint32_t */
+        INT32U = 9, /* uint32_t */
+        FLOAT32 = 10, /* float */
+        FLOAT64 = 11, /* double */
+        ENUMERATED = 12,
+        OCTET_STRING_64 = 13,
+        OCTET_STRING_6 = 14,
+        OCTET_STRING_8 = 15,
+        VISIBLE_STRING_32 = 16,
+        VISIBLE_STRING_64 = 17,
+        VISIBLE_STRING_65 = 18,
+        VISIBLE_STRING_129 = 19,
+        VISIBLE_STRING_255 = 20,
+        UNICODE_STRING_255 = 21,
+        TIMESTAMP = 22,
+        QUALITY = 23,
+        CHECK = 24,
+        CODEDENUM = 25,
+        GENERIC_BITSTRING = 26,
+        CONSTRUCTED = 27,
+        ENTRY_TIME = 28,
+        PHYCOMADDR = 29
+    }
+
+    enum LibIecFunctionalConstraint
+    {
+        /** Status information */
+        FC_ST = 0,
+        /** Measurands - analog values */
+        FC_MX = 1,
+        /** Setpoint */
+        FC_SP = 2,
+        /** Substitution */
+        FC_SV = 3,
+        /** Configuration */
+        FC_CF = 4,
+        /** Description */
+        FC_DC = 5,
+        /** Setting group */
+        FC_SG = 6,
+        /** Setting group editable */
+        FC_SE = 7,
+        /** Service response / Service tracking */
+        FC_SR = 8,
+        /** Operate received */
+        FC_OR = 9,
+        /** Blocking */
+        FC_BL = 10,
+        /** Extended definition */
+        FC_EX = 11,
+        /** Control */
+        FC_CO = 12,
+        FC_ALL = 99,
+        FC_NONE = -1
     }
 }

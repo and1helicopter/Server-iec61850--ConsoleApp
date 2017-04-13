@@ -107,8 +107,8 @@ namespace Server.ModBus
                 {
                     lock (Locker)
                     {
-                        _serialPort.GetDataRTU(Parser.StructDataObj.structDataObj[_currentIndex].addrDataObj, 1, UpdateData);
-                        Parser.StructDataObj.structDataObj[_currentIndex].SendRequestDataObj = true;
+                        _serialPort.GetDataRTU(Parser.StructDataObj.structDataObj[_currentIndex].AddrDataObj, 1, UpdateData);
+                        Parser.StructDataObj.structDataObj[_currentIndex].SetSendRequestDataObj(true);
                     }
                 }
             }
@@ -118,8 +118,9 @@ namespace Server.ModBus
         {
             if (dataOk)
             {
-                Parser.StructDataObj.structDataObj[_currentIndex].valueDataObj = Convert.ToInt64(paramRtu[0]);
-                Parser.StructDataObj.structDataObj[_currentIndex].SendRequestDataObj = false;
+                Parser.StructDataObj.structDataObj[_currentIndex].SetValueDataObj(Convert.ToInt64(paramRtu[0]));
+                Parser.StructDataObj.structDataObj[_currentIndex].SetSendRequestDataObj(false);
+                Parser.StructDataObj.structDataObj[_currentIndex].SetDateValueUpdateDataObj(DateTime.Now);
                 _currentIndex++;
             }
         }

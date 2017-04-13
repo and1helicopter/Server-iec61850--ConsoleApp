@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Server.Parser
 {
@@ -8,23 +9,43 @@ namespace Server.Parser
 
         public class DataObj
         {
-            public string nameDataObj { get; private set; }
-            public ushort addrDataObj { get; private set; }
-            public string formatDataObj { get; private set; }
-            public long valueDataObj { get; set; }
-            public bool SendRequestDataObj { get; set; }
+            public string NameDataObj { get; private set; }
+            public ushort AddrDataObj { get; private set; }
+            public string TypeDataObj { get; private set; }
+            public string MaskDataObj { get; private set; }
+            public string ConvertDataObj { get; private set; }
+            public long ValueDataObj { get; private set; }
+            public bool SendRequestDataObj { get; private set; }
+            public DateTime DateValueUpdateDataObj { get; private set; }
 
-            public DataObj(string name, ushort addr, string format)
+            public DataObj(string name, ushort addr, string type, string mask,string convert)
             {
-                nameDataObj = name;
-                addrDataObj = addr;
-                formatDataObj = format;
+                NameDataObj = name;
+                AddrDataObj = addr;
+                TypeDataObj = type;
+                MaskDataObj = mask;
+                ConvertDataObj = convert;
+            }
+
+            public void SetValueDataObj(long value)
+            {
+                ValueDataObj = value;
+            }
+
+            public void SetSendRequestDataObj(bool request)
+            {
+                SendRequestDataObj = request;
+            }
+
+            public void SetDateValueUpdateDataObj(DateTime date)
+            {
+                DateValueUpdateDataObj = date;
             }
         }
 
-        public static void AddStructDataObj(string name, ushort addr, string format)
+        public static void AddStructDataObj(string name, ushort addr, string type, string mask, string convert)
         {
-            DataObj dataObj = new DataObj(name, addr, format);
+            DataObj dataObj = new DataObj(name, addr, type, mask, convert);
             structDataObj.Add(dataObj);
         }
 
@@ -40,6 +61,47 @@ namespace Server.Parser
         }
     }
 
+    public class StructDefultDataObj
+    {
+        public static List<DefultDataObj> structDefultDataObj = new List<DefultDataObj>();
+
+        public class DefultDataObj
+        {
+            public string LDevice { get; private set; }
+            public string LN { get; private set; }
+            public string DOI { get; private set; }
+            public string DAI { get; private set; }
+            public string Value { get; private set; }
+
+            public DefultDataObj(string ld, string ln, string doi, string dai, string value)
+            {
+                LDevice = ld;
+                LN = ln;
+                DOI = doi;
+                DAI = dai;
+                Value = value;
+            }
+        }
+
+        public static void AddStructDefultDataObj(string ld, string ln, string doi, string dai, string value)
+        {
+            DefultDataObj dataObj = new DefultDataObj(ld, ln, doi, dai, value);
+            structDefultDataObj.Add(dataObj);
+        }
+
+        public static void RemoveDefultDataObj(int index)
+        {
+            if (index >= structDefultDataObj.Count) { return; }
+            structDefultDataObj.RemoveAt(index);
+        }
+
+        public static void ClearDefultDataObj()
+        {
+            structDefultDataObj.Clear();
+        }
+
+    }
+    
     public static class StructModelObj
     {
         public static NodeModel Model;
@@ -133,6 +195,7 @@ namespace Server.Parser
                 TypeDA = typeDA;
                 TrgOpsDA = trgOpsDA;
                 CountDA = countDA;
+
             }
         }
 
