@@ -10,6 +10,7 @@ namespace Server
     {
         static IedServer _iedServer;
         static IedModel _iedModel;
+        private static SclParser _sclParser = new SclParser();
 
         static bool _running = true;
 
@@ -25,8 +26,7 @@ namespace Server
           
             Settings.Settings.ReadSettings();
 
-            SclParser sclParser = new SclParser();
-            sclParser.ParseFile();
+            _sclParser.ParseFile();
 
             /*
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
@@ -85,9 +85,7 @@ namespace Server
         }
 
         private static void RuningServer()
-        {
-            _iedServer.UpdateVisibleStringAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference("LD0/LPHD1.PhyNam.vendor"), @"Energocomplekt");
-            
+        {         
             while (_running)
             {
                 _iedServer.LockDataModel();
@@ -155,7 +153,105 @@ namespace Server
 
         private static void StaticUpdateData()
         {
-            SclParser.UpdateStaticDataObj();
+
+            string format;
+            string value;
+            string path;
+
+            foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
+            {
+                _sclParser.UpdateStaticDataObj(itemDefultDataObj, out format, out value, out path);
+
+                if (format == "bool")
+                {
+                    //UpdateBool(path, value);
+                    continue;
+                }
+                if (format == "int")
+                {
+                   // UpdateInt(path, value);
+                    continue;
+                }
+                if (format == "float")
+                {
+                    UpdateFloat(path, value);
+                    continue;
+                }
+                if (format == "string")
+                {
+                    UpdateString(path, value);
+                    continue;
+                }
+                if (format == "datetime")
+                {
+                    UpdateDateTime(path, value);
+                    continue;
+                }
+                if (format == "ushort")
+                {
+                    UpdateUshort(path, value);
+                }
+            }
+        }
+        
+        private static void UpdateBool(string path, string value)
+        {
+            _iedServer.LockDataModel();
+            bool str = Convert.ToBoolean(value);
+
+            _iedServer.UpdateBooleanAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
+
+            _iedServer.UnlockDataModel();
+        }
+
+        private static void UpdateInt(string path, string value)
+        {
+            _iedServer.LockDataModel();
+            int str = Convert.ToInt32(value);
+
+            _iedServer.UpdateInt32AttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
+
+            _iedServer.UnlockDataModel();
+        }
+
+        private static void UpdateFloat(string path, string value)
+        {
+            _iedServer.LockDataModel();
+            float str = Convert.ToSingle(value);
+
+            _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
+
+            _iedServer.UnlockDataModel();
+        }
+
+        private static void UpdateString(string path, string value)
+        {
+            _iedServer.LockDataModel();
+            string str = Convert.ToString(value);
+
+            _iedServer.UpdateVisibleStringAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
+
+            _iedServer.UnlockDataModel();
+        }
+
+        private static void UpdateDateTime(string path, string value)
+        {
+            _iedServer.LockDataModel();
+            DateTime str = Convert.ToDateTime(value);
+
+            _iedServer.UpdateUTCTimeAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
+
+            _iedServer.UnlockDataModel();
+        }
+
+        private static void UpdateUshort(string path, string value)
+        {
+            _iedServer.LockDataModel();
+            ushort str = Convert.ToUInt16(value);
+
+            _iedServer.UpdateQuality((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
+
+            _iedServer.UnlockDataModel();
         }
 
         /*

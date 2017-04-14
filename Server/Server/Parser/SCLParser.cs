@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -46,7 +47,16 @@ namespace Server.Parser
                             var xAttributeinst = ln.Attribute("inst");
                             if (xAttributelnClass != null && xAttributeinst != null)
                             {
-                                var nameLn = xAttributelnClass.Value + xAttributeinst.Value;
+                                var xAttributeprefix = ln.Attribute("prefix");
+                                string nameLn;
+                                if (xAttributeprefix != null)
+                                {
+                                    nameLn = xAttributeprefix.Value + xAttributelnClass.Value + xAttributeinst.Value;
+                                }
+                                else
+                                {
+                                    nameLn = xAttributelnClass.Value + xAttributeinst.Value;
+                                }
                                 var xAttributelnType = ln.Attribute("lnType");
                                 if (xAttributelnType != null)
                                 {
@@ -611,6 +621,10 @@ namespace Server.Parser
 
         private void ParseDefultParam(XDocument doc)
         {
+            var ied = (from x in doc.Descendants()
+                where x.Name.LocalName == "IED"
+                select x).Attributes("name").ToList().Last().Value;
+
             IEnumerable<XElement> xLd = (from x in doc.Descendants()
                 where x.Name.LocalName == "LDevice"
                 select x).ToList();
@@ -628,11 +642,20 @@ namespace Server.Parser
                     {
                         var xAttributelnClass = lnitem.Attribute("lnClass");
                         var xAttributeinbbst = lnitem.Attribute("inst");
-                       
+
+                        var xAttributeprefix = lnitem.Attribute("prefix");
                         
                         if (xAttributelnClass != null && xAttributeinbbst != null)
-                        { 
-                            var ln = xAttributelnClass.Value + xAttributeinbbst.Value;
+                        {
+                            string ln;
+                            if (xAttributeprefix != null)
+                            {
+                                ln = xAttributeprefix.Value + xAttributelnClass.Value + xAttributeinbbst.Value;
+                            }
+                            else
+                            {
+                                ln = xAttributelnClass.Value + xAttributeinbbst.Value;
+                            }
 
                             IEnumerable<XElement> xDoi = lnitem.Elements().ToList();
 
@@ -652,7 +675,7 @@ namespace Server.Parser
                                         {
                                             var dai = xAttributeDai.Value;
                                             var value = daiitem.Value;
-                                            StructDefultDataObj.AddStructDefultDataObj(ld, ln, doi, dai, value);
+                                            StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
                                         }
                                     }
                                 }
@@ -664,21 +687,72 @@ namespace Server.Parser
             }
         }
 
-        public static void UpdateStaticDataObj()
+        public void UpdateStaticDataObj(StructDefultDataObj.DefultDataObj itemDefultDataObj, out string format, out string value, out string path)
         {
-            foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
-            {
-                foreach (var itemDo in StructModelObj.ListTempDO)
-                {
+            var oo = (from x in StructModelObj.Model.ListLD
+                where x.NameModel == itemDefultDataObj.LDevice
+                select x).ToList();
 
-                }
-            }
+
+            var oo1 = (from x in oo[0].ListLN
+                where x.NameLN == itemDefultDataObj.LN
+                select x).ToList();
+
+            var oo2 = (from x in oo1[0].ListDO
+                where x.NameDO == itemDefultDataObj.DOI
+                select x).ToList();
+
+            var oo3 = (from x in oo2[0].ListDA
+                where x.NameDA == itemDefultDataObj.DAI
+                select x).ToList();
+
+
+            LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
         }
 
+        private void LoopUpdateStaticDataObj(List<StructModelObj.NodeDA> oo3, StructDefultDataObj.DefultDataObj itemDefultDataObj,  out string format, out string value, out string path)
+        {
+            oo3[0].Value = itemDefultDataObj.Value;
+            var oo4 = MapLibiecType(oo3[0].BTypeDA);
+            CoonvertStaticDataObj(oo4, out format);
+
+            value = itemDefultDataObj.Value;
+            path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
+        }
+
+        private void CoonvertStaticDataObj(int formatConvert, out string format)
+        {
+            format = "";
+
+            if (formatConvert == 0)
+            {
+                format = "bool";
+            }
+            else if (formatConvert == 3)
+            {
+                format = "int";
+            }
+            else if (formatConvert == 10)
+            {
+                format = "float";
+            }
+            else if (formatConvert >= 13 && formatConvert <= 21)
+            {
+                format = "string";
+            }
+            else if (formatConvert == 22)
+            {
+                format = "datetime";
+            }
+            else if (formatConvert == 23)
+            {
+                format = "ushort";
+            }
+        }
     }
-
-
     
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     enum TriggerOptions
     {
         NONE = 0,
@@ -689,6 +763,7 @@ namespace Server.Parser
         GI = 16
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     enum LibIecDataAttributeType
     {
         BOOLEAN = 0,/* int */
@@ -723,6 +798,7 @@ namespace Server.Parser
         PHYCOMADDR = 29
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     enum LibIecFunctionalConstraint
     {
         /** Status information */
