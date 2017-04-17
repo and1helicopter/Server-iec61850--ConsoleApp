@@ -11,7 +11,7 @@ namespace Server.Parser
     {
         public void ParseFile()
         {
-            string filePath = @"Config.icd";
+            string filePath = @"test.icd";
             //читаем данные из файла
             XDocument doc = XDocument.Load(filePath);
             
@@ -76,13 +76,13 @@ namespace Server.Parser
                 JoinLnToLd();
 
                 ParseDefultParam(doc);
+
+                ParseUpdateParem(doc);
                 
                 SaveFileConfig();
             }
         }
-
-
-
+        
         private void SaveFileConfig()
         {
             string savePath = "test.cfg";
@@ -422,7 +422,7 @@ namespace Server.Parser
         {
             foreach (var tempDo in StructModelObj.ListTempDO)
             {
-                if (DO.Last().TypeDO == tempDo.TypeDO)
+                if (DO.Last().TypeDO == tempDo.NameDO)
                 {
                     foreach (var tempDa in tempDo.ListDA)
                     {
@@ -680,11 +680,15 @@ namespace Server.Parser
                                     }
                                 }
                             }
-
                         }
                     }
                 }
             }
+        }
+
+        private void ParseUpdateParem(XDocument doc)
+        {
+
         }
 
         public void UpdateStaticDataObj(StructDefultDataObj.DefultDataObj itemDefultDataObj, out string format, out string value, out string path)
@@ -706,7 +710,6 @@ namespace Server.Parser
                 where x.NameDA == itemDefultDataObj.DAI
                 select x).ToList();
 
-
             LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
         }
 
@@ -718,6 +721,26 @@ namespace Server.Parser
 
             value = itemDefultDataObj.Value;
             path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
+
+            //if (oo3[0].BTypeDA == "Enum")
+            //{
+            //    foreach (var itemEnumType in StructModelObj.ListEnumType)
+            //    {
+            //        if (oo3[0].TypeDA == itemEnumType.NameEnumType)
+            //        {
+            //            foreach (var itemEnumVal in itemEnumType.ListEnumVal)
+            //            {
+            //                if (itemEnumVal.ValEnumVal == itemDefultDataObj.Value)
+            //                {
+            //                    value = Convert.ToString(itemEnumVal.OrdEnumVal);
+            //                    path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
+            //                    break;
+            //                }
+            //            }
+            //            break;
+            //        }
+            //    }
+            //}
         }
 
         private void CoonvertStaticDataObj(int formatConvert, out string format)

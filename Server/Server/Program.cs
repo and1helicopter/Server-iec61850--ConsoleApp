@@ -164,12 +164,12 @@ namespace Server
 
                 if (format == "bool")
                 {
-                    //UpdateBool(path, value);
+                    UpdateBool(path, value);
                     continue;
                 }
                 if (format == "int")
                 {
-                   // UpdateInt(path, value);
+                    UpdateInt(path, value);
                     continue;
                 }
                 if (format == "float")
