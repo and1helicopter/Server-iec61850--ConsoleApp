@@ -61,7 +61,8 @@ namespace Server.Parser
                                 if (xAttributelnType != null)
                                 {
                                     var lnClassLn = xAttributelnType.Value;
-                                    StructModelObj.Model.ListLD.Last().ListLN.Add(new StructModelObj.NodeLN(nameLn, lnClassLn));
+                                    string xdescStr = "";
+                                    StructModelObj.Model.ListLD.Last().ListLN.Add(new StructModelObj.NodeLN(nameLn, lnClassLn, xdescStr));
                                 }
                             }
                         }
@@ -106,7 +107,7 @@ namespace Server.Parser
             foreach (var ld in listLd)
             {
                 // Syntax: LD(<logical device name>){…}
-                string str = $"LD({ld.NameModel}){{\n";
+                string str = $"LD({ld.NameLD}){{\n";
                 var array = System.Text.Encoding.Default.GetBytes(str);
                 fs.Write(array, 0, array.Length);
 
@@ -133,7 +134,6 @@ namespace Server.Parser
                 array = System.Text.Encoding.Default.GetBytes(str);
                 fs.Write(array, 0, array.Length);
             }
-
         }
 
         private void SaveDo(FileStream fs, List<StructModelObj.NodeDO> listDo)
@@ -191,7 +191,7 @@ namespace Server.Parser
             }
         }
 
-        int MapLibiecType(string dataType)
+        public int MapLibiecType(string dataType)
         {
             int type = 0;
             switch (dataType.ToUpper())
@@ -404,9 +404,12 @@ namespace Server.Parser
                     {
                         if (ln.LnClassLN == tempLn.LnClassLN)
                         {
+                            string desc = tempLn.DescLN;
+                            ln.DescLN = desc;
                             foreach (var tempDo in tempLn.ListDO)
                             {
-                                StructModelObj.NodeDO DO = new StructModelObj.NodeDO(tempDo.NameDO, tempDo.TypeDO);
+                                desc = tempDo.DescDO;
+                                StructModelObj.NodeDO DO = new StructModelObj.NodeDO(tempDo.NameDO, tempDo.TypeDO, desc);
 
                                 ln.ListDO.Add(DO);
                                 AddDa(ln.ListDO);
@@ -422,11 +425,12 @@ namespace Server.Parser
         {
             foreach (var tempDo in StructModelObj.ListTempDO)
             {
-                if (DO.Last().TypeDO == tempDo.NameDO)
+                if (DO.Last().TypeDO == tempDo.TypeDO)
                 {
                     foreach (var tempDa in tempDo.ListDA)
                     {
                         StructModelObj.NodeDA da = new StructModelObj.NodeDA(tempDa.NameDA, tempDa.FCDA, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
+                        da.Value = tempDa.Value;
 
                         DO.Last().ListDA.Add(da);
 
@@ -473,7 +477,12 @@ namespace Server.Parser
                 var xid = ln.Attribute("id"); 
                 if (xlnClass != null && xid != null)
                 {
-                    StructModelObj.ListTempLN.Add(new StructModelObj.NodeLN(xlnClass.Value, xid.Value));
+                    string xdescStr = "";
+                    if (ln.Attribute("desc") != null)
+                    {
+                        xdescStr = ln.Attribute("desc").Value;
+                    }
+                    StructModelObj.ListTempLN.Add(new StructModelObj.NodeLN(xlnClass.Value, xid.Value, xdescStr));
                     IEnumerable<XElement> xDoElements = (from x in ln.Descendants()
                                                          where x.Name.LocalName == "DO"
                                                          select x).ToList();
@@ -485,8 +494,13 @@ namespace Server.Parser
                         {
                             var nameDo = xNameDo.Value;
                             var typeDo = xTypeDo.Value;
+                            xdescStr = "";
+                            if (DO.Attribute("desc") != null)
+                            {
+                                xdescStr = DO.Attribute("desc").Value;
+                            }
 
-                            StructModelObj.ListTempLN.Last().AddDOToLN(new StructModelObj.NodeDO(nameDo, typeDo));
+                            StructModelObj.ListTempLN.Last().AddDOToLN(new StructModelObj.NodeDO(nameDo, typeDo, xdescStr));
                         }
                     }
                 }
@@ -503,12 +517,17 @@ namespace Server.Parser
             {
                 var nameDO = DO.Attribute("id").Value;
                 var typeDO = DO.Attribute("cdc").Value;
+                string xdescStr = "";
+                if (DO.Attribute("desc") != null)
+                {
+                    xdescStr = DO.Attribute("desc").Value;
+                }
 
-                StructModelObj.ListTempDO.Add(new StructModelObj.NodeDO(nameDO, typeDO));
+                StructModelObj.ListTempDO.Add(new StructModelObj.NodeDO(nameDO, typeDO, xdescStr));
 
                 IEnumerable<XElement> xDAElements = (from x in DO.Descendants()
-                                                     where x.Name.LocalName == "DA"
-                                                     select x).ToList();
+                    where x.Name.LocalName == "DA"
+                    select x).ToList();
 
                 foreach (var DA in xDAElements)
                 {
@@ -519,7 +538,9 @@ namespace Server.Parser
                     var bTypeDA = DA.Attribute("bType").Value;
                     var typeDA = DA.Attribute("type") != null
                         ? DA.Attribute("type").Value
-                        : DA.Parent.Attribute("type") != null ? DA.Parent.Attribute("type").Value : null;
+                        : DA.Parent.Attribute("type") != null
+                            ? DA.Parent.Attribute("type").Value
+                            : null;
                     var trgOpsDA = TriggerOptions.NONE;
                     var countDA = DA.Attribute("count") != null ? DA.Attribute("count").Value : "0";
 
@@ -541,7 +562,12 @@ namespace Server.Parser
                         trgOpsDA |= TriggerOptions.DATA_UPDATE;
 
                     StructModelObj.ListTempDO.Last()
-                        .AddDAToDA(new StructModelObj.NodeDA(nameDA, fcDA, bTypeDA, typeDA, (byte)trgOpsDA, countDA));
+                        .AddDAToDA(new StructModelObj.NodeDA(nameDA, fcDA, bTypeDA, typeDA, (byte) trgOpsDA, countDA));
+
+                    if (DA.Value != "")
+                    {
+                        StructModelObj.ListTempDO.Last().ListDA.Last().Value = DA.Value;
+                    }
                 }
             }
         }
@@ -589,6 +615,11 @@ namespace Server.Parser
                         trgOpsBDA |= TriggerOptions.DATA_UPDATE;
 
                     StructModelObj.ListTempDA.Last().ListDA.Add(new StructModelObj.NodeDA(nameBDA, fcBDA, bTypeBDA, typeBDA, (byte)trgOpsBDA, countBDA));
+
+                    if (BDA.Value != "")
+                    {
+                        StructModelObj.ListTempDO.Last().ListDA.Last().Value = BDA.Value;
+                    }
                 }
             }
         }
@@ -694,7 +725,7 @@ namespace Server.Parser
         public void UpdateStaticDataObj(StructDefultDataObj.DefultDataObj itemDefultDataObj, out string format, out string value, out string path)
         {
             var oo = (from x in StructModelObj.Model.ListLD
-                where x.NameModel == itemDefultDataObj.LDevice
+                where x.NameLD == itemDefultDataObj.LDevice
                 select x).ToList();
 
 
@@ -743,7 +774,7 @@ namespace Server.Parser
             //}
         }
 
-        private void CoonvertStaticDataObj(int formatConvert, out string format)
+        public void CoonvertStaticDataObj(int formatConvert, out string format)
         {
             format = "";
 

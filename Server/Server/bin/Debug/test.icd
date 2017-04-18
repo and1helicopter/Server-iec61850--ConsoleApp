@@ -41,20 +41,6 @@
             <Authentication/>
             <LDevice inst="LD0">
                <LN0 lnClass="LLN0" lnType="LLN0" inst="">
-                  <DOI name="NamPlt" desc="">
-                     <DAI name="vendor" valKind="Set">
-                        <Val>Energocomplekt</Val>
-                     </DAI>
-                     <DAI name="swRev" valKind="Set">
-                        <Val>1.0.0</Val>
-                     </DAI>
-                     <DAI name="d" valKind="Set">
-                        <Val>STS-2P IEC61850 Server</Val>
-                     </DAI>
-                     <DAI name="ldNs">
-                        <Val>IEC61850-7-410</Val>
-                     </DAI>
-                  </DOI>
                   <DOI name="Mod" desc="">
                      <DAI name="stVal" valKind="Set">
                         <Val>1</Val>
@@ -67,20 +53,6 @@
                   </DOI>
                </LN0>
                <LN lnClass="LPHD" lnType="tLPHD" inst="1">
-                  <DOI name="PhyNam" desc="">
-                     <DAI name="vendor" valKind="Set">
-                        <Val>Energocomplekt</Val>
-                     </DAI>
-                     <DAI name="serNum">
-                        <Val>1103</Val>
-                     </DAI>
-                     <DAI name="model">
-                        <Val>STS-2P-150-450</Val>
-                     </DAI>
-                     <DAI name="location">
-                        <Val>Chirkeyskaya GES</Val>
-                     </DAI>
-                  </DOI>
                   <DOI name="PhyHealth" desc="">
                      <DAI name="stVal">
                         <Val>1</Val>
@@ -110,9 +82,63 @@
                   </DOI>
                </LN>
                <LN lnClass="DEXC" lnType="tDEXC" inst="1"/>
-               <LN lnClass="GGIO" lnType="tGGIO_4Alm" inst="1" prefix="4Alm_"/>
-               <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="1" prefix="4AnIn_"/>
-               <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="2" prefix="4AnIn_"/>
+               <LN lnClass="GGIO" lnType="tGGIO_4Alm" inst="1" prefix="4Alm_"/> 
+					<DOI name="AnIn1" desc="">
+								<DAI name="mag" valKind="Set">
+									<DAI name="f" valKind="Set">
+										<private type="EnergocomplektType" addr="521" format="A" mask="NONE" convert="float" class="MV"/>	
+									</DAI>
+								</DAI>
+								<DAI name="units" valKind="Set">
+									<DAI name="SIUnit" valKind="Set">
+										<Val>29</Val>
+									</DAI>
+									<DAI name="multiplier" valKind="Set">
+										<Val>0</Val>
+									</DAI>
+								</DAI>
+								<DAI name="MagSVC" valKind="Set">
+									<DAI name="scaleFactor" valKind="Set">
+										<Val>1</Val>
+									</DAI>
+									<DAI name="offset" valKind="Set">
+										<Val>1</Val>
+									</DAI>
+								</DAI>
+								<DAI name="rangeC" valKind="Set">
+									<DAI name="hhLim" valKind="Set">
+										<DAI name="f" valKind="Set">
+											<Val>1</Val>
+										</DAI>
+									</DAI>
+									<DAI name="hLim" valKind="Set">
+										<DAI name="f" valKind="Set">
+											<Val>1</Val>
+										</DAI>
+									</DAI>
+									<DAI name="lLim" valKind="Set">
+										<DAI name="f" valKind="Set">
+											<Val>1</Val>
+										</DAI>
+									</DAI>
+									<DAI name="llLim" valKind="Set">
+										<DAI name="f" valKind="Set">
+											<Val>1</Val>
+										</DAI>
+									</DAI>
+									<DAI name="min" valKind="Set">
+										<DAI name="f" valKind="Set">
+											<Val>1</Val>
+										</DAI>
+									</DAI>
+									<DAI name="max" valKind="Set">
+										<DAI name="f" valKind="Set">
+											<Val>1</Val>
+										</DAI>
+									</DAI>
+								</DAI>			
+							</DOI>			   
+			   <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="2" prefix="4AnIn_"/>
                <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_"/>
                <LN lnClass="GGIO" lnType="tGGIO_4IntIn" inst="1" prefix="4II_"/>
                <LN lnClass="GGIO" lnType="tGGIO_8SPCO" inst="1" prefix="8DO_">
@@ -166,18 +192,18 @@
       <LNodeType id="LLN0" lnClass="LLN0" desc="61850-7-4: 5.3.4 LN: Logical node zero Name: LLN0">
          <DO name="Mod" type="INC" desc="Controllable enumerated status"/>
          <DO name="Beh" type="INS" desc="Enumerated status"/>
-		 <DO name="Health" type="Health" desc="Enumerated status"/>
+		 <DO name="Health" type="INS" desc="Enumerated status"/>
          <DO name="NamPlt" type="LPL" desc="Logical Node name plate"/>
       </LNodeType>
       <LNodeType id="tLPHD" lnClass="LPHD" desc="61850-7-4: 5.3.2 LN: Physical device Name: LPHD">
          <DO name="PhyNam" type="DPL" desc="Device name plate"/>
-		 <DO name="PhyHealth" type="Health" desc="Enumerated status"/>
+		 <DO name="PhyHealth" type="INS" desc="Enumerated status"/>
          <DO name="Proxy" type="SPS" desc="Single Point Status"/>
       </LNodeType>
       <LNodeType id="tCALH" lnClass="CALH" desc="5.6.2 LN: Alarm handling Name: CALH">
          <DO name="Mod" type="INC"/>
          <DO name="Beh" type="INS"/>
-		 <DO name="Health" type="Health"/>
+		 <DO name="Health" type="INS"/>
          <DO name="NamPlt" type="LPL"/>
          <DO name="GrAlm" type="SPS"/>
          <DO name="GrWrn" type="SPS"/>
@@ -185,7 +211,7 @@
       <LNodeType id="tGGIO_4IntIn" lnClass="GGIO" desc="61850-7-4: 5.7.2 LN: Generic process I/O: GGIO">
          <DO name="Mod" type="INC"/>
          <DO name="Beh" type="INS"/>
-		 <DO name="Health" type="Health"/>
+		 <DO name="Health" type="INS"/>
          <DO name="NamPlt" type="LPL"/>
          <DO name="IntIn1" type="INS"/>
          <DO name="IntIn2" type="INS"/>
@@ -195,7 +221,7 @@
       <LNodeType id="tGGIO_4Ind" lnClass="GGIO" desc="61850-7-4: 5.7.2 LN: Generic process I/O: GGIO">
          <DO name="Mod" type="INC"/>
          <DO name="Beh" type="INS"/>
-		 <DO name="Health" type="Health"/>
+		 <DO name="Health" type="INS"/>
          <DO name="NamPlt" type="LPL"/>
          <DO name="Ind1" type="SPS"/>
          <DO name="Ind2" type="SPS"/>
@@ -205,7 +231,7 @@
       <LNodeType id="tGGIO_4Alm" lnClass="GGIO" desc="61850-7-4: 5.7.2 LN: Generic process I/O: GGIO">
          <DO name="Mod" type="INC"/>
          <DO name="Beh" type="INS"/>
-		 <DO name="Health" type="Health"/>
+		 <DO name="Health" type="INS"/>
          <DO name="NamPlt" type="LPL"/>
          <DO name="Alm1" type="SPS"/>
          <DO name="Alm2" type="SPS"/>
@@ -215,7 +241,7 @@
       <LNodeType id="tGGIO_4AnIn" lnClass="GGIO" desc="61850-7-4: 5.7.2 LN: Generic process I/O: GGIO">
          <DO name="Mod" type="INC"/>
          <DO name="Beh" type="INS"/>
-		 <DO name="Health" type="Health"/>
+		 <DO name="Health" type="INS"/>
          <DO name="NamPlt" type="LPL"/>
          <DO name="AnIn1" type="MV"/>
          <DO name="AnIn2" type="MV"/>
@@ -225,7 +251,7 @@
       <LNodeType id="tGGIO_8SPCO" lnClass="GGIO" desc="Single point controllable status output 1-8">
          <DO name="Mod" type="INC"/>
          <DO name="Beh" type="INS"/>
-		 <DO name="Health" type="Health"/>
+		 <DO name="Health" type="INS"/>
          <DO name="NamPlt" type="LPL"/>
          <DO name="SPCSO1" type="SPC"/>
          <DO name="SPCSO2" type="SPC"/>
@@ -239,7 +265,7 @@
       <LNodeType id="tMMXU" lnClass="MMXU" desc="61850-7-4: 5.10.7 LN: Measurement Name: MMXU">
          <DO name="Mod" type="INC"/>
          <DO name="Beh" type="INS"/>
-		 <DO name="Health" type="Health"/>
+		 <DO name="Health" type="INS"/>
          <DO name="NamPlt" type="LPL"/>
          <DO name="TotW" type="MV"/>
          <DO name="TotVAr" type="MV"/>
@@ -260,11 +286,6 @@
          <DO name="DroopV" type="SPS" desc="Voltage droop status"/>
          <DO name="PowStab" type="SPS" desc="Power system stabilizer present"/>
       </LNodeType>
-	  <DOType id="Health" cdc="INS" desc="Health status">
-		  <DA name="stVal" bType="Enum" type="Health" fc="ST" dchg="true"/>
-		  <DA name="q" bType="Quality" fc="ST" qchg="true"/>
-		  <DA name="t" bType="Timestamp" fc="ST"/>
-	  </DOType> 
       <DOType id="DPC" cdc="DPC" desc="Double Point Controllable">
          <DA name="stVal" bType="Dbpos" fc="ST" dchg="true" desc="intermediate-state | off | on | bad-state"/>
          <DA name="ctlModel" type="CtlModels" bType="Enum" fc="CF"/>
@@ -272,10 +293,18 @@
          <DA name="t" bType="Timestamp" fc="ST"/>
       </DOType>
       <DOType id="DPL" cdc="DPL" desc="Device name Plate">
-         <DA name="vendor" bType="VisString255" fc="DC"/>
-         <DA name="serNum" bType="VisString255" fc="DC"/>
-         <DA name="model" bType="VisString255" fc="DC"/>
-         <DA name="location" bType="VisString255" fc="DC"/>
+         <DA name="vendor" bType="VisString255" fc="DC">
+			<Val>Energocomplekt</Val>
+		 </DA>
+         <DA name="serNum" bType="VisString255" fc="DC">
+			<Val>1103</Val>
+		 </DA>
+         <DA name="model" bType="VisString255" fc="DC">
+			<Val>STS-2P-150-450</Val>
+		 </DA>
+         <DA name="location" bType="VisString255" fc="DC">
+			<Val>hirkeyskaya GES</Val>
+		 </DA>
       </DOType>
       <DOType id="INC" cdc="INC" desc="Integer status Controllable">
          <DA name="stVal" bType="INT32" fc="ST" dchg="true"/>
@@ -289,10 +318,18 @@
          <DA name="t" bType="Timestamp" fc="ST"/>
       </DOType>
       <DOType id="LPL" cdc="LPL" desc="Logical node name Plate">
-         <DA name="vendor" bType="VisString255" fc="DC"/>
-         <DA name="swRev" bType="VisString255" fc="DC"/>
-         <DA name="d" bType="VisString255" fc="DC"/>
-         <DA name="ldNs" bType="VisString255" fc="EX"/>
+         <DA name="vendor" bType="VisString255" fc="DC">
+		    <Val>Energocomplekt</Val>
+         </DA>		 
+         <DA name="swRev" bType="VisString255" fc="DC">
+			<Val>1.0.0</Val>
+         </DA>
+         <DA name="d" bType="VisString255" fc="DC">
+            <Val>STS-2P IEC61850 Server</Val>
+         </DA>
+         <DA name="ldNs" bType="VisString255" fc="EX">
+            <Val>IEC61850-7-410</Val>
+         </DA>
       </DOType>
       <DOType id="MV" cdc="MV" desc="Measured Value">
          <DA name="mag" type="AnalogueValue" bType="Struct" fc="MX" dchg="true"/>

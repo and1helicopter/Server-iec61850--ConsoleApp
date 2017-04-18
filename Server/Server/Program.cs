@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using IEC61850.Server;
 using IEC61850.Common;
 using System.Threading;
@@ -32,8 +33,8 @@ namespace Server
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020a, "%");
             */
-            StructDataObj.AddStructDataObj("LD0/MMXU1.TotVAr.mag.f", 0x020b, "A", "NONE", "float");
-            StructDataObj.AddStructDataObj("LD0/MMXU1.TotW.mag.f", 0x020c, "A", "NONE", "float");
+            StructDataObj.AddStructDataObj("LD0/MMXU1.TotVAr.mag.f", 0x020b, "A", "NONE", "float", "");
+            StructDataObj.AddStructDataObj("LD0/MMXU1.TotW.mag.f", 0x020c, "A", "NONE", "float", "");
             /*
             Parser.StructDataObj.AddStructDataObj("%", 0x020d, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020e, "%");
@@ -153,6 +154,7 @@ namespace Server
 
         private static void StaticUpdateData()
         {
+            InitDefultParam();
 
             string format;
             string value;
@@ -162,38 +164,104 @@ namespace Server
             {
                 _sclParser.UpdateStaticDataObj(itemDefultDataObj, out format, out value, out path);
 
-                if (format == "bool")
+                InitStaticUpdateData(format, value, path);
+            }
+        }
+
+        private static void InitDefultParam()
+        {
+            string format;
+            string value;
+            string path;
+
+            foreach (var itemLd in StructModelObj.Model.ListLD)
+            {
+                foreach (var itemLn in itemLd.ListLN)
                 {
-                    UpdateBool(path, value);
-                    continue;
-                }
-                if (format == "int")
-                {
-                    UpdateInt(path, value);
-                    continue;
-                }
-                if (format == "float")
-                {
-                    UpdateFloat(path, value);
-                    continue;
-                }
-                if (format == "string")
-                {
-                    UpdateString(path, value);
-                    continue;
-                }
-                if (format == "datetime")
-                {
-                    UpdateDateTime(path, value);
-                    continue;
-                }
-                if (format == "ushort")
-                {
-                    UpdateUshort(path, value);
+                    foreach (var itemDo in itemLn.ListDO)
+                    {
+                        foreach (var itemDa in itemDo.ListDA)
+                        {
+                            _sclParser.CoonvertStaticDataObj(_sclParser.MapLibiecType(itemDa.BTypeDA), out format);
+
+                            value = itemDa.Value;
+                            path = itemLd.NameLD + "/" + itemLn.NameLN + "." + itemDo.NameDO + "." + itemDa.NameDA;
+
+
+                            if (itemDa.ListDA.Count == 0)
+                            {
+                                if (value != null)
+                                {
+                                    InitStaticUpdateData(format, value, path);
+                                }
+                            }
+                            else
+                            {
+                                InitDefultParamBda(itemDa.ListDA, format, value, path);
+                            }
+
+                        }
+                    }
                 }
             }
         }
-        
+
+        private static void InitDefultParamBda(List <StructModelObj.NodeDA> Da, string format, string value, string path)
+        {
+            foreach (var itemDa in Da)
+            {
+                _sclParser.CoonvertStaticDataObj(_sclParser.MapLibiecType(itemDa.BTypeDA), out format);
+
+                value = itemDa.Value;
+                path += "." + itemDa;
+
+                if (value != null)
+                {
+                    if (itemDa.ListDA.Count == 0)
+                    {
+                        InitStaticUpdateData(format, value, path);
+                    }
+                    else
+                    {
+                        InitDefultParamBda(itemDa.ListDA, format, value, path);
+                    }
+                }
+            }
+        }
+
+        private static void InitStaticUpdateData(string format, string value, string path)
+        {
+            if (format == "bool")
+            {
+                UpdateBool(path, value);
+                return;
+            }
+            if (format == "int")
+            {
+                UpdateInt(path, value);
+                return;
+            }
+            if (format == "float")
+            {
+                UpdateFloat(path, value);
+                return;
+            }
+            if (format == "string")
+            {
+                UpdateString(path, value);
+                return;
+            }
+            if (format == "datetime")
+            {
+                UpdateDateTime(path, value);
+                return;
+            }
+            if (format == "ushort")
+            {
+                UpdateUshort(path, value);
+            }
+        }
+
         private static void UpdateBool(string path, string value)
         {
             _iedServer.LockDataModel();

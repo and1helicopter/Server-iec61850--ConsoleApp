@@ -14,17 +14,19 @@ namespace Server.Parser
             public string TypeDataObj { get; private set; }
             public string MaskDataObj { get; private set; }
             public string ConvertDataObj { get; private set; }
+            public string ClassDataObj { get; private set; }
             public long ValueDataObj { get; private set; }
             public bool SendRequestDataObj { get; private set; }
             public DateTime DateValueUpdateDataObj { get; private set; }
 
-            public DataObj(string name, ushort addr, string type, string mask,string convert)
+            public DataObj(string name, ushort addr, string type, string mask, string convert, string _class)
             {
                 NameDataObj = name;
                 AddrDataObj = addr;
                 TypeDataObj = type;
                 MaskDataObj = mask;
                 ConvertDataObj = convert;
+                ClassDataObj = _class;
             }
 
             public void SetValueDataObj(long value)
@@ -43,9 +45,9 @@ namespace Server.Parser
             }
         }
 
-        public static void AddStructDataObj(string name, ushort addr, string type, string mask, string convert)
+        public static void AddStructDataObj(string name, ushort addr, string type, string mask, string convert, string _class)
         {
-            DataObj dataObj = new DataObj(name, addr, type, mask, convert);
+            DataObj dataObj = new DataObj(name, addr, type, mask, convert, _class);
             structDataObj.Add(dataObj);
         }
 
@@ -126,12 +128,12 @@ namespace Server.Parser
         
         public class NodeLD
         {
-            public string NameModel { get; private set; }
+            public string NameLD { get; private set; }
             public List<NodeLN> ListLN = new List<NodeLN>();
 
             public NodeLD(string nameModel)
             {
-                NameModel = nameModel;
+                NameLD = nameModel;
             }
         }
 
@@ -141,12 +143,15 @@ namespace Server.Parser
         {
             public string NameLN { get; private set; }
             public string LnClassLN { get; private set; }
+            public string DescLN { get; set; }
+            
             public List<NodeDO> ListDO = new List<NodeDO>();
 
-            public NodeLN(string nameLN, string lnClassLN)
+            public NodeLN(string nameLN, string lnClassLN, string descLN)
             {
                 NameLN = nameLN;
                 LnClassLN = lnClassLN;
+                DescLN = descLN;
             }
 
             public void AddDOToLN(NodeDO DO)
@@ -161,12 +166,15 @@ namespace Server.Parser
         {
             public string NameDO { get; private set; }
             public string TypeDO { get; private set; }
+            public string DescDO { get; set; }
+
             public List<NodeDA> ListDA = new List<NodeDA>();
 
-            public NodeDO(string nameDO , string typeDO)
+            public NodeDO(string nameDO , string typeDO, string descDO)
             {
                 NameDO = nameDO;
                 TypeDO = typeDO;
+                DescDO = descDO;
             }
 
             public void AddDAToDA(NodeDA DA)
@@ -197,8 +205,8 @@ namespace Server.Parser
                 TypeDA = typeDA;
                 TrgOpsDA = trgOpsDA;
                 CountDA = countDA;
-
             }
+
         }
 
         public static List<TypeDA> ListTempDA = new List<TypeDA>();
