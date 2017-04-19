@@ -1,0 +1,25 @@
+﻿v0a015
++Парсим вложеные элементы 
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	new file:   .gitignore
+#	modified:   ADSPLibrary/ADSPLibrary.csproj
+#	new file:   ADSPLibrary/packages.config
+#	new file:   Server/Server/AsynchSerialPort.dll
+#	new file:   Server/Server/ModBusLibrary.dll
+#	new file:   Server/Server/ModbusLibraryNew.dll
+#	modified:   Server/Server/Parser/SCLParser.cs
+#	modified:   Server/Server/Program.cs
+#	modified:   Server/Server/bin/Debug/lol
+#	modified:   Server/Server/bin/Debug/test.cfg
+#	modified:   Server/Server/bin/Debug/test.icd
+#	new file:   Server/Server/iec61850.dll
+#	new file:   Server/Server/iec61850dotnet.dll
+#	modified:   Server/Server/obj/Debug/Server.csproj.FileListAbsolute.txt
+#	modified:   UniSerialPort/obj/Debug/UniSerialPort.csproj.FileListAbsolute.txt
+#
+

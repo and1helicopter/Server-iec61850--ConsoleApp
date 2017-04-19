@@ -15,3 +15,14 @@ C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)
 C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\Server.exe.config
 C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\obj\Debug\Server.exe
 C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\obj\Debug\Server.pdb
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\Server.exe
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\Server.pdb
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\ADSPLibrary.dll
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\AsynchSerialPort.dll
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\iec61850dotnet.dll
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\ModbusLibraryNew.dll
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\ModBusLibrary.dll
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\ADSPLibrary.pdb
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\AsynchSerialPort.pdb
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\bin\Debug\ModBusLibrary.pdb
+C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\Server\Server\obj\Debug\Server.csprojResolveAssemblyReference.cache

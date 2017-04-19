@@ -77,8 +77,6 @@ namespace Server.Parser
                 JoinLnToLd();
 
                 ParseDefultParam(doc);
-
-                ParseUpdateParem(doc);
                 
                 SaveFileConfig();
             }
@@ -701,12 +699,35 @@ namespace Server.Parser
 
                                     foreach (var daiitem in xDai)
                                     {
-                                        var xAttributeDai = daiitem.Attribute("name");
-                                        if (xAttributeDai != null)
+                                        var da = (from x in daiitem.Descendants()
+                                                  where x.Name.LocalName == "private"
+                                                  select x).ToList();
+
+                                        if (da.Count != 0 )
                                         {
-                                            var dai = xAttributeDai.Value;
-                                            var value = daiitem.Value;
-                                            StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
+                                            //Рассматриваю собственный тип
+
+                                            
+                                        }
+                                        else
+                                        {
+                                            //Рассматриваем DA верхнего уровня 
+                                            if (daiitem.Attribute("name") != null)
+                                            {
+                                                if (daiitem.NextNode == null)
+                                                {
+                                                    //Если нет вложений типа DA
+                                                    var dai = daiitem.Attribute("name").Value;
+                                                    var value = daiitem.Value;
+                                                    StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
+                                                }
+                                                else
+                                                {
+                                                    //Если есть вложения типа DA
+                                                    var dai = daiitem.Attribute("name").Value;
+                                                    ParseDefultParamBDA(daiitem, ied, ld, ln, doi, dai);
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -716,6 +737,46 @@ namespace Server.Parser
                 }
             }
         }
+
+        private void ParseDefultParamBDA(XElement bdai, string ied, string ld, string ln, string doi, string dai)
+        {
+            IEnumerable<XElement> xDai = bdai.Elements().ToList();
+
+            foreach (var daiitem in xDai)
+            {
+                var da = (from x in daiitem.Descendants()
+                    where x.Name.LocalName == "private"
+                    select x).ToList();
+
+                if (da.Count != 0)
+                {
+                    //Рассматриваю собственный тип
+
+
+                }
+                else
+                {
+                    //Рассматриваем DA верхнего уровня 
+                    if (daiitem.Attribute("name") != null)
+                    {
+                        if (daiitem.NextNode == null)
+                        {
+                            //Если нет вложений типа DA
+                            dai += "." + daiitem.Attribute("name").Value;
+                            var value = daiitem.Value;
+                            StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
+                        }
+                        else
+                        {
+                            //Если есть вложения типа DA
+                            dai += "." + daiitem.Attribute("name").Value;
+                            ParseDefultParamBDA(daiitem, ied, ld, ln, doi, dai);
+                        }
+                    }
+                }
+            }
+        }
+
 
         private void ParseUpdateParem(XDocument doc)
         {
@@ -728,7 +789,6 @@ namespace Server.Parser
                 where x.NameLD == itemDefultDataObj.LDevice
                 select x).ToList();
 
-
             var oo1 = (from x in oo[0].ListLN
                 where x.NameLN == itemDefultDataObj.LN
                 select x).ToList();
@@ -737,6 +797,9 @@ namespace Server.Parser
                 where x.NameDO == itemDefultDataObj.DOI
                 select x).ToList();
 
+            //Если DA вложеные 
+
+            //Если DA не вложеные
             var oo3 = (from x in oo2[0].ListDA
                 where x.NameDA == itemDefultDataObj.DAI
                 select x).ToList();

@@ -206,9 +206,9 @@ namespace Server
             }
         }
 
-        private static void InitDefultParamBda(List <StructModelObj.NodeDA> Da, string format, string value, string path)
+        private static void InitDefultParamBda(List <StructModelObj.NodeDA> da, string format, string value, string path)
         {
-            foreach (var itemDa in Da)
+            foreach (var itemDa in da)
             {
                 _sclParser.CoonvertStaticDataObj(_sclParser.MapLibiecType(itemDa.BTypeDA), out format);
 

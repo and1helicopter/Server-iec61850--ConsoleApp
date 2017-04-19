@@ -82,63 +82,62 @@
                   </DOI>
                </LN>
                <LN lnClass="DEXC" lnType="tDEXC" inst="1"/>
-               <LN lnClass="GGIO" lnType="tGGIO_4Alm" inst="1" prefix="4Alm_"/> 
+               <LN lnClass="GGIO" lnType="tGGIO_4Alm" inst="1" prefix="4Alm_"/>				
+			   <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="2" prefix="4AnIn_">
 					<DOI name="AnIn1" desc="">
-								<DAI name="mag" valKind="Set">
-									<DAI name="f" valKind="Set">
-										<private type="EnergocomplektType" addr="521" format="A" mask="NONE" convert="float" class="MV"/>	
-									</DAI>
+						<DAI name="mag" valKind="Set">
+							<private type="EnergocomplektType" addr="521" format="A" mask="NONE" convert="float"/>
+						</DAI>
+						<DAI name="units" valKind="Set">
+							<DAI name="SIUnit" valKind="Set">
+								<Val>29</Val>
+							</DAI>
+							<DAI name="multiplier" valKind="Set">
+								<Val>0</Val>
+							</DAI>
+						</DAI>
+						<DAI name="MagSVC" valKind="Set">
+							<DAI name="scaleFactor" valKind="Set">
+								<Val>1</Val>
+							</DAI>
+							<DAI name="offset" valKind="Set">
+								<Val>1</Val>
+							</DAI>
+						</DAI>
+						<DAI name="rangeC" valKind="Set">
+							<DAI name="hhLim" valKind="Set">
+								<DAI name="f" valKind="Set">
+									<Val>1</Val>
 								</DAI>
-								<DAI name="units" valKind="Set">
-									<DAI name="SIUnit" valKind="Set">
-										<Val>29</Val>
-									</DAI>
-									<DAI name="multiplier" valKind="Set">
-										<Val>0</Val>
-									</DAI>
+							</DAI>
+							<DAI name="hLim" valKind="Set">
+								<DAI name="f" valKind="Set">
+									<Val>1</Val>
 								</DAI>
-								<DAI name="MagSVC" valKind="Set">
-									<DAI name="scaleFactor" valKind="Set">
-										<Val>1</Val>
-									</DAI>
-									<DAI name="offset" valKind="Set">
-										<Val>1</Val>
-									</DAI>
+							</DAI>
+							<DAI name="lLim" valKind="Set">
+								<DAI name="f" valKind="Set">
+									<Val>1</Val>
 								</DAI>
-								<DAI name="rangeC" valKind="Set">
-									<DAI name="hhLim" valKind="Set">
-										<DAI name="f" valKind="Set">
-											<Val>1</Val>
-										</DAI>
-									</DAI>
-									<DAI name="hLim" valKind="Set">
-										<DAI name="f" valKind="Set">
-											<Val>1</Val>
-										</DAI>
-									</DAI>
-									<DAI name="lLim" valKind="Set">
-										<DAI name="f" valKind="Set">
-											<Val>1</Val>
-										</DAI>
-									</DAI>
-									<DAI name="llLim" valKind="Set">
-										<DAI name="f" valKind="Set">
-											<Val>1</Val>
-										</DAI>
-									</DAI>
-									<DAI name="min" valKind="Set">
-										<DAI name="f" valKind="Set">
-											<Val>1</Val>
-										</DAI>
-									</DAI>
-									<DAI name="max" valKind="Set">
-										<DAI name="f" valKind="Set">
-											<Val>1</Val>
-										</DAI>
-									</DAI>
-								</DAI>			
-							</DOI>			   
-			   <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="2" prefix="4AnIn_"/>
+							</DAI>
+							<DAI name="llLim" valKind="Set">
+								<DAI name="f" valKind="Set">
+									<Val>1</Val>
+								</DAI>
+							</DAI>
+							<DAI name="min" valKind="Set">
+								<DAI name="f" valKind="Set">
+									<Val>1</Val>
+								</DAI>
+							</DAI>
+							<DAI name="max" valKind="Set">
+								<DAI name="f" valKind="Set">
+									<Val>1</Val>
+								</DAI>
+							</DAI>
+						</DAI>			
+					</DOI>
+				</LN>	
                <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_"/>
                <LN lnClass="GGIO" lnType="tGGIO_4IntIn" inst="1" prefix="4II_"/>
                <LN lnClass="GGIO" lnType="tGGIO_8SPCO" inst="1" prefix="8DO_">
@@ -333,7 +332,6 @@
       </DOType>
       <DOType id="MV" cdc="MV" desc="Measured Value">
          <DA name="mag" type="AnalogueValue" bType="Struct" fc="MX" dchg="true"/>
-         <DA name="instMag" type="AnalogueValue" bType="Struct" fc="MX" dchg="true"/>
          <DA name="units" type="Unit" bType="Struct" fc="CF"/>
          <DA name="sVC" type="MagSVC" bType="Struct" fc="CF"/>
          <DA name="rangeC" type="RangeConfig" bType="Struct" fc="CF"/>
