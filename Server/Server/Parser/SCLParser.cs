@@ -714,7 +714,9 @@ namespace Server.Parser
                                             //Рассматриваем DA верхнего уровня 
                                             if (daiitem.Attribute("name") != null)
                                             {
-                                                if (daiitem.NextNode == null)
+                                                if ((from x in daiitem.Descendants()
+                                                     where x.Name.LocalName == "DAI"
+                                                     select x).ToList().Count == 0)
                                                 {
                                                     //Если нет вложений типа DA
                                                     var dai = daiitem.Attribute("name").Value;
@@ -759,18 +761,20 @@ namespace Server.Parser
                     //Рассматриваем DA верхнего уровня 
                     if (daiitem.Attribute("name") != null)
                     {
-                        if (daiitem.NextNode == null)
+                        if ((from x in daiitem.Descendants()
+                             where x.Name.LocalName == "DAI"
+                             select x).ToList().Count == 0)
                         {
                             //Если нет вложений типа DA
-                            dai += "." + daiitem.Attribute("name").Value;
+                            var daitemp = dai + "." + daiitem.Attribute("name").Value;
                             var value = daiitem.Value;
-                            StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
+                            StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, daitemp, value);
                         }
                         else
                         {
                             //Если есть вложения типа DA
-                            dai += "." + daiitem.Attribute("name").Value;
-                            ParseDefultParamBDA(daiitem, ied, ld, ln, doi, dai);
+                            var daitemp = dai + "." + daiitem.Attribute("name").Value;
+                            ParseDefultParamBDA(daiitem, ied, ld, ln, doi, daitemp);
                         }
                     }
                 }
@@ -797,14 +801,51 @@ namespace Server.Parser
                 where x.NameDO == itemDefultDataObj.DOI
                 select x).ToList();
 
-            //Если DA вложеные 
+            if (itemDefultDataObj.DAI.Contains("."))
+            {
+                //Если DA вложеные 
+                string[] str = itemDefultDataObj.DAI.Split('.');
+                var oo3 = (from x in oo2[0].ListDA
+                           where x.NameDA == str[0]
+                           select x).ToList();
+                var list = new List<string>(str);
+                list.RemoveAt(0);
+                str = list.ToArray();
+                UpdateStaticDataObjBDA(oo3, itemDefultDataObj, str, out format, out value, out path);
+            }
+            else
+            {
+                //Если DA не вложеные
+                var oo3 = (from x in oo2[0].ListDA
+                    where x.NameDA == itemDefultDataObj.DAI
+                    select x).ToList();
 
-            //Если DA не вложеные
-            var oo3 = (from x in oo2[0].ListDA
-                where x.NameDA == itemDefultDataObj.DAI
-                select x).ToList();
+                LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
+            }
+            }
 
-            LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
+        private void UpdateStaticDataObjBDA(List<StructModelObj.NodeDA> da, StructDefultDataObj.DefultDataObj itemDefultDataObj, string[] str, out string format, out string value, out string path)
+        {
+            if (str.Length != 1)
+            {
+                //Если DA вложеные 
+                var oo3 = (from x in da[0].ListDA
+                    where x.NameDA == str[0]
+                    select x).ToList();
+                var list = new List<string>(str);
+                list.RemoveAt(0);
+                str = list.ToArray();
+                UpdateStaticDataObjBDA(oo3, itemDefultDataObj, str, out format, out value, out path);
+            }
+            else
+            {
+                //Если DA не вложеные
+                var oo3 = (from x in da[0].ListDA
+                    where x.NameDA == str[0]
+                    select x).ToList();
+
+                LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
+            }
         }
 
         private void LoopUpdateStaticDataObj(List<StructModelObj.NodeDA> oo3, StructDefultDataObj.DefultDataObj itemDefultDataObj,  out string format, out string value, out string path)

@@ -96,7 +96,7 @@
 								<Val>0</Val>
 							</DAI>
 						</DAI>
-						<DAI name="MagSVC" valKind="Set">
+						<DAI name="sVC" valKind="Set">
 							<DAI name="scaleFactor" valKind="Set">
 								<Val>1</Val>
 							</DAI>
