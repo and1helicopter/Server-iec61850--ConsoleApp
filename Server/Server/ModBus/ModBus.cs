@@ -96,32 +96,32 @@ namespace Server.ModBus
             }
 
             
-            if (Parser.StructDataObj.structDataObj.Count != 0)
-            {
-                if (_currentIndex == Parser.StructDataObj.structDataObj.Count)
-                {
-                    _currentIndex = 0;
-                }
+            //if (Parser.StructDataObj.structDataObj.Count != 0)
+            //{
+            //    if (_currentIndex == Parser.StructDataObj.structDataObj.Count)
+            //    {
+            //        _currentIndex = 0;
+            //    }
 
-                if (!Parser.StructDataObj.structDataObj[_currentIndex].SendRequestDataObj)
-                {
-                    lock (Locker)
-                    {
-                        _serialPort.GetDataRTU(Parser.StructDataObj.structDataObj[_currentIndex].AddrDataObj, 1, UpdateData);
-                        Parser.StructDataObj.structDataObj[_currentIndex].SetSendRequestDataObj(true);
-                    }
-                }
-            }
+            //    if (!Parser.StructDataObj.structDataObj[_currentIndex].SendRequestDataObj)
+            //    {
+            //        lock (Locker)
+            //        {
+            //            _serialPort.GetDataRTU(Parser.StructDataObj.structDataObj[_currentIndex].AddrDataObj, 1, UpdateData);
+            //            Parser.StructDataObj.structDataObj[_currentIndex].SetSendRequestDataObj(true);
+            //        }
+            //    }
+            //}
         }
 
         private static void UpdateData(bool dataOk, ushort[] paramRtu)
         {
             if (dataOk)
             {
-                Parser.StructDataObj.structDataObj[_currentIndex].SetValueDataObj(Convert.ToInt64(paramRtu[0]));
-                Parser.StructDataObj.structDataObj[_currentIndex].SetSendRequestDataObj(false);
-                Parser.StructDataObj.structDataObj[_currentIndex].SetDateValueUpdateDataObj(DateTime.Now);
-                _currentIndex++;
+                //Parser.StructDataObj.structDataObj[_currentIndex].SetValueDataObj(Convert.ToInt64(paramRtu[0]));
+                //Parser.StructDataObj.structDataObj[_currentIndex].SetSendRequestDataObj(false);
+                //Parser.StructDataObj.structDataObj[_currentIndex].SetDateValueUpdateDataObj(DateTime.Now);
+                //_currentIndex++;
             }
         }
         

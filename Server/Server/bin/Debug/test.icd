@@ -85,9 +85,9 @@
                <LN lnClass="GGIO" lnType="tGGIO_4Alm" inst="1" prefix="4Alm_"/>				
 			   <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="2" prefix="4AnIn_">
 					<DOI name="AnIn1" desc="">
-						<DAI name="mag" valKind="Set">
-							<private type="EnergocomplektType" addr="521" format="A" mask="NONE" convert="float"/>
-						</DAI>
+					
+						<private type="EnergocomplektType" addr="521" format="A" mask="NONE" convert="float"/>
+						
 						<DAI name="units" valKind="Set">
 							<DAI name="SIUnit" valKind="Set">
 								<Val>29</Val>
@@ -98,44 +98,12 @@
 						</DAI>
 						<DAI name="sVC" valKind="Set">
 							<DAI name="scaleFactor" valKind="Set">
-								<Val>1</Val>
+								<Val>10</Val>
 							</DAI>
 							<DAI name="offset" valKind="Set">
-								<Val>1</Val>
+								<Val>15</Val>
 							</DAI>
 						</DAI>
-						<DAI name="rangeC" valKind="Set">
-							<DAI name="hhLim" valKind="Set">
-								<DAI name="f" valKind="Set">
-									<Val>1</Val>
-								</DAI>
-							</DAI>
-							<DAI name="hLim" valKind="Set">
-								<DAI name="f" valKind="Set">
-									<Val>1</Val>
-								</DAI>
-							</DAI>
-							<DAI name="lLim" valKind="Set">
-								<DAI name="f" valKind="Set">
-									<Val>1</Val>
-								</DAI>
-							</DAI>
-							<DAI name="llLim" valKind="Set">
-								<DAI name="f" valKind="Set">
-									<Val>1</Val>
-								</DAI>
-							</DAI>
-							<DAI name="min" valKind="Set">
-								<DAI name="f" valKind="Set">
-									<Val>1</Val>
-								</DAI>
-							</DAI>
-							<DAI name="max" valKind="Set">
-								<DAI name="f" valKind="Set">
-									<Val>1</Val>
-								</DAI>
-							</DAI>
-						</DAI>			
 					</DOI>
 				</LN>	
                <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_"/>
@@ -317,24 +285,15 @@
          <DA name="t" bType="Timestamp" fc="ST"/>
       </DOType>
       <DOType id="LPL" cdc="LPL" desc="Logical node name Plate">
-         <DA name="vendor" bType="VisString255" fc="DC">
-		    <Val>Energocomplekt</Val>
-         </DA>		 
-         <DA name="swRev" bType="VisString255" fc="DC">
-			<Val>1.0.0</Val>
-         </DA>
-         <DA name="d" bType="VisString255" fc="DC">
-            <Val>STS-2P IEC61850 Server</Val>
-         </DA>
-         <DA name="ldNs" bType="VisString255" fc="EX">
-            <Val>IEC61850-7-410</Val>
-         </DA>
+         <DA name="vendor" bType="VisString255" fc="DC"/>
+         <DA name="swRev" bType="VisString255" fc="DC"/>
+         <DA name="d" bType="VisString255" fc="DC"/>
+         <DA name="ldNs" bType="VisString255" fc="EX"/>
       </DOType>
       <DOType id="MV" cdc="MV" desc="Measured Value">
          <DA name="mag" type="AnalogueValue" bType="Struct" fc="MX" dchg="true"/>
          <DA name="units" type="Unit" bType="Struct" fc="CF"/>
          <DA name="sVC" type="MagSVC" bType="Struct" fc="CF"/>
-         <DA name="rangeC" type="RangeConfig" bType="Struct" fc="CF"/>
          <DA name="q" bType="Quality" fc="MX" qchg="true"/>
          <DA name="t" bType="Timestamp" fc="MX"/>
          <DA name="d" bType="VisString255" fc="DC"/>
@@ -342,7 +301,7 @@
       <DOType id="SPC" cdc="SPC" desc="Single Point Controllable">
          <DA name="stVal" bType="BOOLEAN" fc="ST" dchg="true" desc="FALSE | TRUE"/>
          <DA name="ctlModel" type="CtlModels" bType="Enum" fc="CF"/>
-         <DA name="Oper" type="SPCOperate_0" bType="Struct" fc="CO"/>
+         <DA name="origin" type="Originator" bType="Struct" fc="ST"/>
          <DA name="q" bType="Quality" fc="ST" qchg="true"/>
          <DA name="t" bType="Timestamp" fc="ST"/>
          <DA name="d" bType="VisString255" fc="DC"/>
@@ -363,7 +322,7 @@
          <BDA name="scaleFactor" bType="FLOAT32"/>
          <BDA name="offset" bType="FLOAT32"/>
       </DAType>
-      <DAType id="Originator_0">
+      <DAType id="Originator">
          <BDA name="orCat" type="OrCat" bType="Enum"/>
          <BDA name="orIdent" bType="Octet64"/>
       </DAType>
@@ -374,14 +333,6 @@
          <BDA name="llLim" type="AnalogueValue" bType="Struct"/>
          <BDA name="min" type="AnalogueValue" bType="Struct"/>
          <BDA name="max" type="AnalogueValue" bType="Struct"/>
-      </DAType>
-      <DAType id="SPCOperate_0">
-         <BDA name="ctlVal" bType="BOOLEAN"/>
-         <BDA name="origin" type="Originator_0" bType="Struct"/>
-         <BDA name="ctlNum" bType="INT8U"/>
-         <BDA name="T" bType="Timestamp"/>
-         <BDA name="Test" bType="BOOLEAN"/>
-         <BDA name="Check" bType="Check"/>
       </DAType>
       <DAType id="Unit">
          <BDA name="SIUnit" type="SIUnit" bType="Enum"/>

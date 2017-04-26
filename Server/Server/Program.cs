@@ -33,8 +33,6 @@ namespace Server
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020a, "%");
             */
-            StructDataObj.AddStructDataObj("LD0/MMXU1.TotVAr.mag.f", 0x020b, "A", "NONE", "float", "");
-            StructDataObj.AddStructDataObj("LD0/MMXU1.TotW.mag.f", 0x020c, "A", "NONE", "float", "");
             /*
             Parser.StructDataObj.AddStructDataObj("%", 0x020d, "%");
             Parser.StructDataObj.AddStructDataObj("%", 0x020e, "%");
@@ -45,10 +43,6 @@ namespace Server
             Parser.StructDataObj.AddStructDataObj("-", 0x0217, "-");
             */
             
-            foreach (var item in StructDataObj.structDataObj)
-            {
-                Console.WriteLine($@"{item.AddrDataObj}  {item.NameDataObj} {item.ConvertDataObj}");
-            }
 
             Settings.Settings.SaveSettings();
 
@@ -336,13 +330,22 @@ namespace Server
 
         private static void UpdateData()
         {
-            foreach (var item in StructDataObj.structDataObj)
-            {
-                if(item.ConvertDataObj == "float")
-                _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(item.NameDataObj), Convert.ToSingle(item.ValueDataObj));
+            //foreach (var item in StructDataObj.structDataObj)
+            //{
+            //    if(item.ConvertDataObj == "float")
+            //    _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(item.NameDataObj), Convert.ToSingle(item.ValueDataObj));
 
-                _iedServer.UpdateUTCTimeAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference("LD0/MMXU1.TotW.t"), DateTime.Now);
-            }
+            //    _iedServer.UpdateUTCTimeAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference("LD0/MMXU1.TotW.t"), DateTime.Now);
+            //}
+        }
+
+        private static void MV_ClassUpdate()
+        {
+            //itemDataObj.ValueDataObj * 
+           // itemDataObj.NameDataObj 
+
+
+
         }
     }
 }
