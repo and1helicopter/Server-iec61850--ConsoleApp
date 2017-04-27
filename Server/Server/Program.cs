@@ -11,7 +11,7 @@ namespace Server
     {
         static IedServer _iedServer;
         static IedModel _iedModel;
-        private static SclParser _sclParser = new SclParser();
+        private static FileParser _fileParser = new FileParser();
 
         static bool _running = true;
 
@@ -27,7 +27,7 @@ namespace Server
           
             Settings.Settings.ReadSettings();
 
-            _sclParser.ParseFile();
+            _fileParser.ParseFile();
 
             /*
             Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
@@ -156,7 +156,7 @@ namespace Server
 
             foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
             {
-                _sclParser.UpdateStaticDataObj(itemDefultDataObj, out format, out value, out path);
+                _fileParser.UpdateStaticDataObj(itemDefultDataObj, out format, out value, out path);
 
                 InitStaticUpdateData(format, value, path);
             }
@@ -176,7 +176,7 @@ namespace Server
                     {
                         foreach (var itemDa in itemDo.ListDA)
                         {
-                            _sclParser.CoonvertStaticDataObj(_sclParser.MapLibiecType(itemDa.BTypeDA), out format);
+                            _fileParser.CoonvertStaticDataObj(_fileParser.MapLibiecType(itemDa.BTypeDA), out format);
 
                             value = itemDa.Value;
                             path = itemLd.NameLD + "/" + itemLn.NameLN + "." + itemDo.NameDO + "." + itemDa.NameDA;
@@ -204,7 +204,7 @@ namespace Server
         {
             foreach (var itemDa in da)
             {
-                _sclParser.CoonvertStaticDataObj(_sclParser.MapLibiecType(itemDa.BTypeDA), out format);
+                _fileParser.CoonvertStaticDataObj(_fileParser.MapLibiecType(itemDa.BTypeDA), out format);
 
                 value = itemDa.Value;
                 path += "." + itemDa;

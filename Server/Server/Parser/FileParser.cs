@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace Server.Parser
 {
-    public class SclParser
+    public class FileParser
     {
         public void ParseFile()
         {
@@ -648,6 +648,8 @@ namespace Server.Parser
             }
         }
 
+
+
         private void ParseDefultParam(XDocument doc)
         {
             var ied = (from x in doc.Descendants()
@@ -721,7 +723,8 @@ namespace Server.Parser
                                                     //Если нет вложений типа DA
                                                     var dai = daiitem.Attribute("name").Value;
                                                     var value = daiitem.Value;
-                                                    StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
+                                                    ParseFillModel(ied, ld, ln, doi, dai, value);
+                                               //     StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
                                                 }
                                                 else
                                                 {
@@ -768,7 +771,8 @@ namespace Server.Parser
                             //Если нет вложений типа DA
                             var daitemp = dai + "." + daiitem.Attribute("name").Value;
                             var value = daiitem.Value;
-                            StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, daitemp, value);
+                            ParseFillModel(ied, ld, ln, doi, daitemp, value);
+                      //      StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, daitemp, value);
                         }
                         else
                         {
@@ -781,6 +785,48 @@ namespace Server.Parser
             }
         }
 
+        private void ParseFillModel(string ied, string ld, string ln, string doi, string daitemp, string value)
+        {
+            var LN = (from x in StructModelObj.Model.ListLD
+                      where x.NameLD == ld
+                      select x.ListLN).ToList().Last().ToList();
+
+            var DO = (from x in LN
+                      where x.NameLN == ln
+                      select x.ListDO).ToList().Last().ToList();
+
+            var DA = (from x in DO
+                      where x.NameDO == doi
+                      select x.ListDA).ToList().Last().ToList();
+
+            string[] str = daitemp.Split('.');
+            var list = new List<string>(str);
+
+            ParseFillModelBDA(list, DA, value);
+        }
+
+        private void ParseFillModelBDA(List<string> list, List<StructModelObj.NodeDA> DAI, string value)
+        {
+            if (list.Count == 1)
+            {
+                var DA = (from x in DAI
+                          where x.NameDA == list[0]
+                          select x).ToList().Last();
+
+                DA.Value = value;
+            }
+            else
+            {
+                if(list.Count == 0) { return; }
+                
+                var DA = (from x in DAI
+                          where x.NameDA == list[0]
+                          select x.ListDA).ToList().Last().ToList();
+
+                list.RemoveAt(0);
+                ParseFillModelBDA(list, DA, value);
+            }
+        }
 
         private void ParseUpdateParem(XDocument doc)
         {
@@ -822,7 +868,7 @@ namespace Server.Parser
 
                 LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
             }
-            }
+        }
 
         private void UpdateStaticDataObjBDA(List<StructModelObj.NodeDA> da, StructDefultDataObj.DefultDataObj itemDefultDataObj, string[] str, out string format, out string value, out string path)
         {

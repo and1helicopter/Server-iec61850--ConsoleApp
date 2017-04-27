@@ -6,29 +6,32 @@ namespace Server.Parser
 {
     public static class StructUpdateDataObj
     {
-        public static List<GetObject> DataClassGet = new List<GetObject>();           //Список классов в которых данные получаем с платы 
-        public static List<SetObject> DataClassSet = new List<SetObject>();           //Список классов в которых данные загружаем на плату 
+        public static List<DataObject> DataClassGet = new List<DataObject>();           //Список классов в которых данные получаем с платы 
+        public static List<DataObject> DataClassSet = new List<DataObject>();           //Список классов в которых данные загружаем на плату 
 
-        public class GetObject
+        public class DataObject
         {
-            public string NameDataObj { get; private set; }
-            public ushort AddrDataObj { get; private set; }
+            public string NameDataObj { get; private set; }         //Путь до класса  
+            public ushort AddrDataObj { get; private set; }         //Адрес куда писать или откуда брать данные
             public string TypeDataObj { get; private set; }
             public string MaskDataObj { get; private set; }
             public string ConvertDataObj { get; private set; }
             public string ClassDataObj { get; private set; }
 
-            public object DataObj;
-
+            public DateTime DateUpdateDataObj { get; private set; }
             public long ValueDataObj { get; private set; }
 
-            public bool SendRequestDataObj { get; private set; }
+            public object DataObj;
 
+            public bool GetDataObj { get; private set; }
+            public bool SetDataObj { get; private set; }
 
-        }
+            public void UpdateDataObj(string value, DateTime time)
+            {
+                DateUpdateDataObj = time;
+                ValueDataObj = Convert.ToInt64(value);
+            }
 
-        public class SetObject
-        {
             
         }
     }

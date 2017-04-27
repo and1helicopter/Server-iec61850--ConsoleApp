@@ -66,7 +66,7 @@
   <ItemGroup>
     <Compile Include="ModBus\ModBus.cs" />
     <Compile Include="ModBus\ScopeConfig.cs" />
-    <Compile Include="Parser\SCLParser.cs" />
+    <Compile Include="Parser\FileParser.cs" />
     <Compile Include="Parser\StructDefultDataObj.cs" />
     <Compile Include="Parser\StructModelObj.cs" />
     <Compile Include="Parser\StructUpdateDataObj.cs" />
