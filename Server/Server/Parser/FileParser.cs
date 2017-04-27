@@ -697,41 +697,39 @@ namespace Server.Parser
                                 {
                                     var doi = xAttributeDoi.Value;
 
+                                    var type = (from x in doiitem.Descendants()
+                                                 where x.Name.LocalName == "private"
+                                                 select x).ToList();
+
+                                    string[] typeDO = {"D"};
+
+                                    if (type.Count != 0)
+                                    {
+                                        typeDO = type[0].Value.Split(';');
+                                    }
+
                                     IEnumerable<XElement> xDai = doiitem.Elements().ToList();
 
                                     foreach (var daiitem in xDai)
                                     {
-                                        var da = (from x in daiitem.Descendants()
-                                                  where x.Name.LocalName == "private"
-                                                  select x).ToList();
-
-                                        if (da.Count != 0 )
+                                        //Рассматриваем DA верхнего уровня 
+                                        if (daiitem.Attribute("name") != null)
                                         {
-                                            //Рассматриваю собственный тип
-
-                                            
-                                        }
-                                        else
-                                        {
-                                            //Рассматриваем DA верхнего уровня 
-                                            if (daiitem.Attribute("name") != null)
+                                            if ((from x in daiitem.Descendants()
+                                                    where x.Name.LocalName == "DAI"
+                                                    select x).ToList().Count == 0)
                                             {
-                                                if ((from x in daiitem.Descendants()
-                                                     where x.Name.LocalName == "DAI"
-                                                     select x).ToList().Count == 0)
-                                                {
-                                                    //Если нет вложений типа DA
-                                                    var dai = daiitem.Attribute("name").Value;
-                                                    var value = daiitem.Value;
-                                                    ParseFillModel(ied, ld, ln, doi, dai, value);
-                                               //     StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
-                                                }
-                                                else
-                                                {
-                                                    //Если есть вложения типа DA
-                                                    var dai = daiitem.Attribute("name").Value;
-                                                    ParseDefultParamBDA(daiitem, ied, ld, ln, doi, dai);
-                                                }
+                                                //Если нет вложений типа DA
+                                                var dai = daiitem.Attribute("name").Value;
+                                                var value = daiitem.Value;
+                                                ParseFillModel(ied, ld, ln, doi, dai, typeDO, value);
+                                                //     StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
+                                            }
+                                            else
+                                            {
+                                                //Если есть вложения типа DA
+                                                var dai = daiitem.Attribute("name").Value;
+                                                ParseDefultParamBDA(daiitem, ied, ld, ln, doi, typeDO, dai);
                                             }
                                         }
                                     }
@@ -743,57 +741,59 @@ namespace Server.Parser
             }
         }
 
-        private void ParseDefultParamBDA(XElement bdai, string ied, string ld, string ln, string doi, string dai)
+        private void ParseDefultParamBDA(XElement bdai, string ied, string ld, string ln, string doi, string [] typeDO, string dai)
         {
             IEnumerable<XElement> xDai = bdai.Elements().ToList();
 
             foreach (var daiitem in xDai)
             {
-                var da = (from x in daiitem.Descendants()
-                    where x.Name.LocalName == "private"
-                    select x).ToList();
-
-                if (da.Count != 0)
+                //Рассматриваем DA верхнего уровня 
+                if (daiitem.Attribute("name") != null)
                 {
-                    //Рассматриваю собственный тип
-
-
-                }
-                else
-                {
-                    //Рассматриваем DA верхнего уровня 
-                    if (daiitem.Attribute("name") != null)
+                    if ((from x in daiitem.Descendants()
+                            where x.Name.LocalName == "DAI"
+                            select x).ToList().Count == 0)
                     {
-                        if ((from x in daiitem.Descendants()
-                             where x.Name.LocalName == "DAI"
-                             select x).ToList().Count == 0)
-                        {
-                            //Если нет вложений типа DA
-                            var daitemp = dai + "." + daiitem.Attribute("name").Value;
-                            var value = daiitem.Value;
-                            ParseFillModel(ied, ld, ln, doi, daitemp, value);
-                      //      StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, daitemp, value);
-                        }
-                        else
-                        {
-                            //Если есть вложения типа DA
-                            var daitemp = dai + "." + daiitem.Attribute("name").Value;
-                            ParseDefultParamBDA(daiitem, ied, ld, ln, doi, daitemp);
-                        }
+                        //Если нет вложений типа DA
+                        var daitemp = dai + "." + daiitem.Attribute("name").Value;
+                        var value = daiitem.Value;
+                        ParseFillModel(ied, ld, ln, doi, daitemp, typeDO, value);
+                        //      StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, daitemp, value);
+                    }
+                    else
+                    {
+                        //Если есть вложения типа DA
+                        var daitemp = dai + "." + daiitem.Attribute("name").Value;
+                        ParseDefultParamBDA(daiitem, ied, ld, ln, doi, typeDO, daitemp);
                     }
                 }
             }
         }
 
-        private void ParseFillModel(string ied, string ld, string ln, string doi, string daitemp, string value)
+        private void ParseFillModel(string ied, string ld, string ln, string doi, string daitemp, string[] typeDO, string value)
         {
             var LN = (from x in StructModelObj.Model.ListLD
                       where x.NameLD == ld
                       select x.ListLN).ToList().Last().ToList();
 
+
             var DO = (from x in LN
                       where x.NameLN == ln
                       select x.ListDO).ToList().Last().ToList();
+
+            var tempDO = (from x in DO
+                        where x.NameDO == doi
+                        select x).ToList().Last();
+
+            if (typeDO.ToList().Count == 3)
+            {
+                string [] typeTempDO = typeDO[0].Split(':');
+                tempDO.InfoData(typeTempDO[0], typeTempDO[1], typeDO[1], typeDO[2]);
+            }
+            else
+            {
+                tempDO.InfoData(typeDO[0], "0", "0", "");
+            }
 
             var DA = (from x in DO
                       where x.NameDO == doi
@@ -826,11 +826,6 @@ namespace Server.Parser
                 list.RemoveAt(0);
                 ParseFillModelBDA(list, DA, value);
             }
-        }
-
-        private void ParseUpdateParem(XDocument doc)
-        {
-
         }
 
         public void UpdateStaticDataObj(StructDefultDataObj.DefultDataObj itemDefultDataObj, out string format, out string value, out string path)

@@ -191,7 +191,7 @@ namespace Server
                             }
                             else
                             {
-                                InitDefultParamBda(itemDa.ListDA, format, value, path);
+                               // InitDefultParamBda(itemDa.ListDA, format, value, path);
                             }
 
                         }

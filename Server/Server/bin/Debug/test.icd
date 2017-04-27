@@ -85,9 +85,7 @@
                <LN lnClass="GGIO" lnType="tGGIO_4Alm" inst="1" prefix="4Alm_"/>				
 			   <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="2" prefix="4AnIn_">
 					<DOI name="AnIn1" desc="">
-					
-						<private type="EnergocomplektType" addr="521" format="A" mask="NONE" convert="float"/>
-						
+						<private type="EnergocomplektType">A:0;521;G</private>					
 						<DAI name="units" valKind="Set">
 							<DAI name="SIUnit" valKind="Set">
 								<Val>29</Val>

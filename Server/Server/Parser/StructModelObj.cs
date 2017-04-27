@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Server.Parser
 {
@@ -66,6 +67,8 @@ namespace Server.Parser
 
             //Служебная информация
             public string Type { get; private set; }
+            public string Format { get; private set; }
+            public ushort Mask { get; private set; }
             public ushort Addr { get; private set; }
 
             public List<NodeDA> ListDA = new List<NodeDA>();
@@ -75,6 +78,14 @@ namespace Server.Parser
                 NameDO = nameDO;
                 TypeDO = typeDO;
                 DescDO = descDO;
+            }
+
+            public void InfoData(string type, string mask, string addr, string format)
+            {
+                Type = type;
+                Format = format;
+                Mask = Convert.ToUInt16(mask);
+                Addr = Convert.ToUInt16(addr);
             }
 
             public void AddDAToDA(NodeDA DA)
@@ -104,7 +115,6 @@ namespace Server.Parser
                 TrgOpsDA = trgOpsDA;
                 CountDA = countDA;
             }
-
         }
 
         public static List<TypeDA> ListTempDA = new List<TypeDA>();
