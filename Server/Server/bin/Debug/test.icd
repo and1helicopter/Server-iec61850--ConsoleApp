@@ -103,6 +103,25 @@
 							</DAI>
 						</DAI>
 					</DOI>
+					<DOI name="AnIn2" desc="">
+						<private type="EnergocomplektType">A:0;521;G</private>					
+						<DAI name="units" valKind="Set">
+							<DAI name="SIUnit" valKind="Set">
+								<Val>12</Val>
+							</DAI>
+							<DAI name="multiplier" valKind="Set">
+								<Val>2</Val>
+							</DAI>
+						</DAI>
+						<DAI name="sVC" valKind="Set">
+							<DAI name="scaleFactor" valKind="Set">
+								<Val>3</Val>
+							</DAI>
+							<DAI name="offset" valKind="Set">
+								<Val>5</Val>
+							</DAI>
+						</DAI>
+					</DOI>
 				</LN>	
                <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_"/>
                <LN lnClass="GGIO" lnType="tGGIO_4IntIn" inst="1" prefix="4II_"/>

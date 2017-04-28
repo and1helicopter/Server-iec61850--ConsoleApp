@@ -80,7 +80,7 @@ namespace Server.Parser
                 DescDO = descDO;
             }
 
-            public void InfoData(string type, string mask, string addr, string format)
+            public void InfoData(string format, string mask, string addr, string type)
             {
                 Type = type;
                 Format = format;
