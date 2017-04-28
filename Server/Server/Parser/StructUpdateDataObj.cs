@@ -12,16 +12,16 @@ namespace Server.Parser
         public class DataObject
         {
             public string NameDataObj { get; private set; }         //Путь до класса  
+
+            public string FormatDataObj { get; private set; }
+            public ushort MaskDataObj { get; private set; }
             public ushort AddrDataObj { get; private set; }         //Адрес куда писать или откуда брать данные
-            public string TypeDataObj { get; private set; }
-            public string MaskDataObj { get; private set; }
-            public string ConvertDataObj { get; private set; }
             public string ClassDataObj { get; private set; }
 
             public DateTime DateUpdateDataObj { get; private set; }
             public long ValueDataObj { get; private set; }
 
-            public object DataObj;
+            public object DataObj { get; private set; }
 
             public bool GetDataObj { get; private set; }
             public bool SetDataObj { get; private set; }
@@ -30,9 +30,29 @@ namespace Server.Parser
             {
                 DateUpdateDataObj = time;
                 ValueDataObj = Convert.ToInt64(value);
+
+                if (ClassDataObj == "MV")
+                {
+                    ((MvClass) DataObj).UpdateClass(DateUpdateDataObj, ValueDataObj);
+                }
             }
 
-            
+            public DataObject(string name, string format, ushort mask, ushort addr,  string classType, object dataObj)
+            {
+                NameDataObj = name;
+                AddrDataObj = addr;
+                FormatDataObj = format;
+                MaskDataObj = mask;
+                ClassDataObj = classType;
+
+                DateUpdateDataObj = DateTime.Now;
+                ValueDataObj = 0;
+
+                DataObj = dataObj;
+
+                GetDataObj = false;
+                SetDataObj = false;
+            }
         }
     }
 }

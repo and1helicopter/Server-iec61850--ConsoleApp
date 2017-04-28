@@ -537,8 +537,11 @@ namespace Server.Parser
         {
             foreach (var itemLd in StructModelObj.Model.ListLD)
             {
+                string pathNameLD = itemLd.NameLD;
+
                 foreach (var itemLn in itemLd.ListLN)
                 {
+                    string pathNameLN = itemLn.NameLN;
                     //Если переменную класса нужно читать из памяти
                     var getDo = (from x in itemLn.ListDO
                                  where x.Type == "G"
@@ -546,7 +549,7 @@ namespace Server.Parser
 
                     if (getDo.Count != 0)
                     {
-
+                        GetDo(getDo, pathNameLD + "/" + pathNameLN);
                         continue;
                     }
 
@@ -574,6 +577,52 @@ namespace Server.Parser
                 }
             }
         }
+
+        private void GetDo(List<StructModelObj.NodeDO> getDo, string path)
+        {
+            foreach (var itemDo in getDo)
+            {
+                if (itemDo.TypeDO == "MV")
+                {
+                    string pathNameDO = path + "." + itemDo.NameDO;
+                    var mv = new MvClass();
+
+                    var siUnit = Convert.ToInt32((from y in (from x in itemDo.ListDA
+                                                             where x.NameDA.ToUpper() == "Unit".ToUpper()
+                                                             select x).ToList().Last().ListDA.ToList()
+                                                  where y.NameDA.ToUpper() == "SIUnit".ToUpper()
+                                                  select y).ToList().Last().Value);
+
+                    var multiplier = Convert.ToInt32((from y in (from x in itemDo.ListDA
+                                                                 where x.NameDA.ToUpper() == "Unit".ToUpper()
+                                                                 select x).ToList().Last().ListDA.ToList()
+                                                      where y.NameDA.ToUpper() == "Multiplier".ToUpper()
+                                                      select y).ToList().Last().Value);
+
+                    var scaleFactor = Convert.ToInt32((from y in (from x in itemDo.ListDA
+                                                                  where x.NameDA.ToUpper() == "sVC".ToUpper()
+                                                                  select x).ToList().Last().ListDA.ToList()
+                                                       where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
+                                                       select y).ToList().Last().Value);
+
+                    var offset = Convert.ToInt32((from y in (from x in itemDo.ListDA
+                                                             where x.NameDA.ToUpper() == "sVC".ToUpper()
+                                                             select x).ToList().Last().ListDA.ToList()
+                                                  where y.NameDA.ToUpper() == "Offset".ToUpper()
+                                                  select y).ToList().Last().Value);
+
+                    mv.MvClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
+
+                    StructUpdateDataObj.DataObject dataObj = new StructUpdateDataObj.DataObject(pathNameDO, itemDo.Format,itemDo.Mask,itemDo.Addr,itemDo.TypeDO,mv);
+                    StructUpdateDataObj.DataClassGet.Add(dataObj);
+
+
+
+                }
+
+            }
+        }
+
         #endregion
 
         #region Сохранение объектной модели в конфигурациионную модель для сервера

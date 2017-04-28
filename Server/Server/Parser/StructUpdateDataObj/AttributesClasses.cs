@@ -8,11 +8,11 @@ namespace Server.Parser
 {
     public class Quality
     {
-        public ushort Validity;
-        private DetailQuality DetailQual;
-        private string Source;
-        private bool Test;
-        private bool OperatorBlocked; 
+        public ushort Validity { get; private set; }
+        private DetailQuality DetailQual { get;  set; }
+        private string Source { get;  set; }
+        private bool Test { get;  set; }
+        private bool OperatorBlocked { get;  set; }
 
         public Quality()
         {
@@ -21,6 +21,7 @@ namespace Server.Parser
             Source = "process";
             Test = false;
             OperatorBlocked = false;
+            _dateValueOldUpdateDataObj = DateTime.Now;
         }
 
         private class DetailQuality
@@ -53,23 +54,38 @@ namespace Server.Parser
 
             public void UpdateOverflow(bool status)
             {
-                OldData = status;
+                Overflow = status;
             }
+        }
+
+        private DateTime _dateValueOldUpdateDataObj; 
+
+        public void UpdateQuality(DateTime time, long value)
+        {
+            int allowedAge = 1000; //допустимый возраст в мск
+
+            UpdateOldData(_dateValueOldUpdateDataObj.AddMilliseconds(allowedAge) > time);
+            _dateValueOldUpdateDataObj = time;
+
+            //Проверки
+
+
+            UpdateQualityClass();
         }
 
         public void UpdateOldData(bool status)
         {
             DetailQual.UpdateOldData(status);
-            UpdateQuality();
+            UpdateQualityClass();
         }
 
         public void UpdateOverflow(bool status)
         {
             DetailQual.UpdateOverflow(status);
-            UpdateQuality();
+            UpdateQualityClass();
         }
 
-        private void UpdateQuality()
+        private void UpdateQualityClass()
         {
             //Обновляем статус качества
             if (DetailQual.Overflow || DetailQual.BadReference || DetailQual.Oscillatory || DetailQual.Failure)
@@ -128,12 +144,12 @@ namespace Server.Parser
 
     public class UnitClass
     {
-        public int SlUnit;
+        public int SIUnit;
         public int Multiplier;
 
         public UnitClass()
         {
-            SlUnit = 0;
+            SIUnit = 0;
             Multiplier = 0;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 
 namespace Server.Parser
 {
@@ -21,8 +22,6 @@ namespace Server.Parser
         public ScaledValueConfigClass sVC;
         public String d;
 
-        public string Addr;
-
         public class MagClass
         {
             public AnalogueValueClass AnalogueValue;
@@ -39,6 +38,22 @@ namespace Server.Parser
             Unit = new UnitClass();
             sVC = new ScaledValueConfigClass();
             d = "";
+        }
+
+        public void MvClassFill(int siUnit, int multiplier, float scaleFactor, float offset, string str)
+        {
+            Unit.SIUnit = siUnit;
+            Unit.Multiplier = multiplier;
+            sVC.ScaleFactor = scaleFactor;
+            sVC.Offset = offset;
+            d = str;
+        }
+
+        public void UpdateClass(DateTime time, long value)
+        {
+            Mag.AnalogueValue.f = Convert.ToSingle(value * sVC.ScaleFactor + sVC.Offset);
+            t = time;
+            q.UpdateQuality(time, value);
         }
     }
 }
