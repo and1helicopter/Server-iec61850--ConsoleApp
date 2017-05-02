@@ -86,7 +86,7 @@
 			   <LN lnClass="GGIO" lnType="tGGIO_4AnIn" inst="2" prefix="4AnIn_">
 					<DOI name="AnIn1" desc="">
 						<private type="EnergocomplektType">A:0;521;G</private>					
-						<DAI name="unit" valKind="Set">
+						<DAI name="units" valKind="Set">
 							<DAI name="SIUnit" valKind="Set">
 								<Val>29</Val>
 							</DAI>
@@ -290,7 +290,7 @@
       </DOType>
       <DOType id="MV" cdc="MV" desc="Measured Value">
          <DA name="mag" type="AnalogueValue" bType="Struct" fc="MX" dchg="true"/>
-         <DA name="unit" type="Unit" bType="Struct" fc="CF"/>
+         <DA name="units" type="Unit" bType="Struct" fc="CF"/>
          <DA name="sVC" type="MagSVC" bType="Struct" fc="CF"/>
          <DA name="q" bType="Quality" fc="MX" qchg="true"/>
          <DA name="t" bType="Timestamp" fc="MX"/>

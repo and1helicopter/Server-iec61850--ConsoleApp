@@ -53,6 +53,16 @@ namespace Server.Parser
                 GetDataObj = false;
                 SetDataObj = false;
             }
+
+            public void GetDataObj_Set(bool getDataObj)
+            {
+                GetDataObj = getDataObj;
+            }
+
+            public void SetDataObj_Set(bool setDataObj)
+            {
+                SetDataObj = setDataObj;
+            }
         }
     }
 }

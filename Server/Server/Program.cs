@@ -27,56 +27,19 @@ namespace Server
           
             Settings.Settings.ReadSettings();
 
-            _fileParser.ParseFile();
-
-            /*
-            Parser.StructDataObj.AddStructDataObj("%", 0x0209, "%");
-            Parser.StructDataObj.AddStructDataObj("%", 0x020a, "%");
-            */
-            /*
-            Parser.StructDataObj.AddStructDataObj("%", 0x020d, "%");
-            Parser.StructDataObj.AddStructDataObj("%", 0x020e, "%");
-            Parser.StructDataObj.AddStructDataObj("%", 0x0210, "%");
-            Parser.StructDataObj.AddStructDataObj("-", 0x0222, "-");
-            Parser.StructDataObj.AddStructDataObj("-", 0x0223, "-");
-            Parser.StructDataObj.AddStructDataObj("-", 0x0221, "-");
-            Parser.StructDataObj.AddStructDataObj("-", 0x0217, "-");
-            */
-            
+            _fileParser.ParseFile();   
 
             Settings.Settings.SaveSettings();
 
             ModBus.ModBus.ConfigModBusPort();
             ModBus.ModBus.OpenModBusPort();
-            /*
-            Thread myThread = new Thread(ModBus.ModBus.OpenModBusPort)
-            {
-                Name = "Thread ModBus"
-            };
-            myThread.Start();
-            */
-
-
-
-
-
-            //ModBus.ModBus ModBusPort = new ModBus.ModBus();
-
-
-            
-
+           
             ConfigFile();
 
             ConfigServer("test.cfg");
             //ConfigServer("myModel.cfg");
 
             StartServer(Settings.Settings.ConfigServer.PortServer);
-
-
-
-           // RuningServer();
-
-           
         }
 
         private static void RuningServer()
@@ -164,63 +127,92 @@ namespace Server
 
         private static void InitDefultParam()
         {
-            string format;
-            string value;
-            string path;
+            InitDefultParamClass();
 
-            foreach (var itemLd in StructModelObj.Model.ListLD)
-            {
-                foreach (var itemLn in itemLd.ListLN)
-                {
-                    foreach (var itemDo in itemLn.ListDO)
-                    {
-                        foreach (var itemDa in itemDo.ListDA)
-                        {
-                            _fileParser.CoonvertStaticDataObj(_fileParser.MapLibiecType(itemDa.BTypeDA), out format);
+            //string format;
+            //string value;
+            //string path;
 
-                            value = itemDa.Value;
-                            path = itemLd.NameLD + "/" + itemLn.NameLN + "." + itemDo.NameDO + "." + itemDa.NameDA;
+            //foreach (var itemLd in StructModelObj.Model.ListLD)
+            //{
+            //    foreach (var itemLn in itemLd.ListLN)
+            //    {
+            //        foreach (var itemDo in itemLn.ListDO)
+            //        {
+            //            foreach (var itemDa in itemDo.ListDA)
+            //            {
+            //                _fileParser.CoonvertStaticDataObj(_fileParser.MapLibiecType(itemDa.BTypeDA), out format);
+
+            //                value = itemDa.Value;
+            //                path = itemLd.NameLD + "/" + itemLn.NameLN + "." + itemDo.NameDO + "." + itemDa.NameDA;
 
 
-                            if (itemDa.ListDA.Count == 0)
-                            {
-                                if (value != null)
-                                {
-                                    InitStaticUpdateData(format, value, path);
-                                }
-                            }
-                            else
-                            {
-                               // InitDefultParamBda(itemDa.ListDA, format, value, path);
-                            }
+            //                if (itemDa.ListDA.Count == 0)
+            //                {
+            //                    if (value != null)
+            //                    {
+            //                        InitStaticUpdateData(format, value, path);
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                   //InitDefultParamBda();
+            //                }
 
-                        }
-                    }
-                }
-            }
+            //            }
+            //        }
+            //    }
+            //}
         }
 
-        private static void InitDefultParamBda(List <StructModelObj.NodeDA> da, string format, string value, string path)
+        private static void InitDefultParamClass()
         {
-            foreach (var itemDa in da)
+            foreach (var itemDataObject in StructUpdateDataObj.DataClassGet)
             {
-                _fileParser.CoonvertStaticDataObj(_fileParser.MapLibiecType(itemDa.BTypeDA), out format);
-
-                value = itemDa.Value;
-                path += "." + itemDa;
-
-                if (value != null)
+                if (itemDataObject.ClassDataObj == "MV")
                 {
-                    if (itemDa.ListDA.Count == 0)
-                    {
-                        InitStaticUpdateData(format, value, path);
-                    }
-                    else
-                    {
-                        InitDefultParamBda(itemDa.ListDA, format, value, path);
-                    }
+                    MV_ClassSet(itemDataObject);
+                    continue;
+                }
+
+                if (itemDataObject.ClassDataObj == "ololo")
+                {
+                    continue;
                 }
             }
+
+            //List<StructModelObj.NodeDA> da, string format, string value, string path
+            //foreach (var itemDa in da)
+            //{
+            //    _fileParser.CoonvertStaticDataObj(_fileParser.MapLibiecType(itemDa.BTypeDA), out format);
+
+            //    value = itemDa.Value;
+            //    path += "." + itemDa;
+
+            //    if (value != null)
+            //    {
+            //        if (itemDa.ListDA.Count == 0)
+            //        {
+            //            InitStaticUpdateData(format, value, path);
+            //        }
+            //        else
+            //        {
+            //            InitDefultParamBda(itemDa.ListDA, format, value, path);
+            //        }
+            //    }
+            //}
+        }
+
+        private static void MV_ClassSet(StructUpdateDataObj.DataObject itemDataObject)
+        {
+            //units (multiplier, SIUnit)
+            InitStaticUpdateData("int", ((MvClass)itemDataObject.DataObj).Unit.Multiplier.ToString(), itemDataObject.NameDataObj + ".units.multiplier");
+            InitStaticUpdateData("int", ((MvClass)itemDataObject.DataObj).Unit.SIUnit.ToString(), itemDataObject.NameDataObj + ".units.SIUnit");
+            //sVC (scaleFactor, offset)
+            InitStaticUpdateData("float", ((MvClass)itemDataObject.DataObj).sVC.ScaleFactor.ToString(), itemDataObject.NameDataObj + ".sVC.scaleFactor");
+            InitStaticUpdateData("float", ((MvClass)itemDataObject.DataObj).sVC.Offset.ToString(), itemDataObject.NameDataObj + ".sVC.offset");
+            //d
+            InitStaticUpdateData("string", ((MvClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
         }
 
         private static void InitStaticUpdateData(string format, string value, string path)
@@ -316,36 +308,38 @@ namespace Server
             _iedServer.UnlockDataModel();
         }
 
-        /*
-        private static void ConnectModBus(ushort addr, string port, string speed, byte parity)
-        {
-            ModBus.ConnectModBus(addr, port, speed, parity);
-        }
-
-        private static void CloseModBus()
-        {
-            ModBus.CloseModBus();
-        }
-        */
-
         private static void UpdateData()
         {
-            //foreach (var item in StructDataObj.structDataObj)
-            //{
-            //    if(item.ConvertDataObj == "float")
-            //    _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(item.NameDataObj), Convert.ToSingle(item.ValueDataObj));
+            foreach (var itemDataObject in StructUpdateDataObj.DataClassGet)
+            {
+                if (itemDataObject.ClassDataObj == "MV")
+                {
+                    MV_ClassUpdate(itemDataObject);
+                    continue;
+                }
 
-            //    _iedServer.UpdateUTCTimeAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference("LD0/MMXU1.TotW.t"), DateTime.Now);
-            //}
+                if (itemDataObject.ClassDataObj == "ololo")
+                {
+                    continue;
+                }
+            }
         }
 
-        private static void MV_ClassUpdate()
+        private static void MV_ClassUpdate(StructUpdateDataObj.DataObject itemDataObject)
         {
-            //itemDataObj.ValueDataObj * 
-           // itemDataObj.NameDataObj 
+            ((MvClass)itemDataObject.DataObj).QualityCheckClass();
 
+            var magPath = (DataAttribute) _iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".mag.f");
+            var magVal = Convert.ToSingle(((MvClass)itemDataObject.DataObj).Mag.AnalogueValue.f);
+            _iedServer.UpdateFloatAttributeValue(magPath, magVal);
 
+            var tPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".t");
+            var tVal = Convert.ToDateTime(((MvClass) itemDataObject.DataObj).t);
+            _iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
 
+            var qPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".q");
+            var qVal = Convert.ToUInt16(((MvClass)itemDataObject.DataObj).q.Validity);
+            _iedServer.UpdateQuality(qPath, qVal);
         }
     }
 }

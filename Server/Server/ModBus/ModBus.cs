@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Timers;
+using Server.Parser;
 using UniSerialPort;
 using Timer = System.Timers.Timer;
 
@@ -95,33 +96,31 @@ namespace Server.ModBus
                 return;
             }
 
-            
-            //if (Parser.StructDataObj.structDataObj.Count != 0)
-            //{
-            //    if (_currentIndex == Parser.StructDataObj.structDataObj.Count)
-            //    {
-            //        _currentIndex = 0;
-            //    }
+            if (StructUpdateDataObj.DataClassGet.Count != 0)
+            {
+                if (_currentIndex == StructUpdateDataObj.DataClassGet.Count)
+                {
+                    _currentIndex = 0;
+                }
 
-            //    if (!Parser.StructDataObj.structDataObj[_currentIndex].SendRequestDataObj)
-            //    {
-            //        lock (Locker)
-            //        {
-            //            _serialPort.GetDataRTU(Parser.StructDataObj.structDataObj[_currentIndex].AddrDataObj, 1, UpdateData);
-            //            Parser.StructDataObj.structDataObj[_currentIndex].SetSendRequestDataObj(true);
-            //        }
-            //    }
-            //}
+                if (!StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj)
+                {
+                    lock (Locker)
+                    {
+                        _serialPort.GetDataRTU(StructUpdateDataObj.DataClassGet[_currentIndex].AddrDataObj, 1, UpdateData);
+                        StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(true);
+                    }
+                }
+            }
         }
 
         private static void UpdateData(bool dataOk, ushort[] paramRtu)
         {
             if (dataOk)
             {
-                //Parser.StructDataObj.structDataObj[_currentIndex].SetValueDataObj(Convert.ToInt64(paramRtu[0]));
-                //Parser.StructDataObj.structDataObj[_currentIndex].SetSendRequestDataObj(false);
-                //Parser.StructDataObj.structDataObj[_currentIndex].SetDateValueUpdateDataObj(DateTime.Now);
-                //_currentIndex++;
+                ((MvClass) StructUpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now,Convert.ToInt64(paramRtu[0]));
+                StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
+                _currentIndex++;
             }
         }
         
@@ -710,14 +709,12 @@ namespace Server.ModBus
             {
                 //Загрузка номера выборки на котором заканчивается осциллограмма 
                 case 0:
-                {
-                    lock (Locker)
                     {
-                        _serialPort.GetDataRTU(
-                            (ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2,
-                            UpdateScopoe);
+                    lock (Locker)
+                        {
+                            _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2,UpdateScopoe);
+                        }
                     }
-                }
                     break;
 
                 //Загрузка данных
@@ -730,8 +727,7 @@ namespace Server.ModBus
                         _writeArr[2] = Convert.ToUInt16(oscilLoadTemp >> 16);
                         lock (Locker)
                         {
-                            _serialPort.SetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 5),
-                                ScopeDownloadRequestGet, RequestPriority.Normal, _writeArr);
+                            _serialPort.SetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 5),ScopeDownloadRequestGet, RequestPriority.Normal, _writeArr);
                         }
                     }
                     break;

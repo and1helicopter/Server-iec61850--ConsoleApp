@@ -13,6 +13,7 @@ namespace Server.Parser
         private string Source { get;  set; }
         private bool Test { get;  set; }
         private bool OperatorBlocked { get;  set; }
+        private int _allowedAge;
 
         public Quality()
         {
@@ -22,6 +23,7 @@ namespace Server.Parser
             Test = false;
             OperatorBlocked = false;
             _dateValueOldUpdateDataObj = DateTime.Now;
+            _allowedAge = 1000;
         }
 
         private class DetailQuality
@@ -68,21 +70,28 @@ namespace Server.Parser
             _dateValueOldUpdateDataObj = time;
 
             //Проверки
-
-
             UpdateQualityClass();
         }
+
+        public void QualityCheckClass(DateTime time)
+        {
+             //допустимый возраст в мск
+
+            UpdateOldData(time.AddMilliseconds(_allowedAge) < DateTime.Now);
+
+            //Проверки
+            UpdateQualityClass();
+        }
+        
 
         public void UpdateOldData(bool status)
         {
             DetailQual.UpdateOldData(status);
-            UpdateQualityClass();
         }
 
         public void UpdateOverflow(bool status)
         {
             DetailQual.UpdateOverflow(status);
-            UpdateQualityClass();
         }
 
         private void UpdateQualityClass()

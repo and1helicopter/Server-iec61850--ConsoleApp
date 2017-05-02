@@ -55,5 +55,10 @@ namespace Server.Parser
             t = time;
             q.UpdateQuality(time, value);
         }
+
+        public void QualityCheckClass()
+        {
+            q.QualityCheckClass(t);
+        }
     }
 }
