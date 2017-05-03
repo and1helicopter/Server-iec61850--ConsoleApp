@@ -8,27 +8,21 @@ namespace Server.Parser
 
         public class DefultDataObj
         {
-            public string IED { get; private set; }
-            public string LDevice { get; private set; }
-            public string LN { get; private set; }
-            public string DOI { get; private set; }
-            public string DAI { get; private set; }
+            public string Path { get; private set; }
+            public string Type { get; private set; }
             public string Value { get; private set; }
 
-            public DefultDataObj(string ied, string ld, string ln, string doi, string dai, string value)
+            public DefultDataObj(string path, string type, string value)
             {
-                IED = ied;
-                LDevice = ld;
-                LN = ln;
-                DOI = doi;
-                DAI = dai;
+                Path = path;
+                Type = type;
                 Value = value;
             }
         }
 
-        public static void AddStructDefultDataObj(string ied, string ld, string ln, string doi, string dai, string value)
+        public static void AddStructDefultDataObj(string path, string type, string value)
         {
-            DefultDataObj dataObj = new DefultDataObj(ied, ld, ln, doi, dai, value);
+            DefultDataObj dataObj = new DefultDataObj(path, type, value);
             structDefultDataObj.Add(dataObj);
         }
 

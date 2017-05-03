@@ -11,7 +11,7 @@ namespace Server
     {
         static IedServer _iedServer;
         static IedModel _iedModel;
-        private static FileParser _fileParser = new FileParser();
+        private static readonly FileParser FileParser = new FileParser();
 
         static bool _running = true;
 
@@ -27,7 +27,7 @@ namespace Server
           
             Settings.Settings.ReadSettings();
 
-            _fileParser.ParseFile();   
+            FileParser.ParseFile();   
 
             Settings.Settings.SaveSettings();
 
@@ -119,9 +119,9 @@ namespace Server
 
             foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
             {
-                _fileParser.UpdateStaticDataObj(itemDefultDataObj, out format, out value, out path);
+              //  FileParser.UpdateStaticDataObj(itemDefultDataObj, out format, out value, out path);
 
-                InitStaticUpdateData(format, value, path);
+               // InitStaticUpdateData(format, value, path);
             }
         }
 

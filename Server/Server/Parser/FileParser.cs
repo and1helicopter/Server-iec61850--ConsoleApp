@@ -571,12 +571,13 @@ namespace Server.Parser
 
                     if (defualtDo.Count != 0)
                     {
-
-                        
+                        DefualtDo(defualtDo, pathNameLD + "/" + pathNameLN);
                     }
                 }
             }
         }
+
+
 
         private void GetDo(List<StructModelObj.NodeDO> getDo, string path)
         {
@@ -629,6 +630,18 @@ namespace Server.Parser
             }
         }
 
+        private void DefualtDo(List<StructModelObj.NodeDO> defualtDo, string path)
+        {
+            foreach (var itemDo in defualtDo)
+            {
+                if (itemDo.NameDO == "Mod")
+                {
+
+                    
+                    //StructDefultDataObj.AddStructDefultDataObj();
+                }
+            }
+        }
         #endregion
 
         #region Сохранение объектной модели в конфигурациионную модель для сервера
@@ -938,97 +951,97 @@ namespace Server.Parser
         }
         #endregion
 
-        public void UpdateStaticDataObj(StructDefultDataObj.DefultDataObj itemDefultDataObj, out string format, out string value, out string path)
-        {
-            var oo = (from x in StructModelObj.Model.ListLD
-                where x.NameLD == itemDefultDataObj.LDevice
-                select x).ToList();
+        //public void UpdateStaticDataObj(StructDefultDataObj.DefultDataObj itemDefultDataObj, out string format, out string value, out string path)
+        //{
+        //    var oo = (from x in StructModelObj.Model.ListLD
+        //        where x.NameLD == itemDefultDataObj.LDevice
+        //        select x).ToList();
 
-            var oo1 = (from x in oo[0].ListLN
-                where x.NameLN == itemDefultDataObj.LN
-                select x).ToList();
+        //    var oo1 = (from x in oo[0].ListLN
+        //        where x.NameLN == itemDefultDataObj.LN
+        //        select x).ToList();
 
-            var oo2 = (from x in oo1[0].ListDO
-                where x.NameDO == itemDefultDataObj.DOI
-                select x).ToList();
+        //    var oo2 = (from x in oo1[0].ListDO
+        //        where x.NameDO == itemDefultDataObj.DOI
+        //        select x).ToList();
 
-            if (itemDefultDataObj.DAI.Contains("."))
-            {
-                //Если DA вложеные 
-                string[] str = itemDefultDataObj.DAI.Split('.');
-                var oo3 = (from x in oo2[0].ListDA
-                    where x.NameDA == str[0]
-                    select x).ToList();
-                var list = new List<string>(str);
-                list.RemoveAt(0);
-                str = list.ToArray();
-                UpdateStaticDataObjBDA(oo3, itemDefultDataObj, str, out format, out value, out path);
-            }
-            else
-            {
-                //Если DA не вложеные
-                var oo3 = (from x in oo2[0].ListDA
-                    where x.NameDA == itemDefultDataObj.DAI
-                    select x).ToList();
+        //    if (itemDefultDataObj.DAI.Contains("."))
+        //    {
+        //        //Если DA вложеные 
+        //        string[] str = itemDefultDataObj.DAI.Split('.');
+        //        var oo3 = (from x in oo2[0].ListDA
+        //            where x.NameDA == str[0]
+        //            select x).ToList();
+        //        var list = new List<string>(str);
+        //        list.RemoveAt(0);
+        //        str = list.ToArray();
+        //        UpdateStaticDataObjBDA(oo3, itemDefultDataObj, str, out format, out value, out path);
+        //    }
+        //    else
+        //    {
+        //        //Если DA не вложеные
+        //        var oo3 = (from x in oo2[0].ListDA
+        //            where x.NameDA == itemDefultDataObj.DAI
+        //            select x).ToList();
 
-                LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
-            }
-        }
+        //        LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
+        //    }
+        //}
 
-        private void UpdateStaticDataObjBDA(List<StructModelObj.NodeDA> da, StructDefultDataObj.DefultDataObj itemDefultDataObj, string[] str, out string format, out string value, out string path)
-        {
-            if (str.Length != 1)
-            {
-                //Если DA вложеные 
-                var oo3 = (from x in da[0].ListDA
-                    where x.NameDA == str[0]
-                    select x).ToList();
-                var list = new List<string>(str);
-                list.RemoveAt(0);
-                str = list.ToArray();
-                UpdateStaticDataObjBDA(oo3, itemDefultDataObj, str, out format, out value, out path);
-            }
-            else
-            {
-                //Если DA не вложеные
-                var oo3 = (from x in da[0].ListDA
-                    where x.NameDA == str[0]
-                    select x).ToList();
+        //private void UpdateStaticDataObjBDA(List<StructModelObj.NodeDA> da, StructDefultDataObj.DefultDataObj itemDefultDataObj, string[] str, out string format, out string value, out string path)
+        //{
+        //    if (str.Length != 1)
+        //    {
+        //        //Если DA вложеные 
+        //        var oo3 = (from x in da[0].ListDA
+        //            where x.NameDA == str[0]
+        //            select x).ToList();
+        //        var list = new List<string>(str);
+        //        list.RemoveAt(0);
+        //        str = list.ToArray();
+        //        UpdateStaticDataObjBDA(oo3, itemDefultDataObj, str, out format, out value, out path);
+        //    }
+        //    else
+        //    {
+        //        //Если DA не вложеные
+        //        var oo3 = (from x in da[0].ListDA
+        //            where x.NameDA == str[0]
+        //            select x).ToList();
 
-                LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
-            }
-        }
+        //        LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
+        //    }
+        //}
 
 
-        private void LoopUpdateStaticDataObj(List<StructModelObj.NodeDA> oo3, StructDefultDataObj.DefultDataObj itemDefultDataObj,  out string format, out string value, out string path)
-        {
-            oo3[0].Value = itemDefultDataObj.Value;
-            var oo4 = MapLibiecType(oo3[0].BTypeDA);
-            CoonvertStaticDataObj(oo4, out format);
+        //private void LoopUpdateStaticDataObj(List<StructModelObj.NodeDA> oo3, StructDefultDataObj.DefultDataObj itemDefultDataObj,  out string format, out string value, out string path)
+        //{
+        //    oo3[0].Value = itemDefultDataObj.Value;
+        //    var oo4 = MapLibiecType(oo3[0].BTypeDA);
+        //    CoonvertStaticDataObj(oo4, out format);
 
-            value = itemDefultDataObj.Value;
-            path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
+        //    value = itemDefultDataObj.Value;
+        //    path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
 
-            //if (oo3[0].BTypeDA == "Enum")
-            //{
-            //    foreach (var itemEnumType in StructModelObj.ListEnumType)
-            //    {
-            //        if (oo3[0].TypeDA == itemEnumType.NameEnumType)
-            //        {
-            //            foreach (var itemEnumVal in itemEnumType.ListEnumVal)
-            //            {
-            //                if (itemEnumVal.ValEnumVal == itemDefultDataObj.Value)
-            //                {
-            //                    value = Convert.ToString(itemEnumVal.OrdEnumVal);
-            //                    path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
-            //                    break;
-            //                }
-            //            }
-            //            break;
-            //        }
-            //    }
-            //}
-        }
+        //    //if (oo3[0].BTypeDA == "Enum")
+        //    //{
+        //    //    foreach (var itemEnumType in StructModelObj.ListEnumType)
+        //    //    {
+        //    //        if (oo3[0].TypeDA == itemEnumType.NameEnumType)
+        //    //        {
+        //    //            foreach (var itemEnumVal in itemEnumType.ListEnumVal)
+        //    //            {
+        //    //                if (itemEnumVal.ValEnumVal == itemDefultDataObj.Value)
+        //    //                {
+        //    //                    value = Convert.ToString(itemEnumVal.OrdEnumVal);
+        //    //                    path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
+        //    //                    break;
+        //    //                }
+        //    //            }
+        //    //            break;
+        //    //        }
+        //    //    }
+        //    //}
+        //}
 
         public void CoonvertStaticDataObj(int formatConvert, out string format)
         {
