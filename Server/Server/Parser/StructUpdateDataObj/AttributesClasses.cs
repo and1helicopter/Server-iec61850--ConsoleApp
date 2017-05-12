@@ -62,7 +62,7 @@ namespace Server.Parser
 
         private DateTime _dateValueOldUpdateDataObj; 
 
-        public void UpdateQuality(DateTime time, long value)
+        public void UpdateQuality(DateTime time, object value)
         {
             int allowedAge = 1000; //допустимый возраст в мск
 
@@ -109,9 +109,21 @@ namespace Server.Parser
             {
                 Validity = MapQuality("GOOD");
             }
+
+            Validity = DetailQual.Overflow ? Convert.ToUInt16(Validity | 0x0004) : Convert.ToUInt16(Validity + 0x0004 ^ 0x0004);
+            Validity = DetailQual.OutOfRange ? Convert.ToUInt16(Validity | 0x0008) : Convert.ToUInt16(Validity + 0x0008 ^ 0x0008);
+            Validity = DetailQual.BadReference ? Convert.ToUInt16(Validity | 0x0010) : Convert.ToUInt16(Validity + 0x0010 ^ 0x0010);
+            Validity = DetailQual.Oscillatory ? Convert.ToUInt16(Validity | 0x0020) : Convert.ToUInt16(Validity + 0x0020 ^ 0x0020);
+            Validity = DetailQual.Failure ? Convert.ToUInt16(Validity | 0x0040) : Convert.ToUInt16(Validity + 0x0040 ^ 0x0040);
+            Validity = DetailQual.OldData ? Convert.ToUInt16(Validity | 0x0080) : Convert.ToUInt16(Validity + 0x0080 ^ 0x0080);
+            Validity = DetailQual.Inconsistent ? Convert.ToUInt16(Validity | 0x0100) : Convert.ToUInt16(Validity + 0x0100 ^ 0x0100);
+            Validity = DetailQual.Inaccurate ? Convert.ToUInt16(Validity | 0x0200) : Convert.ToUInt16(Validity + 0x0200 ^ 0x0200);
+            Validity = Source != "process" ? Convert.ToUInt16(Validity | 0x0400) : Convert.ToUInt16(Validity + 0x0400 ^ 0x0400);
+            Validity = Test ? Convert.ToUInt16(Validity | 0x0800) : Convert.ToUInt16(Validity + 0x0800 ^ 0x0800);
+            Validity = OperatorBlocked ? Convert.ToUInt16(Validity | 0x1000) : Convert.ToUInt16(Validity + 0x1000 ^ 0x1000);
         }
 
-        public ushort MapQuality(string quality)
+        private ushort MapQuality(string quality)
         {
             ushort qual = 0;
             switch (quality.ToUpper())
@@ -163,15 +175,27 @@ namespace Server.Parser
         }
     }
 
-    public class ScaledValueConfigClass
+    public class ScaledValueClass
     {
         public float ScaleFactor;
         public float Offset;
 
-        public ScaledValueConfigClass()
+        public ScaledValueClass()
         {
             ScaleFactor = 1;
             Offset = 0;
+        }
+    }
+
+    public class VectorClass
+    {
+        public AnalogueValueClass mag;
+        public AnalogueValueClass ang;
+
+        public VectorClass()
+        {
+            mag = new AnalogueValueClass();
+            ang = new AnalogueValueClass();
         }
     }
 }

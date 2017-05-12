@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Settings>
-  <Settings_Global Language="eng" DownloadScope="True" TypeScope="comtrade" ComtradeType="1999" ConfigurationAddr="512" OscilCmndAddr="4092" PathScope="vmd-filestore\Scope\" OscilNominalFrequency="50" />
+  <Settings_Global Language="eng" DownloadScope="True" TypeScope="comtrade" ComtradeType="1999" ConfigurationAddr="512" OscilCmndAddr="4096" PathScope="vmd-filestore\Scope\" OscilNominalFrequency="50" />
   <Settings_ModBus BaudRate="115200" SerialPortParity="Odd" SerialPortStopBits="One" ComPortName="COM1" />
   <Settings_Server PortServer="102" />
 </Settings>

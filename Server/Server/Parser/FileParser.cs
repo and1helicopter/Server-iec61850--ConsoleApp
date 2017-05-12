@@ -601,17 +601,17 @@ namespace Server.Parser
                                                       where y.NameDA.ToUpper() == "Multiplier".ToUpper()
                                                       select y).ToList().Last().Value);
 
-                    var scaleFactor = Convert.ToInt32((from y in (from x in itemDo.ListDA
+                    var scaleFactor = Convert.ToSingle((from y in (from x in itemDo.ListDA
                                                                   where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
                                                                   select x).ToList().Last().ListDA.ToList()
                                                        where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
-                                                       select y).ToList().Last().Value);
+                                                       select y).ToList().Last().Value.Replace('.',','));
 
-                    var offset = Convert.ToInt32((from y in (from x in itemDo.ListDA
+                    var offset = Convert.ToSingle((from y in (from x in itemDo.ListDA
                                                              where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
                                                              select x).ToList().Last().ListDA.ToList()
                                                   where y.NameDA.ToUpper() == "Offset".ToUpper()
-                                                  select y).ToList().Last().Value);
+                                                  select y).ToList().Last().Value.Replace('.', ','));
 
                     if ((from y in (from x in itemDo.ListDA
                                     where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
@@ -622,7 +622,7 @@ namespace Server.Parser
                         scaleFactor = 1;
                     }
 
-                    mv.MvClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
+                    mv.ClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
 
                     StructUpdateDataObj.DataObject dataObj = new StructUpdateDataObj.DataObject(pathNameDo, itemDo.Format,itemDo.Mask,itemDo.Addr,itemDo.TypeDO,mv);
                     StructUpdateDataObj.DataClassGet.Add(dataObj);
