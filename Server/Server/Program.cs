@@ -24,21 +24,22 @@ namespace Server
 
                 StopServer();
             };
-          
+            
+            //Открываем настройки сервера
             Settings.Settings.ReadSettings();
-
-            FileParser.ParseFile();   
-
             Settings.Settings.SaveSettings();
 
+            //Открываем настройки MODBUS порта
             ModBus.ModBus.ConfigModBusPort();
             ModBus.ModBus.OpenModBusPort();
-           
-            ConfigFile();
 
+            //Парсим файл конфигурации
+            FileParser.ParseFile();
+            
+            //Создаем модель сервера
             ConfigServer("test.cfg");
-            //ConfigServer("myModel.cfg");
 
+            //Запуск сервера 
             StartServer(Settings.Settings.ConfigServer.PortServer);
         }
 
@@ -59,24 +60,26 @@ namespace Server
             }
         }
 
-        private static void ConfigFile()
-        {
-            
-        }
+
         
         private static void ConfigServer(string nameConfigFile)
         {
             _iedModel = IedModel.CreateFromFile(nameConfigFile);
+            _iedServer = new IedServer(_iedModel);
+
+            StaticUpdateData();
+
+
         }
 
         private static void StartServer(int portNum)
         {
             if (_iedModel != null)
             {
-                _iedServer = new IedServer(_iedModel);
                 _iedServer.Start(portNum);
 
-                StaticUpdateData();
+
+
 
                 Thread myThread = new Thread(RuningServer)
                 {

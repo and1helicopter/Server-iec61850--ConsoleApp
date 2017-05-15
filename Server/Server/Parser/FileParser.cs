@@ -404,11 +404,11 @@ namespace Server.Parser
                                         where x.Name.LocalName == "private"
                                         select x).ToList();
 
-                                    string[] typeDO = { "D" };
+                                    string[] typeDo = { "D" };
 
                                     if (type.Count != 0)
                                     {
-                                        typeDO = type[0].Value.Split(';');
+                                        typeDo = type[0].Value.Split(';');
                                     }
 
                                     IEnumerable<XElement> xDai = doiitem.Elements().ToList();
@@ -425,14 +425,14 @@ namespace Server.Parser
                                                 //Если нет вложений типа DA
                                                 var dai = daiitem.Attribute("name").Value;
                                                 var value = daiitem.Value;
-                                                ParseFillModel(ied, ld, ln, doi, dai, typeDO, value);
+                                                ParseFillModel(ied, ld, ln, doi, dai, typeDo, value);
                                                 //     StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
                                             }
                                             else
                                             {
                                                 //Если есть вложения типа DA
                                                 var dai = daiitem.Attribute("name").Value;
-                                                ParseDefultParamBDA(daiitem, ied, ld, ln, doi, typeDO, dai);
+                                                ParseDefultParamBDA(daiitem, ied, ld, ln, doi, typeDo, dai);
                                             }
                                         }
                                     }
@@ -473,7 +473,7 @@ namespace Server.Parser
             }
         }
 
-        private void ParseFillModel(string ied, string ld, string ln, string doi, string daitemp, string[] typeDO, string value)
+        private void ParseFillModel(string ied, string ld, string ln, string doi, string daitemp, string[] typeDo, string value)
         {
             var LN = (from x in StructModelObj.Model.ListLD
                 where x.NameLD == ld
@@ -488,14 +488,14 @@ namespace Server.Parser
                 where x.NameDO == doi
                 select x).ToList().Last();
 
-            if (typeDO.ToList().Count == 3)
+            if (typeDo.ToList().Count == 3)
             {
-                string[] typeTempDO = typeDO[0].Split(':');
-                tempDO.InfoData(typeTempDO[0], typeTempDO[1], typeDO[1], typeDO[2]);
+                string[] typeTempDO = typeDo[0].Split(':');
+                tempDO.InfoData(typeTempDO[0], typeTempDO[1], typeDo[1], typeDo[2]);
             }
             else
             {
-                tempDO.InfoData(null, "0", "0", typeDO[0]);
+                tempDO.InfoData(null, "0", "0", typeDo[0]);
             }
 
             var DA = (from x in DO

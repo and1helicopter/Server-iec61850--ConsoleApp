@@ -98,8 +98,31 @@
 							</DAI>
 						</DAI>
 					</DOI>
+					<DOI name="AnIn2" desc="">
+						<private type="EnergocomplektType">A:0;522;G</private>					
+						<DAI name="units" valKind="Set">
+							<DAI name="SIUnit" valKind="Set">
+								<Val>29</Val>
+							</DAI>
+							<DAI name="multiplier" valKind="Set">
+								<Val>0</Val>
+							</DAI>
+						</DAI>
+						<DAI name="sVC" valKind="Set">
+							<DAI name="scaleFactor" valKind="Set">
+								<Val>0.1</Val>
+							</DAI>
+							<DAI name="offset" valKind="Set">
+								<Val>0.7</Val>
+							</DAI>
+						</DAI>
+					</DOI>
 				</LN>	
-               <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_"/>
+               <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_">
+			   		<DOI name="Ind1" desc="">
+						<private type="EnergocomplektType">D:0;546;G</private>					
+					</DOI>
+			   </LN>
                <LN lnClass="GGIO" lnType="tGGIO_4IntIn" inst="1" prefix="4II_"/>
                <LN lnClass="GGIO" lnType="tGGIO_8SPCO" inst="1" prefix="8DO_">
                   <DOI name="SPCSO1" desc="">
@@ -238,12 +261,6 @@
          <DO name="DroopV" type="SPS" desc="Voltage droop status"/>
          <DO name="PowStab" type="SPS" desc="Power system stabilizer present"/>
       </LNodeType>
-      <DOType id="DPC" cdc="DPC" desc="Double Point Controllable">
-         <DA name="stVal" bType="Dbpos" fc="ST" dchg="true" desc="intermediate-state | off | on | bad-state"/>
-         <DA name="ctlModel" type="CtlModels" bType="Enum" fc="CF"/>
-         <DA name="q" bType="Quality" fc="ST" qchg="true"/>
-         <DA name="t" bType="Timestamp" fc="ST"/>
-      </DOType>
       <DOType id="DPL" cdc="DPL" desc="Device name Plate">
          <DA name="vendor" bType="VisString255" fc="DC">
 			<Val>Energocomplekt</Val>
@@ -259,6 +276,7 @@
 		 </DA>
       </DOType>
       <DOType id="INC" cdc="INC" desc="Integer status Controllable">
+	     <DA name="ctlVal" bType="INT32" fc="СО" />
          <DA name="stVal" bType="INT32" fc="ST" dchg="true"/>
          <DA name="q" bType="Quality" fc="ST" qchg="true"/>
          <DA name="t" bType="Timestamp" fc="ST"/>
@@ -284,9 +302,9 @@
          <DA name="d" bType="VisString255" fc="DC"/>
       </DOType>
       <DOType id="SPC" cdc="SPC" desc="Single Point Controllable">
+  	     <DA name="ctlVal" bType="BOOLEAN" fc="СО" />
          <DA name="stVal" bType="BOOLEAN" fc="ST" dchg="true" desc="FALSE | TRUE"/>
          <DA name="ctlModel" type="CtlModels" bType="Enum" fc="CF"/>
-         <DA name="origin" type="Originator" bType="Struct" fc="ST"/>
          <DA name="q" bType="Quality" fc="ST" qchg="true"/>
          <DA name="t" bType="Timestamp" fc="ST"/>
          <DA name="d" bType="VisString255" fc="DC"/>
@@ -299,9 +317,6 @@
       </DOType>
       <DAType id="AnalogueValue">
          <BDA name="f" bType="FLOAT32" desc="The value of f shall be the FLOAT representation of the measured value. f shall represent the technological value in SI units."/>
-      </DAType>
-      <DAType id="IntegerValue">
-         <BDA name="i" bType="INT32" desc="The value of i shall be an integer representation of the measured value."/>
       </DAType>
       <DAType id="MagSVC">
          <BDA name="scaleFactor" bType="FLOAT32"/>
