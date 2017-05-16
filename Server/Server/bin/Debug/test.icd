@@ -43,7 +43,7 @@
                <LN0 lnClass="LLN0" lnType="LLN0" inst="">
                   <DOI name="Mod" desc="">
                      <DAI name="stVal" valKind="Set">
-                        <Val>1</Val>
+                        <Val>on</Val>
                      </DAI>
                   </DOI>
                   <DOI name="Health" desc="">
