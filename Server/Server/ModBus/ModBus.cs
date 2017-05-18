@@ -118,8 +118,18 @@ namespace Server.ModBus
         {
             if (dataOk)
             {
-                ((MvClass) StructUpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now,Convert.ToInt64(paramRtu[0]));
-                StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
+                if(StructUpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(MvClass))
+                {
+                    ((MvClass)StructUpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, Convert.ToInt64(paramRtu[0]));
+                    StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
+                }
+                else if (StructUpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(SpsClass))
+                {
+                    bool val = (Convert.ToInt32(paramRtu[0]) & 1 << Convert.ToInt32(StructUpdateDataObj.DataClassGet[_currentIndex].MaskDataObj)) > 0;
+                   ((SpsClass)StructUpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+                    StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
+                }
+
                 _currentIndex++;
             }
         }

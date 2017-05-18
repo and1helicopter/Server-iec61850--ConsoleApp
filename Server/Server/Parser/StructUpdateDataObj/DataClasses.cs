@@ -7,7 +7,7 @@ namespace Server.Parser
         public DateTime t;
         public Quality q;
 
-        public BaseClass()
+        protected BaseClass()
         {
             t = DateTime.Now;
             q = new Quality();
@@ -26,6 +26,11 @@ namespace Server.Parser
             stVal = value;
             t = time;
             q.UpdateQuality(time, value);
+        }
+
+        public void QualityCheckClass()
+        {
+            q.QualityCheckClass(t);
         }
 
         public SpsClass()

@@ -26,17 +26,6 @@ namespace Server.Parser
             public bool GetDataObj { get; private set; }
             public bool SetDataObj { get; private set; }
 
-            public void UpdateDataObj(string value, DateTime time)
-            {
-                DateUpdateDataObj = time;
-                ValueDataObj = Convert.ToInt64(value);
-
-                if (ClassDataObj == "MV")
-                {
-                    ((MvClass) DataObj).UpdateClass(DateUpdateDataObj, ValueDataObj);
-                }
-            }
-
             public DataObject(string name, string format, ushort mask, ushort addr,  string classType, object dataObj)
             {
                 NameDataObj = name;

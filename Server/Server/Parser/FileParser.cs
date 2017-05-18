@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Xml.Linq;
 
 namespace Server.Parser
@@ -597,7 +598,7 @@ namespace Server.Parser
                         }
 
                         //Класс INC (целочисленное управление и состояние)
-                        if (itemDo.TypeDO == "SPC")
+                        if (itemDo.TypeDO == "INC")
                         {
                             //public Int32 ctlVal;
                             //public Boolean stVal;
@@ -695,17 +696,28 @@ namespace Server.Parser
                                 {
                                     var doi = xAttributeDoi.Value;
 
+                                    //Проверяю на собственный формат 
                                     var type = (from x in doiitem.Descendants()
                                         where x.Name.LocalName == "private"
                                         select x).ToList();
 
-                                    string[] typeDo = { "D" };
+                                    string[] typeDo = {null};  //По-умолчанию рассматриваю 
 
-                                    if (type.Count != 0)
+                                    if (type.Count != 0) //Проверяю на собственный формат 
                                     {
-                                        typeDo = type[0].Value.Split(';');
-                                    }
+                                        typeDo = type[0].Value.Split(';'); //Устанавливаю собственный формат
+                                        //Отметим объекты которые изменяются
 
+                                        var tempDo = (from z in (from y in (from x in StructModelObj.Model.ListLD
+                                                                         where x.NameLD.ToUpper() == ld.ToUpper()
+                                                                         select x).ToList().First().ListLN
+                                                              where y.NameLN.ToUpper() == ln.ToUpper()
+                                                              select y).ToList().First().ListDO
+                                                   where z.NameDO.ToUpper() == doi.ToUpper()
+                                                   select z).ToList().First();
+
+                                        tempDo.InfoData(null, "0", "0", typeDo[2]);
+                                    }
                                     IEnumerable<XElement> xDai = doiitem.Elements().ToList();
 
                                     foreach (var daiitem in xDai)
@@ -714,20 +726,21 @@ namespace Server.Parser
                                         if (daiitem.Attribute("name") != null)
                                         {
                                             if ((from x in daiitem.Descendants()
-                                                    where x.Name.LocalName == "DAI"
-                                                    select x).ToList().Count == 0)
+                                                 where x.Name.LocalName == "DAI"
+                                                 select x).ToList().Count == 0)
                                             {
                                                 //Если нет вложений типа DA
+                                                // ReSharper disable once PossibleNullReferenceException
                                                 var dai = daiitem.Attribute("name").Value;
                                                 var value = daiitem.Value;
                                                 ParseFillModel(ied, ld, ln, doi, dai, typeDo, value);
-                                                //     StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, dai, value);
                                             }
                                             else
                                             {
                                                 //Если есть вложения типа DA
+                                                // ReSharper disable once PossibleNullReferenceException
                                                 var dai = daiitem.Attribute("name").Value;
-                                                ParseDefultParamBDA(daiitem, ied, ld, ln, doi, typeDo, dai);
+                                                ParseDefultParamBda(daiitem, ied, ld, ln, doi, typeDo, dai);
                                             }
                                         }
                                     }
@@ -739,7 +752,7 @@ namespace Server.Parser
             }
         }
 
-        private void ParseDefultParamBDA(XElement bdai, string ied, string ld, string ln, string doi, string[] typeDO, string dai)
+        private void ParseDefultParamBda(XElement bdai, string ied, string ld, string ln, string doi, string[] typeDo, string dai)
         {
             IEnumerable<XElement> xDai = bdai.Elements().ToList();
 
@@ -753,16 +766,17 @@ namespace Server.Parser
                             select x).ToList().Count == 0)
                     {
                         //Если нет вложений типа DA
+                        // ReSharper disable once PossibleNullReferenceException
                         var daitemp = dai + "." + daiitem.Attribute("name").Value;
                         var value = daiitem.Value;
-                        ParseFillModel(ied, ld, ln, doi, daitemp, typeDO, value);
-                        //      StructDefultDataObj.AddStructDefultDataObj(ied, ld, ln, doi, daitemp, value);
+                        ParseFillModel(ied, ld, ln, doi, daitemp, typeDo, value);
                     }
                     else
                     {
                         //Если есть вложения типа DA
+                        // ReSharper disable once PossibleNullReferenceException
                         var daitemp = dai + "." + daiitem.Attribute("name").Value;
-                        ParseDefultParamBDA(daiitem, ied, ld, ln, doi, typeDO, daitemp);
+                        ParseDefultParamBda(daiitem, ied, ld, ln, doi, typeDo, daitemp);
                     }
                 }
             }
@@ -770,59 +784,136 @@ namespace Server.Parser
 
         private void ParseFillModel(string ied, string ld, string ln, string doi, string daitemp, string[] typeDo, string value)
         {
-            var LN = (from x in StructModelObj.Model.ListLD
-                where x.NameLD == ld
-                select x.ListLN).ToList().Last().ToList();
-
-
-            var DO = (from x in LN
-                where x.NameLN == ln
-                select x.ListDO).ToList().Last().ToList();
-
-            var tempDO = (from x in DO
-                where x.NameDO == doi
-                select x).ToList().Last();
-
-            if (typeDo.ToList().Count == 3)
+            try
             {
-                string[] typeTempDO = typeDo[0].Split(':');
-                tempDO.InfoData(typeTempDO[0], typeTempDO[1], typeDo[1], typeDo[2]);
+                var Do = (from x in (from x in StructModelObj.Model.ListLD
+                                     where x.NameLD == ld
+                                     select x.ListLN).ToList().Last().ToList()
+                          where x.NameLN == ln
+                          select x.ListDO).ToList().Last().ToList();
+
+                var tempDo = (from x in Do
+                    where x.NameDO == doi
+                    select x).ToList().Last();
+                
+                if (typeDo.ToList().Count == 3)
+                {
+                    string[] typeTempDo = typeDo[0].Split(':');
+                    tempDo.InfoData(typeTempDo[0], typeTempDo[1], typeDo[1], typeDo[2]);
+                }
+                else
+                {
+                    tempDo.InfoData(null, "0", "0", typeDo[0]);
+                }
+
+                var da = (from x in Do
+                    where x.NameDO == doi
+                    select x.ListDA).ToList().Last().ToList();
+
+                string[] str = daitemp.Split('.');
+                var list = new List<string>(str);
+
+                string path = ied + ld + "/" + ln + "." + doi;
+
+                if (list.Count > 0)
+                {
+                    ParseFillModelBDA(list, da, value, path);
+                }
             }
-            else
+            catch
             {
-                tempDO.InfoData(null, "0", "0", typeDo[0]);
+                // ignored
             }
-
-            var DA = (from x in DO
-                where x.NameDO == doi
-                select x.ListDA).ToList().Last().ToList();
-
-            string[] str = daitemp.Split('.');
-            var list = new List<string>(str);
-
-            ParseFillModelBDA(list, DA, value);
         }
 
-        private void ParseFillModelBDA(List<string> list, List<StructModelObj.NodeDA> DAI, string value)
+        private void ParseFillModelBDA(List<string> list, List<StructModelObj.NodeDA> dai, string value, string path)
         {
             if (list.Count == 1)
             {
-                var DA = (from x in DAI
+                var da = (from x in dai
                     where x.NameDA == list[0]
                     select x).ToList().Last();
 
-                DA.Value = value;
+
+                //С учетом формата
+
+                if (da.BTypeDA.ToUpper() == "INT32" || da.BTypeDA.ToUpper() == "INT")
+                {
+                    try
+                    {
+                        da.Value = Convert.ToInt32(value).ToString(); 
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+                else if (da.BTypeDA.ToUpper() == "BOOL" || da.BTypeDA.ToUpper() == "BOOLEAN")
+                {
+                    try
+                    {
+                        da.Value = Convert.ToBoolean(value).ToString();
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+                else if (da.BTypeDA.ToUpper() == "ENUM" || da.BTypeDA.ToUpper() == "ENUMERATED")
+                {
+                    try
+                    {
+                        da.Value = Convert.ToInt32(value).ToString();
+                    }
+                    catch
+                    {
+                        //Для ENUMERATED типов 
+                        if (da.TypeDA.ToUpper() == "SIUnit".ToUpper())
+                        {
+                            da.Value = (from x in (from x in StructModelObj.ListEnumType
+                                                   where x.NameEnumType.ToUpper() == "SIUNIT".ToUpper()
+                                                   select x.ListEnumVal).ToList().First()
+                                        where x.ValEnumVal.ToUpper() == value.ToUpper()
+                                        select x.OrdEnumVal).ToList().First().ToString();
+                        }
+
+                        else if (da.TypeDA.ToUpper() == "multiplier".ToUpper())
+                        {
+                            da.Value = (from x in (from x in StructModelObj.ListEnumType
+                                                   where x.NameEnumType.ToUpper() == "multiplier".ToUpper()
+                                                   select x.ListEnumVal).ToList().First()
+                                        where x.ValEnumVal.ToUpper() == value.ToUpper()
+                                        select x.OrdEnumVal).ToList().First().ToString();
+                        }
+
+                        else if (da.TypeDA.ToUpper() == "CtlModels".ToUpper())
+                        {
+                            da.Value = (from x in (from x in StructModelObj.ListEnumType
+                                                   where x.NameEnumType.ToUpper() == "CtlModels".ToUpper()
+                                                   select x.ListEnumVal).ToList().First()
+                                        where x.ValEnumVal.ToUpper().Replace('-', '_') == value.ToUpper().Replace('-','_')
+                                        select x.OrdEnumVal).ToList().First().ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    da.Value = value;
+                }
+
+                StructDefultDataObj.structFillDataObj.Add(new StructDefultDataObj.DefultDataObj(path + "." + list[0], da.BTypeDA, da.Value));
             }
             else
             {
                 if (list.Count == 0) { return; }
 
-                var DA = (from x in DAI
-                    where x.NameDA == list[0]
-                    select x.ListDA).ToList().Last().ToList();
+                var da = (from x in dai
+                          where x.NameDA == list[0]
+                          select x.ListDA).ToList().Last().ToList();
 
+                path += "." + list[0];
                 list.RemoveAt(0);
-                ParseFillModelBDA(list, DA, value);
+                ParseFillModelBDA(list, da, value, path);
             }
         }
         #endregion
@@ -856,17 +947,6 @@ namespace Server.Parser
                     if (setDo.Count != 0)
                     {
 
-                        continue;
-                    }
-
-                    var defualtDo = (from x in itemLn.ListDO
-                                     where x.Type == "D"
-                                     select x).ToList();
-
-
-                    if (defualtDo.Count != 0)
-                    {
-                        DefualtDo(defualtDo, pathNameLD + "/" + pathNameLN);
                     }
                 }
             }
@@ -921,6 +1001,17 @@ namespace Server.Parser
 
                     StructUpdateDataObj.DataObject dataObj = new StructUpdateDataObj.DataObject(pathNameDo, itemDo.Format,itemDo.Mask,itemDo.Addr,itemDo.TypeDO,mv);
                     StructUpdateDataObj.DataClassGet.Add(dataObj);
+                    continue;
+                }
+
+                if (itemDo.TypeDO == "SPS")
+                {
+                    string pathNameDo = path + "." + itemDo.NameDO;
+                    var sps = new SpsClass();
+
+                    StructUpdateDataObj.DataObject dataObj = new StructUpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, sps);
+                    StructUpdateDataObj.DataClassGet.Add(dataObj);
+                    continue;
                 }
             }
         }

@@ -83,10 +83,10 @@
 						<private type="EnergocomplektType">A:0;521;G</private>					
 						<DAI name="units" valKind="Set">
 							<DAI name="SIUnit" valKind="Set">
-								<Val>29</Val>
+								<Val>kg</Val>
 							</DAI>
 							<DAI name="multiplier" valKind="Set">
-								<Val>0</Val>
+								<Val>z</Val>
 							</DAI>
 						</DAI>
 						<DAI name="sVC" valKind="Set">
@@ -117,6 +117,25 @@
 							</DAI>
 						</DAI>
 					</DOI>
+					<DOI name="AnIn3" desc="">
+						<private type="EnergocomplektType">A:0;269;G</private>					
+						<DAI name="units" valKind="Set">
+							<DAI name="SIUnit" valKind="Set">
+								<Val>10</Val>
+							</DAI>
+							<DAI name="multiplier" valKind="Set">
+								<Val>1</Val>
+							</DAI>
+						</DAI>
+						<DAI name="sVC" valKind="Set">
+							<DAI name="scaleFactor" valKind="Set">
+								<Val>1</Val>
+							</DAI>
+							<DAI name="offset" valKind="Set">
+								<Val>1.5</Val>
+							</DAI>
+						</DAI>
+					</DOI>
 				</LN>	
                <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_">
 			   		<DOI name="Ind1" desc="">
@@ -127,7 +146,7 @@
                <LN lnClass="GGIO" lnType="tGGIO_8SPCO" inst="1" prefix="8DO_">
                   <DOI name="SPCSO1" desc="">
                      <DAI name="ctlModel" valKind="Set">
-                        <Val>1</Val>
+                        <Val>direct-with-normal-security</Val>
                      </DAI>
                   </DOI>
                   <DOI name="SPCSO2" desc="">

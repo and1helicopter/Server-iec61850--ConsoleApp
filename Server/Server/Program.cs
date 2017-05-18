@@ -44,7 +44,7 @@ namespace Server
         }
 
         private static void RuningServer()
-        {         
+        {
             while (_running)
             {
                 _iedServer.LockDataModel();
@@ -67,6 +67,7 @@ namespace Server
             _iedModel = IedModel.CreateFromFile(nameConfigFile);
             _iedServer = new IedServer(_iedModel);
 
+            //
             StaticUpdateData();
 
 
@@ -77,9 +78,6 @@ namespace Server
             if (_iedModel != null)
             {
                 _iedServer.Start(portNum);
-
-
-
 
                 Thread myThread = new Thread(RuningServer)
                 {
@@ -114,58 +112,27 @@ namespace Server
 
         private static void StaticUpdateData()
         {
-            InitDefultParam();
-
-            string format;
-            string value;
-            string path;
+            foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
+            {
+                InitStaticUpdateData(itemDefultDataObj.Type, itemDefultDataObj.Value, itemDefultDataObj.Path);
+            }
 
             foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
             {
-              //  FileParser.UpdateStaticDataObj(itemDefultDataObj, out format, out value, out path);
-
-               // InitStaticUpdateData(format, value, path);
+                InitStaticUpdateData(itemDefultDataObj.Type, itemDefultDataObj.Value, itemDefultDataObj.Path);
             }
+
+            //InitDefultParam();
+
+
         }
 
         private static void InitDefultParam()
         {
-            InitDefultParamClass();
-
-            //string format;
-            //string value;
-            //string path;
-
-            //foreach (var itemLd in StructModelObj.Model.ListLD)
-            //{
-            //    foreach (var itemLn in itemLd.ListLN)
-            //    {
-            //        foreach (var itemDo in itemLn.ListDO)
-            //        {
-            //            foreach (var itemDa in itemDo.ListDA)
-            //            {
-            //                _fileParser.CoonvertStaticDataObj(_fileParser.MapLibiecType(itemDa.BTypeDA), out format);
-
-            //                value = itemDa.Value;
-            //                path = itemLd.NameLD + "/" + itemLn.NameLN + "." + itemDo.NameDO + "." + itemDa.NameDA;
+            
+            //InitDefultParamClass();
 
 
-            //                if (itemDa.ListDA.Count == 0)
-            //                {
-            //                    if (value != null)
-            //                    {
-            //                        InitStaticUpdateData(format, value, path);
-            //                    }
-            //                }
-            //                else
-            //                {
-            //                   //InitDefultParamBda();
-            //                }
-
-            //            }
-            //        }
-            //    }
-            //}
         }
 
         private static void InitDefultParamClass()
@@ -177,9 +144,10 @@ namespace Server
                     MV_ClassSet(itemDataObject);
                     continue;
                 }
-
-                if (itemDataObject.ClassDataObj == "ololo")
+                
+                if (itemDataObject.ClassDataObj == "SPS")
                 {
+                    SPS_ClassSet(itemDataObject);
                     continue;
                 }
             }
@@ -218,34 +186,40 @@ namespace Server
             InitStaticUpdateData("string", ((MvClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
         }
 
+        private static void SPS_ClassSet(StructUpdateDataObj.DataObject itemDataObject)
+        {
+            //d
+            InitStaticUpdateData("string", ((SpsClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
+        }
+
         private static void InitStaticUpdateData(string format, string value, string path)
         {
-            if (format == "bool")
+            if (format.ToUpper() == "bool".ToUpper())
             {
                 UpdateBool(path, value);
                 return;
             }
-            if (format == "int")
+            if (format.ToUpper() == "int".ToUpper())
             {
                 UpdateInt(path, value);
                 return;
             }
-            if (format == "float")
+            if (format.ToUpper() == "float".ToUpper())
             {
                 UpdateFloat(path, value);
                 return;
             }
-            if (format == "string")
+            if (format.ToUpper() == "string".ToUpper())
             {
                 UpdateString(path, value);
                 return;
             }
-            if (format == "datetime")
+            if (format.ToUpper() == "datetime".ToUpper())
             {
                 UpdateDateTime(path, value);
                 return;
             }
-            if (format == "ushort")
+            if (format.ToUpper() == "ushort".ToUpper())
             {
                 UpdateUshort(path, value);
             }
@@ -321,8 +295,9 @@ namespace Server
                     continue;
                 }
 
-                if (itemDataObject.ClassDataObj == "ololo")
+                if (itemDataObject.ClassDataObj == "SPS")
                 {
+                    SPS_ClassUpdate(itemDataObject);
                     continue;
                 }
             }
@@ -342,6 +317,23 @@ namespace Server
 
             var qPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".q");
             var qVal = Convert.ToUInt16(((MvClass)itemDataObject.DataObj).q.Validity);
+            _iedServer.UpdateQuality(qPath, qVal);
+        }
+        
+        private static void SPS_ClassUpdate(StructUpdateDataObj.DataObject itemDataObject)
+        {
+            ((SpsClass)itemDataObject.DataObj).QualityCheckClass();
+
+            var stValPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".stVal");
+            var stValVal = Convert.ToBoolean(((SpsClass)itemDataObject.DataObj).stVal);
+            _iedServer.UpdateBooleanAttributeValue(stValPath, stValVal);
+
+            var tPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".t");
+            var tVal = Convert.ToDateTime(((SpsClass)itemDataObject.DataObj).t);
+            _iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+            var qPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".q");
+            var qVal = Convert.ToUInt16(((SpsClass)itemDataObject.DataObj).q.Validity);
             _iedServer.UpdateQuality(qPath, qVal);
         }
     }
