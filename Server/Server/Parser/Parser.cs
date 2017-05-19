@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace Server.Parser
 {
-    public class FileParser
+    public partial class Parser
     {
         public void ParseFile()
         {
@@ -31,335 +31,11 @@ namespace Server.Parser
             }
         }
 
-        #region Парсер файла на основные клсассы 
-        private void ParseDocument(XDocument doc)
-        {
-            XNamespace xNamespace = doc.Root.Name.Namespace;
-
-            XElement xIed = doc.Root.Element(xNamespace + "IED");
-
-            if (xIed != null)
-            {
-                var xAttribute = xIed.Attribute("name");
-                if (xAttribute != null)
-                    StructModelObj.Model = new StructModelObj.NodeModel(xAttribute.Value);
-            }
-
-            IEnumerable<XElement> xLd = (from x in doc.Descendants()
-                where x.Name.LocalName == "LDevice"
-                select x).ToList();
-
-            foreach (var ld in xLd)
-            {
-                var xAttribute = ld.Attribute("inst");
-                if (xAttribute != null)
-                {
-                    StructModelObj.Model.AddListLD(new StructModelObj.NodeLD(xAttribute.Value));
-
-                    IEnumerable<XElement> xLn = ld.Elements().ToList();
-
-                    foreach (var ln in xLn)
-                    {
-                        var xAttributelnClass = ln.Attribute("lnClass");
-                        var xAttributeinst = ln.Attribute("inst");
-                        if (xAttributelnClass != null && xAttributeinst != null)
-                        {
-                            var xAttributeprefix = ln.Attribute("prefix");
-                            string nameLn;
-                            if (xAttributeprefix != null)
-                            {
-                                nameLn = xAttributeprefix.Value + xAttributelnClass.Value + xAttributeinst.Value;
-                            }
-                            else
-                            {
-                                nameLn = xAttributelnClass.Value + xAttributeinst.Value;
-                            }
-                            var xAttributelnType = ln.Attribute("lnType");
-                            if (xAttributelnType != null)
-                            {
-                                var lnClassLn = xAttributelnType.Value;
-                                string xdescStr = "";
-                                StructModelObj.Model.ListLD.Last().ListLN.Add(new StructModelObj.NodeLN(nameLn, lnClassLn, xdescStr));
-                            }
-                        }
-                    }
-                }
-            }
-
-            ParseLn(doc);
-            ParseDo(doc);
-            ParseDA(doc);
-            ParseEnum(doc);
-        }
-
-        private static void ParseLn(XDocument doc)
-        {
-            IEnumerable<XElement> xLn = (from x in doc.Descendants()
-                where x.Name.LocalName == "LNodeType"
-                select x).ToList();
-
-            foreach (var ln in xLn)
-            {
-                var xlnClass = ln.Attribute("lnClass");
-                var xid = ln.Attribute("id");
-                if (xlnClass != null && xid != null)
-                {
-                    string xdescStr = "";
-                    if (ln.Attribute("desc") != null)
-                    {
-                        xdescStr = ln.Attribute("desc").Value;
-                    }
-                    StructModelObj.ListTempLN.Add(new StructModelObj.NodeLN(xlnClass.Value, xid.Value, xdescStr));
-                    IEnumerable<XElement> xDoElements = (from x in ln.Descendants()
-                        where x.Name.LocalName == "DO"
-                        select x).ToList();
-                    foreach (var DO in xDoElements)
-                    {
-                        var xNameDo = DO.Attribute("name");
-                        var xTypeDo = DO.Attribute("type");
-                        if (xNameDo != null && xTypeDo != null)
-                        {
-                            var nameDo = xNameDo.Value;
-                            var typeDo = xTypeDo.Value;
-                            xdescStr = "";
-                            if (DO.Attribute("desc") != null)
-                            {
-                                xdescStr = DO.Attribute("desc").Value;
-                            }
-
-                            StructModelObj.ListTempLN.Last().AddDOToLN(new StructModelObj.NodeDO(nameDo, typeDo, xdescStr));
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void ParseDo(XDocument doc)
-        {
-            IEnumerable<XElement> xDo = (from x in doc.Descendants()
-                where x.Name.LocalName == "DOType"
-                select x).ToList();
-
-            foreach (var DO in xDo)
-            {
-                var nameDO = DO.Attribute("id").Value;
-                var typeDO = DO.Attribute("cdc").Value;
-                string xdescStr = "";
-                if (DO.Attribute("desc") != null)
-                {
-                    xdescStr = DO.Attribute("desc").Value;
-                }
-
-                StructModelObj.ListTempDO.Add(new StructModelObj.NodeDO(nameDO, typeDO, xdescStr));
-
-                IEnumerable<XElement> xDAElements = (from x in DO.Descendants()
-                    where x.Name.LocalName == "DA"
-                    select x).ToList();
-
-                foreach (var DA in xDAElements)
-                {
-                    var nameDA = DA.Attribute("name").Value;
-                    var fcDA = DA.Attribute("fc") != null
-                        ? DA.Attribute("fc").Value
-                        : DA.Parent.Attribute("fc").Value;
-                    var bTypeDA = DA.Attribute("bType").Value;
-                    var typeDA = DA.Attribute("type") != null
-                        ? DA.Attribute("type").Value
-                        : DA.Parent.Attribute("type") != null
-                            ? DA.Parent.Attribute("type").Value
-                            : null;
-                    var trgOpsDA = TriggerOptions.NONE;
-                    var countDA = DA.Attribute("count") != null ? DA.Attribute("count").Value : "0";
-
-                    //if (bTypeDA.Equals("Enum"))
-                    //{
-                    //    bTypeDA = String.Concat(bTypeDA, " (Integer)");
-                    //}
-
-                    var dchgDA = DA.Attribute("dchg");
-                    if ((dchgDA != null ? dchgDA.Value : "false").ToLower() == "true")
-                        trgOpsDA |= TriggerOptions.DATA_CHANGED;
-
-                    var qchgDA = DA.Attribute("qchg");
-                    if ((qchgDA != null ? qchgDA.Value : "false").ToLower() == "true")
-                        trgOpsDA |= TriggerOptions.QUALITY_CHANGED;
-
-                    var dupdDA = DA.Attribute("dupd");
-                    if ((dupdDA != null ? dupdDA.Value : "false").ToLower() == "true")
-                        trgOpsDA |= TriggerOptions.DATA_UPDATE;
-
-                    StructModelObj.ListTempDO.Last()
-                        .AddDAToDA(new StructModelObj.NodeDA(nameDA, fcDA, bTypeDA, typeDA, (byte)trgOpsDA, countDA));
-
-                    if (DA.Value != "")
-                    {
-                        StructModelObj.ListTempDO.Last().ListDA.Last().Value = DA.Value;
-                    }
-                }
-            }
-        }
-
-        private static void ParseDA(XDocument doc)
-        {
-            IEnumerable<XElement> xDA = (from x in doc.Descendants()
-                where x.Name.LocalName == "DAType"
-                select x).ToList();
-
-            foreach (var DA in xDA)
-            {
-                var nameDA = DA.Attribute("id").Value;
-
-                StructModelObj.ListTempDA.Add(new StructModelObj.TypeDA(nameDA));
-
-                IEnumerable<XElement> xDAElements = (from x in DA.Descendants()
-                    where x.Name.LocalName == "BDA"
-                    select x).ToList();
-
-                foreach (var BDA in xDAElements)
-                {
-                    var nameBDA = BDA.Attribute("name").Value;
-                    var fcBDA = BDA.Attribute("fc") != null ? BDA.Attribute("fc").Value : null;
-                    var bTypeBDA = BDA.Attribute("bType").Value;
-                    var typeBDA = BDA.Attribute("type") != null ? BDA.Attribute("type").Value : null;
-                    var trgOpsBDA = TriggerOptions.NONE;
-                    var countBDA = BDA.Attribute("count") != null ? BDA.Attribute("count").Value : "0";
-
-                    //if (bTypeBDA.Equals("Enum"))
-                    //{
-                    //    bTypeBDA = String.Concat(bTypeBDA, " (Integer)");
-                    //}
-
-                    var dchgBDA = BDA.Attribute("dchg");
-                    if ((dchgBDA != null ? dchgBDA.Value : "false").ToLower() == "true")
-                        trgOpsBDA |= TriggerOptions.DATA_CHANGED;
-
-                    var qchgBDA = BDA.Attribute("qchg");
-                    if ((qchgBDA != null ? qchgBDA.Value : "false").ToLower() == "true")
-                        trgOpsBDA |= TriggerOptions.QUALITY_CHANGED;
-
-                    var dupdBDA = BDA.Attribute("dupd");
-                    if ((dupdBDA != null ? dupdBDA.Value : "false").ToLower() == "true")
-                        trgOpsBDA |= TriggerOptions.DATA_UPDATE;
-
-                    StructModelObj.ListTempDA.Last().ListDA.Add(new StructModelObj.NodeDA(nameBDA, fcBDA, bTypeBDA, typeBDA, (byte)trgOpsBDA, countBDA));
-
-                    if (BDA.Value != "")
-                    {
-                        StructModelObj.ListTempDO.Last().ListDA.Last().Value = BDA.Value;
-                    }
-                }
-            }
-        }
-
-        private static void ParseEnum(XDocument doc)
-        {
-            IEnumerable<XElement> xEnum = (from x in doc.Descendants()
-                where x.Name.LocalName == "EnumType"
-                select x).ToList();
-
-            foreach (var Enum in xEnum)
-            {
-                var nameEnum = Enum.Attribute("id").Value;
-
-                StructModelObj.ListEnumType.Add(new StructModelObj.EnumType(nameEnum));
-
-                IEnumerable<XElement> xEnumVal = (from x in Enum.Descendants()
-                    where x.Name.LocalName == "EnumVal"
-                    select x).ToList();
-
-                foreach (var EnumVal in xEnumVal)
-                {
-                    var nameEnumVal = Convert.ToInt32(EnumVal.Attribute("ord").Value);
-                    var valEnumVal = EnumVal.Value != null ? EnumVal.Value : "";
-
-                    StructModelObj.ListEnumType.Last().ListEnumVal.Add(new StructModelObj.EnumType.EnumVal(nameEnumVal, valEnumVal));
-                }
-            }
-        }
-        #endregion
-
-        #region Объединение основных классов в объектную модель
-        private void JoinModel()
-        {
-            AddDo(StructModelObj.Model);
-        }
-
-        private void AddDo(StructModelObj.NodeModel model)
-        {
-            foreach (var ld in model.ListLD)
-            {
-                foreach (var ln in ld.ListLN)
-                {
-                    foreach (var tempLn in StructModelObj.ListTempLN)
-                    {
-                        if (ln.LnClassLN == tempLn.LnClassLN)
-                        {
-                            string desc = tempLn.DescLN;
-                            ln.DescLN = desc;
-                            foreach (var tempDo in tempLn.ListDO)
-                            {
-                                desc = tempDo.DescDO;
-                                StructModelObj.NodeDO DO = new StructModelObj.NodeDO(tempDo.NameDO, tempDo.TypeDO, desc);
-
-                                ln.ListDO.Add(DO);
-                                AddDa(ln.ListDO);
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void AddDa(List<StructModelObj.NodeDO> DO)
-        {
-            foreach (var tempDo in StructModelObj.ListTempDO)
-            {
-                if (DO.Last().TypeDO == tempDo.NameDO)
-                {
-                    foreach (var tempDa in tempDo.ListDA)
-                    {
-                        StructModelObj.NodeDA da = new StructModelObj.NodeDA(tempDa.NameDA, tempDa.FCDA, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
-                        da.Value = tempDa.Value;
-
-                        DO.Last().ListDA.Add(da);
-
-                        if (DO.Last().ListDA.Last().TypeDA != null && DO.Last().ListDA.Last().BTypeDA != "Enum")
-                        {
-                            AddBda(DO.Last().ListDA.Last(), da.FCDA);
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-
-        private static void AddBda(StructModelObj.NodeDA listDa, string fcDa)
-        {
-            foreach (var listTempDa in StructModelObj.ListTempDA)
-            {
-                if (listDa.TypeDA == listTempDa.NameTypeDA)
-                {
-                    foreach (var tempDa in listTempDa.ListDA)
-                    {
-                        StructModelObj.NodeDA da = new StructModelObj.NodeDA(tempDa.NameDA, tempDa.FCDA ?? fcDa, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
-
-                        listDa.ListDA.Add(da);
-                        if (listDa.ListDA.Last().TypeDA != null)
-                        {
-                            AddBda(listDa.ListDA.Last(), da.FCDA);
-                        }
-                    }
-                }
-            }
-        }
-        #endregion
 
         #region Заполнение  модели параметрами по умолчанию
         private void ModelFillDefultParam()
         {
-            foreach (var itemLd in StructModelObj.Model.ListLD)
+            foreach (var itemLd in ServerModel.Model.ListLD)
             {
                 string nameItemLd = itemLd.NameLD;
 
@@ -381,21 +57,21 @@ namespace Server.Parser
                                          select x).ToList().First();
 
                             stVal.Value  = "false";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" +nameItemLn + "." + nameItemDo + ".stVal", "bool", stVal.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" +nameItemLn + "." + nameItemDo + ".stVal", "bool", stVal.Value));
 
                             var q = (from x in itemDo.ListDA
                                      where x.NameDA.ToUpper() == "q".ToUpper()
                                      select x).ToList().First();
 
                             q.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
                                      where x.NameDA.ToUpper() == "t".ToUpper()
                                      select x).ToList().First();
 
-                            t.Value = DateTime.Now.ToString() + DateTime.Now.Millisecond;
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+                            t.Value = DateTime.Now.ToString();// + DateTime.Now.Millisecond;
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
                             continue;
                         }
 
@@ -407,21 +83,21 @@ namespace Server.Parser
                                 select x).ToList().First();
 
                             stVal.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal", "int", stVal.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal", "int", stVal.Value));
 
                             var q = (from x in itemDo.ListDA
                                 where x.NameDA.ToUpper() == "q".ToUpper()
                                 select x).ToList().First();
 
                             q.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
                                 where x.NameDA.ToUpper() == "t".ToUpper()
                                 select x).ToList().First();
 
-                            t.Value = DateTime.Now.ToString() + DateTime.Now.Millisecond;
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+                            t.Value = DateTime.Now.ToString();// + DateTime.Now.Millisecond;
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
                             continue;
                         }
                         #endregion
@@ -437,7 +113,7 @@ namespace Server.Parser
                                      select y).ToList().First();
 
                             f.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".AnalogueValue.f", "float", f.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".mag.f", "float", f.Value));
 
                             var siUnit = (from y in (from x in itemDo.ListDA
                                                      where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
@@ -446,7 +122,7 @@ namespace Server.Parser
                                           select y).ToList().First();
 
                             siUnit.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.SIUnit", "int", siUnit.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".units.SIUnit", "int", siUnit.Value));
 
                             var multiplier = (from y in (from x in itemDo.ListDA
                                                          where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
@@ -455,7 +131,7 @@ namespace Server.Parser
                                               select y).ToList().First();
 
                             multiplier.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.Multiplier", "int", multiplier.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".units.multiplier", "int", multiplier.Value));
                             
                             var scaleFactor = (from y in (from x in itemDo.ListDA
                                                                            where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
@@ -464,7 +140,7 @@ namespace Server.Parser
                                                                 select y).ToList().First();
 
                             scaleFactor.Value = "1";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.ScaleFactor", "float", scaleFactor.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".sVC.scaleFactor", "float", scaleFactor.Value));
                             
                             var offset = (from y in (from x in itemDo.ListDA
                                                                       where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
@@ -473,21 +149,21 @@ namespace Server.Parser
                                                            select y).ToList().First();
 
                             offset.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.Offset", "float", offset.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".sVC.offset", "float", offset.Value));
 
                             var q = (from x in itemDo.ListDA
                                 where x.NameDA.ToUpper() == "q".ToUpper()
                                 select x).ToList().First();
 
                             q.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
                                 where x.NameDA.ToUpper() == "t".ToUpper()
                                 select x).ToList().First();
 
-                            t.Value = DateTime.Now.ToString() + DateTime.Now.Millisecond;
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+                            t.Value = DateTime.Now.ToString();// + DateTime.Now.Millisecond;
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
                             continue;
                         }
 
@@ -495,63 +171,63 @@ namespace Server.Parser
                         if (itemDo.TypeDO == "CMV")
                         {
                             //var f = (from y in (from x in itemDo.ListDA
-                            //        where x.TypeDA != null && x.TypeDA.ToUpper() == "AnalogueValue".ToUpper()
+                            //        where x.TempDA != null && x.TempDA.ToUpper() == "AnalogueValue".ToUpper()
                             //        select x).ToList().Last().ListDA.ToList()
                             //    where y.NameDA.ToUpper() == "f".ToUpper()
                             //    select y).ToList().First();
 
                             //f.Value = "0";
-                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".AnalogueValue.f", "float", f.Value));
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".AnalogueValue.f", "float", f.Value));
 
                             //var siUnit = (from y in (from x in itemDo.ListDA
-                            //        where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
+                            //        where x.TempDA != null && x.TempDA.ToUpper() == "Unit".ToUpper()
                             //        select x).ToList().Last().ListDA.ToList()
                             //    where y.NameDA.ToUpper() == "SIUnit".ToUpper()
                             //    select y).ToList().First();
 
                             //siUnit.Value = "0";
-                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.SIUnit", "int", siUnit.Value));
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.SIUnit", "int", siUnit.Value));
 
                             //var multiplier = (from y in (from x in itemDo.ListDA
-                            //        where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
+                            //        where x.TempDA != null && x.TempDA.ToUpper() == "Unit".ToUpper()
                             //        select x).ToList().Last().ListDA.ToList()
                             //    where y.NameDA.ToUpper() == "Multiplier".ToUpper()
                             //    select y).ToList().First();
 
                             //multiplier.Value = "0";
-                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.Multiplier", "int", multiplier.Value));
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.Multiplier", "int", multiplier.Value));
 
                             //var scaleFactor = (from y in (from x in itemDo.ListDA
-                            //        where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+                            //        where x.TempDA != null && x.TempDA.ToUpper() == "MagSVC".ToUpper()
                             //        select x).ToList().Last().ListDA.ToList()
                             //    where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
                             //    select y).ToList().First();
 
                             //scaleFactor.Value = "1";
-                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.ScaleFactor", "float", scaleFactor.Value));
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.ScaleFactor", "float", scaleFactor.Value));
 
                             //var offset = (from y in (from x in itemDo.ListDA
-                            //        where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+                            //        where x.TempDA != null && x.TempDA.ToUpper() == "MagSVC".ToUpper()
                             //        select x).ToList().Last().ListDA.ToList()
                             //    where y.NameDA.ToUpper() == "Offset".ToUpper()
                             //    select y).ToList().First();
 
                             //offset.Value = "0";
-                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.Offset", "float", offset.Value));
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.Offset", "float", offset.Value));
 
                             //var q = (from x in itemDo.ListDA
                             //    where x.NameDA.ToUpper() == "q".ToUpper()
                             //    select x).ToList().First();
 
                             //q.Value = "0";
-                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
 
                             //var t = (from x in itemDo.ListDA
                             //    where x.NameDA.ToUpper() == "t".ToUpper()
                             //    select x).ToList().First();
 
                             //t.Value = DateTime.Now.ToString() + DateTime.Now.Millisecond;
-                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
                             //continue;
                         }
                         #endregion
@@ -560,40 +236,40 @@ namespace Server.Parser
                         //Класс SPC (недублированное управление и состояние)
                         if (itemDo.TypeDO == "SPC")
                         {
-                            var ctlVal = (from x in itemDo.ListDA
-                                         where x.NameDA.ToUpper() == "ctlVal".ToUpper()
-                                         select x).ToList().Last();
+                            //var ctlVal = (from x in itemDo.ListDA
+                            //             where x.NameDA.ToUpper() == "ctlVal".ToUpper()
+                            //             select x).ToList().Last();
 
-                            ctlVal.Value = "false";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "bool", ctlVal.Value));
+                            //ctlVal.Value = "false";
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "bool", ctlVal.Value));
 
                             var stVal = (from x in itemDo.ListDA
                                 where x.NameDA.ToUpper() == "stVal".ToUpper()
                                 select x).ToList().Last();
 
                             stVal.Value = "false";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal", "bool", stVal.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal", "bool", stVal.Value));
 
                             var ctlModel = (from x in itemDo.ListDA
                                 where x.NameDA.ToUpper() == "ctlModel".ToUpper()
                                 select x).ToList().Last();
 
                             stVal.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int", stVal.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int", stVal.Value));
 
                             var q = (from x in itemDo.ListDA
                                 where x.NameDA.ToUpper() == "q".ToUpper()
                                 select x).ToList().First();
 
                             q.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
                                 where x.NameDA.ToUpper() == "t".ToUpper()
                                 select x).ToList().First();
 
-                            t.Value = DateTime.Now.ToString() + DateTime.Now.Millisecond;
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+                            t.Value = DateTime.Now.ToString();// + DateTime.Now.Millisecond;
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
                             continue;
                         }
 
@@ -605,40 +281,40 @@ namespace Server.Parser
                             //public Int32 ctlModel;
                             //public String d;
 
-                            var ctlVal = (from x in itemDo.ListDA
-                                          where x.NameDA.ToUpper() == "ctlVal".ToUpper()
-                                          select x).ToList().Last();
+                            //var ctlVal = (from x in itemDo.ListDA
+                            //              where x.NameDA.ToUpper() == "ctlVal".ToUpper()
+                            //              select x).ToList().Last();
 
-                            ctlVal.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "int", ctlVal.Value));
+                            //ctlVal.Value = "0";
+                            //StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "int", ctlVal.Value));
 
                             var stVal = (from x in itemDo.ListDA
                                          where x.NameDA.ToUpper() == "stVal".ToUpper()
                                          select x).ToList().Last();
 
                             stVal.Value = "false";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal", "bool", stVal.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal", "bool", stVal.Value));
 
                             var ctlModel = (from x in itemDo.ListDA
                                             where x.NameDA.ToUpper() == "ctlModel".ToUpper()
                                             select x).ToList().Last();
 
                             stVal.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int", stVal.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int", stVal.Value));
 
                             var q = (from x in itemDo.ListDA
                                      where x.NameDA.ToUpper() == "q".ToUpper()
                                      select x).ToList().First();
 
                             q.Value = "0";
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
                                      where x.NameDA.ToUpper() == "t".ToUpper()
                                      select x).ToList().First();
 
-                            t.Value = DateTime.Now.ToString() + DateTime.Now.Millisecond;
-                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(StructModelObj.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+                            t.Value = DateTime.Now.ToString();// + DateTime.Now.Millisecond;
+                            StructDefultDataObj.structDefultDataObj.Add(new StructDefultDataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
                             continue;
                         }
                         #endregion
@@ -708,7 +384,7 @@ namespace Server.Parser
                                         typeDo = type[0].Value.Split(';'); //Устанавливаю собственный формат
                                         //Отметим объекты которые изменяются
 
-                                        var tempDo = (from z in (from y in (from x in StructModelObj.Model.ListLD
+                                        var tempDo = (from z in (from y in (from x in ServerModel.Model.ListLD
                                                                          where x.NameLD.ToUpper() == ld.ToUpper()
                                                                          select x).ToList().First().ListLN
                                                               where y.NameLN.ToUpper() == ln.ToUpper()
@@ -716,7 +392,12 @@ namespace Server.Parser
                                                    where z.NameDO.ToUpper() == doi.ToUpper()
                                                    select z).ToList().First();
 
-                                        tempDo.InfoData(null, "0", "0", typeDo[2]);
+                                        tempDo.Type = typeDo[2];
+
+
+
+
+                                          //  InfoData(null, "0", "0", typeDo[2]);
                                     }
                                     IEnumerable<XElement> xDai = doiitem.Elements().ToList();
 
@@ -786,7 +467,7 @@ namespace Server.Parser
         {
             try
             {
-                var Do = (from x in (from x in StructModelObj.Model.ListLD
+                var Do = (from x in (from x in ServerModel.Model.ListLD
                                      where x.NameLD == ld
                                      select x.ListLN).ToList().Last().ToList()
                           where x.NameLN == ln
@@ -799,11 +480,15 @@ namespace Server.Parser
                 if (typeDo.ToList().Count == 3)
                 {
                     string[] typeTempDo = typeDo[0].Split(':');
-                    tempDo.InfoData(typeTempDo[0], typeTempDo[1], typeDo[1], typeDo[2]);
+
+                    tempDo.Type = typeDo[2];
+                    tempDo.Format = typeTempDo[0];
+                    tempDo.Mask = Convert.ToUInt16(typeTempDo[1]);
+                    tempDo.Addr = Convert.ToUInt16(typeDo[1]);
                 }
                 else
                 {
-                    tempDo.InfoData(null, "0", "0", typeDo[0]);
+                    tempDo.Type = typeDo[0];
                 }
 
                 var da = (from x in Do
@@ -826,7 +511,7 @@ namespace Server.Parser
             }
         }
 
-        private void ParseFillModelBDA(List<string> list, List<StructModelObj.NodeDA> dai, string value, string path)
+        private void ParseFillModelBDA(List<string> list, List<ServerModel.NodeDA> dai, string value, string path)
         {
             if (list.Count == 1)
             {
@@ -870,7 +555,7 @@ namespace Server.Parser
                         //Для ENUMERATED типов 
                         if (da.TypeDA.ToUpper() == "SIUnit".ToUpper())
                         {
-                            da.Value = (from x in (from x in StructModelObj.ListEnumType
+                            da.Value = (from x in (from x in ServerModel.ListEnumType
                                                    where x.NameEnumType.ToUpper() == "SIUNIT".ToUpper()
                                                    select x.ListEnumVal).ToList().First()
                                         where x.ValEnumVal.ToUpper() == value.ToUpper()
@@ -879,7 +564,7 @@ namespace Server.Parser
 
                         else if (da.TypeDA.ToUpper() == "multiplier".ToUpper())
                         {
-                            da.Value = (from x in (from x in StructModelObj.ListEnumType
+                            da.Value = (from x in (from x in ServerModel.ListEnumType
                                                    where x.NameEnumType.ToUpper() == "multiplier".ToUpper()
                                                    select x.ListEnumVal).ToList().First()
                                         where x.ValEnumVal.ToUpper() == value.ToUpper()
@@ -888,7 +573,7 @@ namespace Server.Parser
 
                         else if (da.TypeDA.ToUpper() == "CtlModels".ToUpper())
                         {
-                            da.Value = (from x in (from x in StructModelObj.ListEnumType
+                            da.Value = (from x in (from x in ServerModel.ListEnumType
                                                    where x.NameEnumType.ToUpper() == "CtlModels".ToUpper()
                                                    select x.ListEnumVal).ToList().First()
                                         where x.ValEnumVal.ToUpper().Replace('-', '_') == value.ToUpper().Replace('-','_')
@@ -921,7 +606,7 @@ namespace Server.Parser
         #region Создание обновляймых классов 
         private void CreateClasses()
         {
-            foreach (var itemLd in StructModelObj.Model.ListLD)
+            foreach (var itemLd in ServerModel.Model.ListLD)
             {
                 string pathNameLD = itemLd.NameLD;
 
@@ -954,7 +639,7 @@ namespace Server.Parser
 
 
 
-        private void GetDo(List<StructModelObj.NodeDO> getDo, string path)
+        private void GetDo(List<ServerModel.NodeDO> getDo, string path)
         {
             foreach (var itemDo in getDo)
             {
@@ -1016,7 +701,7 @@ namespace Server.Parser
             }
         }
 
-        private void DefualtDo(List<StructModelObj.NodeDO> defualtDo, string path)
+        private void DefualtDo(List<ServerModel.NodeDO> defualtDo, string path)
         {
             foreach (var itemDo in defualtDo)
             {
@@ -1036,11 +721,11 @@ namespace Server.Parser
             string savePath = "test.cfg";
             FileStream fs = new FileStream(savePath, FileMode.Create);
 
-            string str = $"MODEL({StructModelObj.Model.NameModel}){{\n";
+            string str = $"MODEL({ServerModel.Model.NameModel}){{\n";
             var array = System.Text.Encoding.Default.GetBytes(str);
             fs.Write(array, 0, array.Length);
 
-            SaveLd(fs, StructModelObj.Model.ListLD);
+            SaveLd(fs, ServerModel.Model.ListLD);
 
             str = "}\n";
             array = System.Text.Encoding.Default.GetBytes(str);
@@ -1049,7 +734,7 @@ namespace Server.Parser
             fs.Close();
         }
 
-        private void SaveLd(FileStream fs, List<StructModelObj.NodeLD> listLd)
+        private void SaveLd(FileStream fs, List<ServerModel.NodeLD> listLd)
         {
             foreach (var ld in listLd)
             {
@@ -1066,7 +751,7 @@ namespace Server.Parser
             }
         }
 
-        private void SaveLn(FileStream fs, List<StructModelObj.NodeLN> listLn)
+        private void SaveLn(FileStream fs, List<ServerModel.NodeLN> listLn)
         {
             foreach (var ln in listLn)
             {
@@ -1083,7 +768,7 @@ namespace Server.Parser
             }
         }
 
-        private void SaveDo(FileStream fs, List<StructModelObj.NodeDO> listDo)
+        private void SaveDo(FileStream fs, List<ServerModel.NodeDO> listDo)
         {
             foreach (var DO in listDo)
             {
@@ -1100,7 +785,7 @@ namespace Server.Parser
             }
         }
 
-        private void SaveDa(FileStream fs, List<StructModelObj.NodeDA> listDa)
+        private void SaveDa(FileStream fs, List<ServerModel.NodeDA> listDa)
         {
             // DA(<data attribute name> <nb of array elements> <type> <FC> <trigger options> <sAddr>)[=value];
             // Constructed>
@@ -1314,7 +999,7 @@ namespace Server.Parser
                     case "EX":
                         fco = (int)LibIecFunctionalConstraint.FC_EX;
                         break;
-                    case "CO":
+                    case "СО":
                         fco = (int)LibIecFunctionalConstraint.FC_CO;
                         break;
                     case "ALL":
@@ -1336,98 +1021,6 @@ namespace Server.Parser
             return fco;
         }
         #endregion
-
-        //public void UpdateStaticDataObj(StructDefultDataObj.DefultDataObj itemDefultDataObj, out string format, out string value, out string path)
-        //{
-        //    var oo = (from x in StructModelObj.Model.ListLD
-        //        where x.NameLD == itemDefultDataObj.LDevice
-        //        select x).ToList();
-
-        //    var oo1 = (from x in oo[0].ListLN
-        //        where x.NameLN == itemDefultDataObj.LN
-        //        select x).ToList();
-
-        //    var oo2 = (from x in oo1[0].ListDO
-        //        where x.NameDO == itemDefultDataObj.DOI
-        //        select x).ToList();
-
-        //    if (itemDefultDataObj.DAI.Contains("."))
-        //    {
-        //        //Если DA вложеные 
-        //        string[] str = itemDefultDataObj.DAI.Split('.');
-        //        var oo3 = (from x in oo2[0].ListDA
-        //            where x.NameDA == str[0]
-        //            select x).ToList();
-        //        var list = new List<string>(str);
-        //        list.RemoveAt(0);
-        //        str = list.ToArray();
-        //        UpdateStaticDataObjBDA(oo3, itemDefultDataObj, str, out format, out value, out path);
-        //    }
-        //    else
-        //    {
-        //        //Если DA не вложеные
-        //        var oo3 = (from x in oo2[0].ListDA
-        //            where x.NameDA == itemDefultDataObj.DAI
-        //            select x).ToList();
-
-        //        LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
-        //    }
-        //}
-
-        //private void UpdateStaticDataObjBDA(List<StructModelObj.NodeDA> da, StructDefultDataObj.DefultDataObj itemDefultDataObj, string[] str, out string format, out string value, out string path)
-        //{
-        //    if (str.Length != 1)
-        //    {
-        //        //Если DA вложеные 
-        //        var oo3 = (from x in da[0].ListDA
-        //            where x.NameDA == str[0]
-        //            select x).ToList();
-        //        var list = new List<string>(str);
-        //        list.RemoveAt(0);
-        //        str = list.ToArray();
-        //        UpdateStaticDataObjBDA(oo3, itemDefultDataObj, str, out format, out value, out path);
-        //    }
-        //    else
-        //    {
-        //        //Если DA не вложеные
-        //        var oo3 = (from x in da[0].ListDA
-        //            where x.NameDA == str[0]
-        //            select x).ToList();
-
-        //        LoopUpdateStaticDataObj(oo3, itemDefultDataObj, out format, out value, out path);
-        //    }
-        //}
-
-
-        //private void LoopUpdateStaticDataObj(List<StructModelObj.NodeDA> oo3, StructDefultDataObj.DefultDataObj itemDefultDataObj,  out string format, out string value, out string path)
-        //{
-        //    oo3[0].Value = itemDefultDataObj.Value;
-        //    var oo4 = MapLibiecType(oo3[0].BTypeDA);
-        //    CoonvertStaticDataObj(oo4, out format);
-
-        //    value = itemDefultDataObj.Value;
-        //    path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
-
-        //    //if (oo3[0].BTypeDA == "Enum")
-        //    //{
-        //    //    foreach (var itemEnumType in StructModelObj.ListEnumType)
-        //    //    {
-        //    //        if (oo3[0].TypeDA == itemEnumType.NameEnumType)
-        //    //        {
-        //    //            foreach (var itemEnumVal in itemEnumType.ListEnumVal)
-        //    //            {
-        //    //                if (itemEnumVal.ValEnumVal == itemDefultDataObj.Value)
-        //    //                {
-        //    //                    value = Convert.ToString(itemEnumVal.OrdEnumVal);
-        //    //                    path = itemDefultDataObj.LDevice + "/" + itemDefultDataObj.LN + "." + itemDefultDataObj.DOI + "." + itemDefultDataObj.DAI;
-        //    //                    break;
-        //    //                }
-        //    //            }
-        //    //            break;
-        //    //        }
-        //    //    }
-        //    //}
-        //}
 
         public void CoonvertStaticDataObj(int formatConvert, out string format)
         {

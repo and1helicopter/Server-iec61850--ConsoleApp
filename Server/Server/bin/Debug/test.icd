@@ -132,7 +132,7 @@
 								<Val>1</Val>
 							</DAI>
 							<DAI name="offset" valKind="Set">
-								<Val>1.5</Val>
+								<Val>0</Val>
 							</DAI>
 						</DAI>
 					</DOI>
@@ -321,7 +321,6 @@
          <DA name="d" bType="VisString255" fc="DC"/>
       </DOType>
       <DOType id="SPC" cdc="SPC" desc="Single Point Controllable">
-  	     <DA name="ctlVal" bType="BOOLEAN" fc="СО" />
          <DA name="stVal" bType="BOOLEAN" fc="ST" dchg="true" desc="FALSE | TRUE"/>
          <DA name="ctlModel" type="CtlModels" bType="Enum" fc="CF"/>
          <DA name="q" bType="Quality" fc="ST" qchg="true"/>
@@ -332,7 +331,7 @@
          <DA name="stVal" bType="BOOLEAN" fc="ST" dchg="true" desc="TRUE | FALSE"/>
          <DA name="q" bType="Quality" fc="ST" qchg="true"/>
          <DA name="t" bType="Timestamp" fc="ST"/>
-         <DA name="dU" bType="Unicode255" fc="DC"/>
+         <DA name="d" bType="Unicode255" fc="DC"/>
       </DOType>
       <DAType id="AnalogueValue">
          <BDA name="f" bType="FLOAT32" desc="The value of f shall be the FLOAT representation of the measured value. f shall represent the technological value in SI units."/>

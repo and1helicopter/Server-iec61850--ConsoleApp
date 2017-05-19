@@ -11,7 +11,7 @@ namespace Server
     {
         static IedServer _iedServer;
         static IedModel _iedModel;
-        private static readonly FileParser FileParser = new FileParser();
+        private static readonly Parser.Parser Parser = new Parser.Parser();
 
         static bool _running = true;
 
@@ -34,7 +34,7 @@ namespace Server
             ModBus.ModBus.OpenModBusPort();
 
             //Парсим файл конфигурации
-            FileParser.ParseFile();
+            Parser.ParseFile();
             
             //Создаем модель сервера
             ConfigServer("test.cfg");
@@ -45,6 +45,8 @@ namespace Server
 
         private static void RuningServer()
         {
+
+
             while (_running)
             {
                 _iedServer.LockDataModel();
@@ -67,9 +69,7 @@ namespace Server
             _iedModel = IedModel.CreateFromFile(nameConfigFile);
             _iedServer = new IedServer(_iedModel);
 
-            //
-            StaticUpdateData();
-
+             StaticUpdateData();
 
         }
 
@@ -112,28 +112,24 @@ namespace Server
 
         private static void StaticUpdateData()
         {
+            _iedServer.LockDataModel();
+
+
             foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
             {
                 InitStaticUpdateData(itemDefultDataObj.Type, itemDefultDataObj.Value, itemDefultDataObj.Path);
             }
 
-            foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
+            foreach (var itemDefultDataObj in StructDefultDataObj.structFillDataObj)
             {
                 InitStaticUpdateData(itemDefultDataObj.Type, itemDefultDataObj.Value, itemDefultDataObj.Path);
             }
 
-            //InitDefultParam();
+           // InitDefultParamClass();
 
-
+            _iedServer.UnlockDataModel();
         }
 
-        private static void InitDefultParam()
-        {
-            
-            //InitDefultParamClass();
-
-
-        }
 
         private static void InitDefultParamClass()
         {
@@ -151,27 +147,6 @@ namespace Server
                     continue;
                 }
             }
-
-            //List<StructModelObj.NodeDA> da, string format, string value, string path
-            //foreach (var itemDa in da)
-            //{
-            //    _fileParser.CoonvertStaticDataObj(_fileParser.MapLibiecType(itemDa.BTypeDA), out format);
-
-            //    value = itemDa.Value;
-            //    path += "." + itemDa;
-
-            //    if (value != null)
-            //    {
-            //        if (itemDa.ListDA.Count == 0)
-            //        {
-            //            InitStaticUpdateData(format, value, path);
-            //        }
-            //        else
-            //        {
-            //            InitDefultParamBda(itemDa.ListDA, format, value, path);
-            //        }
-            //    }
-            //}
         }
 
         private static void MV_ClassSet(StructUpdateDataObj.DataObject itemDataObject)
@@ -227,62 +202,51 @@ namespace Server
 
         private static void UpdateBool(string path, string value)
         {
-            _iedServer.LockDataModel();
             bool str = Convert.ToBoolean(value);
 
             _iedServer.UpdateBooleanAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
 
-            _iedServer.UnlockDataModel();
         }
 
         private static void UpdateInt(string path, string value)
         {
-            _iedServer.LockDataModel();
             int str = Convert.ToInt32(value);
 
             _iedServer.UpdateInt32AttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
 
-            _iedServer.UnlockDataModel();
         }
 
         private static void UpdateFloat(string path, string value)
         {
-            _iedServer.LockDataModel();
             float str = Convert.ToSingle(value);
 
             _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
 
-            _iedServer.UnlockDataModel();
         }
 
         private static void UpdateString(string path, string value)
         {
-            _iedServer.LockDataModel();
             string str = Convert.ToString(value);
 
             _iedServer.UpdateVisibleStringAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
 
-            _iedServer.UnlockDataModel();
         }
 
         private static void UpdateDateTime(string path, string value)
         {
-            _iedServer.LockDataModel();
+
             DateTime str = Convert.ToDateTime(value);
 
             _iedServer.UpdateUTCTimeAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
 
-            _iedServer.UnlockDataModel();
         }
 
         private static void UpdateUshort(string path, string value)
         {
-            _iedServer.LockDataModel();
             ushort str = Convert.ToUInt16(value);
 
             _iedServer.UpdateQuality((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
 
-            _iedServer.UnlockDataModel();
         }
 
         private static void UpdateData()
