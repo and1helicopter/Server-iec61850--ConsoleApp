@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -16,260 +17,327 @@ namespace Server.Parser
                 return false;
             }
 
-
-
             XNamespace xNamespace = doc.Root.Name.Namespace;
 
             XElement xIed = doc.Root.Element(xNamespace + "IED");
 
-            if (xIed != null)
+            if (xIed == null)
             {
-                var xAttribute = xIed.Attribute("name");
-                if (xAttribute != null)
-                    ServerModel.Model = new ServerModel.NodeModel(xAttribute.Value);
+                Logging.Log.Write("ParseDocunent: IED == null", "Error   ");
+                return false;
             }
 
+            if (xIed.Attribute("name") == null)
+            {
+                Logging.Log.Write("ParseDocunent: IED.name == null", "Error   ");
+                return false;
+            }
+
+            ServerModel.Model = new ServerModel.NodeModel(xIed.Attribute("name")?.Value);
+
             IEnumerable<XElement> xLd = (from x in doc.Descendants()
-                where x.Name.LocalName == "LDevice"
-                select x).ToList();
+                                         where x.Name.LocalName == "LDevice"
+                                         select x).ToList();
+
+            if (!xLd.Any())
+            {
+                Logging.Log.Write("ParseDocunent: LDevice == null", "Error   ");
+                return false;
+            }
 
             foreach (var ld in xLd)
             {
-                var xAttribute = ld.Attribute("inst");
-                if (xAttribute != null)
+                if (ld.Attribute("inst") == null)
                 {
-                    ServerModel.Model.ListLD.Add(new ServerModel.NodeLD(xAttribute.Value));
+                    Logging.Log.Write("ParseDocunent: LDevice.inst == null", "Error   ");
+                    return false;
+                }
 
-                    IEnumerable<XElement> xLn = ld.Elements().ToList();
+                ServerModel.Model.ListLD.Add(new ServerModel.NodeLD(ld.Attribute("inst")?.Value));
 
-                    foreach (var ln in xLn)
+                IEnumerable<XElement> xLn = ld.Elements().ToList();
+
+                if (!xLn.Any())
+                {
+                    Logging.Log.Write("ParseDocunent: LN == null", "Error   ");
+                    return false;
+                }
+
+                foreach (var ln in xLn)
+                {
+                    if (ln.Attribute("lnClass") != null && ln.Attribute("inst") != null)
                     {
-                        var xAttributelnClass = ln.Attribute("lnClass");
-                        var xAttributeinst = ln.Attribute("inst");
-                        if (xAttributelnClass != null && xAttributeinst != null)
+                        string nameLN = ln.Attribute("prefix")?.Value + ln.Attribute("lnClass")?.Value + ln.Attribute("inst")?.Value;
+
+                        if (ln.Attribute("lnType") == null)
                         {
-                            var xAttributeprefix = ln.Attribute("prefix");
-                            string nameLn;
-                            if (xAttributeprefix != null)
-                            {
-                                nameLn = xAttributeprefix.Value + xAttributelnClass.Value + xAttributeinst.Value;
-                            }
-                            else
-                            {
-                                nameLn = xAttributelnClass.Value + xAttributeinst.Value;
-                            }
-                            var xAttributelnType = ln.Attribute("lnType");
-                            if (xAttributelnType != null)
-                            {
-                                var lnClassLn = xAttributelnType.Value;
-                                string xdescStr = "";
-                                ServerModel.Model.ListLD.Last().ListLN.Add(new ServerModel.NodeLN(nameLn, lnClassLn, xdescStr));
-                            }
+                            Logging.Log.Write("ParseDocunent: LN.lnType == null", "Error   ");
+                            return false;
                         }
+
+                        ServerModel.Model.ListLD.Last().ListLN.Add(new ServerModel.NodeLN(nameLN, ln.Attribute("lnType")?.Value, ""));
+                    }
+                    else
+                    {
+                        Logging.Log.Write("ParseDocunent: LN.lnClass == null or LN.inst == null", "Error   ");
+                        return false;
                     }
                 }
             }
 
-            ParseLn(doc);
-            ParseDo(doc);
-            ParseDA(doc);
-            ParseEnum(doc);
+            if (!ParseLN(doc))
+            {
+                Logging.Log.Write("ParseDocunent.ParseLN: Finish with status false", "Error   ");
+                return false;
+            }
+            if (!ParseDO(doc))
+            {
+                Logging.Log.Write("ParseDocunent.ParseDO: Finish with status false", "Error   ");
+                return false;
+            }
+            if (!ParseDA(doc))
+            {
+                Logging.Log.Write("ParseDocunent.ParseDA: Finish with status false", "Error   ");
+                return false;
+            }
+            if (!ParseEnum(doc))
+            {
+                Logging.Log.Write("ParseDocunent.ParseEnum: Finish with status false", "Warning ");
+            }
+            if (!JoinModel())                        //Создаем объектную модель 
+            {
+                Logging.Log.Write("ParseDocunent.JoinModel: Finish with status false", "Error   ");
+                return false;
+            }
+
+            Logging.Log.Write("ParseDocunent: File parse success", "Success ");
+            return true;
+        }
+
+        private bool ParseLN(XDocument doc)
+        {
+            IEnumerable<XElement> xLn = (from x in doc.Descendants()
+                                         where x.Name.LocalName == "LNodeType"
+                                         select x).ToList();
+
+            if (!xLn.Any())
+            {
+                Logging.Log.Write("ParseDocunent.ParseLN: LNodeType == null", "Error   ");
+                return false;
+            }
+
+            foreach (var ln in xLn)
+            {
+                if (ln.Attribute("lnClass") != null && ln.Attribute("id") != null)
+                {
+                    ServerModel.ListTempLN.Add(new ServerModel.NodeLN(ln.Attribute("lnClass")?.Value, ln.Attribute("id")?.Value, ln.Attribute("desc") != null ? ln.Attribute("desc")?.Value : ""));
+
+                    IEnumerable<XElement> xDoElements = (from x in ln.Descendants()
+                                                         where x.Name.LocalName == "DO"
+                                                         select x).ToList();
+
+                    if (!xDoElements.Any())
+                    {
+                        Logging.Log.Write("ParseDocunent.ParseLN: LNodeType == null", "Error   ");
+                        return false;
+                    }
+
+                    foreach (var DO in xDoElements)
+                    {
+                        if (DO.Attribute("name") != null && DO.Attribute("type") != null)
+                        {
+                            ServerModel.ListTempLN.Last().ListDO.Add(new ServerModel.NodeDO(DO.Attribute("name")?.Value, DO.Attribute("type")?.Value, DO.Attribute("desc") != null ? DO.Attribute("desc")?.Value : ""));
+                        }
+                        else
+                        {
+                            Logging.Log.Write("ParseDocunent.ParseLN: DO.name == null or DO.type == null", "Error   ");
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    Logging.Log.Write("ParseDocunent.ParseLN: LNodeType.lnClass == null or LNodeType.id == null", "Error   ");
+                    return false;
+                }
+            }
 
             return true;
         }
 
-        private static void ParseLn(XDocument doc)
-        {
-            IEnumerable<XElement> xLn = (from x in doc.Descendants()
-                where x.Name.LocalName == "LNodeType"
-                select x).ToList();
-
-            foreach (var ln in xLn)
-            {
-                var xlnClass = ln.Attribute("lnClass");
-                var xid = ln.Attribute("id");
-                if (xlnClass != null && xid != null)
-                {
-                    string xdescStr = "";
-                    if (ln.Attribute("desc") != null)
-                    {
-                        xdescStr = ln.Attribute("desc").Value;
-                    }
-                    ServerModel.ListTempLN.Add(new ServerModel.NodeLN(xlnClass.Value, xid.Value, xdescStr));
-                    IEnumerable<XElement> xDoElements = (from x in ln.Descendants()
-                        where x.Name.LocalName == "DO"
-                        select x).ToList();
-                    foreach (var DO in xDoElements)
-                    {
-                        var xNameDo = DO.Attribute("name");
-                        var xTypeDo = DO.Attribute("type");
-                        if (xNameDo != null && xTypeDo != null)
-                        {
-                            var nameDo = xNameDo.Value;
-                            var typeDo = xTypeDo.Value;
-                            xdescStr = "";
-                            if (DO.Attribute("desc") != null)
-                            {
-                                xdescStr = DO.Attribute("desc").Value;
-                            }
-
-                            ServerModel.ListTempLN.Last().ListDO.Add(new ServerModel.NodeDO(nameDo, typeDo, xdescStr));
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void ParseDo(XDocument doc)
+        private bool ParseDO(XDocument doc)
         {
             IEnumerable<XElement> xDo = (from x in doc.Descendants()
                 where x.Name.LocalName == "DOType"
                 select x).ToList();
 
+            if (!xDo.Any())
+            {
+                Logging.Log.Write("ParseDocunent.ParseDO: DOType == null", "Error   ");
+                return false;
+            }
+
             foreach (var DO in xDo)
             {
-                var nameDO = DO.Attribute("id").Value;
-                var typeDO = DO.Attribute("cdc").Value;
-                string xdescStr = "";
-                if (DO.Attribute("desc") != null)
+                if (DO.Attribute("id") == null || DO.Attribute("cdc") == null)
                 {
-                    xdescStr = DO.Attribute("desc").Value;
+                    Logging.Log.Write("ParseDocunent.ParseDO: DO.id == null or DO.cdc", "Error   ");
+                    return false;
                 }
 
-                ServerModel.ListTempDO.Add(new ServerModel.NodeDO(nameDO, typeDO, xdescStr));
+                ServerModel.ListTempDO.Add(new ServerModel.NodeDO(DO.Attribute("id")?.Value, DO.Attribute("cdc")?.Value, DO.Attribute("desc") != null ? DO.Attribute("desc")?.Value : ""));
 
                 IEnumerable<XElement> xDAElements = (from x in DO.Descendants()
-                    where x.Name.LocalName == "DA"
-                    select x).ToList();
+                                                     where x.Name.LocalName == "DA"
+                                                     select x).ToList();
 
-                foreach (var DA in xDAElements)
+                if (!xDAElements.Any())
                 {
-                    var nameDA = DA.Attribute("name").Value;
-                    var fcDA = DA.Attribute("fc") != null
-                        ? DA.Attribute("fc").Value
-                        : DA.Parent.Attribute("fc").Value;
-                    var bTypeDA = DA.Attribute("bType").Value;
-                    var typeDA = DA.Attribute("type") != null
-                        ? DA.Attribute("type").Value
-                        : DA.Parent.Attribute("type") != null
-                            ? DA.Parent.Attribute("type").Value
-                            : null;
+                    Logging.Log.Write("ParseDocunent.ParseDO: DA == null", "Error   ");
+                    return false;
+                }
+
+                foreach (var da in xDAElements)
+                {
+                    if (da.Attribute("name") == null || da.Attribute("bType") == null || da.Attribute("fc") == null)
+                    {
+                        Logging.Log.Write("ParseDocunent.ParseDO: DA.name == null or DA.bType == null or DA.fc == null", "Warning ");
+                        continue;
+                    }
+
+                    var nameDA = da.Attribute("name")?.Value;
+                    var fcDA = da.Attribute("fc")?.Value;
+                    var bTypeDA = da.Attribute("bType")?.Value;
+                    var typeDA = da.Attribute("type") != null ? da.Attribute("type")?.Value : da.Parent.Attribute("type") != null ? da.Parent.Attribute("type")?.Value : null;
                     var trgOpsDA = TriggerOptions.NONE;
-                    var countDA = DA.Attribute("count") != null ? DA.Attribute("count").Value : "0";
+                    var countDA = da.Attribute("count") != null ? da.Attribute("count")?.Value : "0";
 
-                    //if (bTypeDA.Equals("Enum"))
-                    //{
-                    //    bTypeDA = String.Concat(bTypeDA, " (Integer)");
-                    //}
-
-                    var dchgDA = DA.Attribute("dchg");
-                    if ((dchgDA != null ? dchgDA.Value : "false").ToLower() == "true")
-                        trgOpsDA |= TriggerOptions.DATA_CHANGED;
-
-                    var qchgDA = DA.Attribute("qchg");
-                    if ((qchgDA != null ? qchgDA.Value : "false").ToLower() == "true")
-                        trgOpsDA |= TriggerOptions.QUALITY_CHANGED;
-
-                    var dupdDA = DA.Attribute("dupd");
-                    if ((dupdDA != null ? dupdDA.Value : "false").ToLower() == "true")
-                        trgOpsDA |= TriggerOptions.DATA_UPDATE;
+                    if ((da.Attribute("dchg")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.DATA_CHANGED;
+                    if ((da.Attribute("qchg")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.QUALITY_CHANGED;
+                    if ((da.Attribute("dupd")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.DATA_UPDATE;
 
                     ServerModel.ListTempDO.Last().ListDA.Add(new ServerModel.NodeDA(nameDA, fcDA, bTypeDA, typeDA, (byte)trgOpsDA, countDA));
 
-                    if (DA.Value != "")
+                    if (da.Value != null)
                     {
-                        ServerModel.ListTempDO.Last().ListDA.Last().Value = DA.Value;
+                        ServerModel.ListTempDO.Last().ListDA.Last().Value = da.Value;
                     }
                 }
             }
+
+            return true;
         }
 
-        private static void ParseDA(XDocument doc)
+        private bool ParseDA(XDocument doc)
         {
             IEnumerable<XElement> xDA = (from x in doc.Descendants()
-                where x.Name.LocalName == "DAType"
-                select x).ToList();
+                                         where x.Name.LocalName == "DAType"
+                                         select x).ToList();
 
-            foreach (var DA in xDA)
+            if (!xDA.Any())
             {
-                var nameDA = DA.Attribute("id").Value;
+                Logging.Log.Write("ParseDocunent.ParseDA: DAType == null", "Error   ");
+                return false;
+            }
 
-                ServerModel.ListTempDA.Add(new ServerModel.TempDA(nameDA));
+            foreach (var da in xDA)
+            {
+                IEnumerable<XElement> xDAElements = (from x in da.Descendants()
+                                                     where x.Name.LocalName == "BDA"
+                                                     select x).ToList();
 
-                IEnumerable<XElement> xDAElements = (from x in DA.Descendants()
-                    where x.Name.LocalName == "BDA"
-                    select x).ToList();
-
-                foreach (var BDA in xDAElements)
+                if (!xDAElements.Any())
                 {
-                    var nameBDA = BDA.Attribute("name").Value;
-                    var fcBDA = BDA.Attribute("fc") != null ? BDA.Attribute("fc").Value : null;
-                    var bTypeBDA = BDA.Attribute("bType").Value;
-                    var typeBDA = BDA.Attribute("type") != null ? BDA.Attribute("type").Value : null;
-                    var trgOpsBDA = TriggerOptions.NONE;
-                    var countBDA = BDA.Attribute("count") != null ? BDA.Attribute("count").Value : "0";
+                    Logging.Log.Write("ParseDocunent.ParseDO: BDA == null", "Error   ");
+                    return false;
+                }
 
-                    //if (bTypeBDA.Equals("Enum"))
-                    //{
-                    //    bTypeBDA = String.Concat(bTypeBDA, " (Integer)");
-                    //}
+                ServerModel.ListTempDA.Add(new ServerModel.TempDA(da.Attribute("id")?.Value));
 
-                    var dchgBDA = BDA.Attribute("dchg");
-                    if ((dchgBDA != null ? dchgBDA.Value : "false").ToLower() == "true")
-                        trgOpsBDA |= TriggerOptions.DATA_CHANGED;
-
-                    var qchgBDA = BDA.Attribute("qchg");
-                    if ((qchgBDA != null ? qchgBDA.Value : "false").ToLower() == "true")
-                        trgOpsBDA |= TriggerOptions.QUALITY_CHANGED;
-
-                    var dupdBDA = BDA.Attribute("dupd");
-                    if ((dupdBDA != null ? dupdBDA.Value : "false").ToLower() == "true")
-                        trgOpsBDA |= TriggerOptions.DATA_UPDATE;
-
-                    ServerModel.ListTempDA.Last().ListDA.Add(new ServerModel.NodeDA(nameBDA, fcBDA, bTypeBDA, typeBDA, (byte)trgOpsBDA, countBDA));
-
-                    if (BDA.Value != "")
+                foreach (var bda in xDAElements)
+                {
+                    if (bda.Attribute("name") == null || bda.Attribute("bType") == null )
                     {
-                        ServerModel.ListTempDO.Last().ListDA.Last().Value = BDA.Value;
+                        Logging.Log.Write("ParseDocunent.ParseDO: DA.name == null or DA.bType == null", "Warning ");
+                        continue;
+                    }
+
+                    var nameBda = bda.Attribute("name")?.Value;
+                    var bTypeBda = bda.Attribute("bType")?.Value;
+                    var typeBda = bda.Attribute("type") != null ? bda.Attribute("type")?.Value : null;
+                    var trgOpsBda = TriggerOptions.NONE;
+                    var countBda = bda.Attribute("count") != null ? bda.Attribute("count")?.Value : "0";
+
+                    if ((bda.Attribute("dchg")?.Value ?? "false").ToLower() == "true") trgOpsBda |= TriggerOptions.DATA_CHANGED;
+                    if ((bda.Attribute("qchg")?.Value ?? "false").ToLower() == "true") trgOpsBda |= TriggerOptions.QUALITY_CHANGED;
+                    if ((bda.Attribute("dupd")?.Value ?? "false").ToLower() == "true") trgOpsBda |= TriggerOptions.DATA_UPDATE;
+
+                    ServerModel.ListTempDA.Last().ListDA.Add(new ServerModel.NodeDA(nameBda, null, bTypeBda, typeBda, (byte)trgOpsBda, countBda));
+
+                    if (bda.Value != "")
+                    {
+                        ServerModel.ListTempDO.Last().ListDA.Last().Value = bda.Value;
                     }
                 }
             }
+
+            return true;
         }
 
-        private static void ParseEnum(XDocument doc)
+        private bool ParseEnum(XDocument doc)
         {
             IEnumerable<XElement> xEnum = (from x in doc.Descendants()
-                where x.Name.LocalName == "EnumType"
-                select x).ToList();
+                                           where x.Name.LocalName == "EnumType"
+                                           select x).ToList();
+
+            if (!xEnum.Any())
+            {
+                Logging.Log.Write("ParseDocunent.ParseEnum: EnumTypeEnumType == null", "Warning ");
+                return false;
+            }
 
             foreach (var Enum in xEnum)
             {
-                var nameEnum = Enum.Attribute("id").Value;
+                if (Enum.Attribute("id") == null)
+                {
+                    Logging.Log.Write("ParseDocunent.ParseEnum: EnumTypeEnumType.id == null", "Warning ");
+                    continue;
+                }
+
+                var nameEnum = Enum.Attribute("id")?.Value;
 
                 ServerModel.ListEnumType.Add(new ServerModel.EnumType(nameEnum));
 
                 IEnumerable<XElement> xEnumVal = (from x in Enum.Descendants()
-                    where x.Name.LocalName == "EnumVal"
-                    select x).ToList();
+                                                  where x.Name.LocalName == "EnumVal"
+                                                  select x).ToList();
 
-                foreach (var EnumVal in xEnumVal)
+                if (!xEnumVal.Any())
                 {
-                    var nameEnumVal = Convert.ToInt32(EnumVal.Attribute("ord").Value);
-                    var valEnumVal = EnumVal.Value != null ? EnumVal.Value : "";
+                    Logging.Log.Write("ParseDocunent.ParseEnum: EnumVal == null", "Warning ");
+                    return false;
+                }
+
+                foreach (var enumVal in xEnumVal)
+                {
+                    var nameEnumVal = Convert.ToInt32(enumVal.Attribute("ord")?.Value);
+                    var valEnumVal = enumVal.Value;
 
                     ServerModel.ListEnumType.Last().ListEnumVal.Add(new ServerModel.EnumType.EnumVal(nameEnumVal, valEnumVal));
                 }
             }
+
+            return true;
         }
         #endregion
 
         #region Объединение основных классов в объектную модель
-        private void JoinModel()
+        private bool JoinModel()
         {
-            AddDo(ServerModel.Model);
+            return AddDo(ServerModel.Model);
         }
 
-        private void AddDo(ServerModel.NodeModel model)
+        private bool AddDo(ServerModel.NodeModel model)
         {
             foreach (var ld in model.ListLD)
             {
@@ -279,12 +347,10 @@ namespace Server.Parser
                     {
                         if (ln.LnClassLN == tempLn.LnClassLN)
                         {
-                            string desc = tempLn.DescLN;
-                            ln.DescLN = desc;
+                            ln.DescLN = tempLn.DescLN;
                             foreach (var tempDo in tempLn.ListDO)
                             {
-                                desc = tempDo.DescDO;
-                                ServerModel.NodeDO DO = new ServerModel.NodeDO(tempDo.NameDO, tempDo.TypeDO, desc);
+                                ServerModel.NodeDO DO = new ServerModel.NodeDO(tempDo.NameDO, tempDo.TypeDO, tempDo.DescDO);
 
                                 ln.ListDO.Add(DO);
                                 AddDa(ln.ListDO);
@@ -294,6 +360,8 @@ namespace Server.Parser
                     }
                 }
             }
+
+            return true;
         }
 
         private void AddDa(List<ServerModel.NodeDO> DO)
@@ -304,8 +372,10 @@ namespace Server.Parser
                 {
                     foreach (var tempDa in tempDo.ListDA)
                     {
-                        ServerModel.NodeDA da = new ServerModel.NodeDA(tempDa.NameDA, tempDa.FCDA, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
-                        da.Value = tempDa.Value;
+                        ServerModel.NodeDA da = new ServerModel.NodeDA(tempDa.NameDA, tempDa.FCDA, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA)
+                        {
+                            Value = tempDa.Value
+                        };
 
                         DO.Last().ListDA.Add(da);
 
@@ -320,7 +390,7 @@ namespace Server.Parser
         }
 
 
-        private static void AddBda(ServerModel.NodeDA listDa, string fcDa)
+        private void AddBda(ServerModel.NodeDA listDa, string fcDa)
         {
             foreach (var listTempDa in ServerModel.ListTempDA)
             {
@@ -340,6 +410,18 @@ namespace Server.Parser
             }
         }
         #endregion
+    }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [Flags]
+    enum TriggerOptions
+    {
+        NONE = 0,
+        DATA_CHANGED = 1,
+        QUALITY_CHANGED = 2,
+        DATA_UPDATE = 4,
+        INTEGRITY = 8,
+        GI = 16
     }
 }

@@ -15,7 +15,7 @@ namespace Server.Logging
 
         private static void Message(string logMessage, string exaption, TextWriter w)
         {
-            w.Write($"{DateTime.Now}{DateTime.Now.Millisecond}: {exaption} - Message: {logMessage}\n");
+            w.Write($"{DateTime.Now}{DateTime.Now.Millisecond}: {exaption} - Message: \"{logMessage}\"\n");
         }
     }
 }

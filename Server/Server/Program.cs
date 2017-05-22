@@ -34,8 +34,15 @@ namespace Server
             ModBus.ModBus.OpenModBusPort();
 
             //Парсим файл конфигурации
-            Parser.ParseFile();
-            
+            if (!Parser.ParseFile())
+            {
+                Logging.Log.Write("ParseFile: Finish with status false. Stop server", "Error   ");
+                return;
+            }
+
+            Logging.Log.Write("ParseFile: File parse success", "Success ");
+
+
             //Создаем модель сервера
             ConfigServer("test.cfg");
 
@@ -86,6 +93,7 @@ namespace Server
                 myThread.Start();
 
                 Console.WriteLine(@"Server started");
+                Logging.Log.Write("Server: Server started", "Start   ");
             }
             else
             {
@@ -101,6 +109,7 @@ namespace Server
                 _iedServer.Destroy();
 
                 Console.WriteLine(@"Server stoped");
+                Logging.Log.Write("Server: Server stoped", "Stop    ");
             }
             else
             {
