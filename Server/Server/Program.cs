@@ -124,12 +124,12 @@ namespace Server
             _iedServer.LockDataModel();
 
 
-            foreach (var itemDefultDataObj in StructDefultDataObj.structDefultDataObj)
+            foreach (var itemDefultDataObj in DataObj.StructDefultDataObj)
             {
                 InitStaticUpdateData(itemDefultDataObj.Type, itemDefultDataObj.Value, itemDefultDataObj.Path);
             }
 
-            foreach (var itemDefultDataObj in StructDefultDataObj.structFillDataObj)
+            foreach (var itemDefultDataObj in DataObj.StructFillDataObj)
             {
                 InitStaticUpdateData(itemDefultDataObj.Type, itemDefultDataObj.Value, itemDefultDataObj.Path);
             }

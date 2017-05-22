@@ -67,9 +67,10 @@
     <Compile Include="Logging\Log.cs" />
     <Compile Include="ModBus\ModBus.cs" />
     <Compile Include="ModBus\ScopeConfig.cs" />
+    <Compile Include="Parser\ModelFillDefultParam.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Parser\FileParseToModel.cs" />
-    <Compile Include="Parser\StructDefultDataObj.cs" />
+    <Compile Include="Parser\DataObj.cs" />
     <Compile Include="Parser\ServerModel.cs" />
     <Compile Include="Parser\StructUpdateDataObj.cs" />
     <Compile Include="Parser\StructUpdateDataObj\AttributesClasses.cs" />

@@ -301,7 +301,7 @@ namespace Server.Parser
                     da.Value = value;
                 }
 
-                StructDefultDataObj.structFillDataObj.Add(new StructDefultDataObj.DefultDataObj(path + "." + list[0], da.BTypeDA, da.Value));
+                DataObj.StructFillDataObj.Add(new DataObj.DefultDataObj(path + "." + list[0], da.BTypeDA, da.Value));
             }
             else
             {
@@ -424,7 +424,7 @@ namespace Server.Parser
                 {
 
                     
-                    //StructDefultDataObj.AddStructDefultDataObj();
+                    //DataObj.AddStructDefultDataObj();
                 }
             }
         }

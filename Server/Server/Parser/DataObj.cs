@@ -2,13 +2,13 @@
 
 namespace Server.Parser
 {
-    public class StructDefultDataObj
+    public class DataObj
     {
         //Авто инициализированные
-        public static List<DefultDataObj> structDefultDataObj = new List<DefultDataObj>();
+        public static readonly List<DefultDataObj> StructDefultDataObj = new List<DefultDataObj>();
 
         //Инциализированные из файла
-        public static List<DefultDataObj> structFillDataObj = new List<DefultDataObj>();
+        public static readonly List<DefultDataObj> StructFillDataObj = new List<DefultDataObj>();
 
         public class DefultDataObj
         {
