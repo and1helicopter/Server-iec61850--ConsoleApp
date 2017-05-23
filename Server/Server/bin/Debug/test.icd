@@ -43,7 +43,7 @@
                <LN0 lnClass="LLN0" lnType="LLN0" inst="">
                   <DOI name="Mod" desc="">
                      <DAI name="stVal" valKind="Set">
-                        <Val>on</Val>
+                        <Val>1</Val>
                      </DAI>
                   </DOI>
                   <DOI name="Health" desc="">
@@ -151,12 +151,12 @@
                   </DOI>
                   <DOI name="SPCSO2" desc="">
                      <DAI name="ctlModel" valKind="Set">
-                        <Val>1</Val>
+                        <Val>direct-with-enhanced-security</Val>
                      </DAI>
                   </DOI>
                   <DOI name="SPCSO3" desc="">
                      <DAI name="ctlModel" valKind="Set">
-                        <Val>1</Val>
+                        <Val>direct-with-normal-security</Val>
                      </DAI>
                   </DOI>
                   <DOI name="SPCSO4" desc="">
@@ -295,7 +295,6 @@
 		 </DA>
       </DOType>
       <DOType id="INC" cdc="INC" desc="Integer status Controllable">
-	     <DA name="ctlVal" bType="INT32" fc="СО" />
          <DA name="stVal" bType="INT32" fc="ST" dchg="true"/>
          <DA name="q" bType="Quality" fc="ST" qchg="true"/>
          <DA name="t" bType="Timestamp" fc="ST"/>

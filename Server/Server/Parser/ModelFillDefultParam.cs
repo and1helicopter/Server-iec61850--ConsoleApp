@@ -8,7 +8,7 @@ namespace Server.Parser
     {
         #region Заполнение  модели параметрами по умолчанию
 
-        private void ModelFillDefultParam()
+        private bool ModelFillDefultParam()
         {
             foreach (var itemLd in ServerModel.Model.ListLD)
             {
@@ -29,32 +29,32 @@ namespace Server.Parser
                         if (itemDo.TypeDO == "SPS")
                         {
                             var stVal = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "stVal".ToUpper()
-                                    select x).ToList()
+                                         where x.NameDA.ToUpper() == "stVal".ToUpper()
+                                         select x).ToList()
                                 .First();
 
                             stVal.Value = "false";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal",
                                     "bool", stVal.Value));
 
                             var q = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "q".ToUpper()
-                                    select x).ToList()
+                                     where x.NameDA.ToUpper() == "q".ToUpper()
+                                     select x).ToList()
                                 .First();
 
                             q.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
                                     "ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "t".ToUpper()
-                                    select x).ToList()
+                                     where x.NameDA.ToUpper() == "t".ToUpper()
+                                     select x).ToList()
                                 .First();
 
                             t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
                                     "DateTime", t.Value));
                             continue;
@@ -64,32 +64,32 @@ namespace Server.Parser
                         if (itemDo.TypeDO == "INS")
                         {
                             var stVal = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "stVal".ToUpper()
-                                    select x).ToList()
+                                         where x.NameDA.ToUpper() == "stVal".ToUpper()
+                                         select x).ToList()
                                 .First();
 
                             stVal.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal",
                                     "int", stVal.Value));
 
                             var q = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "q".ToUpper()
-                                    select x).ToList()
+                                     where x.NameDA.ToUpper() == "q".ToUpper()
+                                     select x).ToList()
                                 .First();
 
                             q.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
                                     "ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "t".ToUpper()
-                                    select x).ToList()
+                                     where x.NameDA.ToUpper() == "t".ToUpper()
+                                     select x).ToList()
                                 .First();
 
                             t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
                                     "DateTime", t.Value));
                             continue;
@@ -103,96 +103,96 @@ namespace Server.Parser
                         if (itemDo.TypeDO == "MV")
                         {
                             var f = (from y in (from x in itemDo.ListDA
-                                        where x.TypeDA != null && x.TypeDA.ToUpper() == "AnalogueValue".ToUpper()
-                                        select x).ToList()
+                                                where x.TypeDA != null && x.TypeDA.ToUpper() == "AnalogueValue".ToUpper()
+                                                select x).ToList()
                                     .Last()
                                     .ListDA.ToList()
-                                    where y.NameDA.ToUpper() == "f".ToUpper()
-                                    select y).ToList()
+                                     where y.NameDA.ToUpper() == "f".ToUpper()
+                                     select y).ToList()
                                 .First();
 
                             f.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".mag.f",
                                     "float", f.Value));
 
                             var siUnit = (from y in (from x in itemDo.ListDA
-                                        where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
-                                        select x).ToList()
+                                                     where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
+                                                     select x).ToList()
                                     .Last()
                                     .ListDA.ToList()
-                                    where y.NameDA.ToUpper() == "SIUnit".ToUpper()
-                                    select y).ToList()
+                                          where y.NameDA.ToUpper() == "SIUnit".ToUpper()
+                                          select y).ToList()
                                 .First();
 
                             siUnit.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(
                                     nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".units.SIUnit", "int",
                                     siUnit.Value));
 
                             var multiplier = (from y in (from x in itemDo.ListDA
-                                        where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
-                                        select x).ToList()
+                                                         where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
+                                                         select x).ToList()
                                     .Last()
                                     .ListDA.ToList()
-                                    where y.NameDA.ToUpper() == "Multiplier".ToUpper()
-                                    select y).ToList()
+                                              where y.NameDA.ToUpper() == "Multiplier".ToUpper()
+                                              select y).ToList()
                                 .First();
 
                             multiplier.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(
                                     nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".units.multiplier", "int",
                                     multiplier.Value));
 
                             var scaleFactor = (from y in (from x in itemDo.ListDA
-                                        where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                        select x).ToList()
+                                                          where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+                                                          select x).ToList()
                                     .Last()
                                     .ListDA.ToList()
-                                    where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
-                                    select y).ToList()
+                                               where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
+                                               select y).ToList()
                                 .First();
 
                             scaleFactor.Value = "1";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(
                                     nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".sVC.scaleFactor", "float",
                                     scaleFactor.Value));
 
                             var offset = (from y in (from x in itemDo.ListDA
-                                        where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                        select x).ToList()
+                                                     where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+                                                     select x).ToList()
                                     .Last()
                                     .ListDA.ToList()
-                                    where y.NameDA.ToUpper() == "Offset".ToUpper()
-                                    select y).ToList()
+                                          where y.NameDA.ToUpper() == "Offset".ToUpper()
+                                          select y).ToList()
                                 .First();
 
                             offset.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(
                                     nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".sVC.offset", "float",
                                     offset.Value));
 
                             var q = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "q".ToUpper()
-                                    select x).ToList()
+                                     where x.NameDA.ToUpper() == "q".ToUpper()
+                                     select x).ToList()
                                 .First();
 
                             q.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
                                     "ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "t".ToUpper()
-                                    select x).ToList()
+                                     where x.NameDA.ToUpper() == "t".ToUpper()
+                                     select x).ToList()
                                 .First();
 
                             t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-                            DataObj.StructDefultDataObj.Add(
+                            DataObj.StructDataObj.Add(
                                 new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
                                     "DateTime", t.Value));
                             continue;
@@ -276,47 +276,34 @@ namespace Server.Parser
                             //ctlVal.Value = "false";
                             //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "bool", ctlVal.Value));
 
-                            var stVal = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "stVal".ToUpper()
-                                    select x).ToList()
-                                .Last();
+                            //var stVal = (from x in itemDo.ListDA
+                            //             where x.NameDA.ToUpper() == "stVal".ToUpper()
+                            //             select x).ToList().Last();
 
-                            stVal.Value = "false";
-                            DataObj.StructDefultDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal",
-                                    "bool", stVal.Value));
+                            //stVal.Value = "false";
+                            //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal","bool", stVal.Value));
 
-                            // ReSharper disable once UnusedVariable
-                            var ctlModel = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "ctlModel".ToUpper()
-                                    select x).ToList()
-                                .Last();
+                            //// ReSharper disable once UnusedVariable
+                            //var ctlModel = (from x in itemDo.ListDA
+                            //                where x.NameDA.ToUpper() == "ctlModel".ToUpper()
+                            //                select x).ToList().Last();
 
-                            stVal.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
-                                new DataObj.DefultDataObj(
-                                    nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int",
-                                    stVal.Value));
+                            //stVal.Value = "0";
+                            //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int",stVal.Value));
 
-                            var q = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "q".ToUpper()
-                                    select x).ToList()
-                                .First();
+                            //var q = (from x in itemDo.ListDA
+                            //         where x.NameDA.ToUpper() == "q".ToUpper()
+                            //         select x).ToList().First();
 
-                            q.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
-                                    "ushort", q.Value));
+                            //q.Value = "0";
+                            //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q","ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "t".ToUpper()
-                                    select x).ToList()
-                                .First();
+                                     where x.NameDA.ToUpper() == "t".ToUpper()
+                                     select x).ToList().First();
 
                             t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-                            DataObj.StructDefultDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
-                                    "DateTime", t.Value));
+                            DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t","DateTime", t.Value));
                             continue;
                         }
 
@@ -330,47 +317,35 @@ namespace Server.Parser
                             //ctlVal.Value = "false";
                             //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "bool", ctlVal.Value));
 
-                            var stVal = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "stVal".ToUpper()
-                                    select x).ToList()
-                                .Last();
+                            //var stVal = (from x in itemDo.ListDA
+                            //             where x.NameDA.ToUpper() == "stVal".ToUpper()
+                            //             select x).ToList().Last();
 
-                            stVal.Value = "false";
-                            DataObj.StructDefultDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal",
-                                    "bool", stVal.Value));
+                            //stVal.Value = "false";
+                            //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal","bool", stVal.Value));
 
-                            // ReSharper disable once UnusedVariable
-                            var ctlModel = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "ctlModel".ToUpper()
-                                    select x).ToList()
-                                .Last();
+                            //// ReSharper disable once UnusedVariable
+                            //var ctlModel = (from x in itemDo.ListDA
+                            //                where x.NameDA.ToUpper() == "ctlModel".ToUpper()
+                            //                select x).ToList()
+                            //    .Last();
 
-                            stVal.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
-                                new DataObj.DefultDataObj(
-                                    nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int",
-                                    stVal.Value));
+                            //stVal.Value = "0";
+                            //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int",stVal.Value));
 
-                            var q = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "q".ToUpper()
-                                    select x).ToList()
-                                .First();
+                            //var q = (from x in itemDo.ListDA
+                            //         where x.NameDA.ToUpper() == "q".ToUpper()
+                            //         select x).ToList().First();
 
-                            q.Value = "0";
-                            DataObj.StructDefultDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
-                                    "ushort", q.Value));
+                            //q.Value = "0";
+                            //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q","ushort", q.Value));
 
                             var t = (from x in itemDo.ListDA
-                                    where x.NameDA.ToUpper() == "t".ToUpper()
-                                    select x).ToList()
-                                .First();
+                                     where x.NameDA.ToUpper() == "t".ToUpper()
+                                     select x).ToList().First();
 
                             t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-                            DataObj.StructDefultDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
-                                    "DateTime", t.Value));
+                            DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t","DateTime", t.Value));
                             continue;
                         }
 
@@ -387,7 +362,7 @@ namespace Server.Parser
                             if (vendor.Count != 0)
                             {
                                 var vendorTemp = vendor.First();
-                                DataObj.StructDefultDataObj.Add(vendorTemp.Value != null
+                                DataObj.StructDataObj.Add(vendorTemp.Value != null
                                     ? new DataObj.DefultDataObj(
                                         nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".vendor", "string",
                                         vendorTemp.Value)
@@ -402,7 +377,7 @@ namespace Server.Parser
                             if (hwRev.Count != 0)
                             {
                                 var hwRevTemp = hwRev.ToList().First();
-                                DataObj.StructDefultDataObj.Add(hwRevTemp.Value != null
+                                DataObj.StructDataObj.Add(hwRevTemp.Value != null
                                     ? new DataObj.DefultDataObj(
                                         nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".hwRev", "string",
                                         hwRevTemp.Value)
@@ -417,7 +392,7 @@ namespace Server.Parser
                             if (swRev.Count != 0)
                             {
                                 var swRevTemp = swRev.First();
-                                DataObj.StructDefultDataObj.Add(swRevTemp.Value != null
+                                DataObj.StructDataObj.Add(swRevTemp.Value != null
                                     ? new DataObj.DefultDataObj(
                                         nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".swRev", "string",
                                         swRevTemp.Value)
@@ -432,7 +407,7 @@ namespace Server.Parser
                             if (serNum.Count != 0)
                             {
                                 var serNumTemp = serNum.First();
-                                DataObj.StructDefultDataObj.Add(serNumTemp.Value != null
+                                DataObj.StructDataObj.Add(serNumTemp.Value != null
                                     ? new DataObj.DefultDataObj(
                                         nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".serNum", "string",
                                         serNumTemp.Value)
@@ -447,7 +422,7 @@ namespace Server.Parser
                             if (model.Count != 0)
                             {
                                 var modelTemp = model.First();
-                                DataObj.StructDefultDataObj.Add(modelTemp.Value != null
+                                DataObj.StructDataObj.Add(modelTemp.Value != null
                                     ? new DataObj.DefultDataObj(
                                         nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".model", "string",
                                         modelTemp.Value)
@@ -462,7 +437,7 @@ namespace Server.Parser
                             if (location.Count != 0)
                             {
                                 var locationTemp = location.First();
-                                DataObj.StructDefultDataObj.Add(locationTemp.Value != null
+                                DataObj.StructDataObj.Add(locationTemp.Value != null
                                     ? new DataObj.DefultDataObj(
                                         nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".location", "string",
                                         locationTemp.Value)
@@ -486,7 +461,7 @@ namespace Server.Parser
                             if (vendor.Count != 0)
                             {
                                 var vendorTemp = vendor.First();
-                                DataObj.StructDefultDataObj.Add(vendorTemp.Value != null
+                                DataObj.StructDataObj.Add(vendorTemp.Value != null
                                     ? new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".vendor", "string",vendorTemp.Value)
                                     : new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".vendor", "string", ""));
                             }
@@ -498,7 +473,7 @@ namespace Server.Parser
                             if (swRev.Count != 0)
                             {
                                 var swRevTemp = swRev.First();
-                                DataObj.StructDefultDataObj.Add(swRevTemp.Value != null
+                                DataObj.StructDataObj.Add(swRevTemp.Value != null
                                     ? new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".swRev", "string",swRevTemp.Value)
                                     : new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".swRev", "string", ""));
                             }
@@ -510,7 +485,7 @@ namespace Server.Parser
                             if (d.Count != 0)
                             {
                                 var dTemp = d.First();
-                                DataObj.StructDefultDataObj.Add(dTemp.Value != null
+                                DataObj.StructDataObj.Add(dTemp.Value != null
                                     ? new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".d", "string",dTemp.Value)
                                     : new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".d", "string", ""));
                             }
@@ -522,7 +497,7 @@ namespace Server.Parser
                             if (configRev.Count != 0)
                             {
                                 var configRevTemp = configRev.First();
-                                DataObj.StructDefultDataObj.Add(configRevTemp.Value != null
+                                DataObj.StructDataObj.Add(configRevTemp.Value != null
                                     ? new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".configRevTemp", "string",configRevTemp.Value)
                                     : new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".configRevTemp", "string", ""));
                             }
@@ -532,7 +507,10 @@ namespace Server.Parser
                     }
                 }
             }
-            #endregion
+
+            Logging.Log.Write("ModelFillDefultParam: File parse success", "Success ");
+            return true;
         }
+        #endregion
     }
 }

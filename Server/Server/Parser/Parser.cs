@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Xml.Linq;
 
 namespace Server.Parser
@@ -23,10 +22,17 @@ namespace Server.Parser
                     Logging.Log.Write("ParseDocunent: Finish whith status false", "Error   ");
                     return false;
                 }
-              
-                ModelFillDefultParam();     //Заполнение  модели параметрами по-умолчанию
 
-                ParseDefultParam(doc);      //Заполняем объектную модель инициализированными параметрами 
+                if (!ModelFillDefultParam())    //Заполнение  модели параметрами по-умолчанию
+                {
+                    Logging.Log.Write("ModelFillDefultParam: Finish whith status false", "Error   ");
+                    return false;
+                }
+
+                if (!FileParseToAttribute(doc)) //Заполняем объектную модель инициализированными параметрами 
+                {
+                    Logging.Log.Write("FileParseToAttribute: Finish whith status false", "Warning ");
+                }
 
                 CreateClasses();            //Создаем обновляймые классы 
 
@@ -38,285 +44,6 @@ namespace Server.Parser
 
 
 
-
-        #region Заполнение объектной модели параметрами из файла
-        private void ParseDefultParam(XDocument doc)
-        {
-            var ied = (from x in doc.Descendants()
-                       where x.Name.LocalName == "IED"
-                       select x).Attributes("name").ToList().Last().Value;
-
-            IEnumerable<XElement> xLd = (from x in doc.Descendants()
-                                         where x.Name.LocalName == "LDevice"
-                                         select x).ToList();
-
-            foreach (var lditem in xLd)
-            {
-                var xAttributeinst = lditem.Attribute("inst");
-                if (xAttributeinst != null)
-                {
-                    var ld = xAttributeinst.Value;
-
-                    IEnumerable<XElement> xLn = lditem.Elements().ToList();
-
-                    foreach (var lnitem in xLn)
-                    {
-                        var xAttributelnClass = lnitem.Attribute("lnClass");
-                        var xAttributeinbbst = lnitem.Attribute("inst");
-
-                        var xAttributeprefix = lnitem.Attribute("prefix");
-
-                        if (xAttributelnClass != null && xAttributeinbbst != null)
-                        {
-                            string ln;
-                            if (xAttributeprefix != null)
-                            {
-                                ln = xAttributeprefix.Value + xAttributelnClass.Value + xAttributeinbbst.Value;
-                            }
-                            else
-                            {
-                                ln = xAttributelnClass.Value + xAttributeinbbst.Value;
-                            }
-
-                            IEnumerable<XElement> xDoi = lnitem.Elements().ToList();
-
-                            foreach (var doiitem in xDoi)
-                            {
-                                var xAttributeDoi = doiitem.Attribute("name");
-                                if (xAttributeDoi != null)
-                                {
-                                    var doi = xAttributeDoi.Value;
-
-                                    //Проверяю на собственный формат 
-                                    var type = (from x in doiitem.Descendants()
-                                        where x.Name.LocalName == "private"
-                                        select x).ToList();
-
-                                    string[] typeDo = {null};  //По-умолчанию рассматриваю 
-
-                                    if (type.Count != 0) //Проверяю на собственный формат 
-                                    {
-                                        typeDo = type[0].Value.Split(';'); //Устанавливаю собственный формат
-                                        //Отметим объекты которые изменяются
-
-                                        var tempDo = (from z in (from y in (from x in ServerModel.Model.ListLD
-                                                                         where x.NameLD.ToUpper() == ld.ToUpper()
-                                                                         select x).ToList().First().ListLN
-                                                              where y.NameLN.ToUpper() == ln.ToUpper()
-                                                              select y).ToList().First().ListDO
-                                                   where z.NameDO.ToUpper() == doi.ToUpper()
-                                                   select z).ToList().First();
-
-                                        tempDo.Type = typeDo[2];
-
-
-
-
-                                          //  InfoData(null, "0", "0", typeDo[2]);
-                                    }
-                                    IEnumerable<XElement> xDai = doiitem.Elements().ToList();
-
-                                    foreach (var daiitem in xDai)
-                                    {
-                                        //Рассматриваем DA верхнего уровня 
-                                        if (daiitem.Attribute("name") != null)
-                                        {
-                                            if ((from x in daiitem.Descendants()
-                                                 where x.Name.LocalName == "DAI"
-                                                 select x).ToList().Count == 0)
-                                            {
-                                                //Если нет вложений типа DA
-                                                // ReSharper disable once PossibleNullReferenceException
-                                                var dai = daiitem.Attribute("name").Value;
-                                                var value = daiitem.Value;
-                                                ParseFillModel(ied, ld, ln, doi, dai, typeDo, value);
-                                            }
-                                            else
-                                            {
-                                                //Если есть вложения типа DA
-                                                // ReSharper disable once PossibleNullReferenceException
-                                                var dai = daiitem.Attribute("name").Value;
-                                                ParseDefultParamBda(daiitem, ied, ld, ln, doi, typeDo, dai);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ParseDefultParamBda(XElement bdai, string ied, string ld, string ln, string doi, string[] typeDo, string dai)
-        {
-            IEnumerable<XElement> xDai = bdai.Elements().ToList();
-
-            foreach (var daiitem in xDai)
-            {
-                //Рассматриваем DA верхнего уровня 
-                if (daiitem.Attribute("name") != null)
-                {
-                    if ((from x in daiitem.Descendants()
-                            where x.Name.LocalName == "DAI"
-                            select x).ToList().Count == 0)
-                    {
-                        //Если нет вложений типа DA
-                        // ReSharper disable once PossibleNullReferenceException
-                        var daitemp = dai + "." + daiitem.Attribute("name").Value;
-                        var value = daiitem.Value;
-                        ParseFillModel(ied, ld, ln, doi, daitemp, typeDo, value);
-                    }
-                    else
-                    {
-                        //Если есть вложения типа DA
-                        // ReSharper disable once PossibleNullReferenceException
-                        var daitemp = dai + "." + daiitem.Attribute("name").Value;
-                        ParseDefultParamBda(daiitem, ied, ld, ln, doi, typeDo, daitemp);
-                    }
-                }
-            }
-        }
-
-        private void ParseFillModel(string ied, string ld, string ln, string doi, string daitemp, string[] typeDo, string value)
-        {
-            try
-            {
-                var Do = (from x in (from x in ServerModel.Model.ListLD
-                                     where x.NameLD == ld
-                                     select x.ListLN).ToList().Last().ToList()
-                          where x.NameLN == ln
-                          select x.ListDO).ToList().Last().ToList();
-
-                var tempDo = (from x in Do
-                    where x.NameDO == doi
-                    select x).ToList().Last();
-                
-                if (typeDo.ToList().Count == 3)
-                {
-                    string[] typeTempDo = typeDo[0].Split(':');
-
-                    tempDo.Type = typeDo[2];
-                    tempDo.Format = typeTempDo[0];
-                    tempDo.Mask = Convert.ToUInt16(typeTempDo[1]);
-                    tempDo.Addr = Convert.ToUInt16(typeDo[1]);
-                }
-                else
-                {
-                    tempDo.Type = typeDo[0];
-                }
-
-                var da = (from x in Do
-                    where x.NameDO == doi
-                    select x.ListDA).ToList().Last().ToList();
-
-                string[] str = daitemp.Split('.');
-                var list = new List<string>(str);
-
-                string path = ied + ld + "/" + ln + "." + doi;
-
-                if (list.Count > 0)
-                {
-                    ParseFillModelBDA(list, da, value, path);
-                }
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-
-        private void ParseFillModelBDA(List<string> list, List<ServerModel.NodeDA> dai, string value, string path)
-        {
-            if (list.Count == 1)
-            {
-                var da = (from x in dai
-                    where x.NameDA == list[0]
-                    select x).ToList().Last();
-
-
-                //С учетом формата
-
-                if (da.BTypeDA.ToUpper() == "INT32" || da.BTypeDA.ToUpper() == "INT")
-                {
-                    try
-                    {
-                        da.Value = Convert.ToInt32(value).ToString(); 
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
-                else if (da.BTypeDA.ToUpper() == "BOOL" || da.BTypeDA.ToUpper() == "BOOLEAN")
-                {
-                    try
-                    {
-                        da.Value = Convert.ToBoolean(value).ToString();
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
-                else if (da.BTypeDA.ToUpper() == "ENUM" || da.BTypeDA.ToUpper() == "ENUMERATED")
-                {
-                    try
-                    {
-                        da.Value = Convert.ToInt32(value).ToString();
-                    }
-                    catch
-                    {
-                        //Для ENUMERATED типов 
-                        if (da.TypeDA.ToUpper() == "SIUnit".ToUpper())
-                        {
-                            da.Value = (from x in (from x in ServerModel.ListEnumType
-                                                   where x.NameEnumType.ToUpper() == "SIUNIT".ToUpper()
-                                                   select x.ListEnumVal).ToList().First()
-                                        where x.ValEnumVal.ToUpper() == value.ToUpper()
-                                        select x.OrdEnumVal).ToList().First().ToString();
-                        }
-
-                        else if (da.TypeDA.ToUpper() == "multiplier".ToUpper())
-                        {
-                            da.Value = (from x in (from x in ServerModel.ListEnumType
-                                                   where x.NameEnumType.ToUpper() == "multiplier".ToUpper()
-                                                   select x.ListEnumVal).ToList().First()
-                                        where x.ValEnumVal.ToUpper() == value.ToUpper()
-                                        select x.OrdEnumVal).ToList().First().ToString();
-                        }
-
-                        else if (da.TypeDA.ToUpper() == "CtlModels".ToUpper())
-                        {
-                            da.Value = (from x in (from x in ServerModel.ListEnumType
-                                                   where x.NameEnumType.ToUpper() == "CtlModels".ToUpper()
-                                                   select x.ListEnumVal).ToList().First()
-                                        where x.ValEnumVal.ToUpper().Replace('-', '_') == value.ToUpper().Replace('-','_')
-                                        select x.OrdEnumVal).ToList().First().ToString();
-                        }
-                    }
-                }
-                else
-                {
-                    da.Value = value;
-                }
-
-                DataObj.StructFillDataObj.Add(new DataObj.DefultDataObj(path + "." + list[0], da.BTypeDA, da.Value));
-            }
-            else
-            {
-                if (list.Count == 0) { return; }
-
-                var da = (from x in dai
-                          where x.NameDA == list[0]
-                          select x.ListDA).ToList().Last().ToList();
-
-                path += "." + list[0];
-                list.RemoveAt(0);
-                ParseFillModelBDA(list, da, value, path);
-            }
-        }
-        #endregion
 
         #region Создание обновляймых классов 
         private void CreateClasses()

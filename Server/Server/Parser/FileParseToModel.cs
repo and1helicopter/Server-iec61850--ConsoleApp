@@ -194,7 +194,7 @@ namespace Server.Parser
                 if (!xDAElements.Any())
                 {
                     Logging.Log.Write("ParseDocunent.ParseDO: DA == null", "Error   ");
-                    return false;
+                    continue;
                 }
 
                 foreach (var da in xDAElements)
