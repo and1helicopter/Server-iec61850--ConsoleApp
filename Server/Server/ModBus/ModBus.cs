@@ -12,9 +12,9 @@ namespace Server.ModBus
 {
     public static class ModBus
     {
-        private static AsynchSerialPort _serialPort = new AsynchSerialPort();
+        private static readonly AsynchSerialPort SerialPort = new AsynchSerialPort();
 
-        public static object Locker = new object();
+        public static readonly object Locker = new object();
 
         private static readonly Timer DownloadDataTimer = new Timer()
         {
@@ -33,7 +33,7 @@ namespace Server.ModBus
         
         public static void ConfigModBusPort()
         {
-            if (_serialPort.IsOpen)
+            if (SerialPort.IsOpen)
             {
                 Console.WriteLine(Settings.Settings.ConfigGlobal.Language == "rus"
                     ? "ModBus порт открыт! Закройте ModBus порт и повторите."
@@ -41,19 +41,22 @@ namespace Server.ModBus
                 return;
             }
 
-            _serialPort.SerialPortMode = SerialPortModes.RSMode;
-            _serialPort.BaudRate = Settings.Settings.ConfigModBus.BaudRate;
-            _serialPort.Parity = Settings.Settings.ConfigModBus.SerialPortParity;
-            _serialPort.StopBits = Settings.Settings.ConfigModBus.SerialPortStopBits;
-            _serialPort.PortName = Settings.Settings.ConfigModBus.ComPortName;
+            SerialPort.SerialPortMode = SerialPortModes.RSMode;
+            SerialPort.BaudRate = Settings.Settings.ConfigModBus.BaudRate;
+            SerialPort.Parity = Settings.Settings.ConfigModBus.SerialPortParity;
+            SerialPort.StopBits = Settings.Settings.ConfigModBus.SerialPortStopBits;
+            SerialPort.PortName = Settings.Settings.ConfigModBus.ComPortName;
         }
 
         public static void OpenModBusPort()
         {
             try
             {
-                _serialPort.Open();
-                if (_serialPort.IsOpen)
+                lock (Locker)
+                {
+                    SerialPort.Open();
+                }
+                if (SerialPort.IsOpen)
                 {
                     //Обновление параметров
                     DownloadDataTimer.Elapsed += downloadDataTimer_Elapsed;
@@ -91,24 +94,24 @@ namespace Server.ModBus
 
         private static void DataRequest()
         {
-            if (!_serialPort.IsOpen)
+            if (!SerialPort.IsOpen)
             {
                 return;
             }
 
-            if (StructUpdateDataObj.DataClassGet.Count != 0)
+            if (UpdateDataObj.DataClassGet.Count != 0)
             {
-                if (_currentIndex == StructUpdateDataObj.DataClassGet.Count)
+                if (_currentIndex == UpdateDataObj.DataClassGet.Count)
                 {
                     _currentIndex = 0;
                 }
 
-                if (!StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj)
+                if (!UpdateDataObj.DataClassGet[_currentIndex].GetDataObj)
                 {
                     lock (Locker)
                     {
-                        _serialPort.GetDataRTU(StructUpdateDataObj.DataClassGet[_currentIndex].AddrDataObj, 1, UpdateData);
-                        StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(true);
+                        SerialPort.GetDataRTU(UpdateDataObj.DataClassGet[_currentIndex].AddrDataObj, 1, UpdateData);
+                        UpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(true);
                     }
                 }
             }
@@ -118,16 +121,16 @@ namespace Server.ModBus
         {
             if (dataOk)
             {
-                if(StructUpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(MvClass))
+                if(UpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(MvClass))
                 {
-                    ((MvClass)StructUpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, Convert.ToInt64(paramRtu[0]));
-                    StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
+                    ((MvClass)UpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, Convert.ToInt64(paramRtu[0]));
+                    UpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
                 }
-                else if (StructUpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(SpsClass))
+                else if (UpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(SpsClass))
                 {
-                    bool val = (Convert.ToInt32(paramRtu[0]) & 1 << Convert.ToInt32(StructUpdateDataObj.DataClassGet[_currentIndex].MaskDataObj)) > 0;
-                   ((SpsClass)StructUpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, val);
-                    StructUpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
+                    bool val = (Convert.ToInt32(paramRtu[0]) & 1 << Convert.ToInt32(UpdateDataObj.DataClassGet[_currentIndex].MaskDataObj)) > 0;
+                   ((SpsClass)UpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+                    UpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
                 }
 
                 _currentIndex++;
@@ -164,7 +167,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 67), 1, UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 67), 1, UpdateScopeConfig);
                 }
                 return;
             }
@@ -173,7 +176,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 66), 1,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 66), 1,UpdateScopeConfig);
                 }
                 return;
             }
@@ -182,7 +185,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 68), 1,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 68), 1,UpdateScopeConfig);
                 }
                 return;
             }
@@ -191,7 +194,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 69), 1,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 69), 1,
                         UpdateScopeConfig);
                 }
                 return;
@@ -201,7 +204,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 70), 1,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 70), 1,
                         UpdateScopeConfig);
                 }
                 return;
@@ -211,7 +214,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 64), 2,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 64), 2,
                         UpdateScopeConfig);
                 }
                 return;
@@ -221,7 +224,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 2), 1,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 2), 1,
                         UpdateScopeConfig);
                 }
                 return;
@@ -231,7 +234,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 376), 2,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 376), 2,
                         UpdateScopeConfig);
                 }
                 return;
@@ -241,7 +244,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 3), 1,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 3), 1,
                         UpdateScopeConfig);
                 }
                 return;
@@ -250,7 +253,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU(Settings.Settings.ConfigGlobal.OscilCmndAddr, 2, UpdateScopeConfig);
+                    SerialPort.GetDataRTU(Settings.Settings.ConfigGlobal.OscilCmndAddr, 2, UpdateScopeConfig);
                 }
                 return;
             }
@@ -259,7 +262,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 378), 2,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 378), 2,
                         UpdateScopeConfig);
                 }
                 return;
@@ -269,7 +272,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 32), 32,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 32), 32,
                         UpdateScopeConfig);
                 }
                 return;
@@ -277,7 +280,10 @@ namespace Server.ModBus
 
             if (_loadConfigStep == 12)                //Формат каналов 
             {
-                _serialPort.GetDataRTU(Settings.Settings.ConfigGlobal.ConfigurationAddr, 32, UpdateScopeConfig);
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU(Settings.Settings.ConfigGlobal.ConfigurationAddr, 32, UpdateScopeConfig);
+                }
                 return;
             }
 
@@ -285,7 +291,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU(
+                    SerialPort.GetDataRTU(
                         (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 71 + 16 * _indexChannel), 16,
                         UpdateScopeConfig);
                 }
@@ -296,7 +302,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU(
+                    SerialPort.GetDataRTU(
                         (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 583 + _indexChannel), 1,
                         UpdateScopeConfig);
                 }
@@ -307,7 +313,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU(
+                    SerialPort.GetDataRTU(
                         (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 615 + 8 * _indexChannel), 8,
                         UpdateScopeConfig);
                 }
@@ -318,7 +324,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU(
+                    SerialPort.GetDataRTU(
                         (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 871 + 4 * _indexChannel), 4,
                         UpdateScopeConfig);
                 }
@@ -329,7 +335,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU(
+                    SerialPort.GetDataRTU(
                         (ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 999 + _indexChannel), 1,
                         UpdateScopeConfig);
                 }
@@ -340,7 +346,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1031), 16,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1031), 16,
                         UpdateScopeConfig);
                 }
                 return;
@@ -350,7 +356,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1047), 8,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1047), 8,
                         UpdateScopeConfig);
                 }
                 return;
@@ -360,7 +366,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1055), 4,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1055), 4,
                         UpdateScopeConfig);
                 }
                 return;
@@ -370,7 +376,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1059), 4,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1059), 4,
                         UpdateScopeConfig);
                 }
                 return;
@@ -380,7 +386,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1063), 4,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1063), 4,
                         UpdateScopeConfig);
                 }
                 return;
@@ -390,7 +396,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1067), 4,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.ConfigurationAddr + 1067), 4,
                         UpdateScopeConfig);
                 }
             }
@@ -657,13 +663,12 @@ namespace Server.ModBus
 
         private static int _indexDownloadScope;
         private static uint _oscilStartTemp;
-        private static uint _oscilEndTemp;
 
         private static void ScopeStatusRequest()
         {
             lock (Locker)
             {
-                _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 8), 32,
+                SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 8), 32,
                     UpdateScopeStatus);
             }
         }
@@ -683,7 +688,6 @@ namespace Server.ModBus
                         _indexDownloadScope = i;
                         OldStatus[i] = NowStatus[i];
                         _oscilStartTemp = ((uint)_indexDownloadScope * (ScopeConfig.OscilSize >> 1)); //Начало осциллограммы 
-                        _oscilEndTemp = (((uint)_indexDownloadScope + 1) * (ScopeConfig.OscilSize >> 1)); //Конец осциллограммы 
                         _startDownloadScope = true;
                         break;
                     }
@@ -696,10 +700,9 @@ namespace Server.ModBus
         private static int _loadOscDataStep;
         private static int _loadOscDataSubStep;
         private static uint _startLoadSample;
-        private static DateTime StampDate;
+        private static DateTime _stampDate;
 
         private static List<ushort[]> _downloadedData = new List<ushort[]>();
-        private static ushort[] _loadParamPart = new ushort[32];
         private static ushort[] _writeArr = new ushort[3];
 
 
@@ -722,7 +725,7 @@ namespace Server.ModBus
                     {
                     lock (Locker)
                         {
-                            _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2,UpdateScopoe);
+                            SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2,UpdateScopoe);
                         }
                     }
                     break;
@@ -737,7 +740,7 @@ namespace Server.ModBus
                         _writeArr[2] = Convert.ToUInt16(oscilLoadTemp >> 16);
                         lock (Locker)
                         {
-                            _serialPort.SetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 5),ScopeDownloadRequestGet, RequestPriority.Normal, _writeArr);
+                            SerialPort.SetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 5),ScopeDownloadRequestGet, RequestPriority.Normal, _writeArr);
                         }
                     }
                     break;
@@ -750,7 +753,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    _serialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 40), 32,
+                    SerialPort.GetDataRTU((ushort) (Settings.Settings.ConfigGlobal.OscilCmndAddr + 40), 32,
                         UpdateScopoe);
                 }
             }
@@ -801,7 +804,7 @@ namespace Server.ModBus
         {
             lock (Locker)
             {
-                _serialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
+                SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
             }
         }
 
@@ -815,7 +818,7 @@ namespace Server.ModBus
                 string str = str1 + "," + str2 + @"." + str3;
                 try
                 {
-                    StampDate = DateTime.Parse(str);
+                    _stampDate = DateTime.Parse(str);
                 }
                 catch
                 {
@@ -1039,19 +1042,19 @@ namespace Server.ModBus
             return str;
         }
 
-        private static string Line8(int numOsc)
+        private static string Line8()
         {
             //Время начала осциллограммы 
             double milsec = 1000 * (double)ScopeConfig.OscilHistCount / ((double)ScopeConfig.SampleRate / ScopeConfig.FreqCount);
 
-            DateTime dateTemp = StampDate.AddMilliseconds(-milsec);
+            DateTime dateTemp = _stampDate.AddMilliseconds(-milsec);
             return dateTemp.ToString("dd'/'MM'/'yyyy,HH:mm:ss.fff000");
         }
 
-        private static string Line9(int numOsc)
+        private static string Line9()
         {
             //Время срабатывания триггера
-            DateTime dateTemp = StampDate;
+            DateTime dateTemp = _stampDate;
             return dateTemp.ToString("dd'/'MM'/'yyyy,HH:mm:ss.fff000");
         }
 
@@ -1097,7 +1100,7 @@ namespace Server.ModBus
 
                 try
                 {
-                    DateTime dateTemp = StampDate;
+                    DateTime dateTemp = _stampDate;
                     sw.WriteLine(dateTemp.ToString("dd'/'MM'/'yyyy HH:mm:ss.fff000"));                  //Штамп времени
                     sw.WriteLine(Convert.ToString(ScopeConfig.SampleRate / ScopeConfig.FreqCount));     //Частота выборки (частота запуска осциллогрофа/ делитель)
                     sw.WriteLine(ScopeConfig.OscilHistCount);                                           //Предыстория 
@@ -1124,33 +1127,33 @@ namespace Server.ModBus
             {
                 string writePathCfg = Settings.Settings.ConfigGlobal.PathScope + "test" + _numName + ".cfg";
 
-                StreamWriter sw_cfg = new StreamWriter(writePathCfg, false, Encoding.GetEncoding("Windows-1251"));
+                StreamWriter swCfg = new StreamWriter(writePathCfg, false, Encoding.GetEncoding("Windows-1251"));
 
                 try
                 {
-                    sw_cfg.WriteLine(Line1(Settings.Settings.ConfigGlobal.ComtradeType));
-                    sw_cfg.WriteLine(Line2());
+                    swCfg.WriteLine(Line1(Settings.Settings.ConfigGlobal.ComtradeType));
+                    swCfg.WriteLine(Line2());
 
                     for (int i = 0, j = 0; i < ScopeConfig.ChannelCount; i++)
                     {
-                        if (ScopeConfig.ChannelType[i] == 0) { sw_cfg.WriteLine(Line3(i, j + 1)); j++; }
+                        if (ScopeConfig.ChannelType[i] == 0) { swCfg.WriteLine(Line3(i, j + 1)); j++; }
                     }
                     for (int i = 0, j = 0; i < ScopeConfig.ChannelCount; i++)
                     {
-                        if (ScopeConfig.ChannelType[i] == 1) { sw_cfg.WriteLine(Line4(i, j + 1)); j++; }
+                        if (ScopeConfig.ChannelType[i] == 1) { swCfg.WriteLine(Line4(i, j + 1)); j++; }
                     }
 
-                    sw_cfg.WriteLine(Line5());
-                    sw_cfg.WriteLine(Line6());
-                    sw_cfg.WriteLine(Line7());
-                    sw_cfg.WriteLine(Line8(_indexDownloadScope));
-                    sw_cfg.WriteLine(Line9(_indexDownloadScope));
-                    sw_cfg.WriteLine(Line10());
-                    sw_cfg.WriteLine(Line11());
+                    swCfg.WriteLine(Line5());
+                    swCfg.WriteLine(Line6());
+                    swCfg.WriteLine(Line7());
+                    swCfg.WriteLine(Line8());
+                    swCfg.WriteLine(Line9());
+                    swCfg.WriteLine(Line10());
+                    swCfg.WriteLine(Line11());
                     if (Settings.Settings.ConfigGlobal.ComtradeType == 3)
                     {
-                        sw_cfg.WriteLine(Line12());
-                        sw_cfg.WriteLine(Line13());
+                        swCfg.WriteLine(Line12());
+                        swCfg.WriteLine(Line13());
                     }
                 }
                 catch
@@ -1159,18 +1162,18 @@ namespace Server.ModBus
                     return;
                 }
 
-                sw_cfg.Close();
+                swCfg.Close();
 
                 string writePathDat = Settings.Settings.ConfigGlobal.PathScope + "test" + _numName++ + ".dat";
 
-                StreamWriter sw_dat = new StreamWriter(writePathDat, false, Encoding.GetEncoding("Windows-1251"));
+                StreamWriter swDat = new StreamWriter(writePathDat, false, Encoding.GetEncoding("Windows-1251"));
 
                 try
                 {
                     List<ushort[]> lud = InitParamsLines();
                     for (int i = 0; i < lud.Count; i++)
                     {
-                        sw_dat.WriteLine(FileParamLineData(lud[i], i));
+                        swDat.WriteLine(FileParamLineData(lud[i], i));
                     }
                 }
                 catch
@@ -1178,7 +1181,7 @@ namespace Server.ModBus
                     Console.WriteLine(@"Ошибка при записи в файл!");
                     return;
                 }
-                sw_dat.Close();
+                swDat.Close();
 
                 _downloadedData.Clear();
                     //= new List<ushort[]>();
@@ -1190,7 +1193,10 @@ namespace Server.ModBus
         {
             DownloadScopeTimer.Enabled = false;
             DownloadDataTimer.Enabled = false;
-            _serialPort.Close();
+            lock (Locker)
+            {
+                SerialPort.Close();
+            }
         }
     }
 }

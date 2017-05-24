@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server.Parser
 {
     public class Quality
     {
         public ushort Validity { get; private set; }
-        private DetailQuality DetailQual { get;  set; }
-        private string Source { get;  set; }
-        private bool Test { get;  set; }
-        private bool OperatorBlocked { get;  set; }
-        private int _allowedAge;
+        private DetailQuality DetailQual { get; }
+        private string Source { get; }
+        private bool Test { get; }
+        private bool OperatorBlocked { get;  }
+        private readonly int _allowedAge;
 
         public Quality()
         {

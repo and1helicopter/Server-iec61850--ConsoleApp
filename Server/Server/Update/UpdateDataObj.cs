@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 
 namespace Server.Parser
 {
-    public static class StructUpdateDataObj
+    public static class UpdateDataObj
     {
         public static List<DataObject> DataClassGet = new List<DataObject>();           //Список классов в которых данные получаем с платы 
         public static List<DataObject> DataClassSet = new List<DataObject>();           //Список классов в которых данные загружаем на плату 

@@ -15,7 +15,7 @@ namespace Server.Parser
     }
 
     #region Классы общих данных для информации о состоянии
-    //Двоичное состояние
+    //Двоичное состояние SPS
     public class SpsClass : BaseClass
     {
         public Boolean stVal;
@@ -307,94 +307,6 @@ namespace Server.Parser
             SBO_WITH_ENHANCED_SECURITY = 4
         }
     }
-
-    ////Класс DPC (дублированное управление и состояние)
-    //public class DpcClass : BaseClass
-    //{
-    //    public Boolean ctlVal;
-    //    public Int32 stVal;
-    //    public Int32 ctlModel;
-    //    public String d;
-
-    //    public DpcClass()
-    //    {
-    //        ctlVal = false;
-    //        stVal = 1;
-    //        ctlModel = 1;
-    //        d = "";
-    //    }
-
-    //    public void UpdateClass(DateTime time, bool ctlValue, string stValue, string ctrMod)
-    //    {
-    //        ctlVal = ctlValue;
-    //        stVal = MapStVal(stValue);
-    //        ctlModel = MapCtlModel(ctrMod);
-    //        t = time;
-    //        q.UpdateQuality(time, null);
-    //    }
-
-    //    private ushort MapStVal(string stVal)
-    //    {
-    //        ushort qual = 0;
-    //        switch (stVal.ToUpper().Replace('-', '_').Replace(" ", ""))
-    //        {
-    //            case "STATUS_ONLY":
-    //                qual = (ushort)ValidityStVal.INTERMEDIATE_STATE;
-    //                break;
-    //            case "DIRECT_WITH_NORMAL_SECURITY":
-    //                qual = (ushort)ValidityStVal.OFF;
-    //                break;
-    //            case "SBO_WITH_NORMAL_SECURITY":
-    //                qual = (ushort)ValidityStVal.ON;
-    //                break;
-    //            case "DIRECR_WITH_ENHANCED_SECURITY":
-    //                qual = (ushort)ValidityStVal.BAD_STATE;
-    //                break;
-    //        }
-    //        return qual;
-    //    }
-
-    //    enum ValidityStVal
-    //    {
-    //        INTERMEDIATE_STATE = 0,
-    //        OFF = 1,
-    //        ON = 2,
-    //        BAD_STATE = 3
-    //    }
-
-    //    private ushort MapCtlModel(string quality)
-    //    {
-    //        ushort qual = 0;
-    //        switch (quality.ToUpper().Replace('-', '_').Replace(" ", ""))
-    //        {
-    //            case "STATUS_ONLY":
-    //                qual = (ushort)ValidityCtlModel.STATUS_ONLY;
-    //                break;
-    //            case "DIRECT_WITH_NORMAL_SECURITY":
-    //                qual = (ushort)ValidityCtlModel.DIRECT_WITH_NORMAL_SECURITY;
-    //                break;
-    //            case "SBO_WITH_NORMAL_SECURITY":
-    //                qual = (ushort)ValidityCtlModel.SBO_WITH_NORMAL_SECURITY;
-    //                break;
-    //            case "DIRECR_WITH_ENHANCED_SECURITY":
-    //                qual = (ushort)ValidityCtlModel.DIRECR_WITH_ENHANCED_SECURITY;
-    //                break;
-    //            case "SBO_WITH_ENHANCED_SECURITY":
-    //                qual = (ushort)ValidityCtlModel.SBO_WITH_ENHANCED_SECURITY;
-    //                break;
-    //        }
-    //        return qual;
-    //    }
-
-    //    enum ValidityCtlModel
-    //    {
-    //        STATUS_ONLY = 0,
-    //        DIRECT_WITH_NORMAL_SECURITY = 1,
-    //        SBO_WITH_NORMAL_SECURITY = 2,
-    //        DIRECR_WITH_ENHANCED_SECURITY = 3,
-    //        SBO_WITH_ENHANCED_SECURITY = 4
-    //    }
-    //}
 
     //Класс INC (целочисленное управление и состояние)
     public class IncClass : BaseClass

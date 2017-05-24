@@ -46,6 +46,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="iec61850dotnet, Version=1.0.6282.23374, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -67,20 +70,22 @@
     <Compile Include="Logging\Log.cs" />
     <Compile Include="ModBus\ModBus.cs" />
     <Compile Include="ModBus\ScopeConfig.cs" />
-    <Compile Include="Parser\CreateClass.cs" />
+    <Compile Include="Parser\CreateClassFromAttribute.cs" />
+    <Compile Include="Parser\CreateFileConfig.cs" />
     <Compile Include="Parser\FileParseToAttribute.cs" />
     <Compile Include="Parser\ModelFillDefultParam.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Parser\FileParseToModel.cs" />
     <Compile Include="Parser\DataObj.cs" />
-    <Compile Include="Parser\ServerModel.cs" />
-    <Compile Include="Parser\StructUpdateDataObj.cs" />
-    <Compile Include="Parser\StructUpdateDataObj\AttributesClasses.cs" />
-    <Compile Include="Parser\StructUpdateDataObj\DataClasses.cs" />
+    <Compile Include="DataObj\ServerModel.cs" />
+    <Compile Include="Update\UpdateConnect.cs" />
+    <Compile Include="Update\UpdateDataObj.cs" />
+    <Compile Include="DataObj\AttributesClasses.cs" />
+    <Compile Include="DataObj\DataClasses.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Settings.cs" />
-    <Compile Include="UpdateServer.cs" />
+    <Compile Include="Update\UpdateServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".dockerignore">
@@ -111,5 +116,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

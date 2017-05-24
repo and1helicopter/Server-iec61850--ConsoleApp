@@ -137,7 +137,7 @@ namespace Server
 
         private static void InitDefultParamClass()
         {
-            foreach (var itemDataObject in StructUpdateDataObj.DataClassGet)
+            foreach (var itemDataObject in UpdateDataObj.DataClassGet)
             {
                 if (itemDataObject.ClassDataObj == "MV")
                 {
@@ -153,7 +153,7 @@ namespace Server
             }
         }
 
-        private static void MV_ClassSet(StructUpdateDataObj.DataObject itemDataObject)
+        private static void MV_ClassSet(UpdateDataObj.DataObject itemDataObject)
         {
             //units (multiplier, SIUnit)
             InitStaticUpdateData("int", ((MvClass)itemDataObject.DataObj).Unit.Multiplier.ToString(), itemDataObject.NameDataObj + ".units.multiplier");
@@ -165,7 +165,7 @@ namespace Server
             InitStaticUpdateData("string", ((MvClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
         }
 
-        private static void SPS_ClassSet(StructUpdateDataObj.DataObject itemDataObject)
+        private static void SPS_ClassSet(UpdateDataObj.DataObject itemDataObject)
         {
             //d
             InitStaticUpdateData("string", ((SpsClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
@@ -255,7 +255,7 @@ namespace Server
 
         private static void UpdateData()
         {
-            foreach (var itemDataObject in StructUpdateDataObj.DataClassGet)
+            foreach (var itemDataObject in UpdateDataObj.DataClassGet)
             {
                 if (itemDataObject.ClassDataObj == "MV")
                 {
@@ -271,7 +271,7 @@ namespace Server
             }
         }
 
-        private static void MV_ClassUpdate(StructUpdateDataObj.DataObject itemDataObject)
+        private static void MV_ClassUpdate(UpdateDataObj.DataObject itemDataObject)
         {
             ((MvClass)itemDataObject.DataObj).QualityCheckClass();
 
@@ -288,7 +288,7 @@ namespace Server
             _iedServer.UpdateQuality(qPath, qVal);
         }
         
-        private static void SPS_ClassUpdate(StructUpdateDataObj.DataObject itemDataObject)
+        private static void SPS_ClassUpdate(UpdateDataObj.DataObject itemDataObject)
         {
             ((SpsClass)itemDataObject.DataObj).QualityCheckClass();
 

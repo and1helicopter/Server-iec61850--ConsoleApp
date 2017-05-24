@@ -104,8 +104,8 @@ namespace Server.Parser
 
                     mv.ClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
 
-                    StructUpdateDataObj.DataObject dataObj = new StructUpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, mv);
-                    StructUpdateDataObj.DataClassGet.Add(dataObj);
+                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, mv);
+                    UpdateDataObj.DataClassGet.Add(dataObj);
                     return;
                 }
                 catch
@@ -117,11 +117,20 @@ namespace Server.Parser
 
             if (itemDo.TypeDO == "SPS")
             {
-                string pathNameDo = path + "." + itemDo.NameDO;
-                var sps = new SpsClass();
+                try
+                {
+                    string pathNameDo = path + "." + itemDo.NameDO;
+                    var sps = new SpsClass();
 
-                StructUpdateDataObj.DataObject dataObj = new StructUpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, sps);
-                StructUpdateDataObj.DataClassGet.Add(dataObj);
+                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, sps);
+                    UpdateDataObj.DataClassGet.Add(dataObj);
+                    //return;
+                }
+                catch
+                {
+                    Logging.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error   ");
+                    //return;
+                }
             }
         }
         #endregion
