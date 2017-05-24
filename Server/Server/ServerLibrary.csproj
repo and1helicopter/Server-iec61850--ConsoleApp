@@ -67,6 +67,7 @@
     <Compile Include="Logging\Log.cs" />
     <Compile Include="ModBus\ModBus.cs" />
     <Compile Include="ModBus\ScopeConfig.cs" />
+    <Compile Include="Parser\CreateClass.cs" />
     <Compile Include="Parser\FileParseToAttribute.cs" />
     <Compile Include="Parser\ModelFillDefultParam.cs" />
     <Compile Include="Parser\Parser.cs" />

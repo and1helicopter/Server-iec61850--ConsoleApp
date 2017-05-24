@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
 
 namespace Server.Parser
@@ -34,7 +32,7 @@ namespace Server.Parser
                     Logging.Log.Write("FileParseToAttribute: Finish whith status false", "Warning ");
                 }
 
-                CreateClasses();            //Создаем обновляймые классы 
+                CreateClassFromAttribute();            //Создаем обновляймые классы 
 
                 SaveFileConfig();           //Создаем из объектной модели - конфигурационную 
             }
@@ -45,117 +43,7 @@ namespace Server.Parser
 
 
 
-        #region Создание обновляймых классов 
-        private void CreateClasses()
-        {
-            foreach (var itemLd in ServerModel.Model.ListLD)
-            {
-                string pathNameLD = itemLd.NameLD;
 
-                foreach (var itemLn in itemLd.ListLN)
-                {
-                    string pathNameLN = itemLn.NameLN;
-                    //Если переменную класса нужно читать из памяти
-                    var getDo = (from x in itemLn.ListDO
-                                 where x.Type == "G"
-                                 select x).ToList();
-
-                    if (getDo.Count != 0)
-                    {
-                        GetDo(getDo, pathNameLD + "/" + pathNameLN);
-                        continue;
-                    }
-
-                    //Если переменную класса нужно записать в память
-                    var setDo = (from x in itemLn.ListDO
-                                 where x.Type == "S"
-                                 select x).ToList();
-
-                    if (setDo.Count != 0)
-                    {
-
-                    }
-                }
-            }
-        }
-
-
-
-        private void GetDo(List<ServerModel.NodeDO> getDo, string path)
-        {
-            foreach (var itemDo in getDo)
-            {
-                //Проверка MV класса
-                if (itemDo.TypeDO == "MV")
-                {
-                    string pathNameDo = path + "." + itemDo.NameDO;
-                    var mv = new MvClass();
-
-                    var siUnit = Convert.ToInt32((from y in (from x in itemDo.ListDA
-                                                             where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
-                                                             select x).ToList().Last().ListDA.ToList()
-                                                  where y.NameDA.ToUpper() == "SIUnit".ToUpper()
-                                                  select y).ToList().Last().Value);
-
-                    var multiplier = Convert.ToInt32((from y in (from x in itemDo.ListDA
-                                                                 where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
-                                                                 select x).ToList().Last().ListDA.ToList()
-                                                      where y.NameDA.ToUpper() == "Multiplier".ToUpper()
-                                                      select y).ToList().Last().Value);
-
-                    var scaleFactor = Convert.ToSingle((from y in (from x in itemDo.ListDA
-                                                                  where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                                                  select x).ToList().Last().ListDA.ToList()
-                                                       where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
-                                                       select y).ToList().Last().Value.Replace('.',','));
-
-                    var offset = Convert.ToSingle((from y in (from x in itemDo.ListDA
-                                                             where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                                             select x).ToList().Last().ListDA.ToList()
-                                                  where y.NameDA.ToUpper() == "Offset".ToUpper()
-                                                  select y).ToList().Last().Value.Replace('.', ','));
-
-                    if ((from y in (from x in itemDo.ListDA
-                                    where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                    select x).ToList().Last().ListDA.ToList()
-                         where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
-                         select y).ToList().Last().Value == null)
-                    {
-                        scaleFactor = 1;
-                    }
-
-                    mv.ClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
-
-                    StructUpdateDataObj.DataObject dataObj = new StructUpdateDataObj.DataObject(pathNameDo, itemDo.Format,itemDo.Mask,itemDo.Addr,itemDo.TypeDO,mv);
-                    StructUpdateDataObj.DataClassGet.Add(dataObj);
-                    continue;
-                }
-
-                if (itemDo.TypeDO == "SPS")
-                {
-                    string pathNameDo = path + "." + itemDo.NameDO;
-                    var sps = new SpsClass();
-
-                    StructUpdateDataObj.DataObject dataObj = new StructUpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, sps);
-                    StructUpdateDataObj.DataClassGet.Add(dataObj);
-                    continue;
-                }
-            }
-        }
-
-        private void DefualtDo(List<ServerModel.NodeDO> defualtDo, string path)
-        {
-            foreach (var itemDo in defualtDo)
-            {
-                if (itemDo.NameDO == "Mod")
-                {
-
-                    
-                    //DataObj.AddStructDefultDataObj();
-                }
-            }
-        }
-        #endregion
 
         #region Сохранение объектной модели в конфигурациионную модель для сервера
         private void SaveFileConfig()

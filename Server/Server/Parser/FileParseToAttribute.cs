@@ -70,9 +70,7 @@ namespace Server.Parser
                         var type = (from x in doiitem.Descendants()
                                     where x.Name.LocalName == "private"
                                     select x).ToList();
-
-                        string typeDo = null; //По-умолчанию рассматриваю 
-                        
+                       
                         if (type.Count != 0) //Проверяю на собственный формат 
                         {
                             //Отметим объекты которые изменяются
@@ -86,7 +84,6 @@ namespace Server.Parser
                                               where z.NameDO.ToUpper() == doi?.ToUpper()
                                               select z).ToList().First();
 
-                                typeDo = type.First().Value;
                                 tempDo.Type = type.First().Value;
                             }
                             catch
@@ -96,7 +93,7 @@ namespace Server.Parser
                             }
                         }
 
-                        ParseDefultParamBda(doiitem, ld, ln, doi, typeDo, null);
+                        ParseDefultParamBda(doiitem, ld, ln, doi, null);
                     }
                 }
             }
@@ -105,7 +102,7 @@ namespace Server.Parser
             return true;
         }
 
-        private void ParseDefultParamBda(XElement bdai, string ld, string ln, string doi, string typeDo, string dai)
+        private void ParseDefultParamBda(XElement bdai, string ld, string ln, string doi, string dai)
         {
             IEnumerable<XElement> xDai = bdai.Elements().ToList();
 
@@ -127,19 +124,19 @@ namespace Server.Parser
                         //Если нет вложений типа DA
                         var daitemp = dai == null ? daiitem.Attribute("name")?.Value : dai + "." + daiitem.Attribute("name")?.Value;
                         var value = daiitem.Value;
-                        ParseFillModel(ld, ln, doi, daitemp, typeDo, value);
+                        ParseFillModel(ld, ln, doi, daitemp, value);
                     }
                     else
                     {
                         //Если есть вложения типа DA
                         var daitemp = dai == null ? daiitem.Attribute("name")?.Value : dai + "." + daiitem.Attribute("name")?.Value;
-                        ParseDefultParamBda(daiitem,  ld, ln, doi, typeDo, daitemp);
+                        ParseDefultParamBda(daiitem,  ld, ln, doi, daitemp);
                     }
                 }
             }
         }
 
-        private void ParseFillModel( string ld, string ln, string doi, string daitemp, string typeDo, string value)
+        private void ParseFillModel( string ld, string ln, string doi, string daitemp, string value)
         {
             try
             {
@@ -148,21 +145,6 @@ namespace Server.Parser
                         select x.ListLN).ToList().Last().ToList()
                     where x.NameLN == ln
                     select x.ListDO).ToList().Last().ToList();
-
-                var tempDo = (from x in Do
-                    where x.NameDO == doi
-                    select x).ToList().Last();
-
-                if (typeDo != null)
-                {
-                    string[] typeTempDo1 = typeDo.Split(';');
-                    string[] typeTempDo2 = typeTempDo1[0].Split(':');
-
-                    tempDo.Type = typeTempDo1[2];
-                    tempDo.Format = typeTempDo2[0];
-                    tempDo.Mask = Convert.ToUInt16(typeTempDo2[1]);
-                    tempDo.Addr = Convert.ToUInt16(typeTempDo1[1]);
-                }
 
                 var da = (from x in Do
                     where x.NameDO == doi
