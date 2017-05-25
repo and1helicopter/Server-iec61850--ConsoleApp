@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using IEC61850.Server;
 using IEC61850.Common;
 using System.Threading;
@@ -9,6 +8,7 @@ namespace Server
 {
     static class Program
     {
+        private static object Locker = new object();
         static IedServer _iedServer;
         static IedModel _iedModel;
         private static readonly Parser.Parser Parser = new Parser.Parser();
@@ -24,14 +24,19 @@ namespace Server
 
                 StopServer();
             };
-            
+
+
             //Открываем настройки сервера
             Settings.Settings.ReadSettings();
-            Settings.Settings.SaveSettings();
+            //Settings.Settings.SaveSettings();
 
-            //Открываем настройки MODBUS порта
-            ModBus.ModBus.ConfigModBusPort();
-            ModBus.ModBus.OpenModBusPort();
+            ModBus.ModBus.ConfigModBus("115200", "Odd", "One", "COM1");
+            ModBus.ModBus.StartModBus();
+
+
+
+
+
 
             //Парсим файл конфигурации
             if (!Parser.ParseFile())
@@ -50,22 +55,24 @@ namespace Server
             StartServer(Settings.Settings.ConfigServer.PortServer);
         }
 
+
         private static void RuningServer()
         {
-
-
             while (_running)
             {
-                _iedServer.LockDataModel();
-
-                lock (ModBus.ModBus.Locker)
+                if (ModBus.ModBus.StartPort)
                 {
-                    UpdateData();
+                    _iedServer.LockDataModel();
+
+                    lock (Locker)
+                    {
+                        UpdateData();
+                    }
+
+                    _iedServer.UnlockDataModel();
+
+                    Thread.Sleep(50);
                 }
-
-                _iedServer.UnlockDataModel();
-
-                Thread.Sleep(50);
             }
         }
 

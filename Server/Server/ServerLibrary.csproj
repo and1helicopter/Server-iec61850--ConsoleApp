@@ -68,7 +68,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Logging\Log.cs" />
+    <Compile Include="ModBus\DownloadDataObj.cs" />
+    <Compile Include="ModBus\DownloadScope.cs" />
     <Compile Include="ModBus\ModBus.cs" />
+    <Compile Include="ModBus\ModBusConfig.cs" />
     <Compile Include="ModBus\ScopeConfig.cs" />
     <Compile Include="Parser\CreateClassFromAttribute.cs" />
     <Compile Include="Parser\CreateFileConfig.cs" />

@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADSPLibrary", "..\ADSPLibra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModBusLibrary", "..\ModBusLibrary\ModBusLibrary.csproj", "{30188FF0-11C6-4302-8B16-F30EEBEF8761}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Main_Server", "Main_Server\Main_Server.csproj", "{FE98786F-5A56-415A-B180-1EDF9F67F390}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,12 +42,6 @@ Global
 		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Release|Any CPU.Build.0 = Release|Any CPU
 		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Test|Any CPU.ActiveCfg = Test|Any CPU
 		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Test|Any CPU.Build.0 = Test|Any CPU
-		{FE98786F-5A56-415A-B180-1EDF9F67F390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE98786F-5A56-415A-B180-1EDF9F67F390}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE98786F-5A56-415A-B180-1EDF9F67F390}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE98786F-5A56-415A-B180-1EDF9F67F390}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FE98786F-5A56-415A-B180-1EDF9F67F390}.Test|Any CPU.ActiveCfg = Release|Any CPU
-		{FE98786F-5A56-415A-B180-1EDF9F67F390}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

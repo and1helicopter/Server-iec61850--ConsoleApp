@@ -1,32 +1,516 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Server.ModBus
 {
-    public static class ScopeConfig
+    public static partial class ModBus
     {
-        //Было сделано изменение конфигурации
-        public static bool ChangeScopeConfig = false;
+        private static int _loadConfigStep;
+        private static int _indexChannel;
 
-        //Скаченные параметры
-        public static ushort[] LoadParams { get; set; }
-
-        public static void SetLoadParamsBlock(ushort[] newPartLoadParams, int startIndex, int paramCount)
+        private static void ScopeConfigRequest()
         {
-            try
+            if (_loadConfigStep == 0)                //Количество каналов 
             {
-                for (int i = 0; i < paramCount; i++)
+                lock (Locker)
                 {
-                    LoadParams[startIndex + i] = newPartLoadParams[i];
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 67), 1, UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 1)                //Количество осциллограмм 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 66), 1, UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 2)                //Предыстория 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 68), 1, UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 3)                //Делитель
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 69), 1,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 4)                //Режим работы
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 70), 1,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 5)                //Размер осциллограммы 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 64), 2,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 6)                //Частота выборки
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 2), 1,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 7)                //Весь размер под осциллограммы 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 376), 2,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 8)                //Размер одной выборки
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 3), 1,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+            if (_loadConfigStep == 9)                //Количество выборок на предысторию 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU(Settings.Settings.ConfigGlobal.OscilCmndAddr, 2, UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 10)                //Статус осциллогрофа
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 378), 2,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 11)                //Адреса каналов 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 32), 32,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 12)                //Формат каналов 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU(Settings.Settings.ConfigGlobal.ConfigurationAddr, 32, UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 13)                //Название каналов 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU(
+                        (ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 71 + 16 * _indexChannel), 16,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 14)                //Фаза каналов 
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU(
+                        (ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 583 + _indexChannel), 1,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 15)                //CCBM каналов
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU(
+                        (ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 615 + 8 * _indexChannel), 8,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 16)                //Измеерение каналов
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU(
+                        (ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 871 + 4 * _indexChannel), 4,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 17)                //Type каналов
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU(
+                        (ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 999 + _indexChannel), 1,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 18)                //
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1031), 16,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 19)                //
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1047), 8,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 20)                //
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1055), 4,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 21)                //
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1059), 4,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 22)                //
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1063), 4,
+                        UpdateScopeConfig);
+                }
+                return;
+            }
+
+            if (_loadConfigStep == 23)                //
+            {
+                lock (Locker)
+                {
+                    SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.ConfigurationAddr + 1067), 4,
+                        UpdateScopeConfig);
                 }
             }
-            catch
+        }
+
+        private static void UpdateScopeConfig(bool dataOk, ushort[] paramRtu)
+        {
+            if (dataOk)
             {
-                // ignored
+                switch (_loadConfigStep)
+                {
+                    case 0:                     //Количество каналов 
+                    {
+                        ScopeConfig.ChannelCount = paramRtu[0];
+                        _loadConfigStep = 1;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 1:                     //Количество осциллограмм
+                    {
+                        ScopeConfig.ScopeCount = paramRtu[0];
+                        _loadConfigStep = 2;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 2:                     //Предыстория 
+                    {
+                        ScopeConfig.HistoryCount = paramRtu[0];
+                        _loadConfigStep = 3;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 3:                     //Делитель
+                    {
+                        ScopeConfig.FreqCount = paramRtu[0];
+                        _loadConfigStep = 4;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 4:                     //Режим работы
+                    {
+                        ScopeConfig.OscilEnable = paramRtu[0];
+                        _loadConfigStep = 5;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 5:                     //Размер осциллограммы 
+                    {
+                        ScopeConfig.OscilSize = (uint)(paramRtu[1] << 16);
+                        ScopeConfig.OscilSize += paramRtu[0];
+                        _loadConfigStep = 6;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 6:                     //Частота выборки
+                    {
+                        ScopeConfig.SampleRate = paramRtu[0];
+                        ScopeConfig.ScopeEnabled = true;
+                        _loadConfigStep = 7;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 7:                     //Размер осциллограммы 
+                    {
+                        ScopeConfig.OscilAllSize = (uint)(paramRtu[1] << 16);
+                        ScopeConfig.OscilAllSize += (paramRtu[0]);
+                        _loadConfigStep = 8;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 8:                     //Размер одной выборки
+                    {
+                        ScopeConfig.SampleSize = paramRtu[0];
+                        _loadConfigStep = 9;
+                        ScopeConfigRequest();
+                    }
+                        break;
+                    case 9:                     //Размер всей памяти 
+                    {
+                        ScopeConfig.OscilHistCount = (uint)(paramRtu[1] << 16);
+                        ScopeConfig.OscilHistCount += paramRtu[0];
+                        _loadConfigStep = 10;
+                        ScopeConfigRequest();
+
+                    }
+                        break;
+                    case 10:                     //Статус осциллогрофа
+                    {
+                        ScopeConfig.StatusOscil = paramRtu[0];
+                        _loadConfigStep = 11;
+                        ScopeConfigRequest();
+                    }
+                        break;
+                    case 11:                     //Адреса каналов 
+                    {
+                        ScopeConfig.InitOscilAddr(paramRtu);
+                        _loadConfigStep = 12;
+                        ScopeConfigRequest();
+                    }
+                        break;
+                    case 12:                     //Формат каналов 
+                    {
+                        ScopeConfig.InitOscilFormat(paramRtu);
+                        _loadConfigStep = 13;
+                        ScopeConfigRequest();
+                    }
+                        break;
+                    case 13:                     //Названия каналов 
+                    {
+                        if (ScopeConfig.ChannelCount == 0)   //Если в системе нет конфигурации
+                        {
+                            _loadConfigStep = 0;
+                            _configScopeDownload = true;
+                            break;
+                        }
+                        if (_indexChannel == 0) ScopeConfig.ChannelName.Clear();
+                        ScopeConfig.InitChannelName(paramRtu);
+                        if (_indexChannel == ScopeConfig.ChannelCount - 1)
+                        {
+                            _indexChannel = 0;
+                            _loadConfigStep = 14;
+                        }
+                        else
+                        {
+                            _indexChannel++;
+                            ScopeConfigRequest();
+                        }
+                    }
+                        break;
+                    case 14:                     //Названия каналов 
+                    {
+                        if (_indexChannel == 0) ScopeConfig.ChannelPhase.Clear();
+                        ScopeConfig.InitChannelPhase(paramRtu);
+                        if (_indexChannel == ScopeConfig.ChannelCount - 1)
+                        {
+                            _indexChannel = 0;
+                            _loadConfigStep = 15;
+                        }
+                        else
+                        {
+                            _indexChannel++;
+                            ScopeConfigRequest();
+                        }
+                    }
+                        break;
+
+                    case 15:                     //Названия каналов 
+                    {
+                        if (_indexChannel == 0) ScopeConfig.ChannelCcbm.Clear();
+                        ScopeConfig.InitChannelCcbm(paramRtu);
+                        if (_indexChannel == ScopeConfig.ChannelCount - 1)
+                        {
+                            _indexChannel = 0;
+                            _loadConfigStep = 16;
+                        }
+                        else
+                        {
+                            _indexChannel++;
+                            ScopeConfigRequest();
+                        }
+                    }
+                        break;
+
+                    case 16:                     //Названия каналов 
+                    {
+                        if (_indexChannel == 0) ScopeConfig.ChannelDemension.Clear();
+                        ScopeConfig.InitChannelDemension(paramRtu);
+                        if (_indexChannel == ScopeConfig.ChannelCount - 1)
+                        {
+                            _indexChannel = 0;
+                            _loadConfigStep = 17;
+                        }
+                        else
+                        {
+                            _indexChannel++;
+                            ScopeConfigRequest();
+                        }
+                    }
+                        break;
+
+                    case 17:                     //Названия каналов 
+                    {
+                        if (_indexChannel == 0) ScopeConfig.ChannelType.Clear();
+                        ScopeConfig.InitChannelType(paramRtu);
+                        if (_indexChannel == ScopeConfig.ChannelCount - 1)
+                        {
+                            _indexChannel = 0;
+                            _loadConfigStep = 18;
+                        }
+                        else
+                        {
+                            _indexChannel++;
+                            ScopeConfigRequest();
+                        }
+                    }
+                        break;
+
+                    case 18:                     //
+                    {
+                        ScopeConfig.InitStationName(paramRtu);
+                        _loadConfigStep = 19;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 19:                     //Названия каналов 
+                    {
+                        ScopeConfig.InitRecordingId(paramRtu);
+                        _loadConfigStep = 20;
+                        ScopeConfigRequest();
+
+                    }
+                        break;
+
+                    case 20:                     //Названия каналов 
+                    {
+                        ScopeConfig.InitTimeCode(paramRtu);
+                        _loadConfigStep = 21;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 21:                     //Названия каналов 
+                    {
+                        ScopeConfig.InitLocalCode(paramRtu);
+
+                        _loadConfigStep = 22;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 22:                     //Названия каналов 
+                    {
+                        ScopeConfig.InitTmqCode(paramRtu);
+
+                        _loadConfigStep = 23;
+                        ScopeConfigRequest();
+                    }
+                        break;
+
+                    case 23:                     //Названия каналов 
+                    {
+                        ScopeConfig.InitLeapsec(paramRtu);
+
+                        _loadConfigStep = 0;
+                        //DownloadScopeTimer.Enabled = true;
+                        _configScopeDownload = true;
+                    }
+                        break;
+                }
             }
         }
+    }
+
+    public static class ScopeConfig
+    {
+        //Скаченные параметры
+        public static ushort[] LoadParams { get; set; }
 
         public static bool ConnectMcu { get; set; }
 
@@ -63,8 +547,6 @@ namespace Server.ModBus
         //Статус осциллогрофа
         public static ushort StatusOscil { get; set; }
 
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        public static bool Coincides { get; set; }
         
         //Адреса каналов 
         public static List<ushort> OscilAddr { get; set; }
