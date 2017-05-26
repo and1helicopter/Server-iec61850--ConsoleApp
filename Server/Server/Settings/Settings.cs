@@ -1,27 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.IO.Ports;
 using System.Xml.Linq;
 
 namespace Server.Settings
 {
     public static class Settings
     {
-        /* Глобальные настройки проекта  */
-        public static class ConfigGlobal
-        {
-          
-            public static string OscilNominalFrequency { get; private set; }
-
-
-            public static void ChangeOscilNominalFrequency(string nominFreq)
-            {
-                OscilNominalFrequency = nominFreq;
-            }
-        }
-
            /* Настройки Server  */
 
         public static class ConfigServer
@@ -66,7 +51,7 @@ namespace Server.Settings
                  //   ConfigGlobal.ChangeAddrScope(elSg.Attribute("ConfigurationAddr") != null ? Convert.ToUInt16(elSg.Attribute("ConfigurationAddr").Value) : (ushort)512,
                         //elSg.Attribute("OscilCmndAddr") != null ? Convert.ToUInt16(elSg.Attribute("OscilCmndAddr").Value):(ushort)4092);
                   //  ConfigGlobal.ChangePathScope(elSg.Attribute("PathScope") != null ? elSg.Attribute("PathScope").Value : @"vmd - filestore\");
-                    ConfigGlobal.ChangeOscilNominalFrequency(elSg.Attribute("OscilNominalFrequency") != null ? elSg.Attribute("OscilNominalFrequency").Value : "50");
+                  //  ConfigGlobal.ChangeOscilNominalFrequency(elSg.Attribute("OscilNominalFrequency") != null ? elSg.Attribute("OscilNominalFrequency").Value : "50");
                 }
                 var elSm = xElement.Element("Settings_ModBus");
                 if (elSm != null)
@@ -93,7 +78,7 @@ namespace Server.Settings
             XDocument xDocument =
                 new XDocument(
                     new XElement("Settings",
-                        new XElement("Settings_Global",
+                   //     new XElement("Settings_Global",
                  //           new XAttribute("Language", ConfigGlobal.Language),
                        //     new XAttribute("DownloadScope", Convert.ToString(ConfigGlobal.DownloadScope)),
                         //    new XAttribute("TypeScope", ConfigGlobal.TypeScope),
@@ -101,7 +86,7 @@ namespace Server.Settings
                          //   new XAttribute("ConfigurationAddr", Convert.ToString(ConfigGlobal.ConfigurationAddr)),
                          //   new XAttribute("OscilCmndAddr", Convert.ToString(ConfigGlobal.OscilCmndAddr)),
                         //    new XAttribute("PathScope", ConfigGlobal.PathScope),
-                            new XAttribute("OscilNominalFrequency", ConfigGlobal.OscilNominalFrequency)),
+                           // new XAttribute("OscilNominalFrequency", ConfigGlobal.OscilNominalFrequency)),
                         //new XElement("Settings_ModBus",
                             //new XAttribute("BaudRate", Convert.ToString(ConfigModBus.BaudRate)),
                             //new XAttribute("SerialPortParity", Convert.ToString(ConfigModBus.SerialPortParity)),
