@@ -8,6 +8,19 @@ namespace Server.ModBus
         public static bool StartPort { get; private set; }
         public static bool ErrorPort { get; private set; }
 
+        public static void ConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
+        {
+            try
+            {
+                _downloadScope = new ConfigDownloadScope(enabele, remove, type, comtradeType, configurationAddr, oscilCmndAddr, pathScope, oscilNominalFrequency);
+            }
+            catch
+            {
+                Logging.Log.Write("ModBus: ConfigDownloadScope finish with error", "Warning ");
+            }
+
+        }
+
         public static void ConfigModBus(string baudRate, string serialPortParity, string serialPortStopBits, string comPortName)
         {
             try
@@ -35,17 +48,11 @@ namespace Server.ModBus
             Logging.Log.Write("ModBus: CloseModBus", "Warning ");
         }
 
-        private static readonly Timer DownloadDataTimer = new Timer
+        private static readonly Timer DownloadTimer = new Timer
         {
-            Interval = 100,
+            Interval = 20,
             Enabled = false
         };
-
-        //private static readonly Timer DownloadScopeTimer = new Timer
-        //{
-        //    Interval = 2000,
-        //    Enabled = false
-        //};
 
         private static bool _startDownloadScope;
         private static bool _configScopeDownload;
@@ -53,39 +60,22 @@ namespace Server.ModBus
         private static void StartModBusPort()
         {
             //Обновление параметров
-            DownloadDataTimer.Elapsed += downloadDataTimer_Elapsed;
-            downloadDataTimer_Elapsed(null, null);
-            DownloadDataTimer.Enabled = true;
-
-            ////Обновление осциллограммы
-            //if (Settings.Settings.ConfigGlobal.DownloadScope)
-            //{
-            //    DownloadScopeTimer.Elapsed += downloadScopeTimer_Elapsed;
-            //    downloadScopeTimer_Elapsed(null, null);
-            //    DownloadScopeTimer.Enabled = true;
-            //}
+            DownloadTimer.Elapsed += downloadTimer_Elapsed;
+            downloadTimer_Elapsed(null, null);
         }
         
-        private static void downloadDataTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private static void downloadTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            DownloadTimer.Enabled = false;
 
             DataRequest();
 
-            //if ()
-            //{
-                
-            //}
+            if (_downloadScope.Enable)
+            {
+                ScopoeRequest();
+            }
 
-        }
-
-        private static void downloadScopeTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-
-
-
-
-            ScopoeRequest();
-
+            DownloadTimer.Enabled = true;
         }
     }
 }

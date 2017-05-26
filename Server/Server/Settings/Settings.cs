@@ -12,38 +12,9 @@ namespace Server.Settings
         /* Глобальные настройки проекта  */
         public static class ConfigGlobal
         {
-            public static string Language { get;  private set; }
-            public static bool DownloadScope { get; private set; }
-            public static string TypeScope { get; private set; }
-            public static int ComtradeType { get; private set; }
-            public static string PathScope { get; private set; }
-            public static ushort ConfigurationAddr { get; private set; }
-            public static ushort OscilCmndAddr { get; private set; }
+          
             public static string OscilNominalFrequency { get; private set; }
 
-            public static void ChangeLanguge(string lang)
-            {
-                Language = lang == "rus" ? "rus" : "eng";
-            }
-
-            public static void ChangeScope(bool download, string type, string comtrade)
-            {
-                DownloadScope = download;
-                TypeScope = type == "txt" ? "txt" : "comtrade";
-                ComtradeType = comtrade == "2013" ? 3 : 2;
-            }
-
-            public static void ChangeAddrScope(ushort configAddr, ushort cmndAddr)
-            {
-                ConfigurationAddr = configAddr;
-                OscilCmndAddr = cmndAddr;
-            }
-
-            public static void ChangePathScope(string path)
-            {
-                //"vmd-filestore" + путь до папки где лежат осциллограммы
-                PathScope = path;
-            }
 
             public static void ChangeOscilNominalFrequency(string nominFreq)
             {
@@ -68,7 +39,7 @@ namespace Server.Settings
         /* Настройки начальных параметров */
         public static void InitStartSettings()
         {
-            ConfigGlobal.ChangeLanguge("eng");
+           // ConfigGlobal.ChangeLanguge("eng");
         //    ConfigModBus.InitPort(0, "Odd", "One", "COM1");
         }
 
@@ -88,13 +59,13 @@ namespace Server.Settings
                 var elSg = xElement.Element("Settings_Global");
                 if (elSg != null)
                 {
-                    ConfigGlobal.ChangeLanguge(elSg.Attribute("Language") != null ? elSg.Attribute("Language").Value : "eng");
-                    ConfigGlobal.ChangeScope(elSg.Attribute("DownloadScope") != null ? Convert.ToBoolean(elSg.Attribute("DownloadScope").Value) : false,
-                        elSg.Attribute("TypeScope") != null ? elSg.Attribute("TypeScope").Value : "comtrade",
-                        elSg.Attribute("ComtradeType") != null ? elSg.Attribute("ComtradeType").Value:"1999");
-                    ConfigGlobal.ChangeAddrScope(elSg.Attribute("ConfigurationAddr") != null ? Convert.ToUInt16(elSg.Attribute("ConfigurationAddr").Value) : (ushort)512,
-                        elSg.Attribute("OscilCmndAddr") != null ? Convert.ToUInt16(elSg.Attribute("OscilCmndAddr").Value):(ushort)4092);
-                    ConfigGlobal.ChangePathScope(elSg.Attribute("PathScope") != null ? elSg.Attribute("PathScope").Value : @"vmd - filestore\");
+                 //   ConfigGlobal.ChangeLanguge(elSg.Attribute("Language") != null ? elSg.Attribute("Language").Value : "eng");
+                 //   ConfigGlobal.ChangeScope(elSg.Attribute("DownloadScope") != null ? Convert.ToBoolean(elSg.Attribute("DownloadScope").Value) : false,
+                        //elSg.Attribute("TypeScope") != null ? elSg.Attribute("TypeScope").Value : "comtrade",
+                        //elSg.Attribute("ComtradeType") != null ? elSg.Attribute("ComtradeType").Value:"1999");
+                 //   ConfigGlobal.ChangeAddrScope(elSg.Attribute("ConfigurationAddr") != null ? Convert.ToUInt16(elSg.Attribute("ConfigurationAddr").Value) : (ushort)512,
+                        //elSg.Attribute("OscilCmndAddr") != null ? Convert.ToUInt16(elSg.Attribute("OscilCmndAddr").Value):(ushort)4092);
+                  //  ConfigGlobal.ChangePathScope(elSg.Attribute("PathScope") != null ? elSg.Attribute("PathScope").Value : @"vmd - filestore\");
                     ConfigGlobal.ChangeOscilNominalFrequency(elSg.Attribute("OscilNominalFrequency") != null ? elSg.Attribute("OscilNominalFrequency").Value : "50");
                 }
                 var elSm = xElement.Element("Settings_ModBus");
@@ -123,13 +94,13 @@ namespace Server.Settings
                 new XDocument(
                     new XElement("Settings",
                         new XElement("Settings_Global",
-                            new XAttribute("Language", ConfigGlobal.Language),
-                            new XAttribute("DownloadScope", Convert.ToString(ConfigGlobal.DownloadScope)),
-                            new XAttribute("TypeScope", ConfigGlobal.TypeScope),
-                            new XAttribute("ComtradeType", ConfigGlobal.ComtradeType == 3 ? "2013" : "1999"),
-                            new XAttribute("ConfigurationAddr", Convert.ToString(ConfigGlobal.ConfigurationAddr)),
-                            new XAttribute("OscilCmndAddr", Convert.ToString(ConfigGlobal.OscilCmndAddr)),
-                            new XAttribute("PathScope", ConfigGlobal.PathScope),
+                 //           new XAttribute("Language", ConfigGlobal.Language),
+                       //     new XAttribute("DownloadScope", Convert.ToString(ConfigGlobal.DownloadScope)),
+                        //    new XAttribute("TypeScope", ConfigGlobal.TypeScope),
+                        //    new XAttribute("ComtradeType", ConfigGlobal.ComtradeType == 3 ? "2013" : "1999"),
+                         //   new XAttribute("ConfigurationAddr", Convert.ToString(ConfigGlobal.ConfigurationAddr)),
+                         //   new XAttribute("OscilCmndAddr", Convert.ToString(ConfigGlobal.OscilCmndAddr)),
+                        //    new XAttribute("PathScope", ConfigGlobal.PathScope),
                             new XAttribute("OscilNominalFrequency", ConfigGlobal.OscilNominalFrequency)),
                         //new XElement("Settings_ModBus",
                             //new XAttribute("BaudRate", Convert.ToString(ConfigModBus.BaudRate)),

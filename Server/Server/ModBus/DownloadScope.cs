@@ -8,6 +8,8 @@ namespace Server.ModBus
 {
     public static  partial class ModBus
     {
+        private static ConfigDownloadScope _downloadScope;
+
         private static readonly int[] NowStatus = new int[32];
         private static readonly int[] OldStatus = new int[32];
 
@@ -16,7 +18,6 @@ namespace Server.ModBus
 
         private static void ScopoeRequest()
         {
-
             if (!_startDownloadScope)
             {
                 if (!_configScopeDownload)
@@ -37,11 +38,15 @@ namespace Server.ModBus
 
         private static void ScopeStatusRequest()
         {
+            if (_waitingAnswer)
+            {
+                return;
+            }
             lock (Locker)
             {
-                SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 8), 32,
-                    UpdateScopeStatus);
+                SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 8), 32,UpdateScopeStatus);
             }
+            _waitingAnswer = true;
         }
 
         private static void UpdateScopeStatus(bool dataOk, ushort[] paramRtu)
@@ -63,6 +68,7 @@ namespace Server.ModBus
                         break;
                     }
                 }
+                _waitingAnswer = false;
             }
         }
 
@@ -87,6 +93,10 @@ namespace Server.ModBus
 
         private static void ScopeDownloadRequestSet()
         {
+            if (_waitingAnswer)
+            {
+                return;
+            }
             switch (_loadOscDataStep)
             {
                 //Загрузка номера выборки на котором заканчивается осциллограмма 
@@ -94,7 +104,7 @@ namespace Server.ModBus
                 {
                     lock (Locker)
                     {
-                        SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe);
+                        SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe);
                     }
                 }
                     break;
@@ -102,6 +112,7 @@ namespace Server.ModBus
                 case 1:
                 {
                     {
+                        
                         uint oscilLoadTemp = (CalcOscilLoadTemp()) >> 5;
 
                         lock (Locker)
@@ -112,6 +123,7 @@ namespace Server.ModBus
                 }
                     break;
             }
+            _waitingAnswer = true;
         }
 
         private static void UpdateScopoe(bool dataOk, ushort[] paramRtu)
@@ -148,6 +160,7 @@ namespace Server.ModBus
                         break;
                 }
             }
+            _waitingAnswer = false;
             ScopeDownloadRequestSet();
         }
 
@@ -155,7 +168,7 @@ namespace Server.ModBus
         {
             lock (Locker)
             {
-                SerialPort.GetDataRTU((ushort)(Settings.Settings.ConfigGlobal.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
+                SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
             }
         }
 
@@ -315,13 +328,11 @@ namespace Server.ModBus
             return str;
         }
 
-        private static string Line1(int filterIndex)
+        private static string Line1(string rev)
         {
             string stationName = ScopeConfig.StationName;
             string recDevId = ScopeConfig.RecordingId;
-            string revYear = "";
-            if (filterIndex == 2) revYear = "1999";
-            if (filterIndex == 3) revYear = "2013";
+            string revYear = rev;
             string str = stationName + "," + recDevId + "," + revYear;
             return str;
         }
@@ -375,7 +386,7 @@ namespace Server.ModBus
 
         private static string Line5()
         {
-            return Settings.Settings.ConfigGlobal.OscilNominalFrequency;
+            return _downloadScope.OscilNominalFrequency;
         }
 
         private static string Line6()
@@ -443,9 +454,9 @@ namespace Server.ModBus
             // Save to .txt
             #region 
 
-            if (Settings.Settings.ConfigGlobal.TypeScope == "txt")
+            if (_downloadScope.Type == "txt")
             {
-                string writePath = Settings.Settings.ConfigGlobal.PathScope + "test" + _numName++ + ".txt";
+                string writePath = _downloadScope.PathScope + "test" + _numName++ + ".txt";
 
                 StreamWriter sw = new StreamWriter(writePath, false, Encoding.Default);
 
@@ -474,15 +485,15 @@ namespace Server.ModBus
 
             // Save to COMETRADE
             #region
-            if (Settings.Settings.ConfigGlobal.TypeScope != "txt")
+            if (_downloadScope.Type != "txt")
             {
-                string writePathCfg = Settings.Settings.ConfigGlobal.PathScope + "test" + _numName + ".cfg";
+                string writePathCfg = _downloadScope.PathScope + "test" + _numName + ".cfg";
 
                 StreamWriter swCfg = new StreamWriter(writePathCfg, false, Encoding.GetEncoding("Windows-1251"));
 
                 try
                 {
-                    swCfg.WriteLine(Line1(Settings.Settings.ConfigGlobal.ComtradeType));
+                    swCfg.WriteLine(Line1(_downloadScope.ComtradeType));
                     swCfg.WriteLine(Line2());
 
                     for (int i = 0, j = 0; i < ScopeConfig.ChannelCount; i++)
@@ -501,7 +512,7 @@ namespace Server.ModBus
                     swCfg.WriteLine(Line9());
                     swCfg.WriteLine(Line10());
                     swCfg.WriteLine(Line11());
-                    if (Settings.Settings.ConfigGlobal.ComtradeType == 3)
+                    if (_downloadScope.ComtradeType == "2013")
                     {
                         swCfg.WriteLine(Line12());
                         swCfg.WriteLine(Line13());
@@ -515,7 +526,7 @@ namespace Server.ModBus
 
                 swCfg.Close();
 
-                string writePathDat = Settings.Settings.ConfigGlobal.PathScope + "test" + _numName++ + ".dat";
+                string writePathDat = _downloadScope.PathScope + "test" + _numName++ + ".dat";
 
                 StreamWriter swDat = new StreamWriter(writePathDat, false, Encoding.GetEncoding("Windows-1251"));
 
@@ -537,6 +548,107 @@ namespace Server.ModBus
                 DownloadedData.Clear();
             }
             #endregion
+        }
+    }
+
+    public class ConfigDownloadScope
+    {
+        public bool Enable { get; private set; }
+        public bool Remove { get; private set; }
+        public string Type { get; private set; }
+        public string ComtradeType { get; private set; }
+        public ushort ConfigurationAddr { get; private set; }
+        public ushort OscilCmndAddr { get; private set; }
+        public string PathScope { get; private set; }
+        public string OscilNominalFrequency { get; private set; }
+
+        private void ChangeEnabale(bool enable)
+        {
+            Enable = enable;
+        }
+
+        private void ChangeRemove(bool remove)
+        {
+            Remove = remove;
+        }
+
+        private void ChangeType(string type)
+        {
+            switch (type.ToLower())
+            {
+                case "comtrade":
+                {
+                    Type = "comtrade";
+                }
+                    break;
+                default:
+                {
+                    Type = "txt";
+                }
+                    break;
+            }
+        }
+
+        private void ChangeComtradeType(string comtradeType)
+        {
+            switch (comtradeType.ToLower())
+            {
+                case "2013":
+                {
+                    ComtradeType = "2013";
+                }
+                    break;
+                default:
+                {
+                    ComtradeType = "1999";
+                }
+                    break;
+            }
+        }
+
+        private void ChangeConfigurationAddr(ushort configurationAddr)
+        {
+            ConfigurationAddr = configurationAddr;
+        }
+
+        private void ChangeOscilCmndAddr(ushort oscilCmndAddr)
+        {
+            OscilCmndAddr = oscilCmndAddr;
+        }
+
+        private void ChangePathScope(string pathScope)
+        {
+            //"vmd-filestore" + путь до папки где лежат осциллограммы
+            PathScope = "vmd-filestore\\" + pathScope;
+        }
+
+        private void ChangeOscilNominalFrequency(string oscilNominalFrequency)
+        {
+            OscilNominalFrequency = oscilNominalFrequency;
+        }
+
+
+        public ConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
+        {
+
+            ChangeType(type);
+            ChangeComtradeType(comtradeType);
+            ChangePathScope(pathScope);
+            ChangeOscilNominalFrequency(oscilNominalFrequency);
+
+            try
+            {
+                ChangeEnabale(Convert.ToBoolean(enabele));
+                ChangeRemove(Convert.ToBoolean(remove));
+                ChangeConfigurationAddr(Convert.ToUInt16(configurationAddr));
+                ChangeOscilCmndAddr(Convert.ToUInt16(oscilCmndAddr));
+            }
+            catch 
+            {
+                ChangeEnabale(false);
+                Logging.Log.Write("ModBus: DownloadScope.ConfigDownloadScope finish with error - Scope = disable ", "Warning ");
+            }
+
         }
     }
 }

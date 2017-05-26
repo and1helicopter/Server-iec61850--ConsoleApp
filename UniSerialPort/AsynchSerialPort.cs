@@ -238,7 +238,7 @@ namespace UniSerialPort
 
         void tcpMaster_OnResponseData(ushort ID, byte Unit, byte Function, byte[] Data)
         {
-            if (Function == 0x03)
+            if (Function == 0x03 || Function == 0x04)
             {
                 tcpReadData = Data;
                 waitSerialData.Set();
@@ -366,7 +366,7 @@ namespace UniSerialPort
                             }
                             else
                             {
-                                if (rxBuffer[1] == 0x03)
+                                if (rxBuffer[1] == 0x03 || rxBuffer[1] == 0x04)
                                 {
                                     ModBusCRC.RemoveData(rxBuffer, 3, RequestUnit.RTUReadCount, out ubuff);
                                 }

@@ -35,6 +35,7 @@ namespace Server.ModBus
                     SerialPort.SerialPortError += SerialPort_SerialPortError;
                     StartPort = true;
                     ErrorPort = false;
+                    _waitingAnswer = false;
                 }
                 if (SerialPort.IsOpen)
                 {
@@ -56,7 +57,7 @@ namespace Server.ModBus
         private static void CloseModBusPort()
         {
             //DownloadScopeTimer.Enabled = false;
-            DownloadDataTimer.Enabled = false;
+            DownloadTimer.Enabled = false;
             StartPort = false;
             ErrorPort = true;
             lock (Locker)
