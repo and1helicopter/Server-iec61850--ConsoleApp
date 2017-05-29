@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO.Ports;
+using Server.Parser;
 using UniSerialPort;
 
 namespace Server.ModBus
@@ -46,16 +47,27 @@ namespace Server.ModBus
 
         private static void SerialPort_SerialPortError(object sender, System.EventArgs e)
         {
+            DownloadTimer.Enabled = false;
+            StartPort = false;
+            ErrorPort = true;
+
+            foreach (var itemGet in UpdateDataObj.DataClassGet)
+            {
+                itemGet.GetDataObj_Set(false);
+            }
+
+            foreach (var itemSet in UpdateDataObj.DataClassSet)
+            {
+                itemSet.SetDataObj_Set(false);
+            }
+
             CloseModBusPort();
-            OpenModBusPort();
+
+            DownloadTimer.Enabled = true;
         }
 
         private static void CloseModBusPort()
         {
-            //DownloadScopeTimer.Enabled = false;
-            DownloadTimer.Enabled = false;
-            StartPort = false;
-            ErrorPort = true;
             lock (Locker)
             {
                 SerialPort.Close();

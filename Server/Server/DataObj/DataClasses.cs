@@ -30,7 +30,7 @@ namespace Server.Parser
 
         public void QualityCheckClass()
         {
-            q.QualityCheckClass(t);
+            q.QualityCheckClass(DateTime.Now);
         }
 
         public SpsClass()
@@ -198,7 +198,7 @@ namespace Server.Parser
 
         public void QualityCheckClass()
         {
-            q.QualityCheckClass(t);
+            q.QualityCheckClass(DateTime.Now);
         }
     }
 
@@ -234,7 +234,7 @@ namespace Server.Parser
 
         public void QualityCheckClass()
         {
-            q.QualityCheckClass(t);
+            q.QualityCheckClass(DateTime.Now);
         }
 
         public CmvClass() : base()

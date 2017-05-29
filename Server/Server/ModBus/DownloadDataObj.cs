@@ -7,12 +7,6 @@ namespace Server.ModBus
     {
         private static void DataRequest()
         {
-            if (!SerialPort.IsOpen)
-            {
-                return;
-            }
-
-
             if (UpdateDataObj.DataClassGet.Count != 0)
             {
                 if (_currentIndex == UpdateDataObj.DataClassGet.Count)
@@ -37,13 +31,15 @@ namespace Server.ModBus
             {
                 if (UpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(MvClass))
                 {
-                    ((MvClass)UpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, Convert.ToInt64(paramRtu[0]));
+                    ((MvClass) UpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now,
+                        Convert.ToInt64(paramRtu[0]));
                     UpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
                 }
                 else if (UpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(SpsClass))
                 {
-                    bool val = (Convert.ToInt32(paramRtu[0]) & 1 << Convert.ToInt32(UpdateDataObj.DataClassGet[_currentIndex].MaskDataObj)) > 0;
-                    ((SpsClass)UpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+                    bool val = (Convert.ToInt32(paramRtu[0]) &
+                                1 << Convert.ToInt32(UpdateDataObj.DataClassGet[_currentIndex].MaskDataObj)) > 0;
+                    ((SpsClass) UpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, val);
                     UpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
                 }
 

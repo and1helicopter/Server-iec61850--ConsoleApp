@@ -87,6 +87,15 @@ namespace Server.ModBus
         {
             DownloadTimer.Enabled = false;
 
+            if (!SerialPort.IsOpen)
+            {
+                if (!ErrorPort)
+                {
+                    return;
+                }
+                OpenModBusPort();
+            }
+
             DataRequest();
 
             if (_downloadScope.Enable)

@@ -12,10 +12,11 @@ namespace Server.ModBus
     {
         private static void ScopoeRequest()
         {
-            if (_waitingAnswer && (SerialPort.requests.Count != 0 || SerialPort.requestsMain.Count != 0))
+            if (_waitingAnswer && SerialPort.requests.Count != 0)
             {
                 return;
             }
+
             if (!_startDownloadScope)
             {
                 if (!_configScopeDownload)

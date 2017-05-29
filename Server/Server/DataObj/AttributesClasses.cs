@@ -54,6 +54,11 @@ namespace Server.Parser
             {
                 Overflow = status;
             }
+
+            public void UpdateBadReference(bool status)
+            {
+                BadReference = status;
+            }
         }
 
         private DateTime _dateValueOldUpdateDataObj; 
@@ -74,11 +79,17 @@ namespace Server.Parser
              //допустимый возраст в мск
 
             UpdateOldData(time.AddMilliseconds(_allowedAge) < DateTime.Now);
+            UpdateBadReference(ModBus.ModBus.ErrorPort);
 
             //Проверки
             UpdateQualityClass();
         }
-        
+
+        private void UpdateBadReference(bool status)
+        {
+            DetailQual.UpdateBadReference(status);
+        }
+
 
         public void UpdateOldData(bool status)
         {
@@ -92,6 +103,8 @@ namespace Server.Parser
 
         private void UpdateQualityClass()
         {
+
+            //badReference
             //Обновляем статус качества
             if (DetailQual.Overflow || DetailQual.BadReference || DetailQual.Oscillatory || DetailQual.Failure)
             {
