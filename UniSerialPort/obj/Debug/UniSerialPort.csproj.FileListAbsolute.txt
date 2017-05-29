@@ -19,6 +19,5 @@ C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)
 C:\Users\and1helicopter\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\obj\Debug\UniSerialPort.csprojResolveAssemblyReference.cache
 C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\bin\Debug\AsynchSerialPort.dll
 C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\bin\Debug\AsynchSerialPort.pdb
-C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\obj\Debug\UniSerialPort.csprojResolveAssemblyReference.cache
 C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\obj\Debug\AsynchSerialPort.dll
 C:\Users\and1h\OneDrive\project\Oscil\iec 61850 (Server) - (ConsoleApp)\UniSerialPort\obj\Debug\AsynchSerialPort.pdb

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO.Ports;
 using System.Xml.Linq;
@@ -15,7 +14,7 @@ namespace UniSerialPort
         public delegate void DataRecieved(bool DataOk, byte[] RxBuffer);
         public delegate void DataRecievedRTU(bool DataOk, ushort[] ParamRTU);
 
-        bool portError = false;
+        public bool portError { get; private set; }//= false;
         public event EventHandler SerialPortError;
         public event EventHandler FatalSerialPortError;
 
@@ -432,8 +431,8 @@ namespace UniSerialPort
             senddelegate.BeginInvoke(RequestUnit, null, null);
         }
 
-        Queue<RequestUnit> requests = new Queue<RequestUnit>();
-        Queue<RequestUnit> requestsMain = new Queue<RequestUnit>();
+        public Queue<RequestUnit> requests = new Queue<RequestUnit>();
+        public Queue<RequestUnit> requestsMain = new Queue<RequestUnit>();
         public void AddRequest(byte[] TxBuffer, int ReceivedBytesThreshold, DataRecieved OnDataRecieved)
         {
             if (!IsOpen) { return; }

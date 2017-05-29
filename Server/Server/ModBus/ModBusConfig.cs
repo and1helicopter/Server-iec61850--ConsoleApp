@@ -6,10 +6,6 @@ namespace Server.ModBus
 {
     public static partial class ModBus
     {
-        private static ConfigModBus _modbus;
-        private static readonly AsynchSerialPort SerialPort = new AsynchSerialPort();
-        private static readonly object Locker = new object();
-
         private static void ConfigModBusPort()
         {
             if (SerialPort.IsOpen)

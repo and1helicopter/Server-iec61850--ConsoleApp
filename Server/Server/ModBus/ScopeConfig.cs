@@ -6,17 +6,12 @@ namespace Server.ModBus
 {
     public static partial class ModBus
     {
-        private static int _loadConfigStep;
-        private static int _indexChannel;
-        private static bool _waitingAnswer;
-
         private static void ScopeConfigRequest()
         {
             if (_waitingAnswer)
             {
-                return;   
+                return;
             }
-
             if (_loadConfigStep == 0)                //Количество каналов 
             {
                 lock (Locker)
@@ -509,7 +504,6 @@ namespace Server.ModBus
                     }
                         break;
                 }
-
                 _waitingAnswer = false;
             }
         }

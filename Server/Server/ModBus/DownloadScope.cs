@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using ADSPLibrary;
+using UniSerialPort;
 
 namespace Server.ModBus
 {
     public static  partial class ModBus
     {
-        private static ConfigDownloadScope _downloadScope;
-
-        private static readonly int[] NowStatus = new int[32];
-        private static readonly int[] OldStatus = new int[32];
-
-        private static int _indexDownloadScope;
-        private static uint _oscilStartTemp;
-
         private static void ScopoeRequest()
         {
+            if (_waitingAnswer && (SerialPort.requests.Count != 0 || SerialPort.requestsMain.Count != 0))
+            {
+                return;
+            }
             if (!_startDownloadScope)
             {
                 if (!_configScopeDownload)
@@ -38,15 +36,11 @@ namespace Server.ModBus
 
         private static void ScopeStatusRequest()
         {
-            if (_waitingAnswer)
-            {
-                return;
-            }
             lock (Locker)
             {
                 SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 8), 32,UpdateScopeStatus);
+                _waitingAnswer = true;
             }
-            _waitingAnswer = true;
         }
 
         private static void UpdateScopeStatus(bool dataOk, ushort[] paramRtu)
@@ -68,8 +62,8 @@ namespace Server.ModBus
                         break;
                     }
                 }
-                _waitingAnswer = false;
             }
+            _waitingAnswer = false;
         }
 
         private static uint _loadOscilTemp;
@@ -93,10 +87,6 @@ namespace Server.ModBus
 
         private static void ScopeDownloadRequestSet()
         {
-            if (_waitingAnswer)
-            {
-                return;
-            }
             switch (_loadOscDataStep)
             {
                 //Загрузка номера выборки на котором заканчивается осциллограмма 
@@ -105,25 +95,23 @@ namespace Server.ModBus
                     lock (Locker)
                     {
                         SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe);
+                        _waitingAnswer = true;
                     }
                 }
                     break;
                 //Загрузка данных
                 case 1:
                 {
-                    {
-                        
-                        uint oscilLoadTemp = (CalcOscilLoadTemp()) >> 5;
+                    uint oscilLoadTemp = (CalcOscilLoadTemp()) >> 5;
 
-                        lock (Locker)
-                        {
-                            SerialPort.GetDataRTU04((ushort)(oscilLoadTemp), 32, UpdateScopoe);
-                        }
+                    lock (Locker)
+                    {
+                        SerialPort.GetDataRTU04((ushort)(oscilLoadTemp), 32, UpdateScopoe);
+                        _waitingAnswer = true;
                     }
                 }
                     break;
             }
-            _waitingAnswer = true;
         }
 
         private static void UpdateScopoe(bool dataOk, ushort[] paramRtu)
@@ -169,6 +157,7 @@ namespace Server.ModBus
             lock (Locker)
             {
                 SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
+                _waitingAnswer = true;
             }
         }
 
@@ -189,11 +178,15 @@ namespace Server.ModBus
                     // ignored
                 }
                 CreateFile();
-
-
-                //DownloadScopeTimer.Enabled = true;
+                
+                if (_downloadScope.Remove)
+                {
+                    SerialPort.SetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 8 + _indexDownloadScope), null, RequestPriority.Normal, 0);
+                    OldStatus[_indexDownloadScope] = 0;
+                }
                 _startDownloadScope = false;
             }
+            _waitingAnswer = false;
         }
 
         #region
@@ -454,11 +447,13 @@ namespace Server.ModBus
             // Save to .txt
             #region 
 
+            DateTime time = DateTime.Now;
+
             if (_downloadScope.Type == "txt")
             {
-                string writePath = _downloadScope.PathScope + "test" + _numName++ + ".txt";
+                string writePath = _downloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").txt";
 
-                StreamWriter sw = new StreamWriter(writePath, false, Encoding.Default);
+                StreamWriter sw = new StreamWriter(writePath, false, Encoding.GetEncoding("Windows-1251"));
 
                 try
                 {
@@ -487,7 +482,8 @@ namespace Server.ModBus
             #region
             if (_downloadScope.Type != "txt")
             {
-                string writePathCfg = _downloadScope.PathScope + "test" + _numName + ".cfg";
+                
+                string writePathCfg = _downloadScope.PathScope + "Scope_No" + _numName + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':','.').Replace(' ', '_') + ").cfg";
 
                 StreamWriter swCfg = new StreamWriter(writePathCfg, false, Encoding.GetEncoding("Windows-1251"));
 
@@ -526,7 +522,7 @@ namespace Server.ModBus
 
                 swCfg.Close();
 
-                string writePathDat = _downloadScope.PathScope + "test" + _numName++ + ".dat";
+                string writePathDat = _downloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").dat";
 
                 StreamWriter swDat = new StreamWriter(writePathDat, false, Encoding.GetEncoding("Windows-1251"));
 

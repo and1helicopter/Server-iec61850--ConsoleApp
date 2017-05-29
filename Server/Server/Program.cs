@@ -33,7 +33,7 @@ namespace Server
 
 
             //ModBus.ModBus.CloseModBus();
-            ModBus.ModBus.ConfigDownloadScope("true", "true", "comtrade", "1999", "512", "4096", "Scope", "50");
+            ModBus.ModBus.ConfigDownloadScope("true", "true", "txt", "1999", "512", "4096", "Scope\\", "50");
             ModBus.ModBus.ConfigModBus("115200", "Odd", "One", "COM1");
             ModBus.ModBus.StartModBus();
 

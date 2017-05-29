@@ -5,8 +5,6 @@ namespace Server.ModBus
 {
     public static partial class ModBus
     {
-        private static int _currentIndex;
-
         private static void DataRequest()
         {
             if (!SerialPort.IsOpen)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Timers;
+using UniSerialPort;
 
 namespace Server.ModBus
 {
@@ -7,6 +8,24 @@ namespace Server.ModBus
     {
         public static bool StartPort { get; private set; }
         public static bool ErrorPort { get; private set; }
+
+        private static int _loadConfigStep;
+        private static int _indexChannel;
+        private static bool _waitingAnswer;
+
+        private static ConfigDownloadScope _downloadScope;
+
+        private static readonly int[] NowStatus = new int[32];
+        private static readonly int[] OldStatus = new int[32];
+
+        private static int _indexDownloadScope;
+        private static uint _oscilStartTemp;
+
+        private static ConfigModBus _modbus;
+        private static readonly AsynchSerialPort SerialPort = new AsynchSerialPort();
+        private static readonly object Locker = new object();
+
+        private static int _currentIndex;
 
         public static void ConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
         {
