@@ -36,7 +36,7 @@ namespace Server.ModBus
             }
             catch
             {
-                Logging.Log.Write("ModBus: ConfigDownloadScope finish with error", "Warning ");
+                Log.Log.Write("ModBus: ConfigDownloadScope finish with error", "Warning ");
             }
 
         }
@@ -49,7 +49,7 @@ namespace Server.ModBus
             }
             catch 
             {
-                Logging.Log.Write("ModBus: ConfigModBus finish with error", "Warning ");
+                Log.Log.Write("ModBus: ConfigModBus finish with error", "Warning ");
                 return;
             }
 
@@ -59,13 +59,13 @@ namespace Server.ModBus
         public static void StartModBus()
         {
             OpenModBusPort();
-            Logging.Log.Write("ModBus: StartModBus!!!", "Success ");
+            Log.Log.Write("ModBus: StartModBus!!!", "Success ");
         }
 
         public static void CloseModBus()
         {
             CloseModBusPort();
-            Logging.Log.Write("ModBus: CloseModBus", "Warning ");
+            Log.Log.Write("ModBus: CloseModBus", "Warning ");
         }
 
         private static readonly Timer DownloadTimer = new Timer
@@ -92,7 +92,7 @@ namespace Server.ModBus
             {
                 if (ErrorPort)
                 {
-                    Logging.Log.Write("ModBus: OpenModBusPort", "Warning ");
+                    Log.Log.Write("ModBus: OpenModBusPort", "Warning ");
                     OpenModBusPort();
                 }
             }

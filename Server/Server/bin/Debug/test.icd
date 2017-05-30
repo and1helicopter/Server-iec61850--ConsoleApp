@@ -139,7 +139,7 @@
 				</LN>	
                <LN lnClass="GGIO" lnType="tGGIO_4Ind" inst="1" prefix="4DI_">
 			   		<DOI name="Ind1" desc="">
-						<private type="EnergocomplektType">D:0;546;G</private>					
+						<private type="EnergocomplektType">D:0;269;G</private>					
 					</DOI>
 			   </LN>
                <LN lnClass="GGIO" lnType="tGGIO_4IntIn" inst="1" prefix="4II_"/>

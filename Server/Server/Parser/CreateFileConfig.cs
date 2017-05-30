@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Server.DataClasses;
 
 namespace Server.Parser
 {
     public partial class Parser 
     {
         #region Сохранение объектной модели в конфигурациионную модель для сервера
-        private void SaveFileConfig()
+        private static void SaveFileConfig()
         {
             string savePath = "test.cfg";
             FileStream fs = new FileStream(savePath, FileMode.Create);
@@ -27,7 +28,7 @@ namespace Server.Parser
             fs.Close();
         }
 
-        private void SaveLd(FileStream fs, List<ServerModel.NodeLD> listLd)
+        private static void SaveLd(FileStream fs, List<ServerModel.NodeLD> listLd)
         {
             foreach (var ld in listLd)
             {
@@ -44,7 +45,7 @@ namespace Server.Parser
             }
         }
 
-        private void SaveLn(FileStream fs, List<ServerModel.NodeLN> listLn)
+        private static void SaveLn(FileStream fs, List<ServerModel.NodeLN> listLn)
         {
             foreach (var ln in listLn)
             {
@@ -61,7 +62,7 @@ namespace Server.Parser
             }
         }
 
-        private void SaveDo(FileStream fs, List<ServerModel.NodeDO> listDo)
+        private static void SaveDo(FileStream fs, List<ServerModel.NodeDO> listDo)
         {
             foreach (var DO in listDo)
             {
@@ -78,7 +79,7 @@ namespace Server.Parser
             }
         }
 
-        private void SaveDa(FileStream fs, List<ServerModel.NodeDA> listDa)
+        private static void SaveDa(FileStream fs, List<ServerModel.NodeDA> listDa)
         {
             // DA(<data attribute name> <nb of array elements> <type> <FC> <trigger options> <sAddr>)[=value];
             // Constructed>
@@ -106,7 +107,7 @@ namespace Server.Parser
                         }
                         catch
                         {
-                            Logging.Log.Write("SaveFileConfig: Enum \"CtlModels\" not found", "Warning ");
+                            Log.Log.Write("SaveFileConfig: Enum \"CtlModels\" not found", "Warning ");
                             str += " = 0\n";
                         }
                     }
@@ -132,7 +133,7 @@ namespace Server.Parser
             }
         }
 
-        private int MapLibiecType(string dataType)
+        private static int MapLibiecType(string dataType)
         {
             int type = 0;
             switch (dataType.ToUpper())
@@ -264,7 +265,7 @@ namespace Server.Parser
             return type;
         }
 
-        int MapLibiecFc(string fc)
+        static int MapLibiecFc(string fc)
         {
 
             int fco;

@@ -2,9 +2,9 @@
 
 namespace Server.Parser
 {
-    public partial class Parser
+    public static partial class Parser
     {
-        public bool ParseFile()
+        public static bool ParseFile()
         {
             string filePath = @"test.icd";
             //читаем данные из файла
@@ -14,19 +14,19 @@ namespace Server.Parser
             {
                 if (!ParseDocument(doc)) //Парсим основные классы модели
                 {
-                    Logging.Log.Write("ParseDocunent: Finish whith status false", "Error   ");
+                    Log.Log.Write("ParseDocunent: Finish whith status false", "Error   ");
                     return false;
                 }
 
                 if (!ModelFillDefultParam()) //Заполнение  модели параметрами по-умолчанию
                 {
-                    Logging.Log.Write("ModelFillDefultParam: Finish whith status false", "Error   ");
+                    Log.Log.Write("ModelFillDefultParam: Finish whith status false", "Error   ");
                     return false;
                 }
 
                 if (!FileParseToAttribute(doc)) //Заполняем объектную модель инициализированными параметрами 
                 {
-                    Logging.Log.Write("FileParseToAttribute: Finish whith status false", "Warning ");
+                    Log.Log.Write("FileParseToAttribute: Finish whith status false", "Warning ");
                 }
 
                 CreateClassFromAttribute(); //Создаем обновляймые классы 

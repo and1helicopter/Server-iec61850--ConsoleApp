@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using Server.DataClasses;
 
 namespace Server.Parser
 {
@@ -8,7 +9,7 @@ namespace Server.Parser
     {
         #region Заполнение  модели параметрами по умолчанию
 
-        private bool ModelFillDefultParam()
+        private static bool ModelFillDefultParam()
         {
             foreach (var itemLd in ServerModel.Model.ListLD)
             {
@@ -508,7 +509,7 @@ namespace Server.Parser
                 }
             }
 
-            Logging.Log.Write("ModelFillDefultParam: File parse success", "Success ");
+            Log.Log.Write("ModelFillDefultParam: File parse success", "Success ");
             return true;
         }
         #endregion

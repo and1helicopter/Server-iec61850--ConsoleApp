@@ -81,12 +81,13 @@
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Parser\FileParseToModel.cs" />
     <Compile Include="Parser\DataObj.cs" />
-    <Compile Include="DataObj\ServerModel.cs" />
+    <Compile Include="DataClasses\ServerModel.cs" />
+    <Compile Include="test.cs" />
     <Compile Include="Update\UpdateConnect.cs" />
     <Compile Include="Update\UpdateDataObj.cs" />
-    <Compile Include="DataObj\AttributesClasses.cs" />
-    <Compile Include="DataObj\DataClasses.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="DataClasses\AttributesClasses.cs" />
+    <Compile Include="DataClasses\DataClasses.cs" />
+    <Compile Include="Server\Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Settings.cs" />
     <Compile Include="Update\UpdateServer.cs" />

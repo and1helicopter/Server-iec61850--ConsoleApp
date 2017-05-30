@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Xml.Linq;
+using Server.DataClasses;
 
 namespace Server.Parser
 {
     public partial class Parser
     {
         #region Парсер файла на основные клсассы 
-        private bool ParseDocument(XDocument doc)
+        private static bool ParseDocument(XDocument doc)
         {
             if (doc.Root == null)
             {
-                Logging.Log.Write("ParseDocunent: doc.Root == null", "Error   ");
+                Log.Log.Write("ParseDocunent: doc.Root == null", "Error   ");
                 return false;
             }
 
@@ -23,13 +24,13 @@ namespace Server.Parser
 
             if (xIed == null)
             {
-                Logging.Log.Write("ParseDocunent: IED == null", "Error   ");
+                Log.Log.Write("ParseDocunent: IED == null", "Error   ");
                 return false;
             }
 
             if (xIed.Attribute("name") == null)
             {
-                Logging.Log.Write("ParseDocunent: IED.name == null", "Error   ");
+                Log.Log.Write("ParseDocunent: IED.name == null", "Error   ");
                 return false;
             }
 
@@ -41,7 +42,7 @@ namespace Server.Parser
 
             if (!xLd.Any())
             {
-                Logging.Log.Write("ParseDocunent: LDevice == null", "Error   ");
+                Log.Log.Write("ParseDocunent: LDevice == null", "Error   ");
                 return false;
             }
 
@@ -49,7 +50,7 @@ namespace Server.Parser
             {
                 if (ld.Attribute("inst") == null)
                 {
-                    Logging.Log.Write("ParseDocunent: LDevice.inst == null", "Error   ");
+                    Log.Log.Write("ParseDocunent: LDevice.inst == null", "Error   ");
                     return false;
                 }
 
@@ -59,7 +60,7 @@ namespace Server.Parser
 
                 if (!xLn.Any())
                 {
-                    Logging.Log.Write("ParseDocunent: LN == null", "Error   ");
+                    Log.Log.Write("ParseDocunent: LN == null", "Error   ");
                     return false;
                 }
 
@@ -71,7 +72,7 @@ namespace Server.Parser
 
                         if (ln.Attribute("lnType") == null)
                         {
-                            Logging.Log.Write("ParseDocunent: LN.lnType == null", "Error   ");
+                            Log.Log.Write("ParseDocunent: LN.lnType == null", "Error   ");
                             return false;
                         }
 
@@ -79,7 +80,7 @@ namespace Server.Parser
                     }
                     else
                     {
-                        Logging.Log.Write("ParseDocunent: LN.lnClass == null or LN.inst == null", "Error   ");
+                        Log.Log.Write("ParseDocunent: LN.lnClass == null or LN.inst == null", "Error   ");
                         return false;
                     }
                 }
@@ -87,34 +88,34 @@ namespace Server.Parser
 
             if (!ParseLN(doc))
             {
-                Logging.Log.Write("ParseDocunent.ParseLN: Finish with status false", "Error   ");
+                Log.Log.Write("ParseDocunent.ParseLN: Finish with status false", "Error   ");
                 return false;
             }
             if (!ParseDO(doc))
             {
-                Logging.Log.Write("ParseDocunent.ParseDO: Finish with status false", "Error   ");
+                Log.Log.Write("ParseDocunent.ParseDO: Finish with status false", "Error   ");
                 return false;
             }
             if (!ParseDA(doc))
             {
-                Logging.Log.Write("ParseDocunent.ParseDA: Finish with status false", "Error   ");
+                Log.Log.Write("ParseDocunent.ParseDA: Finish with status false", "Error   ");
                 return false;
             }
             if (!ParseEnum(doc))
             {
-                Logging.Log.Write("ParseDocunent.ParseEnum: Finish with status false", "Warning ");
+                Log.Log.Write("ParseDocunent.ParseEnum: Finish with status false", "Warning ");
             }
             if (!JoinModel())                        //Создаем объектную модель 
             {
-                Logging.Log.Write("ParseDocunent.JoinModel: Finish with status false", "Error   ");
+                Log.Log.Write("ParseDocunent.JoinModel: Finish with status false", "Error   ");
                 return false;
             }
 
-            Logging.Log.Write("ParseDocunent: File parse success", "Success ");
+            Log.Log.Write("ParseDocunent: File parse success", "Success ");
             return true;
         }
 
-        private bool ParseLN(XDocument doc)
+        private static bool ParseLN(XDocument doc)
         {
             IEnumerable<XElement> xLn = (from x in doc.Descendants()
                                          where x.Name.LocalName == "LNodeType"
@@ -122,7 +123,7 @@ namespace Server.Parser
 
             if (!xLn.Any())
             {
-                Logging.Log.Write("ParseDocunent.ParseLN: LNodeType == null", "Error   ");
+                Log.Log.Write("ParseDocunent.ParseLN: LNodeType == null", "Error   ");
                 return false;
             }
 
@@ -138,7 +139,7 @@ namespace Server.Parser
 
                     if (!xDoElements.Any())
                     {
-                        Logging.Log.Write("ParseDocunent.ParseLN: LNodeType == null", "Error   ");
+                        Log.Log.Write("ParseDocunent.ParseLN: LNodeType == null", "Error   ");
                         return false;
                     }
 
@@ -150,14 +151,14 @@ namespace Server.Parser
                         }
                         else
                         {
-                            Logging.Log.Write("ParseDocunent.ParseLN: DO.name == null or DO.type == null", "Error   ");
+                            Log.Log.Write("ParseDocunent.ParseLN: DO.name == null or DO.type == null", "Error   ");
                             return false;
                         }
                     }
                 }
                 else
                 {
-                    Logging.Log.Write("ParseDocunent.ParseLN: LNodeType.lnClass == null or LNodeType.id == null", "Error   ");
+                    Log.Log.Write("ParseDocunent.ParseLN: LNodeType.lnClass == null or LNodeType.id == null", "Error   ");
                     return false;
                 }
             }
@@ -165,7 +166,7 @@ namespace Server.Parser
             return true;
         }
 
-        private bool ParseDO(XDocument doc)
+        private static bool ParseDO(XDocument doc)
         {
             IEnumerable<XElement> xDo = (from x in doc.Descendants()
                 where x.Name.LocalName == "DOType"
@@ -173,7 +174,7 @@ namespace Server.Parser
 
             if (!xDo.Any())
             {
-                Logging.Log.Write("ParseDocunent.ParseDO: DOType == null", "Error   ");
+                Log.Log.Write("ParseDocunent.ParseDO: DOType == null", "Error   ");
                 return false;
             }
 
@@ -181,7 +182,7 @@ namespace Server.Parser
             {
                 if (DO.Attribute("id") == null || DO.Attribute("cdc") == null)
                 {
-                    Logging.Log.Write("ParseDocunent.ParseDO: DO.id == null or DO.cdc", "Error   ");
+                    Log.Log.Write("ParseDocunent.ParseDO: DO.id == null or DO.cdc", "Error   ");
                     return false;
                 }
 
@@ -193,7 +194,7 @@ namespace Server.Parser
 
                 if (!xDAElements.Any())
                 {
-                    Logging.Log.Write("ParseDocunent.ParseDO: DA == null", "Error   ");
+                    Log.Log.Write("ParseDocunent.ParseDO: DA == null", "Error   ");
                     continue;
                 }
 
@@ -201,7 +202,7 @@ namespace Server.Parser
                 {
                     if (da.Attribute("name") == null || da.Attribute("bType") == null || da.Attribute("fc") == null)
                     {
-                        Logging.Log.Write("ParseDocunent.ParseDO: DA.name == null or DA.bType == null or DA.fc == null", "Warning ");
+                        Log.Log.Write("ParseDocunent.ParseDO: DA.name == null or DA.bType == null or DA.fc == null", "Warning ");
                         continue;
                     }
 
@@ -228,7 +229,7 @@ namespace Server.Parser
             return true;
         }
 
-        private bool ParseDA(XDocument doc)
+        private static bool ParseDA(XDocument doc)
         {
             IEnumerable<XElement> xDA = (from x in doc.Descendants()
                                          where x.Name.LocalName == "DAType"
@@ -236,7 +237,7 @@ namespace Server.Parser
 
             if (!xDA.Any())
             {
-                Logging.Log.Write("ParseDocunent.ParseDA: DAType == null", "Error   ");
+                Log.Log.Write("ParseDocunent.ParseDA: DAType == null", "Error   ");
                 return false;
             }
 
@@ -248,7 +249,7 @@ namespace Server.Parser
 
                 if (!xDAElements.Any())
                 {
-                    Logging.Log.Write("ParseDocunent.ParseDO: BDA == null", "Error   ");
+                    Log.Log.Write("ParseDocunent.ParseDO: BDA == null", "Error   ");
                     return false;
                 }
 
@@ -258,7 +259,7 @@ namespace Server.Parser
                 {
                     if (bda.Attribute("name") == null || bda.Attribute("bType") == null )
                     {
-                        Logging.Log.Write("ParseDocunent.ParseDO: DA.name == null or DA.bType == null", "Warning ");
+                        Log.Log.Write("ParseDocunent.ParseDO: DA.name == null or DA.bType == null", "Warning ");
                         continue;
                     }
 
@@ -284,7 +285,7 @@ namespace Server.Parser
             return true;
         }
 
-        private bool ParseEnum(XDocument doc)
+        private static bool ParseEnum(XDocument doc)
         {
             IEnumerable<XElement> xEnum = (from x in doc.Descendants()
                                            where x.Name.LocalName == "EnumType"
@@ -292,7 +293,7 @@ namespace Server.Parser
 
             if (!xEnum.Any())
             {
-                Logging.Log.Write("ParseDocunent.ParseEnum: EnumTypeEnumType == null", "Warning ");
+                Log.Log.Write("ParseDocunent.ParseEnum: EnumTypeEnumType == null", "Warning ");
                 return false;
             }
 
@@ -300,7 +301,7 @@ namespace Server.Parser
             {
                 if (Enum.Attribute("id") == null)
                 {
-                    Logging.Log.Write("ParseDocunent.ParseEnum: EnumTypeEnumType.id == null", "Warning ");
+                    Log.Log.Write("ParseDocunent.ParseEnum: EnumTypeEnumType.id == null", "Warning ");
                     continue;
                 }
 
@@ -314,7 +315,7 @@ namespace Server.Parser
 
                 if (!xEnumVal.Any())
                 {
-                    Logging.Log.Write("ParseDocunent.ParseEnum: EnumVal == null", "Warning ");
+                    Log.Log.Write("ParseDocunent.ParseEnum: EnumVal == null", "Warning ");
                     return false;
                 }
 
@@ -332,12 +333,12 @@ namespace Server.Parser
         #endregion
 
         #region Объединение основных классов в объектную модель
-        private bool JoinModel()
+        private static bool JoinModel()
         {
             return AddDo(ServerModel.Model);
         }
 
-        private bool AddDo(ServerModel.NodeModel model)
+        private static bool AddDo(ServerModel.NodeModel model)
         {
             foreach (var ld in model.ListLD)
             {
@@ -364,7 +365,7 @@ namespace Server.Parser
             return true;
         }
 
-        private void AddDa(List<ServerModel.NodeDO> DO)
+        private static void AddDa(List<ServerModel.NodeDO> DO)
         {
             foreach (var tempDo in ServerModel.ListTempDO)
             {
@@ -390,7 +391,7 @@ namespace Server.Parser
         }
 
 
-        private void AddBda(ServerModel.NodeDA listDa, string fcDa)
+        private static void AddBda(ServerModel.NodeDA listDa, string fcDa)
         {
             foreach (var listTempDa in ServerModel.ListTempDA)
             {

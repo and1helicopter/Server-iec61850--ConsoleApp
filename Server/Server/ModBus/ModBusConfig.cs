@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO.Ports;
-using Server.Parser;
+using Server.Update;
 using UniSerialPort;
 
 namespace Server.ModBus
@@ -11,7 +11,7 @@ namespace Server.ModBus
         {
             if (SerialPort.IsOpen)
             {
-                Logging.Log.Write("ModBus port is open! Close ModBus SerialPort and repeat.", "Error ");
+                Log.Log.Write("ModBus port is open! Close ModBus SerialPort and repeat.", "Error ");
                 return;
             }
 
@@ -41,7 +41,7 @@ namespace Server.ModBus
             }
             catch
             {
-                Logging.Log.Write("ModBus port not open!", "Error ");
+                Log.Log.Write("ModBus port not open!", "Error ");
             }
         }
 

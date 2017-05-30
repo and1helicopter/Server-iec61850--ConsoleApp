@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
+using Server.DataClasses;
 
 namespace Server.Parser
 {
     public partial class Parser
     {
         #region Заполнение объектной модели параметрами из файла
-        private bool FileParseToAttribute(XDocument doc)
+        private static bool FileParseToAttribute(XDocument doc)
         {
             if (doc.Root == null)
             {
-                Logging.Log.Write("FileParseToAttribute: doc.Root == null", "Warning ");
+                Log.Log.Write("FileParseToAttribute: doc.Root == null", "Warning ");
                 return false;
             }
 
@@ -23,7 +24,7 @@ namespace Server.Parser
 
             if (!xLd.Any())
             {
-                Logging.Log.Write("FileParseToAttribute: LDevice == null", "Warning ");
+                Log.Log.Write("FileParseToAttribute: LDevice == null", "Warning ");
                 return false;
             }
 
@@ -31,7 +32,7 @@ namespace Server.Parser
             {
                 if (lditem.Attribute("inst") == null)
                 {
-                    Logging.Log.Write("FileParseToAttribute: LDevice.inst == null", "Warning ");
+                    Log.Log.Write("FileParseToAttribute: LDevice.inst == null", "Warning ");
                     continue;
                 }
 
@@ -41,7 +42,7 @@ namespace Server.Parser
 
                 if (!xLn.Any())
                 {
-                    Logging.Log.Write("FileParseToAttribute: LN == null", "Warning ");
+                    Log.Log.Write("FileParseToAttribute: LN == null", "Warning ");
                     return false;
                 }
 
@@ -49,7 +50,7 @@ namespace Server.Parser
                 {
                     if (lnitem.Attribute("lnClass") == null || lnitem.Attribute("inst") == null)
                     {
-                        Logging.Log.Write("FileParseToAttribute: LN.lnClass == null or LN.inst == null", "Warning ");
+                        Log.Log.Write("FileParseToAttribute: LN.lnClass == null or LN.inst == null", "Warning ");
                         continue;
                     }
                     
@@ -61,7 +62,7 @@ namespace Server.Parser
                     {
                         if (doiitem.Attribute("name") == null)
                         {
-                            Logging.Log.Write("FileParseToAttribute: DO.name == null", "Warning ");
+                            Log.Log.Write("FileParseToAttribute: DO.name == null", "Warning ");
                             continue;
                         }
                         var doi = doiitem.Attribute("name")?.Value;
@@ -88,7 +89,7 @@ namespace Server.Parser
                             }
                             catch
                             {
-                                Logging.Log.Write("FileParseToAttribute: private DA not found", "Warning ");
+                                Log.Log.Write("FileParseToAttribute: private DA not found", "Warning ");
                                 continue;
                             }
                         }
@@ -98,17 +99,17 @@ namespace Server.Parser
                 }
             }
 
-            Logging.Log.Write("FileParseToAttribute: File parse success", "Success ");
+            Log.Log.Write("FileParseToAttribute: File parse success", "Success ");
             return true;
         }
 
-        private void ParseDefultParamBda(XElement bdai, string ld, string ln, string doi, string dai)
+        private static void ParseDefultParamBda(XElement bdai, string ld, string ln, string doi, string dai)
         {
             IEnumerable<XElement> xDai = bdai.Elements().ToList();
 
             if (!xDai.Any())
             {
-                Logging.Log.Write("FileParseToAttribute: DA == null", "Warning ");
+                Log.Log.Write("FileParseToAttribute: DA == null", "Warning ");
                 return;
             }
 
@@ -136,7 +137,7 @@ namespace Server.Parser
             }
         }
 
-        private void ParseFillModel( string ld, string ln, string doi, string daitemp, string value)
+        private static void ParseFillModel( string ld, string ln, string doi, string daitemp, string value)
         {
             try
             {
@@ -165,7 +166,7 @@ namespace Server.Parser
             }
         }
 
-        private void ParseFillModelBDA(List<string> list, List<ServerModel.NodeDA> dai, string value, string path)
+        private static void ParseFillModelBDA(List<string> list, List<ServerModel.NodeDA> dai, string value, string path)
         {
             if (list.Count == 1)
             {
@@ -187,7 +188,7 @@ namespace Server.Parser
                     }
                     catch
                     {
-                        Logging.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.BTypeDA.INT32", "Warning ");
+                        Log.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.BTypeDA.INT32", "Warning ");
                         return;
                     }
                 }
@@ -201,7 +202,7 @@ namespace Server.Parser
                     }
                     catch
                     {
-                        Logging.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.BTypeDA.BOOLEAN", "Warning ");
+                        Log.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.BTypeDA.BOOLEAN", "Warning ");
                         return;
                     }
                 }
@@ -228,7 +229,7 @@ namespace Server.Parser
                             }
                             catch
                             {
-                                Logging.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.ENUM.SIUnit", "Warning ");
+                                Log.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.ENUM.SIUnit", "Warning ");
                                 return;
                             }
 
@@ -246,7 +247,7 @@ namespace Server.Parser
                             }
                             catch
                             {
-                                Logging.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.ENUM.multiplier", "Warning ");
+                                Log.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.ENUM.multiplier", "Warning ");
                                 return;
                             }
                         }
@@ -263,7 +264,7 @@ namespace Server.Parser
                             }
                             catch
                             {
-                                Logging.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.ENUM.CtlModels", "Warning ");
+                                Log.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.ENUM.CtlModels", "Warning ");
                                 return;
                             }
                         }
@@ -279,7 +280,7 @@ namespace Server.Parser
                     }
                     catch
                     {
-                        Logging.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.BTypeDA.FLOAT", "Warning ");
+                        Log.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.BTypeDA.FLOAT", "Warning ");
                         return;
                     }
                 }

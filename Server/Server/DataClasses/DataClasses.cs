@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Server.Parser
+namespace Server.DataClasses
 {
     public class BaseClass
     {

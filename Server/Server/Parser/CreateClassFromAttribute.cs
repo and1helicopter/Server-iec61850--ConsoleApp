@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
+using Server.DataClasses;
+using Server.Update;
 
 namespace Server.Parser
 {
     public partial class Parser 
     {
         #region Создание обновляймых классов 
-        private void CreateClassFromAttribute()
+        private static void CreateClassFromAttribute()
         {
             foreach (var itemLd in ServerModel.Model.ListLD)
             {
@@ -42,7 +44,7 @@ namespace Server.Parser
             }
         }
 
-        private void Do(ServerModel.NodeDO DO, string pathNameLD, string pathNameLN)
+        private static void Do(ServerModel.NodeDO DO, string pathNameLD, string pathNameLN)
         {
             //Если переменную класса нужно читать из памяти
             if (DO.Type == "G")
@@ -59,7 +61,7 @@ namespace Server.Parser
         }
 
 
-        private void GetDo(ServerModel.NodeDO itemDo, string path)
+        private static void GetDo(ServerModel.NodeDO itemDo, string path)
         {
             //Проверка MV класса
             if (itemDo.TypeDO == "MV")
@@ -110,7 +112,7 @@ namespace Server.Parser
                 }
                 catch
                 {
-                    Logging.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
+                    Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
                     return;
                 }
             }
@@ -128,7 +130,7 @@ namespace Server.Parser
                 }
                 catch
                 {
-                    Logging.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error   ");
+                    Log.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error   ");
                     //return;
                 }
             }

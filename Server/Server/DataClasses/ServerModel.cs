@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Server.Parser
+namespace Server.DataClasses
 {
     public static class ServerModel
     {

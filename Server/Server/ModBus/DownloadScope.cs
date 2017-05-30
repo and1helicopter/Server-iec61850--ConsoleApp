@@ -644,7 +644,7 @@ namespace Server.ModBus
             catch 
             {
                 ChangeEnabale(false);
-                Logging.Log.Write("ModBus: DownloadScope.ConfigDownloadScope finish with error - Scope = disable ", "Warning ");
+                Log.Log.Write("ModBus: DownloadScope.ConfigDownloadScope finish with error - Scope = disable ", "Warning ");
             }
 
         }
