@@ -275,7 +275,6 @@ namespace Server.ModBus
 
                     case 2:                     //Предыстория 
                     {
-                        ScopeConfig.HistoryCount = paramRtu[0];
                         _loadConfigStep = 3;
                         ScopeConfigRequest();
                     }
@@ -291,7 +290,6 @@ namespace Server.ModBus
 
                     case 4:                     //Режим работы
                     {
-                        ScopeConfig.OscilEnable = paramRtu[0];
                         _loadConfigStep = 5;
                         ScopeConfigRequest();
                     }
@@ -309,7 +307,6 @@ namespace Server.ModBus
                     case 6:                     //Частота выборки
                     {
                         ScopeConfig.SampleRate = paramRtu[0];
-                        ScopeConfig.ScopeEnabled = true;
                         _loadConfigStep = 7;
                         ScopeConfigRequest();
                     }
@@ -342,7 +339,6 @@ namespace Server.ModBus
                         break;
                     case 10:                     //Статус осциллогрофа
                     {
-                        ScopeConfig.StatusOscil = paramRtu[0];
                         _loadConfigStep = 11;
                         ScopeConfigRequest();
                     }
@@ -511,10 +507,6 @@ namespace Server.ModBus
 
     public static class ScopeConfig
     {
-        //Скаченные параметры
-        public static ushort[] LoadParams { get; set; }
-
-        public static bool ConnectMcu { get; set; }
 
         //Частота выборки без делителя
         public static ushort SampleRate { get; set; }
@@ -534,24 +526,16 @@ namespace Server.ModBus
         //Количество каналов
         public static ushort ChannelCount { get; set; }
 
-        //Предыстория 
-        public static ushort HistoryCount { get; set; }
-
         //Делитель 
         public static ushort FreqCount { get; set; }
-
-        //Режим работы 
-        public static ushort OscilEnable { get; set; }
 
         //Размер осциллограммы 
         public static uint OscilSize { get; set; }
 
-        //Статус осциллогрофа
-        public static ushort StatusOscil { get; set; }
-
-        
         //Адреса каналов 
-        public static List<ushort> OscilAddr { get; set; }
+        // ReSharper disable once MemberCanBePrivate.Global
+        // ReSharper disable once CollectionNeverQueried.Global
+        public static List<ushort> OscilAddr { get; }
 
         public static void InitOscilAddr(ushort[] loadParams)
         {
@@ -563,7 +547,7 @@ namespace Server.ModBus
         }
 
         //Формат каналов 
-        public static List<ushort> OscilFormat { get; set; }
+        public static List<ushort> OscilFormat { get; }
 
         public static void InitOscilFormat(ushort[] loadParams)
         {
@@ -574,15 +558,6 @@ namespace Server.ModBus
             }
         }
 
-        //Осциллографирумые параметры (получаем список параметров которые будем осциллогофировать)
-        public static List<int> OscilParams { get; set; }
-
-        //Проверка по адресу и формату 
-
-
-        //Осциллограф включен
-        public static bool ScopeEnabled = true;
-
         static ScopeConfig()
         {
             ChannelType = new List<ushort>();
@@ -591,14 +566,12 @@ namespace Server.ModBus
             ChannelPhase = new List<string>();
             ChannelName = new List<string>();
             OscilFormat = new List<ushort>();
-            OscilParams = new List<int>();
             OscilAddr = new List<ushort>();
-            LoadParams = new ushort[32];
         }
 
         //Дополнительные данные о каналах
         //Название канала
-        public static List<string> ChannelName { get; set; }
+        public static List<string> ChannelName { get; }
 
         public static void InitChannelName(ushort[] loadParams)
         {
@@ -613,7 +586,7 @@ namespace Server.ModBus
         }
 
         //Фаза канала
-        public static List<string> ChannelPhase { get; set; }
+        public static List<string> ChannelPhase { get; }
 
         public static void InitChannelPhase(ushort[] loadParams)
         {
@@ -627,7 +600,7 @@ namespace Server.ModBus
         }
 
         //CCBM
-        public static List<string> ChannelCcbm { get; set; }
+        public static List<string> ChannelCcbm { get; }
 
         public static void InitChannelCcbm(ushort[] loadParams)
         {
@@ -641,7 +614,7 @@ namespace Server.ModBus
             ChannelCcbm.Add(channelCcbm);
         }
         //Измерение канала
-        public static List<string> ChannelDemension { get; set; }
+        public static List<string> ChannelDemension { get; }
 
         public static void InitChannelDemension(ushort[] loadParams)
         {
@@ -656,7 +629,7 @@ namespace Server.ModBus
         }
 
         //Тип канала
-        public static List<ushort> ChannelType { get; set; }
+        public static List<ushort> ChannelType { get; }
 
         public static void InitChannelType(ushort[] loadParams)
         {
@@ -664,7 +637,7 @@ namespace Server.ModBus
         }
 
         //Название станции
-        public static string StationName { get; set; }
+        public static string StationName { get; private set; }
 
         public static void InitStationName(ushort[] loadParams)
         {
@@ -678,7 +651,7 @@ namespace Server.ModBus
         }
         
         //RecordID
-        public static string RecordingId { get; set; }
+        public static string RecordingId { get; private set; }
 
         public static void InitRecordingId(ushort[] loadParams)
         {
@@ -692,7 +665,7 @@ namespace Server.ModBus
         }
 
         //TimeCode
-        public static string TimeCode { get; set; }
+        public static string TimeCode { get; private set; }
 
         public static void InitTimeCode(ushort[] loadParams)
         {
@@ -706,7 +679,7 @@ namespace Server.ModBus
         }
 
         //LocalCode
-        public static string LocalCode { get; set; }
+        public static string LocalCode { get; private set; }
 
         public static void InitLocalCode(ushort[] loadParams)
         {
@@ -720,7 +693,7 @@ namespace Server.ModBus
         }
 
         //TmqCode
-        public static string TmqCode { get; set; }
+        public static string TmqCode { get; private set; }
 
         public static void InitTmqCode(ushort[] loadParams)
         {
@@ -734,7 +707,7 @@ namespace Server.ModBus
         }
 
         //Leapsec 
-        public static string Leapsec { get; set; }
+        public static string Leapsec { get; private set; }
 
         public static void InitLeapsec(ushort[] loadParams)
         {

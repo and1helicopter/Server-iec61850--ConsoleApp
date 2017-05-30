@@ -25,7 +25,8 @@ namespace Server.ModBus
         private static readonly AsynchSerialPort SerialPort = new AsynchSerialPort();
         private static readonly object Locker = new object();
 
-        private static int _currentIndex;
+        private static int _currentIndexGet;
+        private static int _currentIndexSet;
 
         public static void ConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
         {
@@ -87,13 +88,13 @@ namespace Server.ModBus
         {
             DownloadTimer.Enabled = false;
 
-            if (!SerialPort.IsOpen)
+            if (!SerialPort.IsOpen)     //Если порт закрыт пытаемся открыть его
             {
-                if (!ErrorPort)
+                if (ErrorPort)
                 {
-                    return;
+                    Logging.Log.Write("ModBus: OpenModBusPort", "Warning ");
+                    OpenModBusPort();
                 }
-                OpenModBusPort();
             }
 
             DataRequest();

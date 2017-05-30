@@ -33,7 +33,7 @@ namespace Server
 
 
             //ModBus.ModBus.CloseModBus();
-            ModBus.ModBus.ConfigDownloadScope("true", "true", "txt", "1999", "512", "4096", "Scope\\", "50");
+            ModBus.ModBus.ConfigDownloadScope("true", "false", "comtrade", "1999", "512", "4096", "Scope\\", "50");
             ModBus.ModBus.ConfigModBus("115200", "Odd", "One", "COM1");
             ModBus.ModBus.StartModBus();
 
@@ -45,15 +45,15 @@ namespace Server
             //Парсим файл конфигурации
             if (!Parser.ParseFile())
             {
-                Logging.Log.Write("ParseFile: Finish with status false. Stop server", "Error   ");
+                Logging.Log.Write(@"ParseFile: Finish with status false. Stop server", @"Error   ");
                 return;
             }
 
-            Logging.Log.Write("ParseFile: File parse success", "Success ");
+            Logging.Log.Write(@"ParseFile: File parse success", @"Success ");
 
 
             //Создаем модель сервера
-            ConfigServer("test.cfg");
+            ConfigServer(@"test.cfg");
 
             //Запуск сервера 
             StartServer(Settings.Settings.ConfigServer.PortServer);
@@ -74,9 +74,9 @@ namespace Server
                     }
 
                     _iedServer.UnlockDataModel();
-
-                    Thread.Sleep(50);
                 }
+
+                Thread.Sleep(50);
             }
         }
 
@@ -99,12 +99,12 @@ namespace Server
 
                 Thread myThread = new Thread(RuningServer)
                 {
-                    Name = "Thread Server"
+                    Name = @"Thread Server"
                 };
                 myThread.Start();
 
                 Console.WriteLine(@"Server started");
-                Logging.Log.Write("Server: Server started", "Start   ");
+                Logging.Log.Write(@"Server: Server started", @"Start   ");
             }
             else
             {
@@ -120,7 +120,7 @@ namespace Server
                 _iedServer.Destroy();
 
                 Console.WriteLine(@"Server stoped");
-                Logging.Log.Write("Server: Server stoped", "Stop    ");
+                Logging.Log.Write(@"Server: Server stoped", @"Stop    ");
             }
             else
             {
@@ -150,13 +150,13 @@ namespace Server
         {
             foreach (var itemDataObject in UpdateDataObj.DataClassGet)
             {
-                if (itemDataObject.ClassDataObj == "MV")
+                if (itemDataObject.ClassDataObj == @"MV")
                 {
                     MV_ClassSet(itemDataObject);
                     continue;
                 }
                 
-                if (itemDataObject.ClassDataObj == "SPS")
+                if (itemDataObject.ClassDataObj == @"SPS")
                 {
                     SPS_ClassSet(itemDataObject);
                     continue;
@@ -167,49 +167,49 @@ namespace Server
         private static void MV_ClassSet(UpdateDataObj.DataObject itemDataObject)
         {
             //units (multiplier, SIUnit)
-            InitStaticUpdateData("int", ((MvClass)itemDataObject.DataObj).Unit.Multiplier.ToString(), itemDataObject.NameDataObj + ".units.multiplier");
-            InitStaticUpdateData("int", ((MvClass)itemDataObject.DataObj).Unit.SIUnit.ToString(), itemDataObject.NameDataObj + ".units.SIUnit");
+            InitStaticUpdateData(@"int", ((MvClass)itemDataObject.DataObj).Unit.Multiplier.ToString(), itemDataObject.NameDataObj + ".units.multiplier");
+            InitStaticUpdateData(@"int", ((MvClass)itemDataObject.DataObj).Unit.SIUnit.ToString(), itemDataObject.NameDataObj + ".units.SIUnit");
             //sVC (scaleFactor, offset)
-            InitStaticUpdateData("float", ((MvClass)itemDataObject.DataObj).sVC.ScaleFactor.ToString(), itemDataObject.NameDataObj + ".sVC.scaleFactor");
-            InitStaticUpdateData("float", ((MvClass)itemDataObject.DataObj).sVC.Offset.ToString(), itemDataObject.NameDataObj + ".sVC.offset");
+            InitStaticUpdateData(@"float", ((MvClass)itemDataObject.DataObj).sVC.ScaleFactor.ToString(), itemDataObject.NameDataObj + ".sVC.scaleFactor");
+            InitStaticUpdateData(@"float", ((MvClass)itemDataObject.DataObj).sVC.Offset.ToString(), itemDataObject.NameDataObj + ".sVC.offset");
             //d
-            InitStaticUpdateData("string", ((MvClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
+            InitStaticUpdateData(@"string", ((MvClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
         }
 
         private static void SPS_ClassSet(UpdateDataObj.DataObject itemDataObject)
         {
             //d
-            InitStaticUpdateData("string", ((SpsClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
+            InitStaticUpdateData(@"string", ((SpsClass)itemDataObject.DataObj).d, itemDataObject.NameDataObj + ".d");
         }
 
         private static void InitStaticUpdateData(string format, string value, string path)
         {
-            if (format.ToUpper() == "bool".ToUpper())
+            if (format.ToUpper() == @"bool".ToUpper())
             {
                 UpdateBool(path, value);
                 return;
             }
-            if (format.ToUpper() == "int".ToUpper())
+            if (format.ToUpper() == @"int".ToUpper())
             {
                 UpdateInt(path, value);
                 return;
             }
-            if (format.ToUpper() == "float".ToUpper())
+            if (format.ToUpper() == @"float".ToUpper())
             {
                 UpdateFloat(path, value);
                 return;
             }
-            if (format.ToUpper() == "string".ToUpper())
+            if (format.ToUpper() == @"string".ToUpper())
             {
                 UpdateString(path, value);
                 return;
             }
-            if (format.ToUpper() == "datetime".ToUpper())
+            if (format.ToUpper() == @"datetime".ToUpper())
             {
                 UpdateDateTime(path, value);
                 return;
             }
-            if (format.ToUpper() == "ushort".ToUpper())
+            if (format.ToUpper() == @"ushort".ToUpper())
             {
                 UpdateUshort(path, value);
             }
@@ -218,63 +218,50 @@ namespace Server
         private static void UpdateBool(string path, string value)
         {
             bool str = Convert.ToBoolean(value);
-
             _iedServer.UpdateBooleanAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
-
         }
 
         private static void UpdateInt(string path, string value)
         {
             int str = Convert.ToInt32(value);
-
             _iedServer.UpdateInt32AttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
-
         }
 
         private static void UpdateFloat(string path, string value)
         {
             float str = Convert.ToSingle(value);
-
             _iedServer.UpdateFloatAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
-
         }
 
         private static void UpdateString(string path, string value)
         {
             string str = Convert.ToString(value);
-
             _iedServer.UpdateVisibleStringAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
-
         }
 
         private static void UpdateDateTime(string path, string value)
         {
-
             DateTime str = Convert.ToDateTime(value);
-
             _iedServer.UpdateUTCTimeAttributeValue((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
-
         }
 
         private static void UpdateUshort(string path, string value)
         {
             ushort str = Convert.ToUInt16(value);
-
             _iedServer.UpdateQuality((DataAttribute)_iedModel.GetModelNodeByShortObjectReference(path), str);
-
         }
 
         private static void UpdateData()
         {
             foreach (var itemDataObject in UpdateDataObj.DataClassGet)
             {
-                if (itemDataObject.ClassDataObj == "MV")
+                if (itemDataObject.ClassDataObj == @"MV")
                 {
                     MV_ClassUpdate(itemDataObject);
                     continue;
                 }
 
-                if (itemDataObject.ClassDataObj == "SPS")
+                if (itemDataObject.ClassDataObj == @"SPS")
                 {
                     SPS_ClassUpdate(itemDataObject);
                     continue;
@@ -286,15 +273,15 @@ namespace Server
         {
             ((MvClass)itemDataObject.DataObj).QualityCheckClass();
 
-            var magPath = (DataAttribute) _iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".mag.f");
+            var magPath = (DataAttribute) _iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".mag.f");
             var magVal = Convert.ToSingle(((MvClass)itemDataObject.DataObj).Mag.AnalogueValue.f);
             _iedServer.UpdateFloatAttributeValue(magPath, magVal);
 
-            var tPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".t");
+            var tPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
             var tVal = Convert.ToDateTime(((MvClass) itemDataObject.DataObj).t);
             _iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
 
-            var qPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".q");
+            var qPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
             var qVal = Convert.ToUInt16(((MvClass)itemDataObject.DataObj).q.Validity);
             _iedServer.UpdateQuality(qPath, qVal);
         }
@@ -303,15 +290,15 @@ namespace Server
         {
             ((SpsClass)itemDataObject.DataObj).QualityCheckClass();
 
-            var stValPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".stVal");
+            var stValPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
             var stValVal = Convert.ToBoolean(((SpsClass)itemDataObject.DataObj).stVal);
             _iedServer.UpdateBooleanAttributeValue(stValPath, stValVal);
 
-            var tPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".t");
+            var tPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
             var tVal = Convert.ToDateTime(((SpsClass)itemDataObject.DataObj).t);
             _iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
 
-            var qPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + ".q");
+            var qPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
             var qVal = Convert.ToUInt16(((SpsClass)itemDataObject.DataObj).q.Validity);
             _iedServer.UpdateQuality(qPath, qVal);
         }

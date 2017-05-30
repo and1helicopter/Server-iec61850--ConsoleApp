@@ -1,5 +1,6 @@
-﻿using System;
+﻿
 using Server.Parser;
+using UniSerialPort;
 
 namespace Server.ModBus
 {
@@ -7,19 +8,42 @@ namespace Server.ModBus
     {
         private static void DataRequest()
         {
+            if (!SerialPort.IsOpen)
+            {
+                return;
+            }
+
             if (UpdateDataObj.DataClassGet.Count != 0)
             {
-                if (_currentIndex == UpdateDataObj.DataClassGet.Count)
-                {
-                    _currentIndex = 0;
-                }
-
-                if (!UpdateDataObj.DataClassGet[_currentIndex].GetDataObj)
+                if (_currentIndexGet == UpdateDataObj.DataClassGet.Count)
                 {
                     lock (Locker)
                     {
-                        SerialPort.GetDataRTU(UpdateDataObj.DataClassGet[_currentIndex].AddrDataObj, 1, UpdateData);
-                        UpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(true);
+                        _currentIndexGet = 0;
+                    }
+                }
+
+                if (UpdateDataObj.GetData(_currentIndexGet, out ushort addrGet))
+                {
+                    lock (Locker)
+                    {
+                        SerialPort.GetDataRTU(addrGet, 1, UpdateData);
+                    }
+                }
+            }
+
+            if (UpdateDataObj.DataClassSet.Count != 0)
+            {
+                if (_currentIndexSet == UpdateDataObj.DataClassSet.Count)
+                {
+                    _currentIndexSet = 0;
+                }
+
+                if (UpdateDataObj.SetData(_currentIndexSet, out ushort addrSet, out ushort send))
+                {
+                    lock (Locker)
+                    {
+                        SerialPort.SetDataRTU(addrSet, null, RequestPriority.Normal, send);
                     }
                 }
             }
@@ -29,21 +53,8 @@ namespace Server.ModBus
         {
             if (dataOk)
             {
-                if (UpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(MvClass))
-                {
-                    ((MvClass) UpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now,
-                        Convert.ToInt64(paramRtu[0]));
-                    UpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
-                }
-                else if (UpdateDataObj.DataClassGet[_currentIndex].DataObj.GetType() == typeof(SpsClass))
-                {
-                    bool val = (Convert.ToInt32(paramRtu[0]) &
-                                1 << Convert.ToInt32(UpdateDataObj.DataClassGet[_currentIndex].MaskDataObj)) > 0;
-                    ((SpsClass) UpdateDataObj.DataClassGet[_currentIndex].DataObj).UpdateClass(DateTime.Now, val);
-                    UpdateDataObj.DataClassGet[_currentIndex].GetDataObj_Set(false);
-                }
-
-                _currentIndex++;
+                UpdateDataObj.UpdateData(_currentIndexGet, paramRtu);
+                _currentIndexGet++;
             }
         }
     }

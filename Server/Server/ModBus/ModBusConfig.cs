@@ -48,7 +48,6 @@ namespace Server.ModBus
         private static void SerialPort_SerialPortError(object sender, System.EventArgs e)
         {
             DownloadTimer.Enabled = false;
-            StartPort = false;
             ErrorPort = true;
 
             foreach (var itemGet in UpdateDataObj.DataClassGet)
@@ -62,6 +61,7 @@ namespace Server.ModBus
             }
 
             CloseModBusPort();
+            StartPort = false;
 
             DownloadTimer.Enabled = true;
         }

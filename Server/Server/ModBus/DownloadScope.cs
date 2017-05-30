@@ -12,7 +12,7 @@ namespace Server.ModBus
     {
         private static void ScopoeRequest()
         {
-            if (_waitingAnswer && SerialPort.requests.Count != 0)
+            if (_waitingAnswer && SerialPort.requests.Count != 0 || !SerialPort.IsOpen)
             {
                 return;
             }
@@ -179,13 +179,14 @@ namespace Server.ModBus
                     // ignored
                 }
                 CreateFile();
-                
+
+                _startDownloadScope = false;
+
                 if (_downloadScope.Remove)
                 {
                     SerialPort.SetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 8 + _indexDownloadScope), null, RequestPriority.Normal, 0);
                     OldStatus[_indexDownloadScope] = 0;
                 }
-                _startDownloadScope = false;
             }
             _waitingAnswer = false;
         }
