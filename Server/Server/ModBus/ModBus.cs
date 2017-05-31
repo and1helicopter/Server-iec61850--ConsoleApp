@@ -13,43 +13,39 @@ namespace Server.ModBus
         private static int _indexChannel;
         private static bool _waitingAnswer;
 
-        private static ConfigDownloadScope _downloadScope;
-
         private static readonly int[] NowStatus = new int[32];
         private static readonly int[] OldStatus = new int[32];
 
         private static int _indexDownloadScope;
         private static uint _oscilStartTemp;
 
-        private static ConfigModBus _modbus;
         private static readonly AsynchSerialPort SerialPort = new AsynchSerialPort();
         private static readonly object Locker = new object();
 
         private static int _currentIndexGet;
         private static int _currentIndexSet;
 
-        public static void ConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
+        public static void InitConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
         {
             try
             {
-                _downloadScope = new ConfigDownloadScope(enabele, remove, type, comtradeType, configurationAddr, oscilCmndAddr, pathScope, oscilNominalFrequency);
+                ConfigDownloadScope.InitConfigDownloadScope(enabele, remove, type, comtradeType, configurationAddr, oscilCmndAddr, pathScope, oscilNominalFrequency);
             }
             catch
             {
-                Log.Log.Write("ModBus: ConfigDownloadScope finish with error", "Warning ");
+                Log.Log.Write("ModBus: InitConfigDownloadScope finish with error", "Warning ");
             }
-
         }
 
-        public static void ConfigModBus(string baudRate, string serialPortParity, string serialPortStopBits, string comPortName)
+        public static void InitConfigModBus(string baudRate, string serialPortParity, string serialPortStopBits, string comPortName)
         {
             try
             {
-                _modbus = new ConfigModBus(Convert.ToInt32(baudRate), serialPortParity, serialPortStopBits, comPortName);
+                ConfigModBus.InitConfigModBus(Convert.ToInt32(baudRate), serialPortParity,serialPortStopBits, comPortName);
             }
             catch 
             {
-                Log.Log.Write("ModBus: ConfigModBus finish with error", "Warning ");
+                Log.Log.Write("ModBus: InitConfigModBus finish with error", "Warning ");
                 return;
             }
 
@@ -99,7 +95,7 @@ namespace Server.ModBus
 
             DataRequest();
 
-            if (_downloadScope.Enable)
+            if (ConfigDownloadScope.Enable)
             {
                 ScopoeRequest();
             }

@@ -30,7 +30,7 @@ namespace Server.DataClasses
 
         public void QualityCheckClass()
         {
-            q.QualityCheckClass(DateTime.Now);
+            q.QualityCheckClass(t);
         }
 
         public SpsClass()
@@ -198,7 +198,7 @@ namespace Server.DataClasses
 
         public void QualityCheckClass()
         {
-            q.QualityCheckClass(DateTime.Now);
+            q.QualityCheckClass(t);
         }
     }
 
@@ -234,7 +234,7 @@ namespace Server.DataClasses
 
         public void QualityCheckClass()
         {
-            q.QualityCheckClass(DateTime.Now);
+            q.QualityCheckClass(t);
         }
 
         public CmvClass() : base()

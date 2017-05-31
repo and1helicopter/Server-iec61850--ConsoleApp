@@ -30,7 +30,6 @@ namespace Server.ModBus
             }
             else
             {
-                //DownloadScopeTimer.Enabled = false;
                 ScopeDownloadRequestSet();
             }
         }
@@ -39,7 +38,7 @@ namespace Server.ModBus
         {
             lock (Locker)
             {
-                SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 8), 32,UpdateScopeStatus);
+                SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 8), 32,UpdateScopeStatus);
                 _waitingAnswer = true;
             }
         }
@@ -95,7 +94,7 @@ namespace Server.ModBus
                 {
                     lock (Locker)
                     {
-                        SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe);
+                        SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe);
                         _waitingAnswer = true;
                     }
                 }
@@ -157,7 +156,7 @@ namespace Server.ModBus
         {
             lock (Locker)
             {
-                SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
+                SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
                 _waitingAnswer = true;
             }
         }
@@ -182,9 +181,9 @@ namespace Server.ModBus
 
                 _startDownloadScope = false;
 
-                if (_downloadScope.Remove)
+                if (ConfigDownloadScope.Remove)
                 {
-                    SerialPort.SetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 8 + _indexDownloadScope), null, RequestPriority.Normal, 0);
+                    SerialPort.SetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 8 + _indexDownloadScope), null, RequestPriority.Normal, 0);
                     OldStatus[_indexDownloadScope] = 0;
                 }
             }
@@ -381,7 +380,7 @@ namespace Server.ModBus
 
         private static string Line5()
         {
-            return _downloadScope.OscilNominalFrequency;
+            return ConfigDownloadScope.OscilNominalFrequency;
         }
 
         private static string Line6()
@@ -451,9 +450,9 @@ namespace Server.ModBus
 
             DateTime time = DateTime.Now;
 
-            if (_downloadScope.Type == "txt")
+            if (ConfigDownloadScope.Type == "txt")
             {
-                string writePath = _downloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").txt";
+                string writePath = ConfigDownloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").txt";
 
                 StreamWriter sw = new StreamWriter(writePath, false, Encoding.GetEncoding("Windows-1251"));
 
@@ -482,16 +481,16 @@ namespace Server.ModBus
 
             // Save to COMETRADE
             #region
-            if (_downloadScope.Type != "txt")
+            if (ConfigDownloadScope.Type != "txt")
             {
                 
-                string writePathCfg = _downloadScope.PathScope + "Scope_No" + _numName + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':','.').Replace(' ', '_') + ").cfg";
+                string writePathCfg = ConfigDownloadScope.PathScope + "Scope_No" + _numName + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':','.').Replace(' ', '_') + ").cfg";
 
                 StreamWriter swCfg = new StreamWriter(writePathCfg, false, Encoding.GetEncoding("Windows-1251"));
 
                 try
                 {
-                    swCfg.WriteLine(Line1(_downloadScope.ComtradeType));
+                    swCfg.WriteLine(Line1(ConfigDownloadScope.ComtradeType));
                     swCfg.WriteLine(Line2());
 
                     for (int i = 0, j = 0; i < ScopeConfig.ChannelCount; i++)
@@ -510,7 +509,7 @@ namespace Server.ModBus
                     swCfg.WriteLine(Line9());
                     swCfg.WriteLine(Line10());
                     swCfg.WriteLine(Line11());
-                    if (_downloadScope.ComtradeType == "2013")
+                    if (ConfigDownloadScope.ComtradeType == "2013")
                     {
                         swCfg.WriteLine(Line12());
                         swCfg.WriteLine(Line13());
@@ -524,7 +523,7 @@ namespace Server.ModBus
 
                 swCfg.Close();
 
-                string writePathDat = _downloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").dat";
+                string writePathDat = ConfigDownloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").dat";
 
                 StreamWriter swDat = new StreamWriter(writePathDat, false, Encoding.GetEncoding("Windows-1251"));
 
@@ -549,28 +548,28 @@ namespace Server.ModBus
         }
     }
 
-    public class ConfigDownloadScope
+    public static class ConfigDownloadScope
     {
-        public bool Enable { get; private set; }
-        public bool Remove { get; private set; }
-        public string Type { get; private set; }
-        public string ComtradeType { get; private set; }
-        public ushort ConfigurationAddr { get; private set; }
-        public ushort OscilCmndAddr { get; private set; }
-        public string PathScope { get; private set; }
-        public string OscilNominalFrequency { get; private set; }
+        public static bool Enable { get; private set; }
+        public static bool Remove { get; private set; }
+        public static string Type { get; private set; }
+        public static string ComtradeType { get; private set; }
+        public static ushort ConfigurationAddr { get; private set; }
+        public static ushort OscilCmndAddr { get; private set; }
+        public static string PathScope { get; private set; }
+        public static string OscilNominalFrequency { get; private set; }
 
-        private void ChangeEnabale(bool enable)
+        private static void ChangeEnabale(bool enable)
         {
             Enable = enable;
         }
 
-        private void ChangeRemove(bool remove)
+        private static void ChangeRemove(bool remove)
         {
             Remove = remove;
         }
 
-        private void ChangeType(string type)
+        private static void ChangeType(string type)
         {
             switch (type.ToLower())
             {
@@ -587,7 +586,7 @@ namespace Server.ModBus
             }
         }
 
-        private void ChangeComtradeType(string comtradeType)
+        private static void ChangeComtradeType(string comtradeType)
         {
             switch (comtradeType.ToLower())
             {
@@ -604,29 +603,29 @@ namespace Server.ModBus
             }
         }
 
-        private void ChangeConfigurationAddr(ushort configurationAddr)
+        private static void ChangeConfigurationAddr(ushort configurationAddr)
         {
             ConfigurationAddr = configurationAddr;
         }
 
-        private void ChangeOscilCmndAddr(ushort oscilCmndAddr)
+        private static void ChangeOscilCmndAddr(ushort oscilCmndAddr)
         {
             OscilCmndAddr = oscilCmndAddr;
         }
 
-        private void ChangePathScope(string pathScope)
+        private static void ChangePathScope(string pathScope)
         {
             //"vmd-filestore" + путь до папки где лежат осциллограммы
             PathScope = "vmd-filestore\\" + pathScope;
         }
 
-        private void ChangeOscilNominalFrequency(string oscilNominalFrequency)
+        private static void ChangeOscilNominalFrequency(string oscilNominalFrequency)
         {
             OscilNominalFrequency = oscilNominalFrequency;
         }
 
 
-        public ConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
+        public static void InitConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
         {
 
             ChangeType(type);
@@ -644,7 +643,7 @@ namespace Server.ModBus
             catch 
             {
                 ChangeEnabale(false);
-                Log.Log.Write("ModBus: DownloadScope.ConfigDownloadScope finish with error - Scope = disable ", "Warning ");
+                Log.Log.Write("ModBus: DownloadScope.InitConfigDownloadScope finish with error - Scope = disable ", "Warning ");
             }
 
         }

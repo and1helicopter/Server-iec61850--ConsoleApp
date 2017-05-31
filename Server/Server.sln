@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADSPLibrary", "..\ADSPLibra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModBusLibrary", "..\ModBusLibrary\ModBusLibrary.csproj", "{30188FF0-11C6-4302-8B16-F30EEBEF8761}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test_console", "..\test_console\test_console.csproj", "{3A72D460-8D4E-4199-A7FE-5BC7297124FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,12 @@ Global
 		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Release|Any CPU.Build.0 = Release|Any CPU
 		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Test|Any CPU.ActiveCfg = Test|Any CPU
 		{30188FF0-11C6-4302-8B16-F30EEBEF8761}.Test|Any CPU.Build.0 = Test|Any CPU
+		{3A72D460-8D4E-4199-A7FE-5BC7297124FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A72D460-8D4E-4199-A7FE-5BC7297124FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A72D460-8D4E-4199-A7FE-5BC7297124FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A72D460-8D4E-4199-A7FE-5BC7297124FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A72D460-8D4E-4199-A7FE-5BC7297124FA}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{3A72D460-8D4E-4199-A7FE-5BC7297124FA}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

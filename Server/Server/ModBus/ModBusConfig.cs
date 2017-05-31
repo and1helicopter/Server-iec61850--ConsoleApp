@@ -16,10 +16,10 @@ namespace Server.ModBus
             }
 
             SerialPort.SerialPortMode = SerialPortModes.RSMode;
-            SerialPort.BaudRate = _modbus.BaudRate;
-            SerialPort.Parity = _modbus.SerialPortParity;
-            SerialPort.StopBits = _modbus.SerialPortStopBits;
-            SerialPort.PortName = _modbus.ComPortName;
+            SerialPort.BaudRate = ConfigModBus.BaudRate;
+            SerialPort.Parity = ConfigModBus.SerialPortParity;
+            SerialPort.StopBits = ConfigModBus.SerialPortStopBits;
+            SerialPort.PortName = ConfigModBus.ComPortName;
         }
 
         private static void OpenModBusPort()
@@ -77,15 +77,14 @@ namespace Server.ModBus
 
     /* Настройки ModBus port  */
 
-    public class ConfigModBus
+    public static class ConfigModBus
     {
-        public int BaudRate { get; private set; }
-        public Parity SerialPortParity { get; private set; }
-        public StopBits SerialPortStopBits { get; private set; }
-        public string ComPortName { get; private set; }
+        public static int BaudRate { get; private set; }
+        public static Parity SerialPortParity { get; private set; }
+        public static StopBits SerialPortStopBits { get; private set; }
+        public static string ComPortName { get; private set; }
 
-
-        private void ChangeBaudRate(int baudRate)
+        private static void ChangeBaudRate(int baudRate)
         {
             switch (baudRate)
             {
@@ -113,7 +112,7 @@ namespace Server.ModBus
             }
         }
         
-        private void ChangeSerialPortParity(string serialPortParity)
+        private static void ChangeSerialPortParity(string serialPortParity)
         {
             switch (serialPortParity)
             {
@@ -133,7 +132,7 @@ namespace Server.ModBus
         }
 
 
-        private void ChangeSerialPortStopBits(string serialPortStopBits)
+        private static void ChangeSerialPortStopBits(string serialPortStopBits)
         {
             switch (serialPortStopBits)
             {
@@ -155,7 +154,7 @@ namespace Server.ModBus
         }
 
 
-        private void ChangeComPortName(string comPort)
+        private static void ChangeComPortName(string comPort)
         {
             ReadPortList();
 
@@ -184,7 +183,7 @@ namespace Server.ModBus
             PortList.Sort();
         }
 
-        public ConfigModBus(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort)
+        public static void InitConfigModBus(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort)
         {
             ChangeBaudRate(serialPortSpeedIndex);
             ChangeSerialPortParity(serialPortParity);

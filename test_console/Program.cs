@@ -1,8 +1,12 @@
-﻿namespace Server
+﻿// ReSharper disable once CheckNamespace
+
+using System;
+
+namespace Server
 {
     public static class Test
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
             //Открываем настройки сервера
             Settings.Settings.ReadSettings();
@@ -17,15 +21,17 @@
             Log.Log.Write(@"ParseFile: File parse success", @"Success ");
 
             //ModBus.ModBus.CloseModBus();
-            ModBus.ModBus.ConfigDownloadScope("true", "false", "comtrade", "1999", "512", "4096", "Scope\\", "50");
-            ModBus.ModBus.ConfigModBus("115200", "Odd", "One", "COM1");
+            ModBus.ModBus.InitConfigDownloadScope("true", "false", "comtrade", "1999", "512", "4096", "Scope\\", "50");
+            ModBus.ModBus.InitConfigModBus("115200", "Odd", "One", "COM1");
             ModBus.ModBus.StartModBus();
-            
+
             //Создаем модель сервера
             Server.Server.ConfigServer(@"test.cfg");
 
             //Запуск сервера 
-            Server.Server.StartServer(Settings.Settings.ConfigServer.PortServer);
+            Server.Server.StartServer();
+
+            Console.WriteLine("Start server");
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 67), 1, UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 67), 1, UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -26,7 +26,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 66), 1, UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 66), 1, UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -36,7 +36,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 68), 1, UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 68), 1, UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -46,7 +46,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 69), 1,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 69), 1,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -56,7 +56,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 70), 1,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 70), 1,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -66,7 +66,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 64), 2,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 64), 2,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -76,7 +76,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 2), 1,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 2), 1,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -86,7 +86,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 376), 2,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 376), 2,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -96,7 +96,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 3), 1,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 3), 1,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -105,7 +105,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU(_downloadScope.OscilCmndAddr, 2, UpdateScopeConfig);
+                    SerialPort.GetDataRTU(ConfigDownloadScope.OscilCmndAddr, 2, UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -115,7 +115,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.OscilCmndAddr + 378), 2, UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 378), 2, UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -125,7 +125,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 32), 32,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 32), 32,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -135,7 +135,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU(_downloadScope.ConfigurationAddr, 32, UpdateScopeConfig);
+                    SerialPort.GetDataRTU(ConfigDownloadScope.ConfigurationAddr, 32, UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -145,7 +145,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 71 + 16 * _indexChannel), 16,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 71 + 16 * _indexChannel), 16,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -155,7 +155,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 583 + _indexChannel), 1,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 583 + _indexChannel), 1,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -165,7 +165,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 615 + 8 * _indexChannel), 8,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 615 + 8 * _indexChannel), 8,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -175,7 +175,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 871 + 4 * _indexChannel), 4,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 871 + 4 * _indexChannel), 4,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -185,7 +185,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 999 + _indexChannel), 1,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 999 + _indexChannel), 1,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -195,7 +195,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 1031), 16,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 1031), 16,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -205,7 +205,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 1047), 8,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 1047), 8,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -215,7 +215,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 1055), 4,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 1055), 4,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -225,7 +225,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 1059), 4,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 1059), 4,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -235,7 +235,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 1063), 4,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 1063), 4,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
                 return;
@@ -245,7 +245,7 @@ namespace Server.ModBus
             {
                 lock (Locker)
                 {
-                    SerialPort.GetDataRTU((ushort)(_downloadScope.ConfigurationAddr + 1067), 4,UpdateScopeConfig);
+                    SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.ConfigurationAddr + 1067), 4,UpdateScopeConfig);
                     _waitingAnswer = true;
                 }
             }

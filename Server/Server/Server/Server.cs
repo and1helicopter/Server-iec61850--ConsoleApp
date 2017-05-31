@@ -5,12 +5,12 @@ using Server.Update;
 
 namespace Server.Server
 {
-    public static class Server
+    public static partial class Server
     {
         private static readonly object Locker = new object();
         private static IedServer _iedServer;
         private static IedModel _iedModel;
-        static bool _running = true;
+        private static bool _running = true;
 
         private static void RuningServer()
         {
@@ -40,20 +40,11 @@ namespace Server.Server
             UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);
         }
 
-        public static void StartServer(int portNum)
+        public static void StartServer()
         {
-            /* run until Ctrl-C is pressed */
-            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
-            {
-                e.Cancel = true;
-                _running = false;
-
-                StopServer();
-            };
-
             if (_iedModel != null)
             {
-                _iedServer.Start(portNum);
+                _iedServer.Start(ServerConfig.PortServer);
 
                 Thread myThread = new Thread(RuningServer)
                 {
@@ -61,12 +52,11 @@ namespace Server.Server
                 };
                 myThread.Start();
 
-                Console.WriteLine(@"Server started");
-                Log.Log.Write(@"Server: Server started", @"Start   ");
+                Log.Log.Write(@"Server.StartServer: Server started", @"Start   ");
             }
             else
             {
-                Console.WriteLine(@"No valid data model found!");
+                Log.Log.Write(@"Server.StartServer: No valid data model found!", @"Error   ");
             }
         }
 
@@ -74,15 +64,15 @@ namespace Server.Server
         {
             if (_iedServer.IsRunning())
             {
+                ModBus.ModBus.CloseModBus();
                 _iedServer.Stop();
                 _iedServer.Destroy();
 
-                Console.WriteLine(@"Server stoped");
-                Log.Log.Write(@"Server: Server stoped", @"Stop    ");
+                Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop   ");
             }
             else
             {
-                Console.WriteLine(@"No valid Server found!");
+                Log.Log.Write(@"Server.StopServer: No valid Server found!", @"Error  ");
             }
 
             Console.ReadKey();
