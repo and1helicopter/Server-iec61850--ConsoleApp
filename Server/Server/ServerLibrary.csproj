@@ -26,6 +26,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <Prefer32bit>true</Prefer32bit>
+    <LangVersion>7</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,9 +53,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iec61850dotnet, Version=1.0.6282.23374, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\iec61850dotnet.dll</HintPath>
+    <Reference Include="iec61850dotnet, Version=1.0.6282.23374, Culture=neutral, PublicKeyToken=null">
+      <HintPath>iec61850dotnet.dll</HintPath>
     </Reference>
     <Reference Include="ModbusLibraryNew">
       <HintPath>.\ModbusLibraryNew.dll</HintPath>
@@ -78,6 +79,11 @@
     <Compile Include="Parser\FileParseToModel.cs" />
     <Compile Include="Parser\DataObj.cs" />
     <Compile Include="DataClasses\ServerModel.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Server\ServerConfig.cs" />
     <Compile Include="Update\UpdateConnect.cs" />
     <Compile Include="Update\UpdateDataObj.cs" />
@@ -117,6 +123,11 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

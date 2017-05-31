@@ -1,6 +1,5 @@
-﻿// ReSharper disable once CheckNamespace
-
-using System;
+﻿using System;
+using Server.Server;
 
 namespace Server
 {
@@ -31,7 +30,7 @@ namespace Server
             //Запуск сервера 
             Server.Server.StartServer();
 
-            Console.WriteLine("Start server");
+            Console.WriteLine(@"Start server");
         }
     }
 }

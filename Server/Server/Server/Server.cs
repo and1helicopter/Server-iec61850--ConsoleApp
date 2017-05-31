@@ -77,6 +77,5 @@ namespace Server.Server
 
             Console.ReadKey();
         }
-
     }
 }

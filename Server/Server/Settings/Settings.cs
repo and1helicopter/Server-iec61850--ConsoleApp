@@ -12,9 +12,19 @@ namespace Server.Settings
         {
             //задаем путь к нашему рабочему файлу XML
             string filePath = @"Settings.xml";
+            
+            XDocument doc;
+            try
+            {
+                doc = XDocument.Load(filePath);
+            }
+            catch 
+            {
+                Log.Log.Write("Settings: File Settings no found!!!", "Error   ");
+                return;
+            }
+            
             //читаем данные из файла
-            XDocument doc = XDocument.Load(filePath);
-
             var xElement = doc.Element("Settings");
             if (xElement != null)
             {

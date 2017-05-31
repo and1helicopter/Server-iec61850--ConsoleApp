@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 
 namespace Server.Parser
 {
@@ -8,7 +9,16 @@ namespace Server.Parser
         {
             string filePath = @"test.icd";
             //читаем данные из файла
-            XDocument doc = XDocument.Load(filePath);
+            XDocument doc;
+            try
+            {
+                doc = XDocument.Load(filePath);
+            }
+            catch 
+            {
+                Log.Log.Write("ParseDocunent: File icd no found!!!", "Error   ");
+                return false;
+            }
 
             if (doc.Root != null)
             {
