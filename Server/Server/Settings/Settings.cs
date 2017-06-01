@@ -8,7 +8,7 @@ namespace Server.Settings
     public static class Settings
     {     
         [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-        public static void ReadSettings()
+        public static bool ReadSettings()
         {
             //задаем путь к нашему рабочему файлу XML
             string filePath = @"Settings.xml";
@@ -21,7 +21,7 @@ namespace Server.Settings
             catch 
             {
                 Log.Log.Write("Settings: File Settings no found!!!", "Error   ");
-                return;
+                return false;
             }
             
             //читаем данные из файла
@@ -54,8 +54,11 @@ namespace Server.Settings
                 if (elSs != null)
                 {
                     Server.Server.ServerConfig.PortServer = elSs.Attribute("PortServer") != null ? Convert.ToInt32(elSs.Attribute("PortServer").Value): 102;
+                    Server.Server.ServerConfig.NameConfigFile = elSs.Attribute("NameConfigFile") != null ? Convert.ToString(elSs.Attribute("NameConfigFile").Value):"test.icd";
                 }
             }
+            Log.Log.Write("Server.Settings: Settings file read success","Success");
+            return true;
         }
 
         public static void SaveSettings()
@@ -82,8 +85,9 @@ namespace Server.Settings
                             new XAttribute("SerialPortStopBits", Convert.ToString(ModBus.ConfigModBus.SerialPortStopBits)),
                             new XAttribute("ComPortName", Convert.ToString(ModBus.ConfigModBus.ComPortName))),
                         new XElement("Settings_Server",
-                            new XAttribute("PortServer", Convert.ToString(Server.Server.ServerConfig.PortServer)))));
-
+                            new XAttribute("PortServer", Convert.ToString(Server.Server.ServerConfig.PortServer)), 
+                            new XAttribute("NameConfigFile", Convert.ToString(Server.Server.ServerConfig.NameConfigFile)))));
+            
             xDocument.Save(fs);
             fs.Close();
         }

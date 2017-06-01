@@ -7,7 +7,7 @@ namespace Server.ModBus
 {
     public static partial class ModBus
     {
-        private static void ConfigModBusPort()
+        public static void ConfigModBusPort()
         {
             if (SerialPort.IsOpen)
             {

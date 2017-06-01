@@ -126,6 +126,24 @@ namespace Server.Parser
 
                     UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, sps);
                     UpdateDataObj.DataClassGet.Add(dataObj);
+                    return;
+                }
+                catch
+                {
+                    Log.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error   ");
+                    return;
+                }
+            }
+
+            if (itemDo.TypeDO == "INS")
+            {
+                try
+                {
+                    string pathNameDo = path + "." + itemDo.NameDO;
+                    var ins = new IncClass();
+
+                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, ins);
+                    UpdateDataObj.DataClassGet.Add(dataObj);
                     //return;
                 }
                 catch

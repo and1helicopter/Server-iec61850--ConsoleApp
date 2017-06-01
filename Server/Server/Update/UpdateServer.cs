@@ -101,6 +101,12 @@ namespace Server.Update
                 if (itemDataObject.ClassDataObj == @"SPS")
                 {
                     SPS_ClassUpdate(itemDataObject, iedServer, iedModel);
+                    continue;
+                }
+
+                if (itemDataObject.ClassDataObj == @"INS")
+                {
+                    INS_ClassUpdate(itemDataObject, iedServer, iedModel);
                     //continue;
                 }
             }
@@ -137,6 +143,23 @@ namespace Server.Update
 
             var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
             var qVal = Convert.ToUInt16(((SpsClass)itemDataObject.DataObj).q.Validity);
+            iedServer.UpdateQuality(qPath, qVal);
+        }
+
+        private static void INS_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+        {
+            ((InsClass)itemDataObject.DataObj).QualityCheckClass();
+
+            var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
+            var stValVal = Convert.ToInt32(((InsClass)itemDataObject.DataObj).stVal);
+            iedServer.UpdateInt32AttributeValue(stValPath, stValVal);
+
+            var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
+            var tVal = Convert.ToDateTime(((InsClass)itemDataObject.DataObj).t);
+            iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+            var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
+            var qVal = Convert.ToUInt16(((InsClass)itemDataObject.DataObj).q.Validity);
             iedServer.UpdateQuality(qPath, qVal);
         }
     }

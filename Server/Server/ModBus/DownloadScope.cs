@@ -452,7 +452,7 @@ namespace Server.ModBus
 
             if (ConfigDownloadScope.Type == "txt")
             {
-                string writePath = ConfigDownloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").txt";
+                string writePath = "vmd-filestore\\" + ConfigDownloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").txt";
 
                 StreamWriter sw = new StreamWriter(writePath, false, Encoding.GetEncoding("Windows-1251"));
 
@@ -484,7 +484,7 @@ namespace Server.ModBus
             if (ConfigDownloadScope.Type != "txt")
             {
                 
-                string writePathCfg = ConfigDownloadScope.PathScope + "Scope_No" + _numName + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':','.').Replace(' ', '_') + ").cfg";
+                string writePathCfg = "vmd-filestore\\" + ConfigDownloadScope.PathScope + "Scope_No" + _numName + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':','.').Replace(' ', '_') + ").cfg";
 
                 StreamWriter swCfg = new StreamWriter(writePathCfg, false, Encoding.GetEncoding("Windows-1251"));
 
@@ -523,7 +523,7 @@ namespace Server.ModBus
 
                 swCfg.Close();
 
-                string writePathDat = ConfigDownloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").dat";
+                string writePathDat = "vmd-filestore\\" + ConfigDownloadScope.PathScope + "Scope_No" + _numName++ + "(" + time.ToLocalTime().ToString(CultureInfo.CurrentCulture).Replace(':', '.').Replace(' ', '_') + ").dat";
 
                 StreamWriter swDat = new StreamWriter(writePathDat, false, Encoding.GetEncoding("Windows-1251"));
 
@@ -616,7 +616,7 @@ namespace Server.ModBus
         private static void ChangePathScope(string pathScope)
         {
             //"vmd-filestore" + путь до папки где лежат осциллограммы
-            PathScope = "vmd-filestore\\" + pathScope;
+            PathScope = pathScope;
         }
 
         private static void ChangeOscilNominalFrequency(string oscilNominalFrequency)

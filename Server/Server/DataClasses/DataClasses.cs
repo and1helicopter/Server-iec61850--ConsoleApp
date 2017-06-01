@@ -53,6 +53,11 @@ namespace Server.DataClasses
             q.UpdateQuality(time, value);
         }
 
+        public void QualityCheckClass()
+        {
+            q.QualityCheckClass(t);
+        }
+
         public InsClass()
         {
             stVal = 0;

@@ -46,6 +46,11 @@ namespace Server.Update
                 ((SpsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
                 DataClassGet[currentIndex].GetDataObj_Set(false);
             }
+            else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(InsClass))
+            {
+                ((InsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, paramRtu[0]);
+                DataClassGet[currentIndex].GetDataObj_Set(false);
+            }
         }
     }
 }
