@@ -48,13 +48,15 @@ namespace Server.Settings
                         elSm.Attribute("BaudRate") != null ? Convert.ToInt32(elSm.Attribute("BaudRate").Value) : 115200,
                         elSm.Attribute("SerialPortParity") != null ? Convert.ToString(elSm.Attribute("SerialPortParity").Value) : "Odd",
                         elSm.Attribute("SerialPortStopBits") != null ? Convert.ToString(elSm.Attribute("SerialPortStopBits").Value) : "One",
-                        elSm.Attribute("ComPortName") != null ? Convert.ToString(elSm.Attribute("ComPortName").Value) : "COM1");
+                        elSm.Attribute("ComPortName") != null ? Convert.ToString(elSm.Attribute("ComPortName").Value) : "COM1",
+                        elSm.Attribute("TimeUpdate") != null ? Convert.ToInt32(elSm.Attribute("TimeUpdate").Value) : 20);
                 }
                 var elSs = xElement.Element("Settings_Server");
                 if (elSs != null)
                 {
                     Server.Server.ServerConfig.PortServer = elSs.Attribute("PortServer") != null ? Convert.ToInt32(elSs.Attribute("PortServer").Value): 102;
                     Server.Server.ServerConfig.NameConfigFile = elSs.Attribute("NameConfigFile") != null ? Convert.ToString(elSs.Attribute("NameConfigFile").Value):"test.icd";
+                    Server.Server.ServerConfig.TimeUpdate = elSs.Attribute("TimeUpdate") != null ? Convert.ToInt32(elSs.Attribute("TimeUpdate").Value) : 100;
                 }
             }
             Log.Log.Write("Server.Settings: Settings file read success","Success");
@@ -83,11 +85,13 @@ namespace Server.Settings
                             new XAttribute("BaudRate", Convert.ToString(ModBus.ConfigModBus.BaudRate)),
                             new XAttribute("SerialPortParity", Convert.ToString(ModBus.ConfigModBus.SerialPortParity)),
                             new XAttribute("SerialPortStopBits", Convert.ToString(ModBus.ConfigModBus.SerialPortStopBits)),
-                            new XAttribute("ComPortName", Convert.ToString(ModBus.ConfigModBus.ComPortName))),
+                            new XAttribute("ComPortName", Convert.ToString(ModBus.ConfigModBus.ComPortName)),
+                            new XAttribute("TimeUpdate", Convert.ToString(ModBus.ConfigModBus.TimeUpdate))),
                         new XElement("Settings_Server",
                             new XAttribute("PortServer", Convert.ToString(Server.Server.ServerConfig.PortServer)), 
-                            new XAttribute("NameConfigFile", Convert.ToString(Server.Server.ServerConfig.NameConfigFile)))));
-            
+                            new XAttribute("NameConfigFile", Convert.ToString(Server.Server.ServerConfig.NameConfigFile)),
+                            new XAttribute("TimeUpdate", Convert.ToString(Server.Server.ServerConfig.TimeUpdate)))));
+
             xDocument.Save(fs);
             fs.Close();
         }

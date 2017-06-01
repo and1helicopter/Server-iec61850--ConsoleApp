@@ -37,11 +37,11 @@ namespace Server.ModBus
             }
         }
 
-        public static void InitConfigModBus(string baudRate, string serialPortParity, string serialPortStopBits, string comPortName)
+        public static void InitConfigModBus(string baudRate, string serialPortParity, string serialPortStopBits, string comPortName, int timeUpdate)
         {
             try
             {
-                ConfigModBus.InitConfigModBus(Convert.ToInt32(baudRate), serialPortParity,serialPortStopBits, comPortName);
+                ConfigModBus.InitConfigModBus(Convert.ToInt32(baudRate), serialPortParity,serialPortStopBits, comPortName, timeUpdate);
             }
             catch 
             {

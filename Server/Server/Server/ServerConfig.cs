@@ -6,6 +6,7 @@
         {
             public static int PortServer { get; set; }
             public static string NameConfigFile { get; set; }
+            public static int TimeUpdate { get; set; }
         }
     }
 }

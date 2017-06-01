@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using IEC61850.Server;
 using Server.Update;
 
@@ -11,6 +10,7 @@ namespace Server.Server
         private static IedServer _iedServer;
         private static IedModel _iedModel;
         private static bool _running = true;
+        private static Thread _myThread;
 
         private static void RuningServer()
         {
@@ -28,7 +28,7 @@ namespace Server.Server
                     _iedServer.UnlockDataModel();
                 }
 
-                Thread.Sleep(50);
+                Thread.Sleep(ServerConfig.TimeUpdate);
             }
         }
 
@@ -46,11 +46,11 @@ namespace Server.Server
             {
                 _iedServer.Start(ServerConfig.PortServer);
 
-                Thread myThread = new Thread(RuningServer)
+                _myThread = new Thread(RuningServer)
                 {
                     Name = @"Thread Server"
                 };
-                myThread.Start();
+                _myThread.Start();
 
                 Log.Log.Write(@"Server.StartServer: Server started", @"Start   ");
             }
@@ -64,18 +64,20 @@ namespace Server.Server
         {
             if (_iedServer.IsRunning())
             {
+                _running = false;
                 ModBus.ModBus.CloseModBus();
                 _iedServer.Stop();
                 _iedServer.Destroy();
+                _myThread.Abort();
 
-                Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop   ");
+                Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop");
+
             }
             else
             {
-                Log.Log.Write(@"Server.StopServer: No valid Server found!", @"Error  ");
+                Log.Log.Write(@"Server.StopServer: No valid Server found!", @"Error");
+                Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop");
             }
-
-            Console.ReadKey();
         }
     }
 }

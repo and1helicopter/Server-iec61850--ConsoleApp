@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO.Ports;
+using System.Runtime.InteropServices;
 using Server.Update;
 using UniSerialPort;
 
@@ -83,6 +85,7 @@ namespace Server.ModBus
         public static Parity SerialPortParity { get; private set; }
         public static StopBits SerialPortStopBits { get; private set; }
         public static string ComPortName { get; private set; }
+        public static int TimeUpdate { get; private set; }
 
         private static void ChangeBaudRate(int baudRate)
         {
@@ -183,12 +186,18 @@ namespace Server.ModBus
             PortList.Sort();
         }
 
-        public static void InitConfigModBus(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort)
+        private static void ChangeTimeUpdate(int timeUpdate)
+        {
+            TimeUpdate = timeUpdate;
+        }
+
+        public static void InitConfigModBus(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort, int timeUpdate)
         {
             ChangeBaudRate(serialPortSpeedIndex);
             ChangeSerialPortParity(serialPortParity);
             ChangeSerialPortStopBits(serialPortStopBits);
             ChangeComPortName(comPort);
+            ChangeTimeUpdate(timeUpdate);
         }
     }
 
