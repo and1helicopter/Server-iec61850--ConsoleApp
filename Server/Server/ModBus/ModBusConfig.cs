@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO.Ports;
-using System.Runtime.InteropServices;
 using Server.Update;
 using UniSerialPort;
 

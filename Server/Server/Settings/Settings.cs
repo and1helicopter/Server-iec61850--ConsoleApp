@@ -57,6 +57,8 @@ namespace Server.Settings
                     Server.Server.ServerConfig.PortServer = elSs.Attribute("PortServer") != null ? Convert.ToInt32(elSs.Attribute("PortServer").Value): 102;
                     Server.Server.ServerConfig.NameConfigFile = elSs.Attribute("NameConfigFile") != null ? Convert.ToString(elSs.Attribute("NameConfigFile").Value):"test.icd";
                     Server.Server.ServerConfig.TimeUpdate = elSs.Attribute("TimeUpdate") != null ? Convert.ToInt32(elSs.Attribute("TimeUpdate").Value) : 100;
+                    Server.Server.ServerConfig.NameModelFile = elSs.Attribute("NameModelFile") != null ? Convert.ToString(elSs.Attribute("NameModelFile").Value) : "test.cfg";
+                    Server.Server.ServerConfig.LocalIPAddr = elSs.Attribute("LocalIPAddr") != null ? Convert.ToString(elSs.Attribute("LocalIPAddr").Value) : "localhost";                   
                 }
             }
             Log.Log.Write("Server.Settings: Settings file read success","Success");
@@ -90,7 +92,9 @@ namespace Server.Settings
                         new XElement("Settings_Server",
                             new XAttribute("PortServer", Convert.ToString(Server.Server.ServerConfig.PortServer)), 
                             new XAttribute("NameConfigFile", Convert.ToString(Server.Server.ServerConfig.NameConfigFile)),
-                            new XAttribute("TimeUpdate", Convert.ToString(Server.Server.ServerConfig.TimeUpdate)))));
+                            new XAttribute("TimeUpdate", Convert.ToString(Server.Server.ServerConfig.TimeUpdate)),
+                            new XAttribute("NameModelFile", Convert.ToString(Server.Server.ServerConfig.NameModelFile)),
+                            new XAttribute("LocalIPAddr", Convert.ToString(Server.Server.ServerConfig.LocalIPAddr)))));
 
             xDocument.Save(fs);
             fs.Close();

@@ -59,25 +59,5 @@ namespace Server.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] iec61850 {
-            get {
-                object obj = ResourceManager.GetObject("iec61850", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] iec61850dotnet {
-            get {
-                object obj = ResourceManager.GetObject("iec61850dotnet", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }

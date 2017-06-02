@@ -4,9 +4,11 @@
     {
         public static class ServerConfig
         {
-            public static int PortServer { get; set; }
-            public static string NameConfigFile { get; set; }
-            public static int TimeUpdate { get; set; }
+            public static int PortServer { get; set; }          //Номер порта на котором открывается сервер
+            public static string NameConfigFile { get; set; }   //Имя icd файла
+            public static int TimeUpdate { get; set; }          //На сколько отправляется сервер в сон
+            public static string NameModelFile { get; set; }    //Имя cfg файла
+            public static string LocalIPAddr { get; set; }      //IP сервера
         }
     }
 }

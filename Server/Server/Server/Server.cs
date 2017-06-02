@@ -32,10 +32,11 @@ namespace Server.Server
             }
         }
 
-        public static void ConfigServer(string nameConfigFile)
+        public static void ConfigServer()
         {
-            _iedModel = IedModel.CreateFromFile(nameConfigFile);
+            _iedModel = IedModel.CreateFromFile(ServerConfig.NameModelFile);
             _iedServer = new IedServer(_iedModel);
+
 
             UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);
         }
@@ -44,7 +45,7 @@ namespace Server.Server
         {
             if (_iedModel != null)
             {
-                _iedServer.Start(ServerConfig.PortServer);
+                _iedServer.Start(ServerConfig.LocalIPAddr, ServerConfig.PortServer);
 
                 _myThread = new Thread(RuningServer)
                 {

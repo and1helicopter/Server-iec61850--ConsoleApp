@@ -33,12 +33,14 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,8 +55,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iec61850dotnet, Version=1.0.6282.23374, Culture=neutral, PublicKeyToken=null">
-      <HintPath>iec61850dotnet.dll</HintPath>
+    <Reference Include="iec61850dotnet">
+      <HintPath>.\iec61850dotnet.dll</HintPath>
     </Reference>
     <Reference Include="ModbusLibraryNew">
       <HintPath>.\ModbusLibraryNew.dll</HintPath>

@@ -28,14 +28,14 @@ namespace test_console
             }
             Log.Write(@"ParseFile: File parse success", @"Success ");
 
-            //ModBus.ModBus.CloseModBus();
-            //ModBus.ModBus.InitConfigDownloadScope("true", "false", "comtrade", "1999", "512", "4096", "Scope\\", "50");
-            //ModBus.ModBus.InitConfigModBus("115200", "Odd", "One", "COM1");
+            //ModBus.CloseModBus();
+            //ModBus.InitConfigDownloadScope("true", "false", "comtrade", "1999", "512", "4096", "Scope\\", "50");
+            //ModBus.InitConfigModBus("115200", "Odd", "One", "COM1");
             ModBus.ConfigModBusPort();
             ModBus.StartModBus();
 
             //Создаем модель сервера
-            Server.Server.Server.ConfigServer(@"test.cfg");
+            Server.Server.Server.ConfigServer();
 
             //Запуск сервера 
             Server.Server.Server.StartServer();
@@ -49,6 +49,7 @@ namespace test_console
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             Server.Server.Server.StopServer();
+            Console.WriteLine(@"Stop server");
         }
     }
 }
