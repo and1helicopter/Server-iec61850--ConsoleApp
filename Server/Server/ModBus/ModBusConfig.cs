@@ -11,7 +11,7 @@ namespace Server.ModBus
         {
             if (SerialPort.IsOpen)
             {
-                Log.Log.Write("ModBus port is open! Close ModBus SerialPort and repeat.", "Error ");
+                Log.Log.Write("ModBus port is open! Close ModBus SerialPort and repeat.", "Error");
                 return;
             }
 
@@ -20,6 +20,8 @@ namespace Server.ModBus
             SerialPort.Parity = ConfigModBus.SerialPortParity;
             SerialPort.StopBits = ConfigModBus.SerialPortStopBits;
             SerialPort.PortName = ConfigModBus.ComPortName;
+            
+            Log.Log.Write("ModBus! SerialPort configured", "Success");
         }
 
         private static void OpenModBusPort()
@@ -41,7 +43,7 @@ namespace Server.ModBus
             }
             catch
             {
-                Log.Log.Write("ModBus port not open!", "Error ");
+                Log.Log.Write("ModBus port not open!", "Error");
             }
         }
 

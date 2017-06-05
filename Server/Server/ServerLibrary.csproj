@@ -79,7 +79,7 @@
     <Compile Include="Parser\ModelFillDefultParam.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Parser\FileParseToModel.cs" />
-    <Compile Include="Parser\DataObj.cs" />
+    <Compile Include="DataClasses\DataObj.cs" />
     <Compile Include="DataClasses\ServerModel.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

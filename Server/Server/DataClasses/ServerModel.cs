@@ -8,9 +8,19 @@ namespace Server.DataClasses
 
         public class NodeModel
         {
-            public string NameModel { get; }
+            public string NameModel { get; private set; }
 
             public List<NodeLD> ListLD = new List<NodeLD>();
+
+            public void Clear()
+            {
+                Model.NameModel = "";
+                Model.ListLD.Clear();
+                ListTempLN.Clear();
+                ListTempDO.Clear();
+                ListTempDA.Clear();
+                ListEnumType.Clear();
+            }
 
             public NodeModel(string nameModel)
             {

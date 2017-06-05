@@ -11,7 +11,7 @@ namespace test_console
         public static void Main()
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
-            
+
             //Открываем настройки сервера
             if (!Settings.ReadSettings())
             {
@@ -48,8 +48,7 @@ namespace test_console
 
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
-            Server.Server.Server.StopServer();
-            Console.WriteLine(@"Stop server");
+            if(Server.Server.Server.StopServer()) Console.WriteLine(@"Stop server");
         }
     }
 }

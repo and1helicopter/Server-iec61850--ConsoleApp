@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using IEC61850.Server;
+using Server.DataClasses;
 using Server.Update;
 
 namespace Server.Server
@@ -32,16 +33,24 @@ namespace Server.Server
             }
         }
 
-        public static void ConfigServer()
+        public static bool ConfigServer()
         {
-            _iedModel = IedModel.CreateFromFile(ServerConfig.NameModelFile);
-            _iedServer = new IedServer(_iedModel);
-
+            try
+            {
+                _iedModel = IedModel.CreateFromFile(ServerConfig.NameModelFile);
+                _iedServer = new IedServer(_iedModel);
+            }
+            catch 
+            {
+                Log.Log.Write("Server: Model file incorrect","Error");
+                return false;
+            }
 
             UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);
+            return true;
         }
 
-        public static void StartServer()
+        public static bool StartServer()
         {
             if (_iedModel != null)
             {
@@ -52,16 +61,20 @@ namespace Server.Server
                     Name = @"Thread Server"
                 };
                 _myThread.Start();
+                _running = true;
 
-                Log.Log.Write(@"Server.StartServer: Server started", @"Start   ");
+                Log.Log.Write(@"Server.StartServer: Server started", @"Start");
             }
             else
             {
-                Log.Log.Write(@"Server.StartServer: No valid data model found!", @"Error   ");
+                Log.Log.Write(@"Server.StartServer: No valid data model found!", @"Error");
+                return false;
             }
+            
+            return true;
         }
 
-        public static void StopServer()
+        public static bool StopServer()
         {
             if (_iedServer.IsRunning())
             {
@@ -70,15 +83,21 @@ namespace Server.Server
                 _iedServer.Stop();
                 _iedServer.Destroy();
                 _myThread.Abort();
+                ServerModel.Model.Clear();
+                UpdateDataObj.DataClassGet.Clear();
+                UpdateDataObj.DataClassSet.Clear();
+                DataObj.StructDataObj.Clear();
 
                 Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop");
-
             }
             else
             {
                 Log.Log.Write(@"Server.StopServer: No valid Server found!", @"Error");
                 Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop");
+                return false;
             }
+            
+            return true;
         }
     }
 }
