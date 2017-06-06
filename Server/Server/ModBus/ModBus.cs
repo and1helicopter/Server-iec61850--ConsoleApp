@@ -86,6 +86,20 @@ namespace Server.ModBus
         
         private static void downloadTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            if (SerialPort.requests.Count != 0)
+            {
+                foreach (var request in SerialPort.requests)
+                {
+                    if (request.DataRecievedRTU != UpdateData || request.DataRecievedRTU != UpdateScopeConfig ||
+                        request.DataRecievedRTU != UpdateScopeStatus || request.DataRecievedRTU != UpdateScopoe)
+                    {
+                        SerialPort.requests.Peek();
+                    }
+                }
+                DownloadTimer.Enabled = true;
+                return;
+            }
+
             DownloadTimer.Enabled = false;
 
             if (!SerialPort.IsOpen)     //Если порт закрыт пытаемся открыть его

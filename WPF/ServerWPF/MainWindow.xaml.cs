@@ -29,9 +29,9 @@ namespace ServerWPF
 
         private readonly Config _config = new Config();
 
-        private bool _checkedStart;
-        private bool _checkedStop = true;
-        private bool _checkedConfig;
+        public static bool CheckedStart;
+        private static bool _checkedStop = true;
+        private static bool _checkedConfig;
 
         private void Status()
         {
@@ -45,7 +45,7 @@ namespace ServerWPF
                 ComPortName.Visibility = Visibility.Hidden;
                 ModBusStatus.Visibility = Visibility.Hidden;
             }
-            else if (_checkedStart)
+            else if (CheckedStart)
             {
                 Host.Visibility = Visibility.Visible;
                 Host.Content = Server.Server.Server.ServerConfig.LocalIPAddr;
@@ -102,12 +102,12 @@ namespace ServerWPF
 
         private void Start_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (_checkedStart)
+            if (CheckedStart)
             {
                 return;
             }
 
-            _checkedStart = true;
+            CheckedStart = true;
             _checkedStop = false;
 
 
@@ -153,7 +153,7 @@ namespace ServerWPF
                 return;
             }
 
-            _checkedStart = false;
+            CheckedStart = false;
             _checkedStop = true;
 
             Server.Server.Server.StopServer();

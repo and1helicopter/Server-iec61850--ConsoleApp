@@ -1,8 +1,9 @@
-﻿
+﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Windows.Controls;
 using Server.ModBus;
+using Server.Settings;
 
 namespace ServerWPF
 {
@@ -92,16 +93,53 @@ namespace ServerWPF
                 }
             }
 
-            ConfigurationAddrTextBox.Text = ConfigDownloadScope.ConfigurationAddr.ToString("X4");
-            OscilCmndAddrTextBox.Text = ConfigDownloadScope.OscilCmndAddr.ToString("X4");
+            ConfigurationAddrTextBox.Text = "0x" + ConfigDownloadScope.ConfigurationAddr.ToString("X4");
+            OscilCmndAddrTextBox.Text = "0x" + ConfigDownloadScope.OscilCmndAddr.ToString("X4");
             PathScopeTextBox.Text = ConfigDownloadScope.PathScope?.Replace("\\", "");
             OscilNominalFrequencyTextBox.Text = ConfigDownloadScope.OscilNominalFrequency;
-
         }
 
         private void Ok_Button_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-
+            if (MainWindow.CheckedStart)
+            {
+                SaveSettings();
+            }
+            else
+            {
+                SetSettings();
+                SaveSettings();
+            }
         }
+
+        private void SetSettings()
+        {
+            Server.Server.Server.ServerConfig.PortServer = Convert.ToInt32(PortTextBox.Text);
+            Server.Server.Server.ServerConfig.LocalIPAddr = HostTextBox.Text;
+
+            ConfigModBus.InitConfigModBus(
+                Convert.ToInt32(BaudRateComboBox.Text), 
+                SerialPortParityComboBox.Text, 
+                SerialPortStopBitsComboBox.Text,
+                ComPortNameComboBox.Text, 
+                ConfigModBus.TimeUpdate);
+
+            ConfigDownloadScope.InitConfigDownloadScope(
+                Convert.ToString(DownloadScopeCheckBox.IsChecked),
+                Convert.ToString(RemoveAfterDownloadCheckBox.IsChecked),
+                TypeScopeComboBox.Text,
+                ComtradeTypeComboBox.Text,
+                Convert.ToString(int.Parse(ConfigurationAddrTextBox.Text.Remove(0,2), System.Globalization.NumberStyles.HexNumber)),
+                Convert.ToString(int.Parse(OscilCmndAddrTextBox.Text.Remove(0, 2), System.Globalization.NumberStyles.HexNumber)),
+                PathScopeTextBox.Text + "\\",
+                Convert.ToString(OscilNominalFrequencyTextBox.Text)
+                );
+        }
+
+        private void SaveSettings()
+        {
+            Settings.SaveSettings();
+        }
+
     }
 }

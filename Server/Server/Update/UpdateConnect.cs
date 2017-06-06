@@ -14,6 +14,7 @@ namespace Server.Update
                 return true;
             }
 
+            DataClassGet[currentIndex].GetDataObj_Set(false);
             addrGet = 0;
             return false;
         }
