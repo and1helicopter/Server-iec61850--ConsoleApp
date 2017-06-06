@@ -176,11 +176,17 @@ namespace ServerWPF
             {
                 CloseAnimation();
                 _checkedConfig = false;
+                Setting.Background = new SolidColorBrush(Colors.White);
+                Setting.BorderBrush = new SolidColorBrush(Colors.LightGray);
+                Setting.Foreground = new SolidColorBrush(Colors.Black);
             }
             else
             {
                 OpenAnimation();
                 _checkedConfig = true;
+                Setting.Background = new SolidColorBrush(Colors.LimeGreen);
+                Setting.BorderBrush = new SolidColorBrush(Colors.DarkGreen);
+                Setting.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
             }
         }
     }

@@ -7,12 +7,12 @@
         Title="IEC61850" Width="200" Height="390" MinWidth="200" MinHeight="390" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" MaxHeight="390" MaxWidth="700">
     <Grid RenderTransformOrigin="0.499,0.505" Margin="0,0,2,0">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="190" x:Name="Menu"/>
+            <ColumnDefinition Width="190" />
             <ColumnDefinition x:Name="ConfigPanel" Width="0*"/>
         </Grid.ColumnDefinitions>
         <Button Grid.Column="0" Grid.Row="0" x:Name="Start" Content="Старт" Margin="40,30,40,0" VerticalAlignment="Top" Click="Start_Button_Click" Height="25" Background="White" Foreground="Black" BorderBrush="LightGray"/>
         <Button Grid.Column="0" Grid.Row="0" x:Name="Stop" Content="Стоп" Margin="40,60,40,0" VerticalAlignment="Top" Click="Stop_Button_Click" Height="25" Background="Red" Foreground="White" BorderBrush="DarkRed"/>
-        <Button Grid.Column="0" Grid.Row="0" x:Name="Setting" Content="Начтрйки" Margin="40,90,40,0" VerticalAlignment="Top" Click="Setting_OnClick_Button_Click" Height="25" Background="White" Foreground="Black" BorderBrush="LightGray"/>
+        <Button Grid.Column="0" Grid.Row="0" x:Name="Setting" Content="Настрйки" Margin="40,90,40,0" VerticalAlignment="Top" Click="Setting_OnClick_Button_Click" Height="25" Background="White" Foreground="Black" BorderBrush="LightGray"/>
         <ScrollViewer
             Grid.Row="0"
             Grid.Column="1"
@@ -31,6 +31,6 @@
         <Label Grid.Column="0" x:Name="SerialPortParity" Content="SerialPortParity" HorizontalAlignment="Left" Margin="40,249,0,0" VerticalAlignment="Top" Width="110" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         <Label Grid.Column="0" x:Name="SerialPortStopBits" Content="SerialPortStopBits" HorizontalAlignment="Left" Margin="40,275,0,0" VerticalAlignment="Top" Width="110" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         <Label Grid.Column="0" x:Name="ComPortName" Content="ComPortName" HorizontalAlignment="Left" Margin="40,301,0,0" VerticalAlignment="Top" Width="110" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label Grid.Column="0" x:Name="ModBus_status" Content="ModBus" HorizontalAlignment="Left" Margin="40,197,0,0" VerticalAlignment="Top" Width="110" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Grid.Column="0" x:Name="ModBusStatus" Content="ModBus" HorizontalAlignment="Left" Margin="40,197,0,0" VerticalAlignment="Top" Width="110" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
     </Grid>
 </Window>
