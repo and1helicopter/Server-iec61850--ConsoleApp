@@ -43,7 +43,7 @@ namespace ServerWPF
                 SerialPortParity.Visibility = Visibility.Hidden;
                 SerialPortStopBits.Visibility = Visibility.Hidden;
                 ComPortName.Visibility = Visibility.Hidden;
-                ModBus_status.Visibility = Visibility.Hidden;
+                ModBusStatus.Visibility = Visibility.Hidden;
             }
             else if (_checkedStart)
             {
@@ -62,12 +62,12 @@ namespace ServerWPF
                     SerialPortStopBits.Content = ConfigModBus.SerialPortStopBits;
                     ComPortName.Visibility = Visibility.Visible;
                     ComPortName.Content = ConfigModBus.ComPortName;
-                    ModBus_status.Visibility = Visibility.Hidden;
+                    ModBusStatus.Visibility = Visibility.Hidden;
                 }
                 else
                 {
-                    ModBus_status.Visibility = Visibility.Visible;
-                    ModBus_status.Content = "ModBus not started!";
+                    ModBusStatus.Visibility = Visibility.Visible;
+                    ModBusStatus.Content = "ModBus not started!";
                 }
             }
         }

@@ -6,8 +6,8 @@
              xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="ServerWPF.Config" 
              mc:Ignorable="d" Height="350" Width="500">
     <Grid>
-        <Button Content="OK" HorizontalAlignment="Left" Margin="329,320,0,0" VerticalAlignment="Top" Width="75" BorderBrush="#FFA4A4A4" Background="White"/>
-        <Button Content="Cancel" HorizontalAlignment="Left" Margin="409,320,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.44,2.4" BorderBrush="#FFA4A4A4" Background="White"/>
+        <Button Content="OK" HorizontalAlignment="Left" Margin="329,320,0,0" VerticalAlignment="Top" Width="75" BorderBrush="LightGray" Background="White" Click="Ok_Button_Click" />
+        <Button Content="Save" HorizontalAlignment="Left" Margin="409,320,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.44,2.4" BorderBrush="LightGray" Background="White"/>
         <TabControl HorizontalAlignment="Left" Height="305" VerticalAlignment="Top" Width="484" Margin="0,5,0,0">
             <TabItem Header="Server">
                 <Grid Background="White">
@@ -47,21 +47,28 @@
             </TabItem>
             <TabItem Header="Scope">
                 <Grid Background="White">
-                    <Label Content="Download Scope:" HorizontalAlignment="Left" Margin="35,16,0,0" VerticalAlignment="Top"/>
-                    <CheckBox x:Name ="DownloadScopeCheckBox" Content="" Margin="0,0,70,241" Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" RenderTransformOrigin="0.45,0.133"/>
-                    <Label Content="Remove after download:" HorizontalAlignment="Left" Margin="35,42,0,0" VerticalAlignment="Top"/>
-                    <CheckBox x:Name ="RemoveAfterDownloadCheckBox" Content="" Margin="0,0,70,215" Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" RenderTransformOrigin="0.45,0.133"/>
-                    <Label Content="Type Scope:" HorizontalAlignment="Left" Margin="35,68,0,0" VerticalAlignment="Top"/>
-                    <ComboBox x:Name="TypeScopeComboBox" Margin="0,68,70,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120">
+                    <Label Content="Download Scope:" HorizontalAlignment="Left" Margin="35,13,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name ="DownloadScopeCheckBox" Content="" Margin="0,0,70,246" Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" RenderTransformOrigin="0.45,0.133"/>
+                    <Label Content="Remove after download:" HorizontalAlignment="Left" Margin="35,41,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name ="RemoveAfterDownloadCheckBox" Content="" Margin="0,0,70,218" Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" RenderTransformOrigin="0.45,0.133"/>
+                    <Label Content="Type Scope:" HorizontalAlignment="Left" Margin="35,67,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="TypeScopeComboBox" Margin="0,71,70,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120" SelectedIndex="0">
                         <ComboBoxItem Content="comtrade"/>
                         <ComboBoxItem Content="txt"/>
                     </ComboBox>
                     <Label Content="Comtrade Type:" HorizontalAlignment="Left" Margin="35,94,0,0" VerticalAlignment="Top"/>
-                    <ComboBox x:Name="ComtradeTypeComboBox1" Margin="0,94,70,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120">
+                    <ComboBox x:Name="ComtradeTypeComboBox" Margin="0,98,70,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120" SelectedIndex="0">
                         <ComboBoxItem Content="2013"/>
                         <ComboBoxItem Content="1999"/>
                     </ComboBox>
-
+                    <Label Content="Configuration Addr:" HorizontalAlignment="Left" Margin="35,122,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="ConfigurationAddrTextBox" HorizontalAlignment="Left" Height="23" Margin="288,125,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
+                    <Label Content="Oscil Cmnd Addr:" HorizontalAlignment="Left" Margin="35,150,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="OscilCmndAddrTextBox" HorizontalAlignment="Left" Height="23" Margin="288,153,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
+                    <Label Content="Path Scope:" HorizontalAlignment="Left" Margin="35,178,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="PathScopeTextBox" HorizontalAlignment="Left" Height="23" Margin="288,181,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
+                    <Label Content="Oscil Nominal Frequency:" HorizontalAlignment="Left" Margin="35,206,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="OscilNominalFrequencyTextBox" HorizontalAlignment="Left" Height="23" Margin="288,209,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
                 </Grid>
             </TabItem>
         </TabControl>

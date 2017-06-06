@@ -70,6 +70,38 @@ namespace ServerWPF
                     break;
                 }
             }
+
+            DownloadScopeCheckBox.IsChecked = ConfigDownloadScope.Enable;
+            RemoveAfterDownloadCheckBox.IsChecked = ConfigDownloadScope.Remove;
+
+            foreach (var item in TypeScopeComboBox.Items)
+            {
+                if (((ComboBoxItem)item).Content.ToString() == ConfigDownloadScope.Type)
+                {
+                    TypeScopeComboBox.SelectedIndex = TypeScopeComboBox.Items.IndexOf(item);
+                    break;
+                }
+            }
+
+            foreach (var item in ComtradeTypeComboBox.Items)
+            {
+                if (((ComboBoxItem)item).Content.ToString() == ConfigDownloadScope.ComtradeType)
+                {
+                    ComtradeTypeComboBox.SelectedIndex = ComtradeTypeComboBox.Items.IndexOf(item);
+                    break;
+                }
+            }
+
+            ConfigurationAddrTextBox.Text = ConfigDownloadScope.ConfigurationAddr.ToString("X4");
+            OscilCmndAddrTextBox.Text = ConfigDownloadScope.OscilCmndAddr.ToString("X4");
+            PathScopeTextBox.Text = ConfigDownloadScope.PathScope?.Replace("\\", "");
+            OscilNominalFrequencyTextBox.Text = ConfigDownloadScope.OscilNominalFrequency;
+
+        }
+
+        private void Ok_Button_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
         }
     }
 }
