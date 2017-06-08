@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO.Ports;
+using System.Linq;
 using System.Xml.Linq;
 using System.Xml;
 using System.Threading;
@@ -458,7 +459,8 @@ namespace UniSerialPort
             {
                 lock (locker)
                 {
-                    requests.Enqueue(new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU, RTUReadCount));
+                    var request = new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU,RTUReadCount);
+                    requests.Enqueue(request);
                 }
             }
         }

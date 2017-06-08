@@ -11,7 +11,7 @@ namespace Server.Server
         private static IedServer _iedServer;
         private static IedModel _iedModel;
         private static bool _running = true;
-        private static Thread _myThread;
+        private static Thread _serverThread;
 
         private static void RuningServer()
         {
@@ -56,11 +56,11 @@ namespace Server.Server
             {
                 _iedServer.Start(ServerConfig.LocalIPAddr, ServerConfig.PortServer);
 
-                _myThread = new Thread(RuningServer)
+                _serverThread = new Thread(RuningServer)
                 {
-                    Name = @"Thread Server"
+                    Name = @"Server IEC61850"
                 };
-                _myThread.Start();
+                _serverThread.Start();
                 _running = true;
 
                 Log.Log.Write(@"Server.StartServer: Server started", @"Start");
@@ -78,11 +78,12 @@ namespace Server.Server
         {
             if (_iedServer.IsRunning())
             {
-                _running = false;
                 ModBus.ModBus.CloseModBus();
+
+                _running = false;
                 _iedServer.Stop();
                 _iedServer.Destroy();
-                _myThread.Abort();
+                _serverThread.Abort();
                 ServerModel.Model.Clear();
                 UpdateDataObj.DataClassGet.Clear();
                 UpdateDataObj.DataClassSet.Clear();

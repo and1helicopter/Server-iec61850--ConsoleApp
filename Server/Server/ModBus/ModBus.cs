@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Timers;
+using System.Threading;
 using UniSerialPort;
 
 namespace Server.ModBus
@@ -24,6 +24,9 @@ namespace Server.ModBus
 
         private static int _currentIndexGet;
         private static int _currentIndexSet;
+
+        private static Thread _modbusThread;
+        private static bool _running;
 
         public static void InitConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
         {
@@ -60,65 +63,49 @@ namespace Server.ModBus
 
         public static void CloseModBus()
         {
-            DownloadTimer.Enabled = false;
             StartPort = false;
             ErrorPort = false;
+            _running = false;
+
+            _modbusThread.Abort();
 
             CloseModBusPort();
+
             Log.Log.Write("ModBus: CloseModBus", "Warning");
         }
 
-        private static readonly Timer DownloadTimer = new Timer
-        {
-            Interval = 20,
-            Enabled = false
-        };
 
         private static bool _startDownloadScope;
         private static bool _configScopeDownload;
 
-        private static void StartModBusPort()
+        private static void RunModBusPort()
         {
-            //Обновление параметров
-            DownloadTimer.Elapsed += downloadTimer_Elapsed;
-            downloadTimer_Elapsed(null, null);
-        }
-        
-        private static void downloadTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            if (SerialPort.requests.Count != 0)
+            while (_running)
             {
-                foreach (var request in SerialPort.requests)
+                Thread.Sleep(ConfigModBus.TimeUpdate);
+
+                if (SerialPort.requests.Count != 0)   //Ждем пока обработается запрос 
                 {
-                    if (request.DataRecievedRTU != UpdateData || request.DataRecievedRTU != UpdateScopeConfig ||
-                        request.DataRecievedRTU != UpdateScopeStatus || request.DataRecievedRTU != UpdateScopoe)
+                    SerialPort.requests.Peek();
+                    continue;
+                }
+
+                if (!SerialPort.IsOpen)     //Если порт закрыт пытаемся открыть его
+                {
+                    if (ErrorPort)
                     {
-                        SerialPort.requests.Peek();
+                        Log.Log.Write("ModBus: OpenModBusPort", "Warning ");
+                        OpenModBusPort();
                     }
                 }
-                DownloadTimer.Enabled = true;
-                return;
-            }
 
-            DownloadTimer.Enabled = false;
+                DataRequest();
 
-            if (!SerialPort.IsOpen)     //Если порт закрыт пытаемся открыть его
-            {
-                if (ErrorPort)
+                if (ConfigDownloadScope.Enable)
                 {
-                    Log.Log.Write("ModBus: OpenModBusPort", "Warning ");
-                    OpenModBusPort();
+                    ScopoeRequest();
                 }
             }
-
-            DataRequest();
-
-            if (ConfigDownloadScope.Enable)
-            {
-                ScopoeRequest();
-            }
-
-            DownloadTimer.Enabled = true;
         }
     }
 }

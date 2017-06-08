@@ -22,9 +22,6 @@ namespace Server.Update
 
             public object DataObj { get; }
 
-            public bool GetDataObj { get; private set; }
-            public bool SetDataObj { get; private set; }
-
             public DataObject(string name, string format, ushort mask, ushort addr,  string classType, object dataObj)
             {
                 NameDataObj = name;
@@ -37,19 +34,6 @@ namespace Server.Update
                 ValueDataObj = 0;
 
                 DataObj = dataObj;
-
-                GetDataObj = false;
-                SetDataObj = false;
-            }
-
-            public void GetDataObj_Set(bool getDataObj)
-            {
-                GetDataObj = getDataObj;
-            }
-
-            public void SetDataObj_Set(bool setDataObj)
-            {
-                SetDataObj = setDataObj;
             }
         }
     }

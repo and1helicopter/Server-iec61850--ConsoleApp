@@ -50,11 +50,6 @@ namespace Server.DataClasses
                 OldData = status;
             }
 
-            public void UpdateOverflow(bool status)
-            {
-                Overflow = status;
-            }
-
             public void UpdateBadReference(bool status)
             {
                 BadReference = status;
@@ -63,7 +58,7 @@ namespace Server.DataClasses
 
         private DateTime _dateValueOldUpdateDataObj; 
 
-        public void UpdateQuality(DateTime time, object value)
+        public void UpdateQuality(DateTime time)
         {
             int allowedAge = 1000; //допустимый возраст в мск
 
@@ -91,20 +86,13 @@ namespace Server.DataClasses
         }
 
 
-        public void UpdateOldData(bool status)
+        private void UpdateOldData(bool status)
         {
             DetailQual.UpdateOldData(status);
         }
 
-        public void UpdateOverflow(bool status)
-        {
-            DetailQual.UpdateOverflow(status);
-        }
-
         private void UpdateQualityClass()
         {
-
-            //badReference
             //Обновляем статус качества
             if (DetailQual.Overflow || DetailQual.BadReference || DetailQual.Oscillatory || DetailQual.Failure)
             {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO.Ports;
-using Server.Update;
+using System.Threading;
 using UniSerialPort;
 
 namespace Server.ModBus
@@ -38,7 +38,16 @@ namespace Server.ModBus
                 }
                 if (SerialPort.IsOpen)
                 {
-                    StartModBusPort();
+                    if (_modbusThread == null)
+                    {
+                        _modbusThread = new Thread(RunModBusPort)
+                        {
+                            Name = @"ModBus"
+                        };
+                        _modbusThread.Start();
+                       
+                    }
+                    _running = true;
                 }
             }
             catch
@@ -49,23 +58,10 @@ namespace Server.ModBus
 
         private static void SerialPort_SerialPortError(object sender, System.EventArgs e)
         {
-            DownloadTimer.Enabled = false;
             ErrorPort = true;
-
-            foreach (var itemGet in UpdateDataObj.DataClassGet)
-            {
-                itemGet.GetDataObj_Set(false);
-            }
-
-            foreach (var itemSet in UpdateDataObj.DataClassSet)
-            {
-                itemSet.SetDataObj_Set(false);
-            }
 
             CloseModBusPort();
             StartPort = false;
-
-            DownloadTimer.Enabled = true;
         }
 
         private static void CloseModBusPort()

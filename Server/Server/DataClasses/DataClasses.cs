@@ -25,7 +25,7 @@ namespace Server.DataClasses
         {
             stVal = value;
             t = time;
-            q.UpdateQuality(time, value);
+            q.UpdateQuality(time);
         }
 
         public void QualityCheckClass()
@@ -50,7 +50,7 @@ namespace Server.DataClasses
         {
             stVal = value;
             t = time;
-            q.UpdateQuality(time, value);
+            q.UpdateQuality(time);
         }
 
         public void QualityCheckClass()
@@ -198,7 +198,7 @@ namespace Server.DataClasses
         {
             Mag.AnalogueValue.f = Convert.ToSingle(value * sVC.ScaleFactor + sVC.Offset);
             t = time;
-            q.UpdateQuality(time, value);
+            q.UpdateQuality(time);
         }
 
         public void QualityCheckClass()
@@ -234,7 +234,7 @@ namespace Server.DataClasses
             cVal.mag.f = Convert.ToSingle(valueMag * magSVC.ScaleFactor + magSVC.Offset);
             cVal.ang.f = Convert.ToSingle(valueAng * angSVC.ScaleFactor + angSVC.Offset);
             t = time;
-            q.UpdateQuality(time, cVal);
+            q.UpdateQuality(time);
         }
 
         public void QualityCheckClass()
@@ -276,7 +276,7 @@ namespace Server.DataClasses
             stVal = stValue;
             ctlModel = MapCtlModel(ctrMod);
             t = time;
-            q.UpdateQuality(time, null);
+            q.UpdateQuality(time);
         }
 
         private ushort MapCtlModel(string quality)
@@ -335,7 +335,7 @@ namespace Server.DataClasses
             stVal = stValue;
             ctlModel = MapCtlModel(ctrMod);
             t = time;
-            q.UpdateQuality(time, null);
+            q.UpdateQuality(time);
         }
 
         private ushort MapCtlModel(string quality)
