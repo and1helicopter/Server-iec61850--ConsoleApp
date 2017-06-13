@@ -21,7 +21,7 @@ namespace test_console
             Settings.SaveSettings();
 
             //Парсим файл конфигурации
-            if (!Parser.ParseFile())
+            if (!Parser.ParseFile(Server.Server.Server.ServerConfig.NameConfigFile))
             {
                 Log.Write(@"ParseFile: Finish with status false. Stop server", @"Error   ");
                 return;

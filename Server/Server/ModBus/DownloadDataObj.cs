@@ -22,11 +22,11 @@ namespace Server.ModBus
                     }
                 }
 
-                if (UpdateDataObj.GetData(_currentIndexGet, out ushort addrGet))
+                if (UpdateDataObj.GetData(_currentIndexGet, out ushort addrGet, out ushort b))
                 {
                     lock (Locker)
                     {
-                        SerialPort.GetDataRTU(addrGet, 1, UpdateData);
+                        SerialPort.GetDataRTU(addrGet, b, UpdateData);
                     }
                 }
             }

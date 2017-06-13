@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="IEC61850" Width="200" Height="390" MinWidth="200" MinHeight="390" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" MaxHeight="390" MaxWidth="700">
+        Title="IEC61850" Width="200" Height="390" MinWidth="200" MinHeight="390" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" MaxHeight="390" MaxWidth="700" Closed="Window_Closed">
     <Grid RenderTransformOrigin="0.499,0.505" Margin="0,0,2,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="190" />

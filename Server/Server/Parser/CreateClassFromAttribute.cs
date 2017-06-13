@@ -29,18 +29,35 @@ namespace Server.Parser
                         {
                             string typeDo = DO.Type;
 
-                            string[] typeTempDo1 = typeDo.Split(';');
-                            string[] typeTempDo2 = typeTempDo1[0].Split(':');
+                            string[] tempType = typeDo.Split(';');
+                            string[] tempFormatMask = tempType[0].Split(':');
+                            string[] tempAddrByte = tempType[1].Split(':');
 
-                            DO.Type = typeTempDo1[2];
-                            DO.Format = typeTempDo2[0];
-                            DO.Mask = Convert.ToUInt16(typeTempDo2[1]);
-                            DO.Addr = Convert.ToUInt16(typeTempDo1[1]);
+                            DO.Type = tempType[2];
+                            DO.Format = tempFormatMask[0];
+                            DO.Mask = Convert.ToUInt16(tempFormatMask[1]);
+                            DO.Addr = Convert.ToUInt16(tempAddrByte[0]);
+                            DO.Byte = Byte(tempAddrByte[1]);
 
                             Do(DO, pathNameLD, pathNameLN);
                         }
                     }
                 }
+            }
+        }
+
+        private static ushort Byte(string b)
+        {
+            switch (b.ToLower())
+            {
+                case "16b":
+                    return 2;
+                case "32b":
+                    return 4;
+                case "64b":
+                    return 8;
+                default:
+                    return 2;
             }
         }
 
@@ -106,7 +123,9 @@ namespace Server.Parser
 
                     mv.ClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
 
-                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, mv);
+                    
+
+                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, mv);
                     UpdateDataObj.DataClassGet.Add(dataObj);
                     return;
                 }
@@ -124,7 +143,7 @@ namespace Server.Parser
                     string pathNameDo = path + "." + itemDo.NameDO;
                     var sps = new SpsClass();
 
-                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, sps);
+                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, sps);
                     UpdateDataObj.DataClassGet.Add(dataObj);
                     return;
                 }
@@ -142,7 +161,7 @@ namespace Server.Parser
                     string pathNameDo = path + "." + itemDo.NameDO;
                     var ins = new IncClass();
 
-                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.TypeDO, ins);
+                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, ins);
                     UpdateDataObj.DataClassGet.Add(dataObj);
                     //return;
                 }

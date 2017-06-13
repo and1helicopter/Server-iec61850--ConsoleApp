@@ -58,7 +58,8 @@ namespace Server.Settings
                     Server.Server.ServerConfig.NameConfigFile = elSs.Attribute("NameConfigFile") != null ? Convert.ToString(elSs.Attribute("NameConfigFile").Value):"test.icd";
                     Server.Server.ServerConfig.TimeUpdate = elSs.Attribute("TimeUpdate") != null ? Convert.ToInt32(elSs.Attribute("TimeUpdate").Value) : 100;
                     Server.Server.ServerConfig.NameModelFile = elSs.Attribute("NameModelFile") != null ? Convert.ToString(elSs.Attribute("NameModelFile").Value) : "test.cfg";
-                    Server.Server.ServerConfig.LocalIPAddr = elSs.Attribute("LocalIPAddr") != null ? Convert.ToString(elSs.Attribute("LocalIPAddr").Value) : "localhost";                   
+                    Server.Server.ServerConfig.LocalIPAddr = elSs.Attribute("LocalIPAddr") != null ? Convert.ToString(elSs.Attribute("LocalIPAddr").Value) : "localhost";
+                    Server.Server.ServerConfig.Autostart = elSs.Attribute("Autostart") != null && Convert.ToBoolean(elSs.Attribute("Autostart").Value);
                 }
             }
             Log.Log.Write("Server.Settings: Settings file read success","Success");
@@ -94,7 +95,8 @@ namespace Server.Settings
                             new XAttribute("NameConfigFile", Convert.ToString(Server.Server.ServerConfig.NameConfigFile)),
                             new XAttribute("TimeUpdate", Convert.ToString(Server.Server.ServerConfig.TimeUpdate)),
                             new XAttribute("NameModelFile", Convert.ToString(Server.Server.ServerConfig.NameModelFile)),
-                            new XAttribute("LocalIPAddr", Convert.ToString(Server.Server.ServerConfig.LocalIPAddr)))));
+                            new XAttribute("LocalIPAddr", Convert.ToString(Server.Server.ServerConfig.LocalIPAddr)),
+                            new XAttribute("Autostart", Convert.ToString(Server.Server.ServerConfig.Autostart)))));
 
             xDocument.Save(fs);
             fs.Close();

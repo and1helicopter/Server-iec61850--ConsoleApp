@@ -19,12 +19,16 @@ namespace ServerWPF
         {
             InitializeComponent();
             ConfigStackPanel.Children.Add(_config);
-            Status();
             //Открываем настройки сервера
             if (!Settings.ReadSettings())
             {
                 Log.Write(@"Settings: ReadSettings finish with status false. Stop server", @"Error");
             }
+            if (Server.Server.Server.ServerConfig.Autostart)
+            {
+                Start_Button_Click(null,null);
+            }
+            Status();
         }
 
         private readonly Config _config = new Config();
@@ -51,7 +55,7 @@ namespace ServerWPF
                 Host.Content = Server.Server.Server.ServerConfig.LocalIPAddr;
                 Port.Visibility = Visibility.Visible;
                 Port.Content = Server.Server.Server.ServerConfig.PortServer;
-
+                
                 if (ModBus.StartPort)
                 {
                     BaudRate.Visibility = Visibility.Visible;
@@ -111,10 +115,10 @@ namespace ServerWPF
             _checkedStop = false;
 
 
-            Settings.SaveSettings();
+            //Settings.SaveSettings();
 
             //Парсим файл конфигурации
-            if (!Parser.ParseFile())
+            if (!Parser.ParseFile(Server.Server.Server.ServerConfig.NameConfigFile))
             {
                 Log.Write(@"ParseFile: Finish with status false. Stop server", @"Error");
                 return;
@@ -188,6 +192,11 @@ namespace ServerWPF
                 Setting.BorderBrush = new SolidColorBrush(Colors.DarkGreen);
                 Setting.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
             }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Server.Server.Server.StopServer();
         }
     }
 }

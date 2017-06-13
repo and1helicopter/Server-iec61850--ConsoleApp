@@ -76,28 +76,36 @@ namespace Server.Server
 
         public static bool StopServer()
         {
-            if (_iedServer.IsRunning())
+            try
             {
                 ModBus.ModBus.CloseModBus();
 
-                _running = false;
-                _iedServer.Stop();
-                _iedServer.Destroy();
-                _serverThread.Abort();
-                ServerModel.Model.Clear();
-                UpdateDataObj.DataClassGet.Clear();
-                UpdateDataObj.DataClassSet.Clear();
-                DataObj.StructDataObj.Clear();
+                if (_iedServer != null)
+                {
+                    if (_iedServer.IsRunning())
+                    {
+                        _running = false;
+
+                        _iedServer.Stop();
+                        _iedServer.Destroy();
+                        _iedServer = null;
+                        _serverThread.Abort();
+                    }
+                }
+                
+                ServerModel.Model?.Clear();
+                UpdateDataObj.DataClassGet?.Clear();
+                UpdateDataObj.DataClassSet?.Clear();
+                DataObj.StructDataObj?.Clear();
 
                 Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop");
             }
-            else
+            catch 
             {
                 Log.Log.Write(@"Server.StopServer: No valid Server found!", @"Error");
                 Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop");
                 return false;
             }
-            
             return true;
         }
     }

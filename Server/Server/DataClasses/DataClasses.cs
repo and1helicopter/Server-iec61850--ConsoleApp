@@ -194,7 +194,7 @@ namespace Server.DataClasses
             d = str;
         }
 
-        public void UpdateClass(DateTime time, long value)
+        public void UpdateClass(DateTime time, ulong value)
         {
             Mag.AnalogueValue.f = Convert.ToSingle(value * sVC.ScaleFactor + sVC.Offset);
             t = time;

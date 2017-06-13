@@ -4,9 +4,9 @@ namespace Server.Parser
 {
     public static partial class Parser
     {
-        public static bool ParseFile()
+        public static bool ParseFile(string filePath)
         {
-            string filePath = @"test.icd";
+           // filePath = @"test.icd";
             //читаем данные из файла
             XDocument doc;
             try

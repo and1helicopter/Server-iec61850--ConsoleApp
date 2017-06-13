@@ -261,7 +261,6 @@ namespace UniSerialPort
                     throw new Exception("Invalid request  type");
                 }
             }
-            
 
             if (serialPortMode == SerialPortModes.RSMode)
             {

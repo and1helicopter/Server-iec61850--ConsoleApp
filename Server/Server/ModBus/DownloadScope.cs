@@ -12,25 +12,25 @@ namespace Server.ModBus
     {
         private static void ScopoeRequest()
         {
-            if (_waitingAnswer && SerialPort.requests.Count != 0 || !SerialPort.IsOpen)
+            if (_waitingAnswer || !SerialPort.IsOpen)
             {
                 return;
             }
 
-            if (!_startDownloadScope)
+            if (_startDownloadScope)
             {
-                if (!_configScopeDownload)
-                {
-                    ScopeConfigRequest();
-                }
-                else
-                {
-                    ScopeStatusRequest();
-                }
+                ScopeDownloadRequestSet();
             }
             else
             {
-                ScopeDownloadRequestSet();
+                if (_configScopeDownload)
+                {
+                    ScopeStatusRequest();
+                }
+                else
+                {
+                    ScopeConfigRequest();
+                }
             }
         }
 

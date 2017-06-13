@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Windows.Controls;
+using System.Xml.Linq;
 using Server.ModBus;
 using Server.Settings;
 
@@ -21,7 +23,8 @@ namespace ServerWPF
         {
             PortTextBox.Text = Server.Server.Server.ServerConfig.PortServer.ToString();
             HostTextBox.Text = Server.Server.Server.ServerConfig.LocalIPAddr;
-            
+            AutostartCheckBox.IsChecked = Server.Server.Server.ServerConfig.Autostart;
+
             foreach (var item in BaudRateComboBox.Items)
             {
                 if (((ComboBoxItem)item).Content.ToString() == ConfigModBus.BaudRate.ToString())
@@ -101,14 +104,10 @@ namespace ServerWPF
 
         private void Ok_Button_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (MainWindow.CheckedStart)
-            {
-                SaveSettings();
-            }
-            else
+            if (!MainWindow.CheckedStart)
             {
                 SetSettings();
-                SaveSettings();
+                Settings.SaveSettings();
             }
         }
 
@@ -116,6 +115,7 @@ namespace ServerWPF
         {
             Server.Server.Server.ServerConfig.PortServer = Convert.ToInt32(PortTextBox.Text);
             Server.Server.Server.ServerConfig.LocalIPAddr = HostTextBox.Text;
+            Server.Server.Server.ServerConfig.Autostart = Convert.ToBoolean(AutostartCheckBox.IsChecked.ToString());
 
             ConfigModBus.InitConfigModBus(
                 Convert.ToInt32(BaudRateComboBox.Text), 
@@ -135,11 +135,5 @@ namespace ServerWPF
                 Convert.ToString(OscilNominalFrequencyTextBox.Text)
                 );
         }
-
-        private void SaveSettings()
-        {
-            Settings.SaveSettings();
-        }
-
     }
 }

@@ -15,6 +15,7 @@ namespace Server.Update
             public string FormatDataObj { get; }
             public ushort MaskDataObj { get; }
             public ushort AddrDataObj { get; }         //Адрес куда писать или откуда брать данные
+            public ushort ByteDataObj { get; }         //Колличество байт
             public string ClassDataObj { get; }
 
             public DateTime DateUpdateDataObj { get; }
@@ -22,10 +23,11 @@ namespace Server.Update
 
             public object DataObj { get; }
 
-            public DataObject(string name, string format, ushort mask, ushort addr,  string classType, object dataObj)
+            public DataObject(string name, string format, ushort mask, ushort addr,  ushort b,string classType, object dataObj)
             {
                 NameDataObj = name;
                 AddrDataObj = addr;
+                ByteDataObj = b;
                 FormatDataObj = format;
                 MaskDataObj = mask;
                 ClassDataObj = classType;

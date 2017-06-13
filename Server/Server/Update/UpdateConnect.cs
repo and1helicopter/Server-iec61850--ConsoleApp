@@ -5,9 +5,10 @@ namespace Server.Update
 {
     public static partial class UpdateDataObj
     {
-        public static bool GetData(int currentIndex, out ushort addrGet)
+        public static bool GetData(int currentIndex, out ushort addrGet, out ushort b)
         {
             addrGet = DataClassGet[currentIndex].AddrDataObj;
+            b = (ushort)(DataClassGet[currentIndex].ByteDataObj >> 1);
             return true;
         }
 
@@ -24,16 +25,38 @@ namespace Server.Update
         {
             if (DataClassGet[currentIndex].DataObj.GetType() == typeof(MvClass))
             {
-                ((MvClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, Convert.ToInt64(paramRtu[0]));
+                Int64 val = 0;
+
+                for (int i = paramRtu.Length - 1; i >= 0; i--)
+                {
+                    val += (long)paramRtu[i] << i * 16;
+                }
+
+                ((MvClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, (ulong)val);
             }
             else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(SpsClass))
             {
-                bool val = (Convert.ToInt32(paramRtu[0]) & 1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj)) > 0;
+                Int64 temp = 0;
+
+                for (int i = paramRtu.Length - 1; i >= 0; i--)
+                {
+                    temp += (long)paramRtu[i] << i * 16;
+                }
+
+                var val = (temp & (1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj))) > 0;
+
                 ((SpsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
             }
             else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(InsClass))
             {
-                ((InsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, paramRtu[0]);
+                Int32 val = 0;
+
+                for (int i = paramRtu.Length - 1; i >= 0; i--)
+                {
+                    val += paramRtu[i] << i * 16;
+                }
+
+                ((InsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
             }
         }
     }

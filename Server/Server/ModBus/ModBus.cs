@@ -36,7 +36,7 @@ namespace Server.ModBus
             }
             catch
             {
-                Log.Log.Write("ModBus: InitConfigDownloadScope finish with error", "Warning");
+                Log.Log.Write(@"ModBus: InitConfigDownloadScope finish with error", @"Warning");
             }
         }
 
@@ -48,7 +48,7 @@ namespace Server.ModBus
             }
             catch 
             {
-                Log.Log.Write("ModBus: InitConfigModBus finish with error", "Warning");
+                Log.Log.Write(@"ModBus: InitConfigModBus finish with error", @"Warning");
                 return;
             }
 
@@ -58,20 +58,22 @@ namespace Server.ModBus
         public static void StartModBus()
         {
             OpenModBusPort();
-            Log.Log.Write("ModBus: StartModBus!!!", "Success");
+            Log.Log.Write(@"ModBus: StartModBus!!!", @"Success");
         }
 
         public static void CloseModBus()
         {
             StartPort = false;
             ErrorPort = false;
+            _waitingAnswer = false;
             _running = false;
 
-            _modbusThread.Abort();
+            _modbusThread?.Abort();
+            _modbusThread = null;
 
             CloseModBusPort();
 
-            Log.Log.Write("ModBus: CloseModBus", "Warning");
+            Log.Log.Write(@"ModBus: CloseModBus", @"Warning");
         }
 
 
@@ -94,7 +96,7 @@ namespace Server.ModBus
                 {
                     if (ErrorPort)
                     {
-                        Log.Log.Write("ModBus: OpenModBusPort", "Warning ");
+                        Log.Log.Write(@"ModBus: OpenModBusPort", @"Warning ");
                         OpenModBusPort();
                     }
                 }

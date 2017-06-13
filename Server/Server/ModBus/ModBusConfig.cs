@@ -38,6 +38,8 @@ namespace Server.ModBus
                 }
                 if (SerialPort.IsOpen)
                 {
+                    _running = true;
+
                     if (_modbusThread == null)
                     {
                         _modbusThread = new Thread(RunModBusPort)
@@ -45,9 +47,7 @@ namespace Server.ModBus
                             Name = @"ModBus"
                         };
                         _modbusThread.Start();
-                       
                     }
-                    _running = true;
                 }
             }
             catch
