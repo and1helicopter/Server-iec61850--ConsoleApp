@@ -1,36 +1,32 @@
-﻿using Server.Update;
+﻿using System;
+using Server.Update;
 using UniSerialPort;
 
 namespace Server.ModBus
 {
     public static partial class ModBus
     {
+        private static int _currentIndexSet;
+
         private static void DataRequest()
         {
-            if (!SerialPort.IsOpen)
-            {
-                return;
-            }
-
+            #region Get
             if (UpdateDataObj.DataClassGet.Count != 0)
             {
-                if (_currentIndexGet == UpdateDataObj.DataClassGet.Count)
+                for (var i = 0; i < UpdateDataObj.DataClassGet.Count; i++)
                 {
-                    lock (Locker)
+                    if (UpdateDataObj.GetData(i, out ushort addrGet, out ushort b))
                     {
-                        _currentIndexGet = 0;
-                    }
-                }
-
-                if (UpdateDataObj.GetData(_currentIndexGet, out ushort addrGet, out ushort b))
-                {
-                    lock (Locker)
-                    {
-                        SerialPort.GetDataRTU(addrGet, b, UpdateData);
+                        lock (Locker)
+                        {
+                            SerialPort.GetDataRTU(addrGet, b, UpdateDataGet, i);
+                        }
                     }
                 }
             }
+            #endregion
 
+            #region Set
             if (UpdateDataObj.DataClassSet.Count != 0)
             {
                 if (_currentIndexSet == UpdateDataObj.DataClassSet.Count)
@@ -46,14 +42,16 @@ namespace Server.ModBus
                     }
                 }
             }
+            #endregion
         }
 
-        private static void UpdateData(bool dataOk, ushort[] paramRtu)
+        private static void UpdateDataGet(bool dataOk, ushort[] paramRtu, object param)
         {
+            var index = Convert.ToInt32(param);
+
             if (dataOk)
             {
-                UpdateDataObj.UpdateData(_currentIndexGet, paramRtu);
-                _currentIndexGet++;
+                UpdateDataObj.UpdateData(index, paramRtu);
             }
         }
     }

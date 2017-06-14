@@ -12,7 +12,7 @@ namespace Server.ModBus
     {
         private static void ScopoeRequest()
         {
-            if (_waitingAnswer || !SerialPort.IsOpen)
+            if (!ConfigDownloadScope.Enable || _waitingAnswer || !SerialPort.IsOpen)
             {
                 return;
             }
@@ -38,12 +38,12 @@ namespace Server.ModBus
         {
             lock (Locker)
             {
-                SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 8), 32,UpdateScopeStatus);
+                SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 8), 32,UpdateScopeStatus, null);
                 _waitingAnswer = true;
             }
         }
 
-        private static void UpdateScopeStatus(bool dataOk, ushort[] paramRtu)
+        private static void UpdateScopeStatus(bool dataOk, ushort[] paramRtu, object param)
         {
             if (dataOk)
             {
@@ -94,7 +94,7 @@ namespace Server.ModBus
                 {
                     lock (Locker)
                     {
-                        SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe);
+                        SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe, null);
                         _waitingAnswer = true;
                     }
                 }
@@ -114,7 +114,7 @@ namespace Server.ModBus
             }
         }
 
-        private static void UpdateScopoe(bool dataOk, ushort[] paramRtu)
+        private static void UpdateScopoe(bool dataOk, ushort[] paramRtu, object param)
         {
             if (dataOk)
             {
@@ -156,12 +156,12 @@ namespace Server.ModBus
         {
             lock (Locker)
             {
-                SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile);
+                SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile, null);
                 _waitingAnswer = true;
             }
         }
 
-        private static void SaveToFile(bool dataOk, ushort[] paramRtu)
+        private static void SaveToFile(bool dataOk, ushort[] paramRtu, object param)
         {
             if (dataOk)
             {

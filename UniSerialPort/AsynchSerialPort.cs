@@ -12,8 +12,9 @@ namespace UniSerialPort
 {
     public class AsynchSerialPort
     {
+
         public delegate void DataRecieved(bool DataOk, byte[] RxBuffer);
-        public delegate void DataRecievedRTU(bool DataOk, ushort[] ParamRTU);
+        public delegate void DataRecievedRTU(bool DataOk, ushort[] ParamRTU, object param);
 
         public bool portError { get; private set; }//= false;
         public event EventHandler SerialPortError;
@@ -378,7 +379,7 @@ namespace UniSerialPort
 
                             if (RequestUnit.DataRecievedRTU != null)
                             {
-                                RequestUnit.DataRecievedRTU(dataOk, ubuff);
+                                RequestUnit.DataRecievedRTU(dataOk, ubuff, RequestUnit.Param);
                             }
 
                         } break;
@@ -395,7 +396,7 @@ namespace UniSerialPort
                     if (dataOk) ModBusCRC.RemoveData(tcpReadData, 0, RequestUnit.RTUReadCount, out us);
                     if (RequestUnit.DataRecievedRTU != null)
                     {
-                        RequestUnit.DataRecievedRTU(dataOk, us);
+                        RequestUnit.DataRecievedRTU(dataOk, us, RequestUnit.Param);
                     }
                 }
                 else
@@ -403,7 +404,7 @@ namespace UniSerialPort
                     ushort[] us = new ushort[0];
                     if (RequestUnit.DataRecievedRTU != null)
                     {
-                        RequestUnit.DataRecievedRTU(tcpWriteOk, us);
+                        RequestUnit.DataRecievedRTU(tcpWriteOk, us, RequestUnit.Param);
                     }
                 }
             }
@@ -419,7 +420,7 @@ namespace UniSerialPort
         }
 
         delegate void SendDataHandler(RequestUnit RequestUnit);
-        void SendData(RequestUnit RequestUnit)
+        public void SendData(RequestUnit RequestUnit)
         {
             
             if (!IsOpen) { return; }
@@ -442,7 +443,7 @@ namespace UniSerialPort
             }
 
         }
-        void AddRequest(byte[] TxBuffer, int ReceivedBytesThreshold, DataRecievedRTU OnDataRecievedRTU, int RTUReadCount, RequestPriority RequestPriority)
+        void AddRequest(byte[] TxBuffer, int ReceivedBytesThreshold, DataRecievedRTU OnDataRecievedRTU, int RTUReadCount, RequestPriority RequestPriority, object param)
         {
             if (!IsOpen) { return; }
             
@@ -451,24 +452,24 @@ namespace UniSerialPort
             {
                 lock (locker)
                 {
-                    requestsMain.Enqueue(new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU, RTUReadCount));
+                    requestsMain.Enqueue(new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU, RTUReadCount, param));
                 }
             }
             else
             {
                 lock (locker)
                 {
-                    var request = new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU,RTUReadCount);
+                    var request = new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU,RTUReadCount, param);
                     requests.Enqueue(request);
                 }
             }
         }
 
-        public void AddRequest(byte[] TxBuffer, int ReceivedBytesThreshold, DataRecievedRTU OnDataRecievedRTU, RequestPriority RequestPriority)
+        public void AddRequest(byte[] TxBuffer, int ReceivedBytesThreshold, DataRecievedRTU OnDataRecievedRTU, RequestPriority RequestPriority, object param)
         {
             lock (locker)
             {
-                AddRequest(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU, 0, RequestPriority);
+                AddRequest(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU, 0, RequestPriority, param);
             }
         }
 
@@ -511,7 +512,7 @@ namespace UniSerialPort
                 CheckQueue(true);
         }
 
-        public void GetDataRTU(byte SlaveAddress, ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority)
+        public void GetDataRTU(byte SlaveAddress, ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority, object param)
         {
             byte[] buffer = new byte[6];
             buffer[0] = SlaveAddress;
@@ -522,15 +523,15 @@ namespace UniSerialPort
             buffer[5] = (byte)(WordCount & 0xFF);
             byte[] buffer1;
             ModBusCRC.CalcCRC(buffer, 6, out buffer1);
-            AddRequest(buffer1, WordCount * 2 + 5, DataRecievedRTU, WordCount, RequestPriority);
+            AddRequest(buffer1, WordCount * 2 + 5, DataRecievedRTU, WordCount, RequestPriority, param);
         }
-        public void GetDataRTU(ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU)
+        public void GetDataRTU(ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, object param)
         {
-            GetDataRTU(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority.Normal);
+            GetDataRTU(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority.Normal, param);
         }
-        public void GetDataRTU(ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority)
+        public void GetDataRTU(ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority, object param)
         {
-            GetDataRTU(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority);
+            GetDataRTU(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority, param);
         }
 
         public void GetDataRTU04(byte SlaveAddress, ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority)
@@ -544,20 +545,20 @@ namespace UniSerialPort
             buffer[5] = (byte)(WordCount & 0xFF);
             byte[] buffer1;
             ModBusCRC.CalcCRC(buffer, 6, out buffer1);
-            AddRequest(buffer1, WordCount * 2 + 5, DataRecievedRTU, WordCount, RequestPriority);
+            AddRequest(buffer1, WordCount * 2 + 5, DataRecievedRTU, WordCount, RequestPriority, null);
         }
         public void GetDataRTU04(ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU)
         {
             GetDataRTU04(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority.Normal);
         }
 
-        public void SetDataRTU(byte SlaveAddress, ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority  RequestPriority,params ushort[] Data)
+        public void SetDataRTU(byte SlaveAddress, ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority  RequestPriority, object param,params ushort[] Data)
         {
             if ((Data.Length > 32) || (Data.Length < 1))
             {
                 if (DataRecievedRTU != null)
                 {
-                    DataRecievedRTU(false, new ushort[0]);
+                    DataRecievedRTU(false, new ushort[0], null);
                 }
                 return;
             }
@@ -581,7 +582,7 @@ namespace UniSerialPort
 
             byte[] buffer1;
             ModBusCRC.CalcCRC(buffer, 7+Data.Length*2, out buffer1);
-            AddRequest(buffer1, 8, DataRecievedRTU, RequestPriority);
+            AddRequest(buffer1, 8, DataRecievedRTU, RequestPriority, param);
         }
         public void SetDataRTU(ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority, params ushort[] Data)
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO.Ports;
 using System.Threading;
+using Server.Update;
 using UniSerialPort;
 
 namespace Server.ModBus
@@ -58,7 +59,21 @@ namespace Server.ModBus
 
         private static void SerialPort_SerialPortError(object sender, System.EventArgs e)
         {
+            Log.Log.Write("ModBus port: SerialPortError!", "Error");
+
             ErrorPort = true;
+
+            //foreach (var itemGet in UpdateDataObj.DataClassGet)
+            //{
+            //    itemGet.BusyDataObj = false;
+            //}
+
+            //foreach (var itemSet in UpdateDataObj.DataClassSet)
+            //{
+            //    itemSet.BusyDataObj = false;
+            //}
+
+            //SerialPort.requests.Clear();
 
             CloseModBusPort();
             StartPort = false;

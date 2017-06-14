@@ -22,9 +22,6 @@ namespace Server.ModBus
         private static readonly AsynchSerialPort SerialPort = new AsynchSerialPort();
         private static readonly object Locker = new object();
 
-        private static int _currentIndexGet;
-        private static int _currentIndexSet;
-
         private static Thread _modbusThread;
         private static bool _running;
 
@@ -84,14 +81,6 @@ namespace Server.ModBus
         {
             while (_running)
             {
-                Thread.Sleep(ConfigModBus.TimeUpdate);
-
-                if (SerialPort.requests.Count != 0)   //Ждем пока обработается запрос 
-                {
-                    SerialPort.requests.Peek();
-                    continue;
-                }
-
                 if (!SerialPort.IsOpen)     //Если порт закрыт пытаемся открыть его
                 {
                     if (ErrorPort)
@@ -101,10 +90,10 @@ namespace Server.ModBus
                     }
                 }
 
-                DataRequest();
-
-                if (ConfigDownloadScope.Enable)
+                if (SerialPort.requests.Count == 0) //Ждем пока обработается запрос 
                 {
+                    DataRequest();
+
                     ScopoeRequest();
                 }
             }
