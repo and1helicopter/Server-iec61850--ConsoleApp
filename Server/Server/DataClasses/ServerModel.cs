@@ -49,6 +49,7 @@ namespace Server.DataClasses
             public string DescLN { get; set; }
 
             public List<NodeDO> ListDO = new List<NodeDO>();
+            public List<DataSet> ListDS = new List<DataSet>();
 
             public NodeLN(string nameLN, string lnClassLN, string descLN)
             {
@@ -143,6 +144,20 @@ namespace Server.DataClasses
                     OrdEnumVal = ordEnumVal;
                     ValEnumVal = valEnumVal;
                 }
+            }
+        }
+
+        public class DataSet
+        {
+            public string DSName { get; }
+            public string DSRef { get; }
+
+            public List<string> DSMemberRef = new List<string>();
+
+            public DataSet(string dsname, string dsref)
+            {
+                DSName = dsname;
+                DSRef = dsref;
             }
         }
     }

@@ -54,7 +54,31 @@ namespace Server.Parser
                 var array = System.Text.Encoding.Default.GetBytes(str);
                 fs.Write(array, 0, array.Length);
 
+                SaveDs(fs, ln.ListDS);
+
                 SaveDo(fs, ln.ListDO);
+
+                str = "}\n";
+                array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+            }
+        }
+
+        private static void SaveDs(FileStream fs, List<ServerModel.DataSet> listDs)
+        {
+            foreach (var ds in listDs)
+            {
+                // Syntax: DO(<data object name> <nb of array elements>){…}
+                string str = $"DS({ds.DSName}){{\n";
+                var array = System.Text.Encoding.Default.GetBytes(str);
+                fs.Write(array, 0, array.Length);
+
+                foreach (var itemds in ds.DSMemberRef)
+                {
+                    str = $"DE({itemds});\n";
+                    array = System.Text.Encoding.Default.GetBytes(str);
+                    fs.Write(array, 0, array.Length);
+                }
 
                 str = "}\n";
                 array = System.Text.Encoding.Default.GetBytes(str);

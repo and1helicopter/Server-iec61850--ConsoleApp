@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using IEC61850.Server;
 using Server.DataClasses;
 using Server.Update;
@@ -46,6 +47,8 @@ namespace Server.Server
                 return false;
             }
 
+
+            GC.Collect();   //Габредж коллектор
             UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);
             return true;
         }

@@ -56,7 +56,7 @@ namespace Server.Parser
                     
                     string ln = lnitem.Attribute("prefix")?.Value + lnitem.Attribute("lnClass")?.Value + lnitem.Attribute("inst")?.Value;
 
-                    IEnumerable<XElement> xDoi = lnitem.Elements().ToList();
+                    IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
 
                     foreach (var doiitem in xDoi)
                     {
@@ -95,6 +95,62 @@ namespace Server.Parser
                         }
 
                         ParseDefultParamBda(doiitem, ld, ln, doi, null);
+                    }
+
+                    IEnumerable<XElement> xDS = lnitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "DataSet".ToUpper()).ToList();
+
+                    foreach (var dsitem in xDS)
+                    {
+                        string nameDS = dsitem.Attribute("name").Value;
+
+                        IEnumerable<XElement> xDSElements = dsitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "FCD".ToUpper() 
+                            || x.Name.LocalName.ToUpper() == "FCDA").ToList();
+
+                        foreach (var dselement in xDSElements)
+                        {
+                            string prefix = dselement.Attribute("prefix") != null ? dselement.Attribute("prefix").Value : "";
+                            string lnClass = dselement.Attribute("lnClass") != null ? dselement.Attribute("lnClass").Value : "";
+                            string lnInst = dselement.Attribute("lnInst") != null ? dselement.Attribute("lnInst").Value : "";
+                            string fullName = String.Concat(prefix, lnClass, lnInst);
+
+                            //string ldInst = dselement.Attribute("ldInst") != null ? dselement.Attribute("ldInst").Value : "";
+                            string doName = dselement.Attribute("doName") != null ? dselement.Attribute("doName").Value : "";
+                            string daName = dselement.Attribute("daName") != null ? @"$" + dselement.Attribute("daName").Value : "";
+                            string fc = dselement.Attribute("fc") != null ? dselement.Attribute("fc").Value : "";
+
+                            string ldname = lditem.Attribute("inst")?.Value;
+
+                            string memberName = fullName + @"$" + fc + @"$" + doName + daName;
+                            //ied + ldname + "/" + 
+
+                            string prefix2 = lnitem.Attribute("prefix") != null ? lnitem.Attribute("prefix").Value : "";
+                            string lnClass2 = lnitem.Attribute("lnClass") != null ? lnitem.Attribute("lnClass").Value : "";
+                            string lnInst2 = lnitem.Attribute("inst") != null ? lnitem.Attribute("inst").Value : "";
+                            string lnname = String.Concat(prefix2, lnClass2, lnInst2);
+
+                            if (ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
+                                .First(y => y.NameLN == fullName).ListDO
+                                .First(z => z.NameDO == doName) != null)
+                            {
+                                if(ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
+                                    .First(y => y.NameLN == lnname).ListDS
+                                    .Find(z => z.DSName == nameDS) != null)
+                                {
+                                    ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
+                                        .First(y => y.NameLN == lnname).ListDS
+                                        .First(z => z.DSName == nameDS).DSMemberRef.Add(memberName);
+                                }
+                                else
+                                {
+                                    ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
+                                        .First(y => y.NameLN == lnname).ListDS.Add(new ServerModel.DataSet(nameDS, null));
+
+                                    ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
+                                        .First(y => y.NameLN == lnname).ListDS
+                                        .First(z => z.DSName == nameDS).DSMemberRef.Add(memberName);
+                                }
+                            }
+                        }
                     }
                 }
             }

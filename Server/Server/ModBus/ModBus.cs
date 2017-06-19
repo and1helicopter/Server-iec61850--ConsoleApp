@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using UniSerialPort;
 
@@ -89,13 +90,15 @@ namespace Server.ModBus
                         OpenModBusPort();
                     }
                 }
-
-                if (SerialPort.requests.Count == 0) //Ждем пока обработается запрос 
+                
+                if (SerialPort.requests.Count == 0   ) //Ждем пока обработается запрос 
                 {
                     DataRequest();
 
                     ScopoeRequest();
                 }
+
+                Thread.Sleep(ConfigModBus.TimeUpdate);
             }
         }
     }
