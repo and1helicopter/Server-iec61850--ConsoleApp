@@ -5,8 +5,8 @@ namespace Server.Update
 {
     public static partial class UpdateDataObj
     {
-        public static readonly List<DataObject> DataClassGet = new List<DataObject>();           //Список классов в которых данные получаем с платы 
-        public static readonly List<DataObject> DataClassSet = new List<DataObject>();           //Список классов в которых данные загружаем на плату 
+        public static readonly List<DataObject> DataClassGet = new List<DataObject>();	//Список классов в которых данные получаем с платы 
+        public static readonly List<DataObject> DataClassSet = new List<DataObject>();	//Список классов в которых данные загружаем на плату 
 
         public class DataObject
         {

@@ -176,8 +176,6 @@ namespace Server.DataClasses
 			public uint RCBbufTime { get; }
 			public uint RCBintgPd { get; }
 
-
-
 			public RCB(string rcbName, string rcbRef, IEC61850.Common.ReportOptions rcbrptOptions, IEC61850.Common.TriggerOptions rcbtrgOptions, string rcbBuffered, string rcbrptId, string rcbdatSet, uint rcbconfRev, uint rcbbufTime, uint rcbintgPd)
 			{
 				RCBName = rcbName;
@@ -195,8 +193,19 @@ namespace Server.DataClasses
 
 		public class LCB
 		{
-			
+			public string LCBName { get; }
+			public string LCBRef { get; }
+			public bool LCBLogEna { get; }
+			public string LCBDatSet { get; }
+
+			//OptFlds
+			public IEC61850.Common.TriggerOptions LCBtrgOptions { get; }
+			public uint LCBintgPd { get; }
+			public string LCBLogRef { get; }
+
+
 		}
 
 	}
 }
+

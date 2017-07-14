@@ -53,11 +53,11 @@ namespace Server.ModBus
             {
                 UpdateDataObj.UpdateData(index, paramRtu);
             }
-
-            if (index == UpdateDataObj.DataClassGet.Count - 1)
-            {
-                DataRequest();
-            }
+            //if (index == UpdateDataObj.DataClassGet.Count - 1)
+            //{
+            //    DataRequest();
+            //    ScopoeRequest();
+            //}
         }
     }
 }
