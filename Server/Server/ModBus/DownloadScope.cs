@@ -152,6 +152,12 @@ namespace Server.ModBus
             ScopeDownloadRequestSet();
         }
 
+        public static bool StatusLoad(out double countP)
+        {
+            countP = (double) 100 / (ScopeConfig.OscilSize >> 1) * _countTemp;
+            return _startDownloadScope;
+        }
+
         private static void SaveToFileRequest()
         {
             lock (Locker)

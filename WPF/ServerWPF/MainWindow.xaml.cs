@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -33,10 +34,29 @@ namespace ServerWPF
 
         private readonly Config _config = new Config();
 
+
         public static bool CheckedStart;
         private static bool _checkedStop = true;
         private static bool _checkedConfig;
+        private static readonly Timer TimerLoadOsc = new Timer()
+        {
+            Interval = 500
+        };
 
+        private void TimerLoadOscOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+        {
+            double count;
+            if (ModBus.StatusLoad(out count))
+            {
+                Dispatcher.Invoke(() => { ProgressBar.Value = count; });
+                Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
+            }
+            else
+            {
+                Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
+            }
+        }
+        
         private void Status()
         {
             if (_checkedStop)
@@ -125,11 +145,19 @@ namespace ServerWPF
             }
             Log.Write(@"ParseFile: File parse success", @"Success");
 
+
             //ModBus.CloseModBus();
             //ModBus.InitConfigDownloadScope("true", "false", "comtrade", "1999", "512", "4096", "Scope\\", "50");
             //ModBus.InitConfigModBus("115200", "Odd", "One", "COM1");
             ModBus.ConfigModBusPort();
             ModBus.StartModBus();
+
+
+            if (ConfigDownloadScope.Enable)
+            {
+                TimerLoadOsc.Enabled = true;
+                TimerLoadOsc.Elapsed += TimerLoadOscOnElapsed;
+            }
 
             //Создаем модель сервера
             if (!Server.Server.Server.ConfigServer()) return;
@@ -155,6 +183,13 @@ namespace ServerWPF
             if (_checkedStop)
             {
                 return;
+            }
+
+            if (ConfigDownloadScope.Enable)
+            {
+                Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
+                TimerLoadOsc.Elapsed -= TimerLoadOscOnElapsed;
+                TimerLoadOsc.Enabled = false;
             }
 
             CheckedStart = false;
