@@ -12,6 +12,7 @@ namespace Server.ModBus
             {
                 return;
             }
+
             if (_loadConfigStep == 0)                //Количество каналов 
             {
                 lock (Locker)

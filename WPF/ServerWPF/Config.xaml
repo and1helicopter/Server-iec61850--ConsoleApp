@@ -68,6 +68,8 @@
                     <TextBox x:Name="PathScopeTextBox" HorizontalAlignment="Left" Height="23" Margin="288,181,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
                     <Label Content="Oscil Nominal Frequency:" HorizontalAlignment="Left" Margin="35,206,0,0" VerticalAlignment="Top"/>
                     <TextBox x:Name="OscilNominalFrequencyTextBox" HorizontalAlignment="Left" Height="23" Margin="288,209,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
+                    <Label x:Name="FormatLabel" Content="Data Format:" HorizontalAlignment="Left" Margin="35,232,0,0" VerticalAlignment="Top" RenderTransformOrigin="-4.895,-0.7"/>
+                    <Label x:Name="OldFormatLabel" Content="Format" HorizontalAlignment="Left" Margin="288,232,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.479,1"/>
                 </Grid>
             </TabItem>
         </TabControl>

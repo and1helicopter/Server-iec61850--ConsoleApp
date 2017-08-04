@@ -58,15 +58,14 @@
     <Reference Include="iec61850dotnet">
       <HintPath>.\iec61850dotnet.dll</HintPath>
     </Reference>
-    <Reference Include="ModbusLibraryNew">
-      <HintPath>.\ModbusLibraryNew.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Format\FormatConverter.cs" />
+    <Compile Include="Format\FormatList.cs" />
     <Compile Include="Log\Log.cs" />
     <Compile Include="ModBus\DownloadDataObj.cs" />
     <Compile Include="ModBus\DownloadScope.cs" />
@@ -104,10 +103,6 @@
     <None Include="Dockerfile" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ADSPLibrary\ADSPLibrary.csproj">
-      <Project>{00A4442A-0190-4215-9E05-2DF03BF070AA}</Project>
-      <Name>ADSPLibrary</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\UniSerialPort\UniSerialPort.csproj">
       <Project>{A98B5E88-C666-4B1C-95E9-2CA1C74E7F96}</Project>
       <Name>UniSerialPort</Name>
