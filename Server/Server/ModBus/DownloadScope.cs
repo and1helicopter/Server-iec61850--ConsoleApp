@@ -74,7 +74,6 @@ namespace Server.ModBus
 
         private static readonly List<ushort[]> DownloadedData = new List<ushort[]>();
 
-
         private static uint CalcOscilLoadTemp()
         {
             if (_countTemp < (ScopeConfig.OscilSize >> 1))                               //Проход по осциллограмме 

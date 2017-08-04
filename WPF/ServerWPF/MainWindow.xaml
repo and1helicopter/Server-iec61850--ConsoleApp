@@ -32,6 +32,7 @@
         <Label Grid.Column="0" x:Name="SerialPortStopBits" Content="SerialPortStopBits" HorizontalAlignment="Left" Margin="40,275,0,0" VerticalAlignment="Top" Width="110" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         <Label Grid.Column="0" x:Name="ComPortName" Content="ComPortName" HorizontalAlignment="Left" Margin="40,301,0,0" VerticalAlignment="Top" Width="110" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         <Label Grid.Column="0" x:Name="ModBusStatus" Content="ModBus" HorizontalAlignment="Left" Margin="40,197,0,0" VerticalAlignment="Top" Width="110" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <ProgressBar Grid.Column="0" x:Name="ProgressBar" HorizontalAlignment="Left" Height="17" Margin="40,332,0,0" VerticalAlignment="Top" Width="110" SmallChange="0.01" IsHitTestVisible="True" Visibility="Hidden"/>
+        <ProgressBar Grid.Column="0" x:Name="ProgressBar" HorizontalAlignment="Left" Height="17" Margin="40,332,0,0" VerticalAlignment="Top" Width="110" SmallChange="0" IsHitTestVisible="True"/>
+        <TextBlock Grid.Column="0" x:Name="TextBlock" HorizontalAlignment="Left" Margin="41,333,0,0" TextWrapping="Wrap" Text="{Binding ElementName=ProgressBar, Path=Value}" Visibility="{Binding ElementName=ProgressBar, Path=Visibility}" VerticalAlignment="Top" Width="109" TextAlignment="Center"/>
     </Grid>
 </Window>

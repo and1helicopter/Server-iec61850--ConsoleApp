@@ -33,8 +33,7 @@ namespace ServerWPF
         }
 
         private readonly Config _config = new Config();
-
-
+        
         public static bool CheckedStart;
         private static bool _checkedStop = true;
         private static bool _checkedConfig;
@@ -48,7 +47,7 @@ namespace ServerWPF
             double count;
             if (ModBus.StatusLoad(out count))
             {
-                Dispatcher.Invoke(() => { ProgressBar.Value = count; });
+                Dispatcher.Invoke(() => { ProgressBar.Value = Math.Round(count, 2);});
                 Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
             }
             else
@@ -146,9 +145,6 @@ namespace ServerWPF
             Log.Write(@"ParseFile: File parse success", @"Success");
 
 
-            //ModBus.CloseModBus();
-            //ModBus.InitConfigDownloadScope("true", "false", "comtrade", "1999", "512", "4096", "Scope\\", "50");
-            //ModBus.InitConfigModBus("115200", "Odd", "One", "COM1");
             ModBus.ConfigModBusPort();
             ModBus.StartModBus();
 
