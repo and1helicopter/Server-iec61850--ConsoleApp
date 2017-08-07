@@ -12,25 +12,18 @@ namespace Server.ModBus
 	{
 		private static void ScopoeRequest()
 		{
-			if (!ConfigDownloadScope.Enable || _waitingAnswer || !SerialPort.IsOpen)
+			if (!ConfigDownloadScope.Enable || !SerialPort.IsOpen || _startDownloadScope || _waitingAnswer)
 			{
 				return;
 			}
 
-			if (_startDownloadScope)
+			if (_configScopeDownload)
 			{
-				ScopeDownloadRequestSet();
+				ScopeStatusRequest();
 			}
 			else
 			{
-				if (_configScopeDownload)
-				{
-					ScopeStatusRequest();
-				}
-				else
-				{
-					ScopeConfigRequest();
-				}
+				ScopeConfigRequest();
 			}
 		}
 
@@ -38,7 +31,7 @@ namespace Server.ModBus
 		{
 			lock (Locker)
 			{
-				SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 8), 32,UpdateScopeStatus, null);
+				SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 8), 32, UpdateScopeStatus, null);
 				_waitingAnswer = true;
 			}
 		}
@@ -53,17 +46,116 @@ namespace Server.ModBus
 				}
 				for (int i = 0; i < ScopeConfig.ScopeCount; i++)
 				{
-					if (NowStatus[i] == 4 && OldStatus[i] != 4)
+					if (NowStatus[i] >= 4 && OldStatus[i] < 4)
 					{
 						_indexDownloadScope = i;
-						OldStatus[i] = NowStatus[i];
-						_oscilStartTemp = ((uint)_indexDownloadScope * (ScopeConfig.OscilSize >> 1)); //Начало осциллограммы 
+						_oscilStartTemp = (uint) _indexDownloadScope * (ScopeConfig.OscilSize >> 1); //Начало осциллограммы 
 						_startDownloadScope = true;
+						SetScopeStatus(i);							//Иницализация загрузки 
+
 						break;
 					}
+					else
+					{
+						OldStatus[i] = NowStatus[i];
+					}
+				}
+				_waitingAnswer = false;
+			}
+		}
+
+		private static void SetScopeStatus(int index)
+		{
+			var statusGet = NowStatus[index];
+			if ((byte)statusGet == 0x04)
+			{
+				if ((byte) ((statusGet >> 8) & (ushort) (1 << Server.Server.ServerConfig.CodeDevice)) !=
+				    (1 << Server.Server.ServerConfig.CodeDevice))
+				{
+					ushort[] statusSet =
+					{
+						Convert.ToUInt16(statusGet | (1 << 8 + Server.Server.ServerConfig.CodeDevice))
+					};
+
+					ushort addr = (ushort) (ConfigDownloadScope.OscilCmndAddr + 8 + index);
+
+					SerialPort.SetDataRTU(addr, null, RequestPriority.Normal, null, statusSet);
+					//Инициализируем скачивание осцллограммы
+					SerialPort.GetDataRTU(addr, 1, StartScopeLoad, index);
+				}
+				else
+				{
+					UnsetScopeStatus(index);
 				}
 			}
-			_waitingAnswer = false;
+		}
+
+		private static void StartScopeLoad(bool dataOk, ushort[] paramRtu, object param)
+		{
+			if (dataOk)
+			{
+				var index = Convert.ToInt32(param);
+
+				var statusGet = paramRtu[0];
+				if ((byte)((statusGet >> 8) & (ushort)(1 << Server.Server.ServerConfig.CodeDevice)) == (1 << Server.Server.ServerConfig.CodeDevice))
+				{
+					OldStatus[index] = statusGet;
+					//Начинаем загрузку
+					lock (Locker)
+					{
+						DownloadedData.Clear();
+					}
+
+					ScopeDownloadRequestSet();
+				}
+				else
+				{
+					SetScopeStatus(index);
+				}
+			}
+		}
+
+		private static void UnsetScopeStatus(int index)
+		{
+			ushort addr = (ushort) (ConfigDownloadScope.OscilCmndAddr + 8 + index);
+
+			SerialPort.GetDataRTU(addr, 1, FinishScopeLoad, index);
+		}
+
+		private static void FinishScopeLoad(bool dataOk, ushort[] paramRtu, object param)
+		{
+			if (dataOk)
+			{
+				var index = Convert.ToInt32(param);
+
+				var statusGet = paramRtu[0];
+				ushort addr = (ushort) (ConfigDownloadScope.OscilCmndAddr + 8 + index);
+
+				if ((byte)statusGet == 0x04)
+				{
+					if ((byte)(statusGet >> 8) != 0)
+					{
+						if ((byte)((statusGet >> 8) & (ushort)(1 << Server.Server.ServerConfig.CodeDevice)) == (1 << Server.Server.ServerConfig.CodeDevice))
+						{
+							ushort[] statusSet =
+							{
+								Convert.ToUInt16(statusGet ^ (1 << 8 + Server.Server.ServerConfig.CodeDevice))
+							};
+
+							SerialPort.SetDataRTU(addr, null, RequestPriority.Normal, null, statusSet);
+						}
+					}
+				}
+				_startDownloadScope = false;
+			}
+		}
+
+		private static void ClearScopeStatus(int index)
+		{
+			ushort addr = (ushort) (ConfigDownloadScope.OscilCmndAddr + 8 + index);
+			ushort[] statusSet = { 0 };
+
+			SerialPort.SetDataRTU(addr, null, RequestPriority.Normal, null, statusSet);
 		}
 
 		private static uint _loadOscilTemp;
@@ -94,7 +186,6 @@ namespace Server.ModBus
 					lock (Locker)
 					{
 						SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe, null);
-						_waitingAnswer = true;
 					}
 				}
 					break;
@@ -106,7 +197,6 @@ namespace Server.ModBus
 					lock (Locker)
 					{
 						SerialPort.GetDataRTU04((ushort)(oscilLoadTemp), 32, UpdateScopoe);
-						_waitingAnswer = true;
 					}
 				}
 					break;
@@ -140,6 +230,7 @@ namespace Server.ModBus
 							_loadOscDataStep = 0;
 							_loadOscilTemp = 0;
 							_countTemp = 0;
+
 							SaveToFileRequest();
 							return;
 						}
@@ -147,7 +238,6 @@ namespace Server.ModBus
 						break;
 				}
 			}
-			_waitingAnswer = false;
 			ScopeDownloadRequestSet();
 		}
 
@@ -162,7 +252,6 @@ namespace Server.ModBus
 			lock (Locker)
 			{
 				SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile, null);
-				_waitingAnswer = true;
 			}
 		}
 
@@ -174,6 +263,8 @@ namespace Server.ModBus
 				string str2 = (paramRtu[3] & 0x3F).ToString("X2") + ":" + ((paramRtu[2] >> 8) & 0x7F).ToString("X2") + @":" + (paramRtu[2] & 0x7F).ToString("X2");
 				string str3 = ((paramRtu[4] * 1000) >> 8).ToString("D3") + @"000";
 				string str = str1 + "," + str2 + @"." + str3;
+				UnsetScopeStatus(_indexDownloadScope);
+
 				try
 				{
 					_stampDate = DateTime.Parse(str);
@@ -184,15 +275,11 @@ namespace Server.ModBus
 				}
 				CreateFile();
 
-				_startDownloadScope = false;
-
 				if (ConfigDownloadScope.Remove)
 				{
-					SerialPort.SetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 8 + _indexDownloadScope), null, RequestPriority.Normal, 0);
-					OldStatus[_indexDownloadScope] = 0;
+					ClearScopeStatus(_indexDownloadScope);
 				}
 			}
-			_waitingAnswer = false;
 		}
 
 		#region

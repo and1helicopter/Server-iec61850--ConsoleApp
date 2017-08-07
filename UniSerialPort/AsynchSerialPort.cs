@@ -552,7 +552,7 @@ namespace UniSerialPort
             GetDataRTU04(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority.Normal);
         }
 
-        public void SetDataRTU(byte SlaveAddress, ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority  RequestPriority, object param,params ushort[] Data)
+        public void SetDataRTU(byte SlaveAddress, ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority  RequestPriority, object param, params ushort[] Data)
         {
             if ((Data.Length > 32) || (Data.Length < 1))
             {
@@ -584,9 +584,9 @@ namespace UniSerialPort
             ModBusCRC.CalcCRC(buffer, 7+Data.Length*2, out buffer1);
             AddRequest(buffer1, 8, DataRecievedRTU, RequestPriority, param);
         }
-        public void SetDataRTU(ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority, params ushort[] Data)
+        public void SetDataRTU(ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority, object param, params ushort[] Data)
         {
-            SetDataRTU(SlaveAddr, StartAddr, DataRecievedRTU, RequestPriority, Data);
+            SetDataRTU(SlaveAddr, StartAddr, DataRecievedRTU, RequestPriority, param, Data);
         }
 
 
