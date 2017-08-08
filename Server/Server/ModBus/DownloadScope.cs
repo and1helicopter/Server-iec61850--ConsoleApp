@@ -55,10 +55,7 @@ namespace Server.ModBus
 
 						break;
 					}
-					else
-					{
-						OldStatus[i] = NowStatus[i];
-					}
+					OldStatus[i] = NowStatus[i];
 				}
 				_waitingAnswer = false;
 			}
