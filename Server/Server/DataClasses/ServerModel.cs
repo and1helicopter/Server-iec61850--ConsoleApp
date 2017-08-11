@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using IEC61850.Common;
 
 namespace Server.DataClasses
 {
@@ -194,18 +195,25 @@ namespace Server.DataClasses
 		public class LCB
 		{
 			public string LCBName { get; }
-			public string LCBRef { get; }
-			public bool LCBLogEna { get; }
 			public string LCBDatSet { get; }
+			public string LCBRef { get; }			/* object reference to the journal. Defaults to <MMS DomainName>/<LNName>$GeneralLog */
 
-			//OptFlds
-			public IEC61850.Common.TriggerOptions LCBtrgOptions { get; }
-			public uint LCBintgPd { get; }
-			public string LCBLogRef { get; }
+			public TriggerOptions LCBtrgOptions { get; }		/* TrgOps - trigger conditions */
+			public bool LCBLogEna { get; }								/* enable log by default */
+			public uint LCBintgPd { get; }								/* IntgPd - integrity period */
+			public bool LCBreasonCode { get; }						/* include reason code in log */
 
-
+			public LCB(string name, string reference, bool logEna, string dataSet, TriggerOptions trgOptions, uint  intgPd, bool reasonCode)
+			{
+				LCBName = name;
+				LCBRef = reference;
+				LCBLogEna = logEna;
+				LCBDatSet = dataSet;
+				LCBtrgOptions = trgOptions;
+				LCBintgPd = intgPd;
+				LCBreasonCode = reasonCode;
+			}
 		}
-
 	}
 }
 

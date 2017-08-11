@@ -235,6 +235,53 @@ namespace Server.Parser
 						}
 					}
 					#endregion
+
+					#region LogControlBlock
+					IEnumerable<XElement> xLCB = lnitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "LogControl".ToUpper()).ToList();
+
+					foreach (var itemlcb in xLCB)
+					{
+						var nameLCB = itemlcb.Attribute("name") != null ? itemlcb.Attribute("name") .Value: "";
+						var datSetLCB = itemlcb.Attribute("datSet") != null ? itemlcb.Attribute("datSet").Value : null; // null accepted
+						var refLCB = itemlcb.Attribute("ref") != null ? itemlcb.Attribute("ref").Value : $"{ld}/{ln}.{nameLCB}";
+						var logEnaLCB = itemlcb.Attribute("logEna") != null && (itemlcb.Attribute("logEna").Value.ToLower() == "true");
+						var logNameLCB = itemlcb.Attribute("logName") != null ? itemlcb.Attribute("logName").Value : nameLCB;
+
+						IEC61850.Common.TriggerOptions trgOptions = IEC61850.Common.TriggerOptions.NONE;
+						XElement xTrgOps = itemlcb.Elements().First(x => x.Name.LocalName.ToUpper() == "TrgOps".ToUpper());
+						if (xTrgOps != null)
+						{
+							if ((xTrgOps.Attribute("dchg") != null ? xTrgOps.Attribute("dchg").Value : "false").ToLower() == "true")
+								trgOptions |= IEC61850.Common.TriggerOptions.DATA_CHANGED;
+							if ((xTrgOps.Attribute("qchg") != null ? xTrgOps.Attribute("qchg").Value : "false").ToLower() == "true")
+								trgOptions |= IEC61850.Common.TriggerOptions.QUALITY_CHANGED;
+							if ((xTrgOps.Attribute("dupd") != null ? xTrgOps.Attribute("dupd").Value : "false").ToLower() == "true")
+								trgOptions |= IEC61850.Common.TriggerOptions.DATA_UPDATE;
+							if ((xTrgOps.Attribute("period") != null ? xTrgOps.Attribute("period").Value : "false").ToLower() == "true")
+								trgOptions |= IEC61850.Common.TriggerOptions.INTEGRITY;
+							if ((xTrgOps.Attribute("gi") != null ? xTrgOps.Attribute("gi").Value : "true").ToLower() == "true") // default true
+								trgOptions |= IEC61850.Common.TriggerOptions.GI;
+						}
+
+						var intgPdLCB =  itemlcb.Attribute("intPeriod") != null ?  Convert.ToUInt32(itemlcb.Attribute("intPeriod") .Value): 0;
+						var reasonCodeLCB = itemlcb.Attribute("reasonCode") != null  && (itemlcb.Attribute("reasonCode").Value.ToLower() == "true");
+
+						if (ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN
+							    .First(y => y.NameLN == $"{ld}/{ln}.{nameLCB}") != null)
+						{
+							ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN
+								.First(y => y.NameLN == $"{ld}/{ln}.{nameLCB}").ListLCB.Add(new ServerModel.LCB(nameLCB, refLCB, logEnaLCB, datSetLCB, trgOptions, intgPdLCB, reasonCodeLCB));
+						}
+					}
+					#endregion
+
+					#region Log
+
+					#endregion
+
+					#region SettingGroupControlBlock
+
+					#endregion
 				}
 			}
 			Log.Log.Write("FileParseToAttribute: File parse success", "Success ");
