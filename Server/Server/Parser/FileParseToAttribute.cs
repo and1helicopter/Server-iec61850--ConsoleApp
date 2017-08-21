@@ -226,11 +226,18 @@ namespace Server.Parser
 
 						for (int i = 0; i < rptEnabled; i++)
 						{
-							if (ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
-									.First(y => y.NameLN == fullName) != null)
+							try
 							{
-								ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
-									.First(y => y.NameLN == fullName).ListRCB.Add(new ServerModel.RCB(nameRCB + (indexed ? (i + 1).ToString("D2") : ""), refRCB, rptOptions, trgOptions, bufferedRCB, rptId, datSet, confRev, bufTime, intgPd));
+								if (ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
+									    .First(y => y.NameLN == fullName) != null)
+								{
+									ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
+										.First(y => y.NameLN == fullName).ListRCB.Add(new ServerModel.RCB(nameRCB + (indexed ? (i + 1).ToString("D2") : ""), refRCB, rptOptions, trgOptions, bufferedRCB, rptId, datSet, confRev, bufTime, intgPd));
+								}
+							}
+							catch 
+							{
+								Log.Log.Write("FileParseToAttribute: ReportControl parse error", "Error ");
 							}
 						}
 					}
@@ -245,7 +252,6 @@ namespace Server.Parser
 						var datSetLCB = itemlcb.Attribute("datSet") != null ? itemlcb.Attribute("datSet").Value : null; // null accepted
 						var refLCB = itemlcb.Attribute("ref") != null ? itemlcb.Attribute("ref").Value : $"{ld}/{ln}.{nameLCB}";
 						var logEnaLCB = itemlcb.Attribute("logEna") != null && (itemlcb.Attribute("logEna").Value.ToLower() == "true");
-						var logNameLCB = itemlcb.Attribute("logName") != null ? itemlcb.Attribute("logName").Value : nameLCB;
 
 						IEC61850.Common.TriggerOptions trgOptions = IEC61850.Common.TriggerOptions.NONE;
 						XElement xTrgOps = itemlcb.Elements().First(x => x.Name.LocalName.ToUpper() == "TrgOps".ToUpper());
@@ -266,11 +272,17 @@ namespace Server.Parser
 						var intgPdLCB =  itemlcb.Attribute("intPeriod") != null ?  Convert.ToUInt32(itemlcb.Attribute("intPeriod") .Value): 0;
 						var reasonCodeLCB = itemlcb.Attribute("reasonCode") != null  && (itemlcb.Attribute("reasonCode").Value.ToLower() == "true");
 
-						if (ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN
-							    .First(y => y.NameLN == $"{ld}/{ln}.{nameLCB}") != null)
+						try
 						{
-							ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN
-								.First(y => y.NameLN == $"{ld}/{ln}.{nameLCB}").ListLCB.Add(new ServerModel.LCB(nameLCB, refLCB, logEnaLCB, datSetLCB, trgOptions, intgPdLCB, reasonCodeLCB));
+							if (ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN.First(y => y.NameLN == $"{ln}") != null)
+							{
+								ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN
+									.First(y => y.NameLN == $"{ln}").ListLCB.Add(new ServerModel.LCB(nameLCB, refLCB, logEnaLCB, datSetLCB, trgOptions, intgPdLCB, reasonCodeLCB));
+							}
+						}
+						catch 
+						{
+							Log.Log.Write("FileParseToAttribute: LogControlBlock parse error", "Error ");
 						}
 					}
 					#endregion

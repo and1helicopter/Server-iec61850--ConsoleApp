@@ -168,8 +168,8 @@ namespace Server.DataClasses
 		{
 			public string RCBName { get; }
 			public string RCBRef { get; }
-			public IEC61850.Common.ReportOptions RCBrptOptions { get; }
-			public IEC61850.Common.TriggerOptions RCBtrgOptions { get; }
+			public ReportOptions RCBrptOptions { get; }
+			public TriggerOptions RCBtrgOptions { get; }
 			public string RCBbuffered { get; }
 			public string RCBrptId { get; }
 			public string RCBdatSet { get; }
@@ -177,7 +177,7 @@ namespace Server.DataClasses
 			public uint RCBbufTime { get; }
 			public uint RCBintgPd { get; }
 
-			public RCB(string rcbName, string rcbRef, IEC61850.Common.ReportOptions rcbrptOptions, IEC61850.Common.TriggerOptions rcbtrgOptions, string rcbBuffered, string rcbrptId, string rcbdatSet, uint rcbconfRev, uint rcbbufTime, uint rcbintgPd)
+			public RCB(string rcbName, string rcbRef, ReportOptions rcbrptOptions, TriggerOptions rcbtrgOptions, string rcbBuffered, string rcbrptId, string rcbdatSet, uint rcbconfRev, uint rcbbufTime, uint rcbintgPd)
 			{
 				RCBName = rcbName;
 				RCBRef = rcbRef;

@@ -56,7 +56,8 @@ namespace Server.Parser
 
 				SaveDs(fs, ln.ListDS);
 				SaveRCB(fs, ln.ListRCB);
-
+				SaveLCB(fs, ln.ListLCB);
+				
 				SaveDo(fs, ln.ListDO);
 
 				str = "}\n";
@@ -67,9 +68,10 @@ namespace Server.Parser
 
 		private static void SaveDs(FileStream fs, List<ServerModel.DataSet> listDs)
 		{
+			// DATASET Syntax: DS(<DataSet name>) { DE(<DataSet item>); ...}
+
 			foreach (var ds in listDs)
 			{
-				// Syntax: DO(<data object name> <nb of array elements>){…}
 				string str = $"DS({ds.DSName}){{\n";
 				var array = System.Text.Encoding.Default.GetBytes(str);
 				fs.Write(array, 0, array.Length);
@@ -95,6 +97,25 @@ namespace Server.Parser
 				var rcbbuffered = rcb.RCBbuffered == "BR" ? "1" : "0";
 
 				string str = $"RC({rcb.RCBName} {rcb.RCBRef} {rcbbuffered} {rcb.RCBdatSet} {rcb.RCBconfRev} {trgOptions} {rcbOptions}  {rcb.RCBbufTime} {rcb.RCBintgPd});\n";
+				var array = System.Text.Encoding.Default.GetBytes(str);
+				fs.Write(array, 0, array.Length);
+			}
+		}
+
+		private static void SaveLCB(FileStream fs, List<ServerModel.LCB> lnListLCB)
+		{
+			//LCB Syntax: LC(<LCB name> <LCB DataSet> <LCB Ref> <LCB trgOptions> <> <> <>);
+
+			foreach (var lcb in lnListLCB)
+			{
+				//LC(EventLog Events GenericIO/LLN0$EventLog 19 0 0 1);
+				//LC(GeneralLog - -19 0 0 1);
+				var trgOptions = (ushort)lcb.LCBtrgOptions;
+				var logEna = lcb.LCBLogEna ? 1 : 0;
+				var reasonCode = lcb.LCBreasonCode ? 1 : 0;
+
+
+				string str = $"LC({lcb.LCBName} {lcb.LCBDatSet} {lcb.LCBRef} {trgOptions} {lcb.LCBintgPd} {reasonCode} {logEna});\n";
 				var array = System.Text.Encoding.Default.GetBytes(str);
 				fs.Write(array, 0, array.Length);
 			}
