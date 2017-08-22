@@ -90,6 +90,8 @@ namespace Server.Parser
 		}
 		private static void SaveRCB(FileStream fs, List<ServerModel.RCB> lnListRCB)
 		{
+			// Report Control Block Syntax: RC(<RCB name> <RCB DataSet> <> <> <> <> <>);
+
 			foreach (var rcb in lnListRCB)
 			{
 				var rcbOptions = (ushort)rcb.RCBrptOptions;
@@ -109,7 +111,6 @@ namespace Server.Parser
 			foreach (var lcb in lnListLCB)
 			{
 				//LC(EventLog Events GenericIO/LLN0$EventLog 19 0 0 1);
-				//LC(GeneralLog - -19 0 0 1);
 				var trgOptions = (ushort)lcb.LCBtrgOptions;
 				var logEna = lcb.LCBLogEna ? 1 : 0;
 				var reasonCode = lcb.LCBreasonCode ? 1 : 0;

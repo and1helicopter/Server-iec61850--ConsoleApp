@@ -141,7 +141,8 @@ namespace Server.Parser
                 try
                 {
                     string pathNameDo = path + "." + itemDo.NameDO;
-                    var sps = new SpsClass();
+	                var stval = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value.ToUpper() == "TRUE";
+                    var sps = new SpsClass(stval, itemDo.DescDO);
 
                     UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, sps);
                     UpdateDataObj.DataClassGet.Add(dataObj);
@@ -159,7 +160,8 @@ namespace Server.Parser
                 try
                 {
                     string pathNameDo = path + "." + itemDo.NameDO;
-                    var ins = new IncClass();
+	                var stval = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value);
+					var ins = new InsClass(stval, itemDo.DescDO);
 
                     UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, ins);
                     UpdateDataObj.DataClassGet.Add(dataObj);
@@ -167,7 +169,7 @@ namespace Server.Parser
                 }
                 catch
                 {
-                    Log.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error   ");
+                    Log.Log.Write("CreateClassFromAttribute.GetDo: INS finish whith status false", "Error   ");
                     //return;
                 }
             }

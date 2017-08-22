@@ -88,8 +88,8 @@
     <Compile Include="Server\ServerConfig.cs" />
     <Compile Include="Update\UpdateConnect.cs" />
     <Compile Include="Update\UpdateDataObj.cs" />
-    <Compile Include="DataClasses\AttributesClasses.cs" />
-    <Compile Include="DataClasses\DataClasses.cs" />
+    <Compile Include="DataClasses\DataAttributesClasses.cs" />
+    <Compile Include="DataClasses\CommonDataClasses.cs" />
     <Compile Include="Server\Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Settings.cs" />

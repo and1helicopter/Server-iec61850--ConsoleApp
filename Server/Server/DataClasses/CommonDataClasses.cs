@@ -33,10 +33,10 @@ namespace Server.DataClasses
             q.QualityCheckClass(t);
         }
 
-        public SpsClass()
+        public SpsClass(bool stval,string strd)
         {
-            stVal = false;
-            d = "";
+            stVal = stval;
+            d = strd;
         }
     }
 
@@ -58,10 +58,10 @@ namespace Server.DataClasses
             q.QualityCheckClass(t);
         }
 
-        public InsClass()
+        public InsClass(Int32 stval, string strd)
         {
-            stVal = 0;
-            d = "";
+            stVal = stval;
+            d = strd;
         }
     }
 
@@ -215,9 +215,7 @@ namespace Server.DataClasses
         public ScaledValueClass magSVC;
         public ScaledValueClass angSVC;
         public String d;
-
-
-
+		
         public void ClassFill(int siUnit, int multiplier, float scaleFactorMag, float offsetMag, float scaleFactorAng, float offsetAng, string str)
         {
             Unit.SIUnit = siUnit;
