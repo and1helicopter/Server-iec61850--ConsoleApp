@@ -58,6 +58,19 @@ namespace Server.Update
 
                 ((InsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
             }
-        }
+            else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(ActClass))
+            {
+	            Int64 temp = 0;
+
+	            for (int i = paramRtu.Length - 1; i >= 0; i--)
+	            {
+		            temp += (long)paramRtu[i] << i * 16;
+	            }
+
+	            var val = (temp & (1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj))) > 0;
+
+	            ((ActClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+            }
+		}
     }
 }

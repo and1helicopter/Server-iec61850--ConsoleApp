@@ -91,22 +91,20 @@ namespace Server.Update
         {
             foreach (var itemDataObject in DataClassGet)
             {
-                if (itemDataObject.ClassDataObj == @"MV")
+                switch (itemDataObject.ClassDataObj)
                 {
-                    MV_ClassUpdate(itemDataObject, iedServer, iedModel);
-                    continue;
-                }
-
-                if (itemDataObject.ClassDataObj == @"SPS")
-                {
-                    SPS_ClassUpdate(itemDataObject, iedServer, iedModel);
-                    continue;
-                }
-
-                if (itemDataObject.ClassDataObj == @"INS")
-                {
-                    INS_ClassUpdate(itemDataObject, iedServer, iedModel);
-                    //continue;
+	                case @"MV":
+		                MV_ClassUpdate(itemDataObject, iedServer, iedModel);
+		                continue;
+	                case @"SPS":
+		                SPS_ClassUpdate(itemDataObject, iedServer, iedModel);
+		                continue;
+	                case @"INS":
+		                INS_ClassUpdate(itemDataObject, iedServer, iedModel);
+		                continue;
+					case @"ACT":
+						ACT_ClassUpdate(itemDataObject, iedServer, iedModel);
+						continue;
                 }
             }
         }
@@ -161,5 +159,22 @@ namespace Server.Update
             var qVal = Convert.ToUInt16(((InsClass)itemDataObject.DataObj).q.Validity);
             iedServer.UpdateQuality(qPath, qVal);
         }
-    }
+
+	    private static void ACT_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    {
+		    ((ActClass)itemDataObject.DataObj).QualityCheckClass();
+
+		    var generalPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".general");
+		    var generalVal = Convert.ToBoolean(((ActClass)itemDataObject.DataObj).general);
+		    iedServer.UpdateBooleanAttributeValue(generalPath, generalVal);
+
+		    var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
+		    var tVal = Convert.ToDateTime(((ActClass)itemDataObject.DataObj).t);
+		    iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+		    var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
+		    var qVal = Convert.ToUInt16(((ActClass)itemDataObject.DataObj).q.Validity);
+		    iedServer.UpdateQuality(qPath, qVal);
+	    }
+	}
 }

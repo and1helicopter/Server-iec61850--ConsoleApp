@@ -81,97 +81,110 @@ namespace Server.Parser
         private static void GetDo(ServerModel.NodeDO itemDo, string path)
         {
             //Проверка MV класса
-            if (itemDo.TypeDO == "MV")
+            switch (itemDo.TypeDO)
             {
-                string pathNameDo = path + "." + itemDo.NameDO;
-                var mv = new MvClass();
+	            case "MV":
+		            try
+		            {
+			            var pathNameDo = path + "." + itemDo.NameDO;
+			            var mv = new MvClass();
 
-                try
-                {
-                    var siUnit = Convert.ToInt32((from y in (from x in itemDo.ListDA
-                                                             where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
-                                                             select x).ToList().Last().ListDA.ToList()
-                                                  where y.NameDA.ToUpper() == "SIUnit".ToUpper()
-                                                  select y).ToList().Last().Value);
+						var siUnit = Convert.ToInt32((from y in (from x in itemDo.ListDA
+					            where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
+					            select x).ToList().Last().ListDA.ToList()
+				            where y.NameDA.ToUpper() == "SIUnit".ToUpper()
+				            select y).ToList().Last().Value);
 
-                    var multiplier = Convert.ToInt32((from y in (from x in itemDo.ListDA
-                                                                 where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
-                                                                 select x).ToList().Last().ListDA.ToList()
-                                                      where y.NameDA.ToUpper() == "Multiplier".ToUpper()
-                                                      select y).ToList().Last().Value);
+			            var multiplier = Convert.ToInt32((from y in (from x in itemDo.ListDA
+					            where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
+					            select x).ToList().Last().ListDA.ToList()
+				            where y.NameDA.ToUpper() == "Multiplier".ToUpper()
+				            select y).ToList().Last().Value);
 
-                    var scaleFactor = Convert.ToSingle((from y in (from x in itemDo.ListDA
-                                                                   where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                                                   select x).ToList().Last().ListDA.ToList()
-                                                        where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
-                                                        select y).ToList().Last().Value.Replace('.', ','));
+			            var scaleFactor = Convert.ToSingle((from y in (from x in itemDo.ListDA
+					            where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+					            select x).ToList().Last().ListDA.ToList()
+				            where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
+				            select y).ToList().Last().Value.Replace('.', ','));
 
-                    var offset = Convert.ToSingle((from y in (from x in itemDo.ListDA
-                                                              where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                                              select x).ToList().Last().ListDA.ToList()
-                                                   where y.NameDA.ToUpper() == "Offset".ToUpper()
-                                                   select y).ToList().Last().Value.Replace('.', ','));
+			            var offset = Convert.ToSingle((from y in (from x in itemDo.ListDA
+					            where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+					            select x).ToList().Last().ListDA.ToList()
+				            where y.NameDA.ToUpper() == "Offset".ToUpper()
+				            select y).ToList().Last().Value.Replace('.', ','));
 
-                    if ((from y in (from x in itemDo.ListDA
-                                    where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                    select x).ToList().Last().ListDA.ToList()
-                         where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
-                         select y).ToList().Last().Value == null)
-                    {
-                        scaleFactor = 1;
-                    }
+			            if ((from y in (from x in itemDo.ListDA
+					                where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+					                select x).ToList().Last().ListDA.ToList()
+				                where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
+				                select y).ToList().Last().Value == null)
+			            {
+				            scaleFactor = 1;
+			            }
 
-                    mv.ClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
+			            mv.ClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
 
                     
 
-                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, mv);
-                    UpdateDataObj.DataClassGet.Add(dataObj);
-                    return;
-                }
-                catch
-                {
-                    Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
-                    return;
-                }
-            }
+			            UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, mv);
+			            UpdateDataObj.DataClassGet.Add(dataObj);
+			            return;
+		            }
+		            catch
+		            {
+			            Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
+			            return;
+		            }
+	            case "SPS":
+		            try
+		            {
+			            var pathNameDo = path + "." + itemDo.NameDO;
+			            var stval = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value.ToUpper() == "TRUE";
+			            var sps = new SpsClass(stval, itemDo.DescDO);
 
-            if (itemDo.TypeDO == "SPS")
-            {
-                try
-                {
-                    string pathNameDo = path + "." + itemDo.NameDO;
-	                var stval = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value.ToUpper() == "TRUE";
-                    var sps = new SpsClass(stval, itemDo.DescDO);
+			            UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, sps);
+			            UpdateDataObj.DataClassGet.Add(dataObj);
+			            return;
+		            }
+		            catch
+		            {
+			            Log.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error   ");
+			            return;
+		            }
+	            case "INS":
+		            try
+		            {
+			            var pathNameDo = path + "." + itemDo.NameDO;
+			            var stval = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value);
+			            var ins = new InsClass(stval, itemDo.DescDO);
 
-                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, sps);
-                    UpdateDataObj.DataClassGet.Add(dataObj);
-                    return;
-                }
-                catch
-                {
-                    Log.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error   ");
-                    return;
-                }
-            }
+			            UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, ins);
+			            UpdateDataObj.DataClassGet.Add(dataObj);
+			            return;
+		            }
+		            catch
+		            {
+			            Log.Log.Write("CreateClassFromAttribute.GetDo: INS finish whith status false", "Error   ");
+			            return;
+		            }
+	            case "ACT":
+					try
+					{
+						var pathNameDo = path + "." + itemDo.NameDO;
 
-            if (itemDo.TypeDO == "INS")
-            {
-                try
-                {
-                    string pathNameDo = path + "." + itemDo.NameDO;
-	                var stval = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value);
-					var ins = new InsClass(stval, itemDo.DescDO);
+						var general = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "general".ToUpper()).Value.ToUpper() == "TRUE";
+						var act = new ActClass(general, itemDo.DescDO);
 
-                    UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, ins);
-                    UpdateDataObj.DataClassGet.Add(dataObj);
-                    //return;
-                }
-                catch
-                {
-                    Log.Log.Write("CreateClassFromAttribute.GetDo: INS finish whith status false", "Error   ");
-                    //return;
-                }
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, act);
+						UpdateDataObj.DataClassGet.Add(dataObj);
+						return;
+					}
+					catch 
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: ACT finish whith status false", "Error   ");
+						return;
+					}
+
             }
         }
         #endregion

@@ -65,102 +65,107 @@ namespace Server.DataClasses
         }
     }
 
-    ////Сведения об активации защиты
-    //public class ActClass : BaseClass
-    //{
-    //    public Boolean general;
-    //    public String d;
+	//Сведения об активации защиты
+	public class ActClass : BaseClass
+	{
+		public Boolean general;
+		public String d;
 
-    //    public void UpdateClass(DateTime time, bool value)
-    //    {
-    //        general = value;
-    //        t = time;
-    //        q.UpdateQuality(time, value);
-    //    }
+		public void UpdateClass(DateTime time, bool value)
+		{
+			general = value;
+			t = time;
+			q.UpdateQuality(time);
+		}
 
-    //    public ActClass()
-    //    {
-    //        general = false;
-    //        d = "";
-    //    }
-    //}
+		public void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
 
-    ////Сведения об активации направленной защиты
-    //public class AcdClass : BaseClass
-    //{
-    //    public Boolean general;
-    //    public Int32 dirGeneral;
-    //    public String d;
+		public ActClass(bool gen , string strd)
+		{
+			general = gen;
+			d = strd;
+		}
+	}
 
-    //    public AcdClass()
-    //    {
-    //        general = false;
-    //        dirGeneral = 0;
-    //        d = "";
-    //    }
+	////Сведения об активации направленной защиты
+	//public class AcdClass : BaseClass
+	//{
+	//    public Boolean general;
+	//    public Int32 dirGeneral;
+	//    public String d;
 
-    //    public void UpdateClass(DateTime time, bool value, string valueDir)
-    //    {
-    //        general = value;
-    //        if (value) dirGeneral = MapDirGeneral(valueDir);
-    //        t = time;
-    //        q.UpdateQuality(time, value);
-    //    }
+	//    public AcdClass()
+	//    {
+	//        general = false;
+	//        dirGeneral = 0;
+	//        d = "";
+	//    }
 
-    //    private ushort MapDirGeneral(string quality)
-    //    {
-    //        ushort qual = 0;
-    //        switch (quality.ToUpper())
-    //        {
-    //            case "UNKNOWN":
-    //                qual = (ushort)ValidityDirGeneral.UNKNOWN;
-    //                break;
-    //            case "FORWARD":
-    //                qual = (ushort)ValidityDirGeneral.FORWARD;
-    //                break;
-    //            case "BACKWARD":
-    //                qual = (ushort)ValidityDirGeneral.BACKWARD;
-    //                break;
-    //            case "BOTH":
-    //                qual = (ushort)ValidityDirGeneral.BOTH;
-    //                break;
-    //        }
-    //        return qual;
-    //    }
+	//    public void UpdateClass(DateTime time, bool value, string valueDir)
+	//    {
+	//        general = value;
+	//        if (value) dirGeneral = MapDirGeneral(valueDir);
+	//        t = time;
+	//        q.UpdateQuality(time, value);
+	//    }
 
-    //    enum ValidityDirGeneral
-    //    {
-    //        UNKNOWN = 0,
-    //        FORWARD = 1,
-    //        BACKWARD = 2,
-    //        BOTH = 3
-    //    }
-    //}
+	//    private ushort MapDirGeneral(string quality)
+	//    {
+	//        ushort qual = 0;
+	//        switch (quality.ToUpper())
+	//        {
+	//            case "UNKNOWN":
+	//                qual = (ushort)ValidityDirGeneral.UNKNOWN;
+	//                break;
+	//            case "FORWARD":
+	//                qual = (ushort)ValidityDirGeneral.FORWARD;
+	//                break;
+	//            case "BACKWARD":
+	//                qual = (ushort)ValidityDirGeneral.BACKWARD;
+	//                break;
+	//            case "BOTH":
+	//                qual = (ushort)ValidityDirGeneral.BOTH;
+	//                break;
+	//        }
+	//        return qual;
+	//    }
 
-    ////Считывание показаний двоичного счетчика
-    //public class BcrClass : BaseClass
-    //{
-    //    public Int32 actVal;
-    //    public String d;
+	//    enum ValidityDirGeneral
+	//    {
+	//        UNKNOWN = 0,
+	//        FORWARD = 1,
+	//        BACKWARD = 2,
+	//        BOTH = 3
+	//    }
+	//}
 
-    //    public void UpdateClass(DateTime time, int value)
-    //    {
-    //        actVal = value;
-    //        t = time;
-    //        q.UpdateQuality(time, value);
-    //    }
+	////Считывание показаний двоичного счетчика
+	//public class BcrClass : BaseClass
+	//{
+	//    public Int32 actVal;
+	//    public String d;
 
-    //    public BcrClass()
-    //    {
-    //        actVal = 0;
-    //        d = "";
-    //    }
-    //}
-    #endregion
+	//    public void UpdateClass(DateTime time, int value)
+	//    {
+	//        actVal = value;
+	//        t = time;
+	//        q.UpdateQuality(time, value);
+	//    }
 
-    #region  Классы общих данных для информации об измеряемой величине
-    //измеряемые значения
-    public class MvClass : BaseClass
+	//    public BcrClass()
+	//    {
+	//        actVal = 0;
+	//        d = "";
+	//    }
+	//}
+	#endregion
+
+	#region  Классы общих данных для информации об измеряемой величине
+	//измеряемые значения
+	public class MvClass : BaseClass
     {
         public MagClass Mag;
         public UnitClass Unit;

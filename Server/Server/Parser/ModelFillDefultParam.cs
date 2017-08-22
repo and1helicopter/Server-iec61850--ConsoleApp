@@ -24,246 +24,279 @@ namespace Server.Parser
                         string nameItemDo = itemDo.NameDO;
                         //Заполняем модель параметрами по-умолчанию
 
-                        #region Проходим по списку поддерживаемых классов
-
-                        //Классы общих данных для информации о состоянии
-                        if (itemDo.TypeDO == "SPS")
+                        switch (itemDo.TypeDO)
                         {
-                            var stVal = (from x in itemDo.ListDA
-                                         where x.NameDA.ToUpper() == "stVal".ToUpper()
-                                         select x).ToList()
-                                .First();
+	                        #region Классы общих данных для информации о состоянии
+							case "SPS":
+	                        {
+		                        var stVal = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "stVal".ToUpper()
+				                        select x).ToList()
+			                        .First();
 
-                            stVal.Value = "false";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal",
-                                    "bool", stVal.Value));
+		                        stVal.Value = "false";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal",
+				                        "bool", stVal.Value));
 
-                            var q = (from x in itemDo.ListDA
-                                     where x.NameDA.ToUpper() == "q".ToUpper()
-                                     select x).ToList()
-                                .First();
+		                        var q = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "q".ToUpper()
+				                        select x).ToList()
+			                        .First();
 
-                            q.Value = "0";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
-                                    "ushort", q.Value));
+		                        q.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
+				                        "ushort", q.Value));
 
-                            var t = (from x in itemDo.ListDA
-                                     where x.NameDA.ToUpper() == "t".ToUpper()
-                                     select x).ToList()
-                                .First();
+		                        var t = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "t".ToUpper()
+				                        select x).ToList()
+			                        .First();
 
-                            t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
-                                    "DateTime", t.Value));
-                            continue;
+		                        t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
+				                        "DateTime", t.Value));
+		                        continue;
+	                        }
+	                        case "INS":
+	                        {
+		                        var stVal = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "stVal".ToUpper()
+				                        select x).ToList()
+			                        .First();
+
+		                        stVal.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal",
+				                        "int", stVal.Value));
+
+		                        var q = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "q".ToUpper()
+				                        select x).ToList()
+			                        .First();
+
+		                        q.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
+				                        "ushort", q.Value));
+
+		                        var t = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "t".ToUpper()
+				                        select x).ToList()
+			                        .First();
+
+		                        t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
+				                        "DateTime", t.Value));
+		                        continue;
+	                        }
+	                        case "ACT":
+	                        {
+		                        var general = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "general".ToUpper()
+				                        select x).ToList().First();
+
+		                        general.Value = "false";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".general", "bool", general.Value));
+
+		                        var q = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "q".ToUpper()
+				                        select x).ToList()
+			                        .First();
+
+		                        q.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
+				                        "ushort", q.Value));
+
+		                        var t = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "t".ToUpper()
+				                        select x).ToList()
+			                        .First();
+
+		                        t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
+
+								DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
+				                        "DateTime", t.Value));
+		                        continue;
+	                        }
+	                        #endregion
+
+							case "MV":
+	                        {
+		                        var f = (from y in (from x in itemDo.ListDA
+					                        where x.TypeDA != null && x.TypeDA.ToUpper() == "AnalogueValue".ToUpper()
+					                        select x).ToList()
+				                        .Last()
+				                        .ListDA.ToList()
+				                        where y.NameDA.ToUpper() == "f".ToUpper()
+				                        select y).ToList()
+			                        .First();
+
+		                        f.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".mag.f",
+				                        "float", f.Value));
+
+		                        var siUnit = (from y in (from x in itemDo.ListDA
+					                        where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
+					                        select x).ToList()
+				                        .Last()
+				                        .ListDA.ToList()
+				                        where y.NameDA.ToUpper() == "SIUnit".ToUpper()
+				                        select y).ToList()
+			                        .First();
+
+		                        siUnit.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(
+				                        nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".units.SIUnit", "int",
+				                        siUnit.Value));
+
+		                        var multiplier = (from y in (from x in itemDo.ListDA
+					                        where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
+					                        select x).ToList()
+				                        .Last()
+				                        .ListDA.ToList()
+				                        where y.NameDA.ToUpper() == "Multiplier".ToUpper()
+				                        select y).ToList()
+			                        .First();
+
+		                        multiplier.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(
+				                        nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".units.multiplier", "int",
+				                        multiplier.Value));
+
+		                        var scaleFactor = (from y in (from x in itemDo.ListDA
+					                        where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+					                        select x).ToList()
+				                        .Last()
+				                        .ListDA.ToList()
+				                        where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
+				                        select y).ToList()
+			                        .First();
+
+		                        scaleFactor.Value = "1";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(
+				                        nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".sVC.scaleFactor", "float",
+				                        scaleFactor.Value));
+
+		                        var offset = (from y in (from x in itemDo.ListDA
+					                        where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
+					                        select x).ToList()
+				                        .Last()
+				                        .ListDA.ToList()
+				                        where y.NameDA.ToUpper() == "Offset".ToUpper()
+				                        select y).ToList()
+			                        .First();
+
+		                        offset.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(
+				                        nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".sVC.offset", "float",
+				                        offset.Value));
+
+		                        var q = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "q".ToUpper()
+				                        select x).ToList()
+			                        .First();
+
+		                        q.Value = "0";
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
+				                        "ushort", q.Value));
+
+		                        var t = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "t".ToUpper()
+				                        select x).ToList()
+			                        .First();
+
+		                        t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
+		                        DataObj.StructDataObj.Add(
+			                        new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
+				                        "DateTime", t.Value));
+		                        continue;
+	                        }
+	                        case "CMV":
+		                        //var f = (from y in (from x in itemDo.ListDA
+		                        //        where x.TempDA != null && x.TempDA.ToUpper() == "AnalogueValue".ToUpper()
+		                        //        select x).ToList().Last().ListDA.ToList()
+		                        //    where y.NameDA.ToUpper() == "f".ToUpper()
+		                        //    select y).ToList().First();
+
+		                        //f.Value = "0";
+		                        //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".AnalogueValue.f", "float", f.Value));
+
+		                        //var siUnit = (from y in (from x in itemDo.ListDA
+		                        //        where x.TempDA != null && x.TempDA.ToUpper() == "Unit".ToUpper()
+		                        //        select x).ToList().Last().ListDA.ToList()
+		                        //    where y.NameDA.ToUpper() == "SIUnit".ToUpper()
+		                        //    select y).ToList().First();
+
+		                        //siUnit.Value = "0";
+		                        //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.SIUnit", "int", siUnit.Value));
+
+		                        //var multiplier = (from y in (from x in itemDo.ListDA
+		                        //        where x.TempDA != null && x.TempDA.ToUpper() == "Unit".ToUpper()
+		                        //        select x).ToList().Last().ListDA.ToList()
+		                        //    where y.NameDA.ToUpper() == "Multiplier".ToUpper()
+		                        //    select y).ToList().First();
+
+		                        //multiplier.Value = "0";
+		                        //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.Multiplier", "int", multiplier.Value));
+
+		                        //var scaleFactor = (from y in (from x in itemDo.ListDA
+		                        //        where x.TempDA != null && x.TempDA.ToUpper() == "MagSVC".ToUpper()
+		                        //        select x).ToList().Last().ListDA.ToList()
+		                        //    where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
+		                        //    select y).ToList().First();
+
+		                        //scaleFactor.Value = "1";
+		                        //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.ScaleFactor", "float", scaleFactor.Value));
+
+		                        //var offset = (from y in (from x in itemDo.ListDA
+		                        //        where x.TempDA != null && x.TempDA.ToUpper() == "MagSVC".ToUpper()
+		                        //        select x).ToList().Last().ListDA.ToList()
+		                        //    where y.NameDA.ToUpper() == "Offset".ToUpper()
+		                        //    select y).ToList().First();
+
+		                        //offset.Value = "0";
+		                        //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.Offset", "float", offset.Value));
+
+		                        //var q = (from x in itemDo.ListDA
+		                        //    where x.NameDA.ToUpper() == "q".ToUpper()
+		                        //    select x).ToList().First();
+
+		                        //q.Value = "0";
+		                        //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
+
+		                        //var t = (from x in itemDo.ListDA
+		                        //    where x.NameDA.ToUpper() == "t".ToUpper()
+		                        //    select x).ToList().First();
+
+		                        //t.Value = DateTime.Now.ToString() + DateTime.Now.Millisecond;
+		                        //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+		                        //continue;
+		                        break;
                         }
 
                         //Целочисленное состояние
-                        if (itemDo.TypeDO == "INS")
-                        {
-                            var stVal = (from x in itemDo.ListDA
-                                         where x.NameDA.ToUpper() == "stVal".ToUpper()
-                                         select x).ToList()
-                                .First();
 
-                            stVal.Value = "0";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal",
-                                    "int", stVal.Value));
-
-                            var q = (from x in itemDo.ListDA
-                                     where x.NameDA.ToUpper() == "q".ToUpper()
-                                     select x).ToList()
-                                .First();
-
-                            q.Value = "0";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
-                                    "ushort", q.Value));
-
-                            var t = (from x in itemDo.ListDA
-                                     where x.NameDA.ToUpper() == "t".ToUpper()
-                                     select x).ToList()
-                                .First();
-
-                            t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
-                                    "DateTime", t.Value));
-                            continue;
-                        }
-
-                        #endregion
+	                    
 
                         #region Классы общих данных для информации об измеряемой величине
 
                         //измеряемые значения
-                        if (itemDo.TypeDO == "MV")
-                        {
-                            var f = (from y in (from x in itemDo.ListDA
-                                                where x.TypeDA != null && x.TypeDA.ToUpper() == "AnalogueValue".ToUpper()
-                                                select x).ToList()
-                                    .Last()
-                                    .ListDA.ToList()
-                                     where y.NameDA.ToUpper() == "f".ToUpper()
-                                     select y).ToList()
-                                .First();
 
-                            f.Value = "0";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".mag.f",
-                                    "float", f.Value));
+	                    //комплексные измеряемые значения
 
-                            var siUnit = (from y in (from x in itemDo.ListDA
-                                                     where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
-                                                     select x).ToList()
-                                    .Last()
-                                    .ListDA.ToList()
-                                          where y.NameDA.ToUpper() == "SIUnit".ToUpper()
-                                          select y).ToList()
-                                .First();
-
-                            siUnit.Value = "0";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(
-                                    nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".units.SIUnit", "int",
-                                    siUnit.Value));
-
-                            var multiplier = (from y in (from x in itemDo.ListDA
-                                                         where x.TypeDA != null && x.TypeDA.ToUpper() == "Unit".ToUpper()
-                                                         select x).ToList()
-                                    .Last()
-                                    .ListDA.ToList()
-                                              where y.NameDA.ToUpper() == "Multiplier".ToUpper()
-                                              select y).ToList()
-                                .First();
-
-                            multiplier.Value = "0";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(
-                                    nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".units.multiplier", "int",
-                                    multiplier.Value));
-
-                            var scaleFactor = (from y in (from x in itemDo.ListDA
-                                                          where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                                          select x).ToList()
-                                    .Last()
-                                    .ListDA.ToList()
-                                               where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
-                                               select y).ToList()
-                                .First();
-
-                            scaleFactor.Value = "1";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(
-                                    nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".sVC.scaleFactor", "float",
-                                    scaleFactor.Value));
-
-                            var offset = (from y in (from x in itemDo.ListDA
-                                                     where x.TypeDA != null && x.TypeDA.ToUpper() == "MagSVC".ToUpper()
-                                                     select x).ToList()
-                                    .Last()
-                                    .ListDA.ToList()
-                                          where y.NameDA.ToUpper() == "Offset".ToUpper()
-                                          select y).ToList()
-                                .First();
-
-                            offset.Value = "0";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(
-                                    nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".sVC.offset", "float",
-                                    offset.Value));
-
-                            var q = (from x in itemDo.ListDA
-                                     where x.NameDA.ToUpper() == "q".ToUpper()
-                                     select x).ToList()
-                                .First();
-
-                            q.Value = "0";
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q",
-                                    "ushort", q.Value));
-
-                            var t = (from x in itemDo.ListDA
-                                     where x.NameDA.ToUpper() == "t".ToUpper()
-                                     select x).ToList()
-                                .First();
-
-                            t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-                            DataObj.StructDataObj.Add(
-                                new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t",
-                                    "DateTime", t.Value));
-                            continue;
-                        }
-
-                        //комплексные измеряемые значения
-                        if (itemDo.TypeDO == "CMV")
-                        {
-                            //var f = (from y in (from x in itemDo.ListDA
-                            //        where x.TempDA != null && x.TempDA.ToUpper() == "AnalogueValue".ToUpper()
-                            //        select x).ToList().Last().ListDA.ToList()
-                            //    where y.NameDA.ToUpper() == "f".ToUpper()
-                            //    select y).ToList().First();
-
-                            //f.Value = "0";
-                            //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".AnalogueValue.f", "float", f.Value));
-
-                            //var siUnit = (from y in (from x in itemDo.ListDA
-                            //        where x.TempDA != null && x.TempDA.ToUpper() == "Unit".ToUpper()
-                            //        select x).ToList().Last().ListDA.ToList()
-                            //    where y.NameDA.ToUpper() == "SIUnit".ToUpper()
-                            //    select y).ToList().First();
-
-                            //siUnit.Value = "0";
-                            //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.SIUnit", "int", siUnit.Value));
-
-                            //var multiplier = (from y in (from x in itemDo.ListDA
-                            //        where x.TempDA != null && x.TempDA.ToUpper() == "Unit".ToUpper()
-                            //        select x).ToList().Last().ListDA.ToList()
-                            //    where y.NameDA.ToUpper() == "Multiplier".ToUpper()
-                            //    select y).ToList().First();
-
-                            //multiplier.Value = "0";
-                            //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".Unit.Multiplier", "int", multiplier.Value));
-
-                            //var scaleFactor = (from y in (from x in itemDo.ListDA
-                            //        where x.TempDA != null && x.TempDA.ToUpper() == "MagSVC".ToUpper()
-                            //        select x).ToList().Last().ListDA.ToList()
-                            //    where y.NameDA.ToUpper() == "ScaleFactor".ToUpper()
-                            //    select y).ToList().First();
-
-                            //scaleFactor.Value = "1";
-                            //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.ScaleFactor", "float", scaleFactor.Value));
-
-                            //var offset = (from y in (from x in itemDo.ListDA
-                            //        where x.TempDA != null && x.TempDA.ToUpper() == "MagSVC".ToUpper()
-                            //        select x).ToList().Last().ListDA.ToList()
-                            //    where y.NameDA.ToUpper() == "Offset".ToUpper()
-                            //    select y).ToList().First();
-
-                            //offset.Value = "0";
-                            //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".MagSVC.Offset", "float", offset.Value));
-
-                            //var q = (from x in itemDo.ListDA
-                            //    where x.NameDA.ToUpper() == "q".ToUpper()
-                            //    select x).ToList().First();
-
-                            //q.Value = "0";
-                            //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
-
-                            //var t = (from x in itemDo.ListDA
-                            //    where x.NameDA.ToUpper() == "t".ToUpper()
-                            //    select x).ToList().First();
-
-                            //t.Value = DateTime.Now.ToString() + DateTime.Now.Millisecond;
-                            //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(ServerModel.Model.NameModel + nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
-                            //continue;
-                        }
-
-                        #endregion
+	                    #endregion
 
                         #region Спецификации класса общих данных для управления состоянием и информации о состоянии
 
