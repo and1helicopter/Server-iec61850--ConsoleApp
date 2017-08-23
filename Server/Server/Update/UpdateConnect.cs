@@ -23,54 +23,70 @@ namespace Server.Update
 
         public static void UpdateData(int currentIndex, ushort[] paramRtu)
         {
-            if (DataClassGet[currentIndex].DataObj.GetType() == typeof(MvClass))
+			#region Классы общих данных для информации о состоянии
+	        if (DataClassGet[currentIndex].DataObj.GetType() == typeof(SpsClass))
+	        {
+		        Int64 temp = 0;
+
+		        for (int i = paramRtu.Length - 1; i >= 0; i--)
+		        {
+			        temp += (long)paramRtu[i] << i * 16;
+		        }
+
+		        var val = (temp & (1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj))) > 0;
+
+		        ((SpsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+	        }
+	        else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(InsClass))
+	        {
+		        Int32 val = 0;
+
+		        for (int i = paramRtu.Length - 1; i >= 0; i--)
+		        {
+			        val += paramRtu[i] << i * 16;
+		        }
+
+		        ((InsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+	        }
+	        else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(ActClass))
+	        {
+		        Int64 temp = 0;
+
+		        for (int i = paramRtu.Length - 1; i >= 0; i--)
+		        {
+			        temp += (long)paramRtu[i] << i * 16;
+		        }
+
+		        var val = (temp & (1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj))) > 0;
+
+		        ((ActClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+	        }
+	        else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(BcrClass))
+	        {
+		        Int32 val = 0;
+
+		        for (int i = paramRtu.Length - 1; i >= 0; i--)
+		        {
+			        val += paramRtu[i] << i * 16;
+		        }
+
+		        ((BcrClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+	        }
+			#endregion
+			
+			#region  Классы общих данных для информации об измеряемой величине
+			else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(MvClass))
             {
-                Int64 val = 0;
-
-                for (int i = paramRtu.Length - 1; i >= 0; i--)
-                {
-                    val += (long)paramRtu[i] << i * 16;
-                }
-
-                ((MvClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, (ulong)val);
-            }
-            else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(SpsClass))
-            {
-                Int64 temp = 0;
-
-                for (int i = paramRtu.Length - 1; i >= 0; i--)
-                {
-                    temp += (long)paramRtu[i] << i * 16;
-                }
-
-                var val = (temp & (1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj))) > 0;
-
-                ((SpsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
-            }
-            else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(InsClass))
-            {
-                Int32 val = 0;
-
-                for (int i = paramRtu.Length - 1; i >= 0; i--)
-                {
-                    val += paramRtu[i] << i * 16;
-                }
-
-                ((InsClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
-            }
-            else if (DataClassGet[currentIndex].DataObj.GetType() == typeof(ActClass))
-            {
-	            Int64 temp = 0;
+	            Int64 val = 0;
 
 	            for (int i = paramRtu.Length - 1; i >= 0; i--)
 	            {
-		            temp += (long)paramRtu[i] << i * 16;
+		            val += (long)paramRtu[i] << i * 16;
 	            }
 
-	            var val = (temp & (1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj))) > 0;
-
-	            ((ActClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+	            ((MvClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, (ulong)val);
             }
+			#endregion
 		}
-    }
+	}
 }

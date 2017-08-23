@@ -93,9 +93,6 @@ namespace Server.Update
             {
                 switch (itemDataObject.ClassDataObj)
                 {
-	                case @"MV":
-		                MV_ClassUpdate(itemDataObject, iedServer, iedModel);
-		                continue;
 	                case @"SPS":
 		                SPS_ClassUpdate(itemDataObject, iedServer, iedModel);
 		                continue;
@@ -105,60 +102,50 @@ namespace Server.Update
 					case @"ACT":
 						ACT_ClassUpdate(itemDataObject, iedServer, iedModel);
 						continue;
-                }
+					case @"BCR":
+						BCR_ClassUpdate(itemDataObject, iedServer, iedModel);
+						continue;
+	                case @"MV":
+		                MV_ClassUpdate(itemDataObject, iedServer, iedModel);
+		                continue;
+				}
             }
         }
 
-        private static void MV_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
-        {
-            ((MvClass)itemDataObject.DataObj).QualityCheckClass();
+		#region Классы общих данных для информации о состоянии
+		private static void SPS_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    {
+		    ((SpsClass)itemDataObject.DataObj).QualityCheckClass();
 
-            var magPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".mag.f");
-            var magVal = Convert.ToSingle(((MvClass)itemDataObject.DataObj).Mag.AnalogueValue.f);
-            iedServer.UpdateFloatAttributeValue(magPath, magVal);
+		    var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
+		    var stValVal = Convert.ToBoolean(((SpsClass)itemDataObject.DataObj).stVal);
+		    iedServer.UpdateBooleanAttributeValue(stValPath, stValVal);
 
-            var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
-            var tVal = Convert.ToDateTime(((MvClass)itemDataObject.DataObj).t);
-            iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+		    var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
+		    var tVal = Convert.ToDateTime(((SpsClass)itemDataObject.DataObj).t);
+		    iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
 
-            var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
-            var qVal = Convert.ToUInt16(((MvClass)itemDataObject.DataObj).q.Validity);
-            iedServer.UpdateQuality(qPath, qVal);
-        }
+		    var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
+		    var qVal = Convert.ToUInt16(((SpsClass)itemDataObject.DataObj).q.Validity);
+		    iedServer.UpdateQuality(qPath, qVal);
+	    }
 
-        private static void SPS_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
-        {
-            ((SpsClass)itemDataObject.DataObj).QualityCheckClass();
+	    private static void INS_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    {
+		    ((InsClass)itemDataObject.DataObj).QualityCheckClass();
 
-            var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
-            var stValVal = Convert.ToBoolean(((SpsClass)itemDataObject.DataObj).stVal);
-            iedServer.UpdateBooleanAttributeValue(stValPath, stValVal);
+		    var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
+		    var stValVal = Convert.ToInt32(((InsClass)itemDataObject.DataObj).stVal);
+		    iedServer.UpdateInt32AttributeValue(stValPath, stValVal);
 
-            var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
-            var tVal = Convert.ToDateTime(((SpsClass)itemDataObject.DataObj).t);
-            iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+		    var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
+		    var tVal = Convert.ToDateTime(((InsClass)itemDataObject.DataObj).t);
+		    iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
 
-            var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
-            var qVal = Convert.ToUInt16(((SpsClass)itemDataObject.DataObj).q.Validity);
-            iedServer.UpdateQuality(qPath, qVal);
-        }
-
-        private static void INS_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
-        {
-            ((InsClass)itemDataObject.DataObj).QualityCheckClass();
-
-            var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
-            var stValVal = Convert.ToInt32(((InsClass)itemDataObject.DataObj).stVal);
-            iedServer.UpdateInt32AttributeValue(stValPath, stValVal);
-
-            var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
-            var tVal = Convert.ToDateTime(((InsClass)itemDataObject.DataObj).t);
-            iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
-
-            var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
-            var qVal = Convert.ToUInt16(((InsClass)itemDataObject.DataObj).q.Validity);
-            iedServer.UpdateQuality(qPath, qVal);
-        }
+		    var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
+		    var qVal = Convert.ToUInt16(((InsClass)itemDataObject.DataObj).q.Validity);
+		    iedServer.UpdateQuality(qPath, qVal);
+	    }
 
 	    private static void ACT_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
 	    {
@@ -176,5 +163,42 @@ namespace Server.Update
 		    var qVal = Convert.ToUInt16(((ActClass)itemDataObject.DataObj).q.Validity);
 		    iedServer.UpdateQuality(qPath, qVal);
 	    }
+
+	    private static void BCR_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    {
+		    ((BcrClass)itemDataObject.DataObj).QualityCheckClass();
+
+		    var actValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".actVal");
+		    var actValVal = Convert.ToInt32(((BcrClass)itemDataObject.DataObj).actVal);
+		    iedServer.UpdateInt32AttributeValue(actValPath, actValVal);
+
+		    var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
+		    var tVal = Convert.ToDateTime(((BcrClass)itemDataObject.DataObj).t);
+		    iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+		    var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
+		    var qVal = Convert.ToUInt16(((BcrClass)itemDataObject.DataObj).q.Validity);
+		    iedServer.UpdateQuality(qPath, qVal);
+	    }
+		#endregion
+
+		#region  Классы общих данных для информации об измеряемой величине
+		private static void MV_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+		{
+			((MvClass)itemDataObject.DataObj).QualityCheckClass();
+
+			var magPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".mag.f");
+			var magVal = Convert.ToSingle(((MvClass)itemDataObject.DataObj).Mag.AnalogueValue.f);
+			iedServer.UpdateFloatAttributeValue(magPath, magVal);
+
+			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
+			var tVal = Convert.ToDateTime(((MvClass)itemDataObject.DataObj).t);
+			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
+			var qVal = Convert.ToUInt16(((MvClass)itemDataObject.DataObj).q.Validity);
+			iedServer.UpdateQuality(qPath, qVal);
+		}
+		#endregion
 	}
 }

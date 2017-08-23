@@ -142,25 +142,30 @@ namespace Server.DataClasses
 	//    }
 	//}
 
-	////Считывание показаний двоичного счетчика
-	//public class BcrClass : BaseClass
-	//{
-	//    public Int32 actVal;
-	//    public String d;
+	//Считывание показаний двоичного счетчика
+	public class BcrClass : BaseClass
+	{
+		public Int32 actVal;
+		public String d;
 
-	//    public void UpdateClass(DateTime time, int value)
-	//    {
-	//        actVal = value;
-	//        t = time;
-	//        q.UpdateQuality(time, value);
-	//    }
+		public void UpdateClass(DateTime time, int value)
+		{
+			actVal = value;
+			t = time;
+			q.UpdateQuality(time);
+		}
 
-	//    public BcrClass()
-	//    {
-	//        actVal = 0;
-	//        d = "";
-	//    }
-	//}
+		public void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+
+		public BcrClass(int act, string strd)
+		{
+			actVal = act;
+			d = strd;
+		}
+	}
 	#endregion
 
 	#region  Классы общих данных для информации об измеряемой величине
@@ -260,20 +265,25 @@ namespace Server.DataClasses
     //Класс SPC (недублированное управление и состояние)
     public class SpcClass : BaseClass
     {
-        public Boolean ctlVal;
+	    public Boolean ctlVal;
         public Boolean stVal;
         public Int32 ctlModel;
         public String d;
 
-        public SpcClass()
+        public SpcClass(bool ctlval, bool stval, string ctlmodel, string strd)
         {
-            ctlVal = false;
-            stVal = false;
-            ctlModel = 1;
-            d = "";
+            ctlVal = ctlval;
+            stVal = stval;
+            ctlModel = MapCtlModel(ctlmodel);
+            d = strd;
         }
 
-        public void UpdateClass(DateTime time, bool ctlValue, bool stValue, string ctrMod)
+	    public void QualityCheckClass()
+	    {
+		    q.QualityCheckClass(t);
+	    }
+
+		public void UpdateClass(DateTime time, bool ctlValue, bool stValue, string ctrMod)
         {
             ctlVal = ctlValue;
             stVal = stValue;

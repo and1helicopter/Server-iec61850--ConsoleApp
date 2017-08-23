@@ -1,4 +1,5 @@
 ﻿using System;
+using IEC61850.Common;
 
 namespace Server.DataClasses
 {
@@ -125,28 +126,20 @@ namespace Server.DataClasses
             ushort qual = 0;
             switch (quality.ToUpper())
             {
-                case "GOOD":
-                    qual = (ushort)ValidityStatus.GOOD;
+                case @"GOOD":
+                    qual = (ushort)IEC61850.Common.Validity.GOOD;
                     break;
-                case "INVALID":
-                    qual = (ushort)ValidityStatus.INVALID;
+                case @"INVALID":
+                    qual = (ushort)IEC61850.Common.Validity.INVALID;
                     break;
-                case "RESERVED":
-                    qual = (ushort)ValidityStatus.RESERVED;
+                case @"RESERVED":
+                    qual = (ushort)IEC61850.Common.Validity.RESERVED;
                     break;
-                case "QUESTIONABLE":
-                    qual = (ushort)ValidityStatus.QUESTIONABLE;
+                case @"QUESTIONABLE":
+                    qual = (ushort)IEC61850.Common.Validity.QUESTIONABLE;
                     break;
             }
             return qual;
-        }
-
-        enum ValidityStatus
-        {
-            GOOD = 0,
-            RESERVED = 1,
-            INVALID = 2,
-            QUESTIONABLE = 3
         }
     }
 
@@ -195,4 +188,87 @@ namespace Server.DataClasses
             ang = new AnalogueValueClass();
         }
     }
+
+	public class OriginatorClass
+	{
+		public Int32 orCat;
+		public String orldent;
+
+		public OriginatorClass(string strOrCat , string strorldent)
+		{
+			orCat = MapOrCat(strOrCat);
+			orldent = strorldent;
+		}
+
+		private int MapOrCat(string strOrCat)
+		{
+			int answer = 0;
+			switch (strOrCat.ToLower())
+			{
+				case @"not-supported":
+					answer = (ushort)OrCat.NOT_SUPPORTED;
+					break;
+				case @"bay-control":
+					answer = (ushort)OrCat.BAY_CONTROL;
+					break;
+				case @"station-control ":
+					answer = (ushort)OrCat.STATION_CONTROL;
+					break;
+				case @"remote-control ":
+					answer = (ushort)OrCat.REMOTE_CONTROL;
+					break;
+				case @"automatic-bay":
+					answer = (ushort)OrCat.AUTOMATIC_BAY;
+					break;
+				case @"automatic-station":
+					answer = (ushort)OrCat.AUTOMATIC_STATION;
+					break;
+				case @"automatic-remote":
+					answer = (ushort)OrCat.AUTOMATIC_REMOTE;
+					break;
+				case @"maintenance":
+					answer = (ushort)OrCat.MAINTENANCE;
+					break;
+				case @"process":
+					answer = (ushort)OrCat.PROCESS;
+					break;
+			}
+
+			return answer;
+		}
+	}
+
+	public class CtlModelsClass
+	{
+		public int CtlModels;
+
+		public CtlModelsClass(string ctlModels)
+		{
+			CtlModels = MapCtlModels(ctlModels);
+		}
+
+		private int MapCtlModels(string ctlModels)
+		{
+			var value = 0;
+			switch (ctlModels.ToLower())
+			{
+				case @"status-only":
+					value = (int) ControlModel.STATUS_ONLY;
+					break;
+				case @"direct-with-normal-security":
+					value = (int)ControlModel.DIRECT_NORMAL;
+					break;
+				case @"sbo-with-normal-security":
+					value = (int)ControlModel.SBO_NORMAL;
+					break;
+				case @"direct-with-enhanced-security":
+					value = (int)ControlModel.DIRECT_ENHANCED;
+					break;
+				case @"sbo-with-enhanced-security":
+					value = (int) ControlModel.SBO_ENHANCED;
+					break;
+			}
+			return value;
+		}
+	}
 }
