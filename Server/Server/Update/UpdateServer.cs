@@ -1,4 +1,5 @@
 ﻿using System;
+using IEC61850.Common;
 using IEC61850.Server;
 using Server.DataClasses;
 
@@ -6,7 +7,33 @@ namespace Server.Update
 {
     public static partial class UpdateDataObj
     {
-        public static void StaticUpdateData(IedServer iedServer, IedModel iedModel)
+		public static void InitControlClass(IedServer iedServer, IedModel iedModel)
+	    {
+		    foreach (var item in DataClassSet)
+		    {
+			    IEC61850.Server.DataObject temp = (IEC61850.Server.DataObject) iedModel.GetModelNodeByShortObjectReference(item.NameDataObj);
+
+				iedServer.SetControlHandler(temp,  (controlObject, parameter, val, test) =>
+				{
+					UpdateSPC(val.GetBoolean());
+					return ControlHandlerResult.OK;
+				}, null);
+		    }
+	    }
+
+	    private static  ControlHandlerResult SPCdelegate(IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+	    {
+			UpdateSPC(ctlVal.GetBoolean());
+		    return ControlHandlerResult.OK;
+		}
+
+		private static void UpdateSPC(bool value)
+		{
+
+		}
+
+
+		public static void StaticUpdateData(IedServer iedServer, IedModel iedModel)
         {
             iedServer.LockDataModel();
 
@@ -54,7 +81,7 @@ namespace Server.Update
         private static void UpdateBool(string path, string value, IedServer iedServer, IedModel iedModel)
         {
             bool str = Convert.ToBoolean(value);
-            iedServer.UpdateBooleanAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+			iedServer.UpdateBooleanAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
         }
 
         private static void UpdateInt(string path, string value, IedServer iedServer, IedModel iedModel)
@@ -107,6 +134,9 @@ namespace Server.Update
 						continue;
 	                case @"MV":
 		                MV_ClassUpdate(itemDataObject, iedServer, iedModel);
+		                continue;
+	                case @"SPC":
+		                SPC_ClassUpdate(itemDataObject, iedServer, iedModel);
 		                continue;
 				}
             }
@@ -200,5 +230,24 @@ namespace Server.Update
 			iedServer.UpdateQuality(qPath, qVal);
 		}
 		#endregion
+
+		#region  Спецификации класса общих данных для управления состоянием и информации о состоянии
+		private static void SPC_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    {
+		    ((SpcClass)itemDataObject.DataObj).QualityCheckClass();
+
+		    var magPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
+		    var magVal = Convert.ToSingle(((SpcClass)itemDataObject.DataObj).stVal);
+		    iedServer.UpdateFloatAttributeValue(magPath, magVal);
+
+		    var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
+		    var tVal = Convert.ToDateTime(((SpcClass)itemDataObject.DataObj).t);
+		    iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+		    var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
+		    var qVal = Convert.ToUInt16(((SpcClass)itemDataObject.DataObj).q.Validity);
+		    iedServer.UpdateQuality(qPath, qVal);
+	    }
+	    #endregion
 	}
 }

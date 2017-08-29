@@ -87,6 +87,22 @@ namespace Server.Update
 	            ((MvClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, (ulong)val);
             }
 			#endregion
+
+	        #region Классы общих данных для информации о состоянии
+	        if (DataClassGet[currentIndex].DataObj.GetType() == typeof(SpcClass))
+	        {
+		        Int64 temp = 0;
+
+		        for (int i = paramRtu.Length - 1; i >= 0; i--)
+		        {
+			        temp += (long)paramRtu[i] << i * 16;
+		        }
+
+		        var val = (temp & (1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj))) > 0;
+
+		        ((SpcClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+	        }
+			#endregion
 		}
 	}
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Xml.Linq;
+using IEC61850.Common;
 using Server.DataClasses;
 
 namespace Server.Parser
@@ -411,18 +411,5 @@ namespace Server.Parser
             }
         }
         #endregion
-    }
-
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    [Flags]
-    enum TriggerOptions
-    {
-        NONE = 0,
-        DATA_CHANGED = 1,
-        QUALITY_CHANGED = 2,
-        DATA_UPDATE = 4,
-        INTEGRITY = 8,
-        GI = 16
     }
 }

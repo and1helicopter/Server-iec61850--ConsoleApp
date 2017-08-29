@@ -5,6 +5,7 @@ using IEC61850.Server;
 using Server.DataClasses;
 using Server.Update;
 
+
 namespace Server.Server
 {
 	public static partial class Server
@@ -14,7 +15,6 @@ namespace Server.Server
 		private static IedModel _iedModel;
 		private static bool _running = true;
 		private static Thread _serverThread;
-		//private static SQLite _db;
 
 		private static void RuningServer()
 		{
@@ -51,9 +51,10 @@ namespace Server.Server
 				return false;
 			}
 
-
 			GC.Collect();   //Габредж коллектор
-			UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);
+			UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);		//Заполнение данными 
+			UpdateDataObj.InitControlClass(_iedServer, _iedModel);			//Установка оброботчиков событий
+
 			return true;
 		}
 

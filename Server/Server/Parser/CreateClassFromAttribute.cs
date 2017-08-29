@@ -203,7 +203,43 @@ namespace Server.Parser
 						Log.Log.Write("CreateClassFromAttribute.GetDo: BCR finish whith status false", "Error   ");
 						return;
 					}
-					#endregion
+				#endregion
+
+				#region Спецификации класса общих данных для управления состоянием и информации о состоянии
+				case "SPC":
+					{
+						try
+						{
+							var pathNameDo = path + "." + itemDo.NameDO;
+							var stval = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value.ToUpper() == @"TRUE";
+							var ctlVal = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "Oper".ToUpper()).ListDA.First(x => x.NameDA.ToUpper() == "ctlVal".ToUpper()).Value?.ToUpper() == @"TRUE";
+							var ctlModel = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "ctlModel".ToUpper()).Value;
+
+							var spc = new SpcClass(ctlVal, stval, ctlModel, itemDo.DescDO);
+
+							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, spc);
+							UpdateDataObj.DataClassGet.Add(dataObj);
+							UpdateDataObj.DataClassSet.Add(dataObj);
+							return;
+						}
+						catch
+						{
+							Log.Log.Write("CreateClassFromAttribute.GetDo: SPC finish whith status false", "Error   ");
+							return;
+						}
+					}
+				case "INC":
+					{
+						try
+						{
+							return;
+						}
+						catch
+						{
+							return;
+						}
+					}
+				#endregion
 			}
 		}
         #endregion

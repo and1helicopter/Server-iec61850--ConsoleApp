@@ -267,14 +267,14 @@ namespace Server.DataClasses
     {
 	    public Boolean ctlVal;
         public Boolean stVal;
-        public Int32 ctlModel;
+	    public CtlModelsClass ctlModel;
         public String d;
 
         public SpcClass(bool ctlval, bool stval, string ctlmodel, string strd)
         {
             ctlVal = ctlval;
             stVal = stval;
-            ctlModel = MapCtlModel(ctlmodel);
+            ctlModel = new CtlModelsClass(ctlmodel);
             d = strd;
         }
 
@@ -283,107 +283,50 @@ namespace Server.DataClasses
 		    q.QualityCheckClass(t);
 	    }
 
-		public void UpdateClass(DateTime time, bool ctlValue, bool stValue, string ctrMod)
-        {
-            ctlVal = ctlValue;
+		public void UpdateClass(DateTime time, bool stValue)
+		{
             stVal = stValue;
-            ctlModel = MapCtlModel(ctrMod);
             t = time;
             q.UpdateQuality(time);
         }
 
-        private ushort MapCtlModel(string quality)
-        {
-            ushort qual = 0;
-            switch (quality.ToUpper().Replace('-', '_').Replace(" ", ""))
-            {
-                case "STATUS_ONLY":
-                    qual = (ushort)ValidityCtlModel.STATUS_ONLY;
-                    break;
-                case "DIRECT_WITH_NORMAL_SECURITY":
-                    qual = (ushort)ValidityCtlModel.DIRECT_WITH_NORMAL_SECURITY;
-                    break;
-                case "SBO_WITH_NORMAL_SECURITY":
-                    qual = (ushort)ValidityCtlModel.SBO_WITH_NORMAL_SECURITY;
-                    break;
-                case "DIRECR_WITH_ENHANCED_SECURITY":
-                    qual = (ushort)ValidityCtlModel.DIRECR_WITH_ENHANCED_SECURITY;
-                    break;
-                case "SBO_WITH_ENHANCED_SECURITY":
-                    qual = (ushort)ValidityCtlModel.SBO_WITH_ENHANCED_SECURITY;
-                    break;
-            }
-            return qual;
-        }
+	    public int GetCtlModel()
+	    {
+		    return 0;
+	    }
 
-        enum ValidityCtlModel
-        {
-            STATUS_ONLY = 0,
-            DIRECT_WITH_NORMAL_SECURITY = 1,
-            SBO_WITH_NORMAL_SECURITY = 2,
-            DIRECR_WITH_ENHANCED_SECURITY = 3,
-            SBO_WITH_ENHANCED_SECURITY = 4
-        }
-    }
+	    public void SetCtlModel()
+	    {
+
+	    }
+	}
 
     //Класс INC (целочисленное управление и состояние)
     public class IncClass : BaseClass
     {
         public Int32 ctlVal;
-        public Boolean stVal;
-        public Int32 ctlModel;
+        public Int32 stVal;
+        public CtlModelsClass ctlModel;
         public String d;
 
-        public IncClass()
+        public IncClass(int ctlval, int stval, string ctrMod, string strd)
         {
-            ctlVal = 0;
-            stVal = false;
-            ctlModel = 1;
-            d = "";
+            ctlVal = ctlval;
+            stVal = stval;
+            ctlModel = new CtlModelsClass(ctrMod);
+            d = strd;
         }
 
-        public void UpdateClass(DateTime time, int ctlValue, bool stValue, string ctrMod)
+        public void UpdateClass(DateTime time, int ctlValue, int stValue, string ctrMod)
         {
             ctlVal = ctlValue;
             stVal = stValue;
-            ctlModel = MapCtlModel(ctrMod);
+            ctlModel = new CtlModelsClass(ctrMod);
             t = time;
             q.UpdateQuality(time);
         }
 
-        private ushort MapCtlModel(string quality)
-        {
-            ushort qual = 0;
-            switch (quality.ToUpper().Replace('-', '_').Replace(" ", ""))
-            {
-                case "STATUS_ONLY":
-                    qual = (ushort)ValidityCtlModel.STATUS_ONLY;
-                    break;
-                case "DIRECT_WITH_NORMAL_SECURITY":
-                    qual = (ushort)ValidityCtlModel.DIRECT_WITH_NORMAL_SECURITY;
-                    break;
-                case "SBO_WITH_NORMAL_SECURITY":
-                    qual = (ushort)ValidityCtlModel.SBO_WITH_NORMAL_SECURITY;
-                    break;
-                case "DIRECR_WITH_ENHANCED_SECURITY":
-                    qual = (ushort)ValidityCtlModel.DIRECR_WITH_ENHANCED_SECURITY;
-                    break;
-                case "SBO_WITH_ENHANCED_SECURITY":
-                    qual = (ushort)ValidityCtlModel.SBO_WITH_ENHANCED_SECURITY;
-                    break;
-            }
-            return qual;
-        }
-
-        enum ValidityCtlModel
-        {
-            STATUS_ONLY = 0,
-            DIRECT_WITH_NORMAL_SECURITY = 1,
-            SBO_WITH_NORMAL_SECURITY = 2,
-            DIRECR_WITH_ENHANCED_SECURITY = 3,
-            SBO_WITH_ENHANCED_SECURITY = 4
-        }
-    }
+	}
     #endregion
 
     #region Спецификации класса общих данных для описательной информации
