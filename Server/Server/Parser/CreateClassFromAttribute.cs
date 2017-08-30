@@ -218,7 +218,6 @@ namespace Server.Parser
 							var spc = new SpcClass(ctlVal, stval, ctlModel, itemDo.DescDO);
 
 							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, spc);
-							UpdateDataObj.DataClassGet.Add(dataObj);
 							UpdateDataObj.DataClassSet.Add(dataObj);
 							return;
 						}

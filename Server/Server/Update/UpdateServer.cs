@@ -9,30 +9,33 @@ namespace Server.Update
     {
 		public static void InitControlClass(IedServer iedServer, IedModel iedModel)
 	    {
-		    foreach (var item in DataClassSet)
-		    {
-			    IEC61850.Server.DataObject temp = (IEC61850.Server.DataObject) iedModel.GetModelNodeByShortObjectReference(item.NameDataObj);
+			foreach (var item in DataClassSet)
+			{
+				var temp = (IEC61850.Server.DataObject)iedModel.GetModelNodeByShortObjectReference(item.NameDataObj);
 
-				iedServer.SetControlHandler(temp,  (controlObject, parameter, val, test) =>
+				switch (item.ClassDataObj)
 				{
-					UpdateSPC(val.GetBoolean());
-					return ControlHandlerResult.OK;
-				}, null);
-		    }
+					case "SPC":
+						iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+						{
+							UpdateSPC(ctlVal.GetBoolean());
+							return ControlHandlerResult.OK;
+						}, null);
+						break;
+					case "INC":
+						break;
+					case "APC":
+						break;
+				}
+			}
 	    }
 
-	    private static  ControlHandlerResult SPCdelegate(IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-	    {
-			UpdateSPC(ctlVal.GetBoolean());
-		    return ControlHandlerResult.OK;
-		}
-
-		private static void UpdateSPC(bool value)
+	    private static void UpdateSPC(bool value)
 		{
+			//Записать значение на плату
 
 		}
-
-
+		
 		public static void StaticUpdateData(IedServer iedServer, IedModel iedModel)
         {
             iedServer.LockDataModel();

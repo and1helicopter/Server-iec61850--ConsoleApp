@@ -24,28 +24,49 @@ namespace Server.ModBus
                     }
                 }
             }
-            #endregion
+			#endregion
 
-            #region Set
-            if (UpdateDataObj.DataClassSet.Count != 0)
-            {
-                if (_currentIndexSet == UpdateDataObj.DataClassSet.Count)
-                {
-                    _currentIndexSet = 0;
-                }
+			#region Set
+	        if (UpdateDataObj.DataClassSet.Count != 0)
+	        {
+		        if (_currentIndexSet == UpdateDataObj.DataClassSet.Count)
+		        {
+			        _currentIndexSet = 0;
+		        }
 
-                if (UpdateDataObj.SetData(_currentIndexSet, out ushort addrSet, out ushort send))
-                {
-                    lock (Locker)
-                    {
-                        SerialPort.SetDataRTU(addrSet, null, RequestPriority.Normal, send);
-                    }
-                }
-            }
-            #endregion
-        }
+		        if (UpdateDataObj.SetData(_currentIndexSet, out ushort addrSet, out ushort send))
+		        {
+			        lock (Locker)
+			        {
+				        SerialPort.SetDataRTU(addrSet, null, RequestPriority.Normal, send);
+			        }
+		        }
+	        }
+	        #endregion
+		}
 
-        private static void UpdateDataGet(bool dataOk, ushort[] paramRtu, object param)
+		private static void dffbcv()
+	    {
+		    #region Set
+		    if (UpdateDataObj.DataClassSet.Count != 0)
+		    {
+			    if (_currentIndexSet == UpdateDataObj.DataClassSet.Count)
+			    {
+				    _currentIndexSet = 0;
+			    }
+
+			    if (UpdateDataObj.SetData(_currentIndexSet, out ushort addrSet, out ushort send))
+			    {
+				    lock (Locker)
+				    {
+					    SerialPort.SetDataRTU(addrSet, null, RequestPriority.Normal, send);
+				    }
+			    }
+		    }
+		    #endregion
+		}
+
+		private static void UpdateDataGet(bool dataOk, ushort[] paramRtu, object param)
         {
             var index = Convert.ToInt32(param);
 
@@ -54,5 +75,15 @@ namespace Server.ModBus
                 UpdateDataObj.UpdateData(index, paramRtu);
             }
         }
-    }
+
+	    private static void UpdateDataSet(bool dataOk, ushort[] paramRtu, object param)
+	    {
+		    var index = Convert.ToInt32(param);
+
+		    if (dataOk)
+		    {
+			    UpdateDataObj.UpdateData(index, paramRtu);
+		    }
+	    }
+	}
 }

@@ -55,8 +55,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iec61850dotnet">
-      <HintPath>.\iec61850dotnet.dll</HintPath>
+    <Reference Include="iec61850dotnet, Version=1.0.6362.22236, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\libiec\iec61850dotnet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

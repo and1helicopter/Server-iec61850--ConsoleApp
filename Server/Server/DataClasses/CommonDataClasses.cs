@@ -289,16 +289,6 @@ namespace Server.DataClasses
             t = time;
             q.UpdateQuality(time);
         }
-
-	    public int GetCtlModel()
-	    {
-		    return 0;
-	    }
-
-	    public void SetCtlModel()
-	    {
-
-	    }
 	}
 
     //Класс INC (целочисленное управление и состояние)

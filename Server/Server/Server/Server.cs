@@ -52,7 +52,7 @@ namespace Server.Server
 			}
 
 			GC.Collect();   //Габредж коллектор
-			UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);		//Заполнение данными 
+			UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);      //Заполнение данными
 			UpdateDataObj.InitControlClass(_iedServer, _iedModel);			//Установка оброботчиков событий
 
 			return true;
