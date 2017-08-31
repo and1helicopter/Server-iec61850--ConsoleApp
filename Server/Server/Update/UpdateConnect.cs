@@ -5,23 +5,21 @@ namespace Server.Update
 {
     public static partial class UpdateDataObj
     {
-        public static bool GetData(int currentIndex, out ushort addrGet, out ushort b)
+        public static bool GetData(int currentIndex, out ushort addrGet, out ushort wordCount)
         {
             addrGet = DataClassGet[currentIndex].AddrDataObj;
-            b = (ushort)(DataClassGet[currentIndex].ByteDataObj >> 1);
+	        wordCount = (ushort)(DataClassGet[currentIndex].ByteDataObj >> 1);
             return true;
         }
 
-        public static bool SetData(int currentIndex, out ushort addrSet, out ushort send)
+        public static bool SetData(int currentIndex, out ushort addrSet, out ushort wordCount)
         {
             addrSet = DataClassSet[currentIndex].AddrDataObj;
-
-            //В зависимости от класса и типа атрибута должно конвертироватся в 
-            send = Convert.ToUInt16(DataClassSet[currentIndex].ValueDataObj);
+	        wordCount = (ushort)(DataClassSet[currentIndex].ByteDataObj >> 1);
             return true;
         }
 
-        public static void UpdateData(int currentIndex, ushort[] paramRtu)
+        public static void UpdateDataGet(int currentIndex, ushort[] paramRtu)
         {
 			#region Классы общих данных для информации о состоянии
 	        if (DataClassGet[currentIndex].DataObj.GetType() == typeof(SpsClass))
@@ -87,9 +85,12 @@ namespace Server.Update
 	            ((MvClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, (ulong)val);
             }
 			#endregion
+		}
 
-	        #region Классы общих данных для информации о состоянии
-	        if (DataClassGet[currentIndex].DataObj.GetType() == typeof(SpcClass))
+	    public static void UpdateDataSet(int currentIndex, ushort[] paramRtu)
+	    {
+			#region Классы общих данных для информации о состоянии
+			if (DataClassSet[currentIndex].DataObj.GetType() == typeof(SpcClass))
 	        {
 		        Int64 temp = 0;
 
@@ -98,9 +99,9 @@ namespace Server.Update
 			        temp += (long)paramRtu[i] << i * 16;
 		        }
 
-		        var val = (temp & (1 << Convert.ToInt32(DataClassGet[currentIndex].MaskDataObj))) > 0;
+		        var val = (temp & (1 << Convert.ToInt32(DataClassSet[currentIndex].MaskDataObj))) > 0;
 
-		        ((SpcClass)DataClassGet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+		        ((SpcClass)DataClassSet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
 	        }
 			#endregion
 		}

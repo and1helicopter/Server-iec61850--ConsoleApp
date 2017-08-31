@@ -26,7 +26,7 @@ namespace Server.Server
 
 					lock (Locker)
 					{
-						UpdateDataObj.UpdateData(_iedServer, _iedModel);
+						UpdateDataObj.UpdateDataGet(_iedServer, _iedModel);
 					}
 
 					_iedServer.UnlockDataModel();

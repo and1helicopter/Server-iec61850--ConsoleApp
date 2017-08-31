@@ -18,7 +18,7 @@ namespace Server.Update
 					case "SPC":
 						iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
 						{
-							UpdateSPC(ctlVal.GetBoolean());
+							UpdateSPC(DataClassSet.IndexOf(item), ctlVal.GetBoolean());
 							return ControlHandlerResult.OK;
 						}, null);
 						break;
@@ -30,10 +30,11 @@ namespace Server.Update
 			}
 	    }
 
-	    private static void UpdateSPC(bool value)
+	    private static void UpdateSPC(int index, bool value)
 		{
 			//Записать значение на плату
-
+			ushort[] val = { Convert.ToUInt16(value ? 1 : 0) };
+			ModBus.ModBus.DataSetRequest(index, val);
 		}
 		
 		public static void StaticUpdateData(IedServer iedServer, IedModel iedModel)
@@ -117,7 +118,7 @@ namespace Server.Update
             iedServer.UpdateQuality((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
         }
 
-        public static void UpdateData(IedServer iedServer, IedModel iedModel)
+        public static void UpdateDataGet(IedServer iedServer, IedModel iedModel)
         {
             foreach (var itemDataObject in DataClassGet)
             {
@@ -138,11 +139,18 @@ namespace Server.Update
 	                case @"MV":
 		                MV_ClassUpdate(itemDataObject, iedServer, iedModel);
 		                continue;
-	                case @"SPC":
-		                SPC_ClassUpdate(itemDataObject, iedServer, iedModel);
-		                continue;
 				}
             }
+
+	        foreach (var itemDataObject in DataClassSet)
+	        {
+		        switch (itemDataObject.ClassDataObj)
+		        {
+					case @"SPC":
+						SPC_ClassUpdate(itemDataObject, iedServer, iedModel);
+						continue;
+				}
+	        }
         }
 
 		#region Классы общих данных для информации о состоянии
@@ -239,9 +247,9 @@ namespace Server.Update
 	    {
 		    ((SpcClass)itemDataObject.DataObj).QualityCheckClass();
 
-		    var magPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
-		    var magVal = Convert.ToSingle(((SpcClass)itemDataObject.DataObj).stVal);
-		    iedServer.UpdateFloatAttributeValue(magPath, magVal);
+		    var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
+		    var stValVal = Convert.ToBoolean(((SpcClass)itemDataObject.DataObj).stVal);
+		    iedServer.UpdateBooleanAttributeValue(stValPath, stValVal);
 
 		    var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
 		    var tVal = Convert.ToDateTime(((SpcClass)itemDataObject.DataObj).t);

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Specialized;
 using Server.Update;
 using UniSerialPort;
 
@@ -6,8 +8,6 @@ namespace Server.ModBus
 {
     public static partial class ModBus
     {
-        private static int _currentIndexSet;
-
         private static void DataRequest()
         {
             #region Get
@@ -15,11 +15,11 @@ namespace Server.ModBus
             {
                 for (var i = 0; i < UpdateDataObj.DataClassGet.Count; i++)
                 {
-                    if (UpdateDataObj.GetData(i, out ushort addrGet, out ushort b))
+                    if (UpdateDataObj.GetData(i, out ushort addrGet, out ushort wordCount))
                     {
                         lock (Locker)
                         {
-                            SerialPort.GetDataRTU(addrGet, b, UpdateDataGet, i);
+                            SerialPort.GetDataRTU(addrGet, wordCount, UpdateDataGet, i);
                         }
                     }
                 }
@@ -29,41 +29,79 @@ namespace Server.ModBus
 			#region Set
 	        if (UpdateDataObj.DataClassSet.Count != 0)
 	        {
-		        if (_currentIndexSet == UpdateDataObj.DataClassSet.Count)
-		        {
-			        _currentIndexSet = 0;
-		        }
-
-		        if (UpdateDataObj.SetData(_currentIndexSet, out ushort addrSet, out ushort send))
-		        {
-			        lock (Locker)
-			        {
-				        SerialPort.SetDataRTU(addrSet, null, RequestPriority.Normal, send);
-			        }
-		        }
+		        for (var i = 0; i < UpdateDataObj.DataClassSet.Count; i++)
+			    {
+					if (UpdateDataObj.SetData(i, out ushort addrSet, out ushort wordCount))
+					{
+						lock (Locker)
+						{
+							SerialPort.GetDataRTU(addrSet, wordCount, UpdateDataSet, i);
+						}
+					}
+				}
 	        }
 	        #endregion
 		}
 
-		private static void dffbcv()
+	    private class ParamSet
 	    {
-		    #region Set
-		    if (UpdateDataObj.DataClassSet.Count != 0)
-		    {
-			    if (_currentIndexSet == UpdateDataObj.DataClassSet.Count)
-			    {
-				    _currentIndexSet = 0;
-			    }
+		    public ushort[] Value { get; }
+			public int Index { get; }
 
-			    if (UpdateDataObj.SetData(_currentIndexSet, out ushort addrSet, out ushort send))
+		    public ParamSet(ushort[] value, int index)
+		    {
+			    Value = value;
+			    Index = index;
+		    }
+		}
+
+		public static void DataSetRequest(int index, ushort[] value)
+		{
+			var param = new ParamSet(value, index);
+			if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort wordCount))
+			{
+				lock (Locker)
+				{
+					SerialPort.GetDataRTU(addrSet, wordCount, DataSetResponse, param);
+				}
+			}
+		}
+
+	    private static void DataSetResponse(bool dataOk, ushort[] paramRtu, object param)
+	    {
+		    if (dataOk)
+		    {
+				var index = ((ParamSet)param).Index;
+			    var value = ((ParamSet)param).Value;
+
+			    switch (UpdateDataObj.DataClassSet[index].ClassDataObj)
 			    {
-				    lock (Locker)
-				    {
-					    SerialPort.SetDataRTU(addrSet, null, RequestPriority.Normal, send);
-				    }
+				    case @"SPC":
+					    SetSPC(index, value, paramRtu);
+						break;
+				    case @"INC":
+					    break;
+				    case @"APC":
+					    break;
+			    }
+			}
+		}
+
+	    private static void SetSPC(int index, ushort[] value, ushort[] paramRtu)
+	    {
+
+		    ushort invPosindex = (ushort)~(1 << UpdateDataObj.DataClassSet[index].MaskDataObj);		//Маска сбрасываемого бита 
+		    ushort tempVal = (ushort)(value[0] > 0 ? (1 << UpdateDataObj.DataClassSet[index].MaskDataObj) : 0);
+		    ushort answer = (ushort )((paramRtu[0] & invPosindex) + tempVal);
+
+
+			if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort wordCount))
+		    {
+			    lock (Locker)
+			    {
+				    SerialPort.SetDataRTU(addrSet, null, RequestPriority.High, null, answer);
 			    }
 		    }
-		    #endregion
 		}
 
 		private static void UpdateDataGet(bool dataOk, ushort[] paramRtu, object param)
@@ -72,7 +110,7 @@ namespace Server.ModBus
 
             if (dataOk)
             {
-                UpdateDataObj.UpdateData(index, paramRtu);
+                UpdateDataObj.UpdateDataGet(index, paramRtu);
             }
         }
 
@@ -82,7 +120,7 @@ namespace Server.ModBus
 
 		    if (dataOk)
 		    {
-			    UpdateDataObj.UpdateData(index, paramRtu);
+			    UpdateDataObj.UpdateDataSet(index, paramRtu);
 		    }
 	    }
 	}
