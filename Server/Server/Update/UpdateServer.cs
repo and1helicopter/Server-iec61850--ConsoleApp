@@ -23,6 +23,11 @@ namespace Server.Update
 						}, null);
 						break;
 					case "INC":
+						iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+						{
+							UpdateINC(DataClassSet.IndexOf(item), ctlVal.ToInt32());
+							return ControlHandlerResult.OK;
+						}, null);
 						break;
 					case "APC":
 						break;
@@ -37,6 +42,13 @@ namespace Server.Update
 			ModBus.ModBus.DataSetRequest(index, val);
 		}
 		
+	    private static void UpdateINC(int index, int value)
+	    {
+		    //Записать значение на плату
+		    ushort[] val = { (ushort)value, (ushort)(value >> 16)};
+		    ModBus.ModBus.DataSetRequest(index, val);
+	    }
+	    
 		public static void StaticUpdateData(IedServer iedServer, IedModel iedModel)
         {
             iedServer.LockDataModel();
@@ -149,6 +161,9 @@ namespace Server.Update
 					case @"SPC":
 						SPC_ClassUpdate(itemDataObject, iedServer, iedModel);
 						continue;
+					case @"INC":
+						INC_ClassUpdate(itemDataObject, iedServer, iedModel);
+						continue;
 				}
 	        }
         }
@@ -257,6 +272,23 @@ namespace Server.Update
 
 		    var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
 		    var qVal = Convert.ToUInt16(((SpcClass)itemDataObject.DataObj).q.Validity);
+		    iedServer.UpdateQuality(qPath, qVal);
+	    }
+	    
+	    private static void INC_ClassUpdate(DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    {
+		    ((IncClass)itemDataObject.DataObj).QualityCheckClass();
+
+		    var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".stVal");
+		    var stValVal = Convert.ToInt32(((IncClass)itemDataObject.DataObj).stVal);
+		    iedServer.UpdateInt32AttributeValue(stValPath, stValVal);
+
+		    var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".t");
+		    var tVal = Convert.ToDateTime(((IncClass)itemDataObject.DataObj).t);
+		    iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+		    var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj + @".q");
+		    var qVal = Convert.ToUInt16(((IncClass)itemDataObject.DataObj).q.Validity);
 		    iedServer.UpdateQuality(qPath, qVal);
 	    }
 	    #endregion

@@ -306,12 +306,15 @@ namespace Server.DataClasses
             ctlModel = new CtlModelsClass(ctrMod);
             d = strd;
         }
+	    
+	    public void QualityCheckClass()
+	    {
+		    q.QualityCheckClass(t);
+	    }
 
-        public void UpdateClass(DateTime time, int ctlValue, int stValue, string ctrMod)
+        public void UpdateClass(DateTime time, int stValue)
         {
-            ctlVal = ctlValue;
             stVal = stValue;
-            ctlModel = new CtlModelsClass(ctrMod);
             t = time;
             q.UpdateQuality(time);
         }

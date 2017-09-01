@@ -231,10 +231,20 @@ namespace Server.Parser
 					{
 						try
 						{
+							var pathNameDo = path + "." + itemDo.NameDO;
+							var stval = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value);
+							var ctlVal = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "Oper".ToUpper()).ListDA.First(x => x.NameDA.ToUpper() == "ctlVal".ToUpper()).Value);
+							var ctlModel = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "ctlModel".ToUpper()).Value;
+
+							var inc = new IncClass(ctlVal, stval, ctlModel, itemDo.DescDO);
+
+							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, inc);
+							UpdateDataObj.DataClassSet.Add(dataObj);
 							return;
 						}
 						catch
 						{
+							Log.Log.Write("CreateClassFromAttribute.GetDo: INC finish whith status false", "Error   ");
 							return;
 						}
 					}

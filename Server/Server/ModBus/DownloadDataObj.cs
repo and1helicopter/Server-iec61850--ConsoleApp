@@ -80,6 +80,7 @@ namespace Server.ModBus
 					    SetSPC(index, value, paramRtu);
 						break;
 				    case @"INC":
+					    SetINC(index, value, paramRtu);
 					    break;
 				    case @"APC":
 					    break;
@@ -95,7 +96,7 @@ namespace Server.ModBus
 		    ushort answer = (ushort )((paramRtu[0] & invPosindex) + tempVal);
 
 
-			if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort wordCount))
+			if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort _))
 		    {
 			    lock (Locker)
 			    {
@@ -103,6 +104,19 @@ namespace Server.ModBus
 			    }
 		    }
 		}
+
+	    private static void SetINC(int index, ushort[] value, ushort[] paramRtu)
+	    {
+		    ushort[] answer = value;
+			
+			if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort _))
+		    {
+			    lock (Locker)
+			    {
+				    SerialPort.SetDataRTU(addrSet, null, RequestPriority.High, null, answer);
+			    }
+		    }
+	    }
 
 		private static void UpdateDataGet(bool dataOk, ushort[] paramRtu, object param)
         {

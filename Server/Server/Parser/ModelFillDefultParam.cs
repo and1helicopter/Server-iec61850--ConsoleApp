@@ -231,13 +231,6 @@ namespace Server.Parser
 	                        {
 		                        try
 		                        {
-  									 //var ctlVal = (from x in itemDo.ListDA
-				        //                where x.NameDA.ToUpper() == "ctlVal".ToUpper()
-				        //                select x).ToList().First();
-
-			         //               ctlVal.Value = "false";
-			         //               DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "bool", ctlVal.Value));
-
 									var stVal = (from x in itemDo.ListDA
 				                        where x.NameDA.ToUpper() == "stVal".ToUpper()
 				                        select x).ToList().First();
@@ -268,89 +261,50 @@ namespace Server.Parser
 		                        }
 		                        catch
 		                        {
-			                        Log.Log.Write("ModelFillDefultParam.GetDo: SPS not parse", "Error   ");
+			                        Log.Log.Write("ModelFillDefultParam.GetDo: SPC not parse", "Error   ");
 		                        }
 		                        continue;
-
-									//var ctlVal = (from x in itemDo.ListDA
-									//             where x.NameDA.ToUpper() == "ctlVal".ToUpper()
-									//             select x).ToList().Last();
-
-									//ctlVal.Value = "false";
-									//DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "bool", ctlVal.Value));
-
-									//var stVal = (from x in itemDo.ListDA
-									//             where x.NameDA.ToUpper() == "stVal".ToUpper()
-									//             select x).ToList().Last();
-
-									//stVal.Value = "false";
-									//DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal","bool", stVal.Value));
-
-									//// ReSharper disable once UnusedVariable
-									//var ctlModel = (from x in itemDo.ListDA
-									//                where x.NameDA.ToUpper() == "ctlModel".ToUpper()
-									//                select x).ToList().Last();
-
-									//stVal.Value = "0";
-									//DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int",stVal.Value));
-
-									//var q = (from x in itemDo.ListDA
-									//         where x.NameDA.ToUpper() == "q".ToUpper()
-									//         select x).ToList().First();
-
-									//q.Value = "0";
-									//DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q","ushort", q.Value));
-
-									//var t = (from x in itemDo.ListDA
-			      //                  where x.NameDA.ToUpper() == "t".ToUpper()
-			      //                  select x).ToList().First();
-
-		       //                 t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-		       //                 DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
-		       //                 continue;
-	                        }
+	                        }								
+	                        //Класс INC (целочисленное управление и состояние)
 	                        case "INC":
 	                        {
-		                        //var ctlVal = (from x in itemDo.ListDA
-		                        //             where x.NameDA.ToUpper() == "ctlVal".ToUpper()
-		                        //             select x).ToList().Last();
+		                        try
+		                        {
+			                        var stVal = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "stVal".ToUpper()
+				                        select x).ToList().First();
 
-		                        //ctlVal.Value = "false";
-		                        //DataObj.structDefultDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlVal", "bool", ctlVal.Value));
+			                        stVal.Value = "0";
+			                        DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal", "int", stVal.Value));
 
-		                        //var stVal = (from x in itemDo.ListDA
-		                        //             where x.NameDA.ToUpper() == "stVal".ToUpper()
-		                        //             select x).ToList().Last();
+			                        var ctlModel = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "ctlModel".ToUpper()
+				                        select x).ToList().First();
 
-		                        //stVal.Value = "false";
-		                        //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".stVal","bool", stVal.Value));
+			                        ctlModel.Value = "0";
+			                        DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int", ctlModel.Value));
 
-		                        //// ReSharper disable once UnusedVariable
-		                        //var ctlModel = (from x in itemDo.ListDA
-		                        //                where x.NameDA.ToUpper() == "ctlModel".ToUpper()
-		                        //                select x).ToList()
-		                        //    .Last();
+			                        var q = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "q".ToUpper()
+				                        select x).ToList().First();
 
-		                        //stVal.Value = "0";
-		                        //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".ctlModel", "int",stVal.Value));
+			                        q.Value = "0";
+			                        DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q", "ushort", q.Value));
 
-		                        //var q = (from x in itemDo.ListDA
-		                        //         where x.NameDA.ToUpper() == "q".ToUpper()
-		                        //         select x).ToList().First();
+			                        var t = (from x in itemDo.ListDA
+				                        where x.NameDA.ToUpper() == "t".ToUpper()
+				                        select x).ToList().First();
 
-		                        //q.Value = "0";
-		                        //DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".q","ushort", q.Value));
-
-		                        var t = (from x in itemDo.ListDA
-			                        where x.NameDA.ToUpper() == "t".ToUpper()
-			                        select x).ToList().First();
-
-		                        t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
-		                        DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+			                        t.Value = DateTime.Now.ToString(CultureInfo.CurrentCulture); // + DateTime.Now.Millisecond;
+			                        DataObj.StructDataObj.Add(new DataObj.DefultDataObj(nameItemLd + "/" + nameItemLn + "." + nameItemDo + ".t", "DateTime", t.Value));
+		                        }
+		                        catch
+		                        {
+			                        Log.Log.Write("ModelFillDefultParam.GetDo: INC not parse", "Error   ");
+		                        }
 		                        continue;
 	                        }
 
-								//Класс INC (целочисленное управление и состояние)
 
 								#endregion
 						}

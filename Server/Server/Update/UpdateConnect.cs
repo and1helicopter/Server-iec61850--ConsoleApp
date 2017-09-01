@@ -103,6 +103,20 @@ namespace Server.Update
 
 		        ((SpcClass)DataClassSet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
 	        }
+		    
+		    else if (DataClassSet[currentIndex].DataObj.GetType() == typeof(IncClass))
+		    {
+			    Int32 temp = 0;
+
+			    for (int i = paramRtu.Length - 1; i >= 0; i--)
+			    {
+				    temp += paramRtu[i] << i * 16;
+			    }
+
+			    var val = Convert.ToInt32(temp);
+
+			    ((IncClass)DataClassSet[currentIndex].DataObj).UpdateClass(DateTime.Now, val);
+		    }
 			#endregion
 		}
 	}
