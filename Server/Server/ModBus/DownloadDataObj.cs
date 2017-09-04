@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Specialized;
 using Server.Update;
 using UniSerialPort;
 
@@ -80,7 +78,7 @@ namespace Server.ModBus
 					    SetSPC(index, value, paramRtu);
 						break;
 				    case @"INC":
-					    SetINC(index, value, paramRtu);
+					    SetINC(index, value);
 					    break;
 				    case @"APC":
 					    break;
@@ -105,7 +103,7 @@ namespace Server.ModBus
 		    }
 		}
 
-	    private static void SetINC(int index, ushort[] value, ushort[] paramRtu)
+	    private static void SetINC(int index, ushort[] value)
 	    {
 		    ushort[] answer = value;
 			

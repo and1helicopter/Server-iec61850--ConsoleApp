@@ -36,7 +36,6 @@ namespace Server.Server
 			}
 		}
 
-
 		public static bool ConfigServer()
 		{
 			try

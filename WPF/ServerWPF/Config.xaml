@@ -6,16 +6,19 @@
              x:Class="ServerWPF.Config" 
              mc:Ignorable="d" Height="350" Width="500">
     <Grid>
-        <Button Content="OK" HorizontalAlignment="Left" Margin="409,320,0,0" VerticalAlignment="Top" Width="75" BorderBrush="LightGray" Background="White" Click="Ok_Button_Click" />
+        <Button Content="OK" Margin="409,320,16,10" BorderBrush="LightGray" Background="White" Click="Ok_Button_Click" />
         <TabControl HorizontalAlignment="Left" Height="305" VerticalAlignment="Top" Width="484" Margin="0,5,0,0">
             <TabItem Header="Server">
                 <Grid Background="White">
-                    <TextBox x:Name="PortTextBox" Height="23" Margin="0,15,70,0" TextWrapping="Wrap" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120"/>
-                    <Label Content="Port:" HorizontalAlignment="Left" Margin="35,12,0,0" VerticalAlignment="Top"/>
-                    <CheckBox  x:Name="AutostartCheckBox" Content="" Margin="0,0,70,184" Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120"/>
-                    <TextBox x:Name="HostTextBox" Height="23" Margin="0,43,70,0" TextWrapping="Wrap" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120" IsEnabled="False"/>
-                    <Label Content="Host:" HorizontalAlignment="Left" Margin="35,40,0,0" VerticalAlignment="Top"/>
-                    <Label  Content="Autostart:" HorizontalAlignment="Left" Margin="35,72,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="PortTextBox" Height="23" Margin="0,23,69,0" TextWrapping="Wrap" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120"/>
+                    <Label Content="Port:" HorizontalAlignment="Left" Margin="36,20,0,0" VerticalAlignment="Top"/>
+                    <CheckBox  x:Name="AutostartCheckBox" Content="" Margin="0,0,69,176" Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120"/>
+                    <TextBox x:Name="HostTextBox" Height="23" Margin="0,51,69,0" TextWrapping="Wrap" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120" IsEnabled="False"/>
+                    <Label Content="Host:" HorizontalAlignment="Left" Margin="36,48,0,0" VerticalAlignment="Top"/>
+                    <Label  Content="Autostart:" HorizontalAlignment="Left" Margin="36,79,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.306,0.5"/>
+                    <Label Content="Path:" HorizontalAlignment="Left" Margin="36,111,0,0" VerticalAlignment="Top" Width="59"/>
+                    <Button Content="Открыть" HorizontalAlignment="Left" Margin="224,111,0,0" VerticalAlignment="Top" Width="60" Height="23" Click="Button_Click"/>
+                    <TextBox x:Name="PathTextBox" HorizontalAlignment="Right" Height="23" Margin="0,111,69,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsEnabled="False"/>
                 </Grid>
             </TabItem>
             <TabItem Header="ModBus">

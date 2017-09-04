@@ -111,8 +111,8 @@ namespace ServerWPF
 				Duration = new Duration(TimeSpan.FromSeconds(0.25))
 			};
 			ConfigPanel.BeginAnimation(ColumnDefinition.MinWidthProperty, openAnimation);
-
 		}
+
 		private void CloseAnimation()
 		{
 			DoubleAnimation closeAnimation = new DoubleAnimation
@@ -148,10 +148,8 @@ namespace ServerWPF
 			}
 			Log.Write(@"ParseFile: File parse success", @"Success");
 
-
 			ModBus.ConfigModBusPort();
 			ModBus.StartModBus();
-
 
 			if (ConfigDownloadScope.Enable)
 			{

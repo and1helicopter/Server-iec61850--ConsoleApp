@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Windows.Controls;
+using Microsoft.Win32;
 using Server.ModBus;
 using Server.Settings;
 
@@ -22,6 +23,7 @@ namespace ServerWPF
 			PortTextBox.Text = Server.Server.Server.ServerConfig.PortServer.ToString();
 			HostTextBox.Text = Server.Server.Server.ServerConfig.LocalIPAddr;
 			AutostartCheckBox.IsChecked = Server.Server.Server.ServerConfig.Autostart;
+			PathTextBox.Text = Server.Server.Server.ServerConfig.NameConfigFile;
 
 			foreach (var item in BaudRateComboBox.Items)
 			{
@@ -116,6 +118,7 @@ namespace ServerWPF
 			Server.Server.Server.ServerConfig.PortServer = Convert.ToInt32(PortTextBox.Text);
 			Server.Server.Server.ServerConfig.LocalIPAddr = HostTextBox.Text;
 			Server.Server.Server.ServerConfig.Autostart = Convert.ToBoolean(AutostartCheckBox.IsChecked.ToString());
+			Server.Server.Server.ServerConfig.NameConfigFile = Convert.ToString(PathTextBox.Text);
 
 			ConfigModBus.InitConfigModBus(
 				Convert.ToInt32(BaudRateComboBox.Text), 
@@ -134,6 +137,20 @@ namespace ServerWPF
 				PathScopeTextBox.Text + "\\",
 				Convert.ToString(OscilNominalFrequencyTextBox.Text)
 				);
+		}
+
+		private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
+		{
+			OpenFileDialog ofd = new OpenFileDialog
+			{
+				DefaultExt = ".icd",
+				Filter = "ICD|*.icd"
+			};
+
+			if (ofd.ShowDialog() == true)
+			{
+				PathTextBox.Text =  ofd.SafeFileName;
+			}
 		}
 	}
 }

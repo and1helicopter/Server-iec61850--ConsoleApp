@@ -22,8 +22,7 @@ namespace Server.Update
             public long ValueDataObj { get; }
 
             public object DataObj { get; }
-
-
+			
             public DataObject(string name, string format, ushort mask, ushort addr,  ushort b,string classType, object dataObj)
             {
                 NameDataObj = name;
@@ -38,6 +37,8 @@ namespace Server.Update
 
                 DataObj = dataObj;
             }
+
+
         }
     }
 }
