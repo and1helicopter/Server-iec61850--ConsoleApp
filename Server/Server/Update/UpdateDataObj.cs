@@ -5,40 +5,40 @@ namespace Server.Update
 {
     public static partial class UpdateDataObj
     {
-        public static readonly List<DataObject> DataClassGet = new List<DataObject>();	//Список классов в которых данные получаем с платы 
-        public static readonly List<DataObject> DataClassSet = new List<DataObject>();	//Список классов в которых данные загружаем на плату 
+		public static readonly  List<GetObject> ClassGetObjects = new List<GetObject>();  //Список 
 
         public class DataObject
         {
-            public string NameDataObj { get; }         //Путь до класса  
+	        public string NameDataObj { get; }			//Путь до класса  
+			public int  IndexDataOBj { get; }				//Индекс для дискретного канала
+			public string ClassDataObj { get; }			//CDC объекта
 
-            public string FormatDataObj { get; }
-            public ushort MaskDataObj { get; }
-            public ushort AddrDataObj { get; }         //Адрес куда писать или откуда брать данные
-            public ushort ByteDataObj { get; }         //Колличество байт
-            public string ClassDataObj { get; }
+            public object DataObj { get; }						//Ссылка на объект управления
 
-            public DateTime DateUpdateDataObj { get; }
-            public long ValueDataObj { get; }
+	        public DataObject(string nameDataObj, int indexDataOBj,  string classDataObj, object dataObj)
+	        {
+		        NameDataObj = nameDataObj;
+		        IndexDataOBj = indexDataOBj;
+		        ClassDataObj = classDataObj;
+		        DataObj = dataObj;
+	        }
+		}
 
-            public object DataObj { get; }
-			
-            public DataObject(string name, string format, ushort mask, ushort addr,  ushort b,string classType, object dataObj)
-            {
-                NameDataObj = name;
-                AddrDataObj = addr;
-                ByteDataObj = b;
-                FormatDataObj = format;
-                MaskDataObj = mask;
-                ClassDataObj = classType;
+	    public class GetObject
+	    {
+		    public ushort AddrObj { get; }			 //Адрес куда писать или откуда брать данные
+		    public ushort ByteObj { get; }			//Колличество байт
+		    public bool TypeObj { get; }              //Тип получаймых данных Дискретные или Аналоговые
 
-                DateUpdateDataObj = DateTime.Now;
-                ValueDataObj = 0;
+		    public List<DataObject> DataClass = new List<DataObject>();              //Ссылка на управляймые объекты
+			public BitArrayObj BitArray { get; set; }                        //Битовое поле для Дискретных объектов 
 
-                DataObj = dataObj;
-            }
-
-
-        }
-    }
+			public GetObject(ushort addrObj, ushort byteObj, bool typeObj)
+			{
+				AddrObj = addrObj;
+				ByteObj = byteObj;
+				TypeObj = typeObj;
+			}
+	    }
+	}
 }

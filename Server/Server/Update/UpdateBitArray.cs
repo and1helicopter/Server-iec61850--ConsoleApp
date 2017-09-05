@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Server.Update
 {
 	public static partial class UpdateDataObj
 	{
+		public static readonly List<BitArrayObj> BitArray = new List<BitArrayObj>();
+
 		public class BitArrayObj
 		{
-			/// <summary>  Имя битового поля</summary>
+			/// <summary>  Название битового поля</summary>
 			public string NameBitArray { get; }
 			/// <summary>  Битовое поле</summary>
 			public BitArray BitArray { get; private set; }
@@ -36,8 +39,6 @@ namespace Server.Update
 			{
 				BitArray.Set(index, value);
 			}
-
-
 		}
 	}
 }

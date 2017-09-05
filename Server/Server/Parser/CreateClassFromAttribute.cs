@@ -30,17 +30,17 @@ namespace Server.Parser
                             string typeDo = DO.Type;
 
                             string[] tempType = typeDo.Split(';');
-                            string[] tempFormatMask = tempType[0].Split(':');
+                            string[] tempTypeIndex = tempType[0].Split(':');
                             string[] tempAddrByte = tempType[1].Split(':');
 
-                            DO.Type = tempType[2];
-                            DO.Format = tempFormatMask[0];
-                            DO.Mask = Convert.ToUInt16(tempFormatMask[1]);
-                            DO.Addr = Convert.ToUInt16(tempAddrByte[0]);
-                            DO.Byte = Byte(tempAddrByte[1]);
-
-                            Do(DO, pathNameLD, pathNameLN);
-                        }
+							//DllNotFoundExceptiongdg
+                            DO.Type = tempTypeIndex[0];
+	                        DO.Index = Convert.ToInt32(tempTypeIndex[1]);
+                            DO.Addr =tempAddrByte[0];
+	                        DO.Byte = Byte(DO.Type == "D" ? "16b" : tempAddrByte[1]);
+							
+	                        GetDo(DO, pathNameLD + "/" + pathNameLN);
+						}
                     }
                 }
             }
@@ -61,24 +61,7 @@ namespace Server.Parser
             }
         }
 
-        private static void Do(ServerModel.NodeDO DO, string pathNameLD, string pathNameLN)
-        {
-            //Если переменную класса нужно читать из памяти
-            if (DO.Type == "G")
-            {
-                GetDo(DO, pathNameLD + "/" + pathNameLN);
-                return;
-            }
-
-            //Если переменную класса нужно записать в память
-            if (DO.Type == "S")
-            {
-                GetDo(DO, pathNameLD + "/" + pathNameLN);
-            }
-        }
-
-
-        private static void GetDo(ServerModel.NodeDO itemDo, string path)
+	    private static void GetDo(ServerModel.NodeDO itemDo, string path)
         {
             //Проверка MV класса
             switch (itemDo.TypeDO)
@@ -124,9 +107,14 @@ namespace Server.Parser
 						}
 
 						mv.ClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
+						ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, mv);
-						UpdateDataObj.DataClassGet.Add(dataObj);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo,  0, itemDo.TypeDO, mv);
+						UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
+						{
+							BitArray = null,
+						});
+						UpdateDataObj.ClassGetObjects.Last().DataClass.Add(dataObj);
 						return;
 					}
 					catch
@@ -134,7 +122,7 @@ namespace Server.Parser
 						Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
 						return;
 					}
-	            #endregion
+				#endregion
 
 				#region Классы общих данных для информации о состоянии
 				case "SPS":
@@ -143,9 +131,17 @@ namespace Server.Parser
 						var pathNameDo = path + "." + itemDo.NameDO;
 						var stval = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value.ToUpper() == "TRUE";
 						var sps = new SpsClass(stval, itemDo.DescDO);
+						var index = itemDo.Index;
+						var addrDig = itemDo.Addr;
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, sps);
-						UpdateDataObj.DataClassGet.Add(dataObj);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, index, itemDo.TypeDO, sps);
+						var getObject = (from y in ((from x in UpdateDataObj.ClassGetObjects
+												 where x.TypeObj
+												 select x).ToList())
+									 where y.BitArray.NameBitArray == addrDig
+									 select y).ToList().First();
+
+						getObject.DataClass.Add(dataObj);
 						return;
 					}
 					catch
@@ -159,9 +155,14 @@ namespace Server.Parser
 						var pathNameDo = path + "." + itemDo.NameDO;
 						var stval = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value);
 						var ins = new InsClass(stval, itemDo.DescDO);
+						ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, ins);
-						UpdateDataObj.DataClassGet.Add(dataObj);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, itemDo.TypeDO, ins);
+						UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
+						{
+							BitArray = null,
+						});
+						UpdateDataObj.ClassGetObjects.Last().DataClass.Add(dataObj);
 						return;
 					}
 					catch
@@ -176,9 +177,14 @@ namespace Server.Parser
 
 						var general = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "general".ToUpper()).Value.ToUpper() == "TRUE";
 						var act = new ActClass(general, itemDo.DescDO);
+						ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, act);
-						UpdateDataObj.DataClassGet.Add(dataObj);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, itemDo.TypeDO, act);
+						UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
+						{
+							BitArray = null,
+						});
+						UpdateDataObj.ClassGetObjects.Last().DataClass.Add(dataObj);
 						return;
 					}
 					catch
@@ -193,9 +199,14 @@ namespace Server.Parser
 
 						var actVal = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "actVal".ToUpper()).Value);
 						var bcr = new BcrClass(actVal, itemDo.DescDO);
+						ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, bcr);
-						UpdateDataObj.DataClassGet.Add(dataObj);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, itemDo.TypeDO, bcr);
+						UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
+						{
+							BitArray = null,
+						});
+						UpdateDataObj.ClassGetObjects.Last().DataClass.Add(dataObj);
 						return;
 					}
 					catch
@@ -214,11 +225,18 @@ namespace Server.Parser
 							var stval = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value.ToUpper() == @"TRUE";
 							var ctlVal = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "Oper".ToUpper()).ListDA.First(x => x.NameDA.ToUpper() == "ctlVal".ToUpper()).Value?.ToUpper() == @"TRUE";
 							var ctlModel = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "ctlModel".ToUpper()).Value;
-
 							var spc = new SpcClass(ctlVal, stval, ctlModel, itemDo.DescDO);
+							var index = itemDo.Index;
+							var addrDig = itemDo.Addr;
 
-							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, spc);
-							UpdateDataObj.DataClassSet.Add(dataObj);
+							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, index, itemDo.TypeDO, spc);
+							var getObject = (from y in ((from x in UpdateDataObj.ClassGetObjects
+														 where x.TypeObj
+														 select x).ToList())
+											 where y.BitArray.NameBitArray == addrDig
+											 select y).ToList().First();
+
+							getObject.DataClass.Add(dataObj);
 							return;
 						}
 						catch
@@ -235,11 +253,15 @@ namespace Server.Parser
 							var stval = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "stVal".ToUpper()).Value);
 							var ctlVal = Convert.ToInt32(itemDo.ListDA.First(x => x.NameDA.ToUpper() == "Oper".ToUpper()).ListDA.First(x => x.NameDA.ToUpper() == "ctlVal".ToUpper()).Value);
 							var ctlModel = itemDo.ListDA.First(x => x.NameDA.ToUpper() == "ctlModel".ToUpper()).Value;
-
 							var inc = new IncClass(ctlVal, stval, ctlModel, itemDo.DescDO);
+							ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, itemDo.Format, itemDo.Mask, itemDo.Addr, itemDo.Byte, itemDo.TypeDO, inc);
-							UpdateDataObj.DataClassSet.Add(dataObj);
+							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, itemDo.TypeDO, inc);
+							UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
+							{
+								BitArray = null,
+							});
+							UpdateDataObj.ClassGetObjects.Last().DataClass.Add(dataObj);
 							return;
 						}
 						catch
@@ -248,7 +270,7 @@ namespace Server.Parser
 							return;
 						}
 					}
-				#endregion
+					#endregion
 			}
 		}
         #endregion

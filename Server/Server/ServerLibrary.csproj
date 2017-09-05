@@ -88,6 +88,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Server\ServerConfig.cs" />
+    <Compile Include="Update\UpdateBitArray.cs" />
     <Compile Include="Update\UpdateConnect.cs" />
     <Compile Include="Update\UpdateDataObj.cs" />
     <Compile Include="DataClasses\DataAttributesClasses.cs" />

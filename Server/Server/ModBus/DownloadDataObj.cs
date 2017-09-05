@@ -9,35 +9,35 @@ namespace Server.ModBus
         private static void DataRequest()
         {
             #region Get
-            if (UpdateDataObj.DataClassGet.Count != 0)
-            {
-                for (var i = 0; i < UpdateDataObj.DataClassGet.Count; i++)
-                {
-                    if (UpdateDataObj.GetData(i, out ushort addrGet, out ushort wordCount))
-                    {
-                        lock (Locker)
-                        {
-                            SerialPort.GetDataRTU(addrGet, wordCount, UpdateDataGet, i);
-                        }
-                    }
-                }
-            }
+            //if (UpdateDataObj.DataClassGet.Count != 0)
+            //{
+            //    for (var i = 0; i < UpdateDataObj.DataClassGet.Count; i++)
+            //    {
+            //        if (UpdateDataObj.GetData(i, out ushort addrGet, out ushort wordCount))
+            //        {
+            //            lock (Locker)
+            //            {
+            //                SerialPort.GetDataRTU(addrGet, wordCount, UpdateDataGet, i);
+            //            }
+            //        }
+            //    }
+            //}
 			#endregion
 
 			#region Set
-	        if (UpdateDataObj.DataClassSet.Count != 0)
-	        {
-		        for (var i = 0; i < UpdateDataObj.DataClassSet.Count; i++)
-			    {
-					if (UpdateDataObj.SetData(i, out ushort addrSet, out ushort wordCount))
-					{
-						lock (Locker)
-						{
-							SerialPort.GetDataRTU(addrSet, wordCount, UpdateDataSet, i);
-						}
-					}
-				}
-	        }
+	   //     if (UpdateDataObj.DataClassSet.Count != 0)
+	   //     {
+		  //      for (var i = 0; i < UpdateDataObj.DataClassSet.Count; i++)
+			 //   {
+				//	if (UpdateDataObj.SetData(i, out ushort addrSet, out ushort wordCount))
+				//	{
+				//		lock (Locker)
+				//		{
+				//			SerialPort.GetDataRTU(addrSet, wordCount, UpdateDataSet, i);
+				//		}
+				//	}
+				//}
+	   //     }
 	        #endregion
 		}
 
@@ -72,35 +72,35 @@ namespace Server.ModBus
 				var index = ((ParamSet)param).Index;
 			    var value = ((ParamSet)param).Value;
 
-			    switch (UpdateDataObj.DataClassSet[index].ClassDataObj)
-			    {
-				    case @"SPC":
-					    SetSPC(index, value, paramRtu);
-						break;
-				    case @"INC":
-					    SetINC(index, value);
-					    break;
-				    case @"APC":
-					    break;
-			    }
+			   // switch (UpdateDataObj.DataClassSet[index].ClassDataObj)
+			   // {
+				  //  case @"SPC":
+					 //   SetSPC(index, value, paramRtu);
+						//break;
+				  //  case @"INC":
+					 //   SetINC(index, value);
+					 //   break;
+				  //  case @"APC":
+					 //   break;
+			   // }
 			}
 		}
 
 	    private static void SetSPC(int index, ushort[] value, ushort[] paramRtu)
 	    {
 
-		    ushort invPosindex = (ushort)~(1 << UpdateDataObj.DataClassSet[index].MaskDataObj);		//Маска сбрасываемого бита 
-		    ushort tempVal = (ushort)(value[0] > 0 ? (1 << UpdateDataObj.DataClassSet[index].MaskDataObj) : 0);
-		    ushort answer = (ushort )((paramRtu[0] & invPosindex) + tempVal);
+		    //ushort invPosindex = (ushort)~(1 << UpdateDataObj.DataClassSet[index].MaskDataObj);		//Маска сбрасываемого бита 
+		    //ushort tempVal = (ushort)(value[0] > 0 ? (1 << UpdateDataObj.DataClassSet[index].MaskDataObj) : 0);
+		    //ushort answer = (ushort )((paramRtu[0] & invPosindex) + tempVal);
 
 
-			if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort _))
-		    {
-			    lock (Locker)
-			    {
-				    SerialPort.SetDataRTU(addrSet, null, RequestPriority.High, null, answer);
-			    }
-		    }
+			//if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort _))
+		 //   {
+			//    lock (Locker)
+			//    {
+			//	    SerialPort.SetDataRTU(addrSet, null, RequestPriority.High, null, answer);
+			//    }
+		 //   }
 		}
 
 	    private static void SetINC(int index, ushort[] value)

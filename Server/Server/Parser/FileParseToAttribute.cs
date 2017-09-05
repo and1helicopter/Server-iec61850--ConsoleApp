@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using Server.DataClasses;
+using Server.Update;
 
 namespace Server.Parser
 {
@@ -48,12 +49,33 @@ namespace Server.Parser
 
 				foreach (var lnitem in xLn)
 				{
+					if (lnitem.Attribute("type")?.Value.ToUpper() == "EnergocomplektBitArray".ToUpper())
+					{
+						try
+						{
+							var nameBitArray = lnitem.Value.Split(';')[0];
+							var addrBitArray = Convert.ToUInt16(lnitem.Value.Split(';')[1]);
+
+							UpdateDataObj.BitArray.Add(new UpdateDataObj.BitArrayObj(nameBitArray, 0));
+							UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addrBitArray, 2, true)
+							{
+								BitArray = UpdateDataObj.BitArray.Last()
+							});
+
+							continue;
+						}
+						catch
+						{
+							Log.Log.Write("FileParseToAttribute: LN.type == EnergocomplektBitArray", "Warning ");
+							continue;
+						}
+					}
 					if (lnitem.Attribute("lnClass") == null || lnitem.Attribute("inst") == null)
 					{
 						Log.Log.Write("FileParseToAttribute: LN.lnClass == null or LN.inst == null", "Warning ");
 						continue;
 					}
-					
+
 					string ln = lnitem.Attribute("prefix")?.Value + lnitem.Attribute("lnClass")?.Value + lnitem.Attribute("inst")?.Value;
 
 					#region DOI

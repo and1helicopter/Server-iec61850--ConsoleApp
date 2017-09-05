@@ -74,9 +74,8 @@ namespace Server.DataClasses
 
 			//Служебная информация
 			public string Type { get; set; }
-			public string Format { get; set; }
-			public ushort Mask { get; set; }
-			public ushort Addr { get; set; }
+			public int Index { get; set; }
+			public string Addr { get; set; }
 			public ushort Byte { get; set; }
 			
 			public NodeDO(string nameDO, string typeDO, string descDO)

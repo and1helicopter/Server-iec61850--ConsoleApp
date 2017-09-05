@@ -78,11 +78,11 @@ namespace Server.Parser
 
                         ServerModel.Model.ListLD.Last().ListLN.Add(new ServerModel.NodeLN(nameLN, ln.Attribute("lnType")?.Value, ""));
                     }
-                    else
-                    {
-                        Log.Log.Write("ParseDocunent: LN.lnClass == null or LN.inst == null", "Error   ");
-                        return false;
-                    }
+                    //else
+                    //{
+                    //    Log.Log.Write("ParseDocunent: LN.lnClass == null or LN.inst == null", "Error   ");
+                    //    return false;
+                    //}
                 }
             }
 

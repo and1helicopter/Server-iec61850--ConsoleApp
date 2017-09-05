@@ -102,8 +102,8 @@ namespace Server.Server
 				}
 				
 				ServerModel.Model?.Clear();
-				UpdateDataObj.DataClassGet?.Clear();
-				UpdateDataObj.DataClassSet?.Clear();
+				UpdateDataObj.BitArray?.Clear();
+				UpdateDataObj.ClassGetObjects?.Clear();
 				DataObj.StructDataObj?.Clear();
 
 				Log.Log.Write(@"Server.StopServer: Server stoped", @"Stop");

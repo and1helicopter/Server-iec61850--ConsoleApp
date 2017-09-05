@@ -9,30 +9,30 @@ namespace Server.Update
     {
 		public static void InitControlClass(IedServer iedServer, IedModel iedModel)
 	    {
-			foreach (var item in DataClassSet)
-			{
-				var temp = (IEC61850.Server.DataObject)iedModel.GetModelNodeByShortObjectReference(item.NameDataObj);
+			//foreach (var item in DataClassSet)
+			//{
+			//	var temp = (IEC61850.Server.DataObject)iedModel.GetModelNodeByShortObjectReference(item.NameDataObj);
 
-				switch (item.ClassDataObj)
-				{
-					case "SPC":
-						iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-						{
-							UpdateSPC(DataClassSet.IndexOf(item), ctlVal.GetBoolean());
-							return ControlHandlerResult.OK;
-						}, null);
-						break;
-					case "INC":
-						iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-						{
-							UpdateINC(DataClassSet.IndexOf(item), ctlVal.ToInt32());
-							return ControlHandlerResult.OK;
-						}, null);
-						break;
-					case "APC":
-						break;
-				}
-			}
+			//	switch (item.ClassDataObj)
+			//	{
+			//		case "SPC":
+			//			iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+			//			{
+			//				UpdateSPC(DataClassSet.IndexOf(item), ctlVal.GetBoolean());
+			//				return ControlHandlerResult.OK;
+			//			}, null);
+			//			break;
+			//		case "INC":
+			//			iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+			//			{
+			//				UpdateINC(DataClassSet.IndexOf(item), ctlVal.ToInt32());
+			//				return ControlHandlerResult.OK;
+			//			}, null);
+			//			break;
+			//		case "APC":
+			//			break;
+			//	}
+			//}
 	    }
 
 	    private static void UpdateSPC(int index, bool value)
@@ -132,40 +132,40 @@ namespace Server.Update
 
         public static void UpdateDataGet(IedServer iedServer, IedModel iedModel)
         {
-            foreach (var itemDataObject in DataClassGet)
-            {
-                switch (itemDataObject.ClassDataObj)
-                {
-	                case @"SPS":
-		                SPS_ClassUpdate(itemDataObject, iedServer, iedModel);
-		                continue;
-	                case @"INS":
-		                INS_ClassUpdate(itemDataObject, iedServer, iedModel);
-		                continue;
-					case @"ACT":
-						ACT_ClassUpdate(itemDataObject, iedServer, iedModel);
-						continue;
-					case @"BCR":
-						BCR_ClassUpdate(itemDataObject, iedServer, iedModel);
-						continue;
-	                case @"MV":
-		                MV_ClassUpdate(itemDataObject, iedServer, iedModel);
-		                continue;
-				}
-            }
+    //        foreach (var itemDataObject in DataClassGet)
+    //        {
+    //            switch (itemDataObject.ClassDataObj)
+    //            {
+	   //             case @"SPS":
+		  //              SPS_ClassUpdate(itemDataObject, iedServer, iedModel);
+		  //              continue;
+	   //             case @"INS":
+		  //              INS_ClassUpdate(itemDataObject, iedServer, iedModel);
+		  //              continue;
+				//	case @"ACT":
+				//		ACT_ClassUpdate(itemDataObject, iedServer, iedModel);
+				//		continue;
+				//	case @"BCR":
+				//		BCR_ClassUpdate(itemDataObject, iedServer, iedModel);
+				//		continue;
+	   //             case @"MV":
+		  //              MV_ClassUpdate(itemDataObject, iedServer, iedModel);
+		  //              continue;
+				//}
+    //        }
 
-	        foreach (var itemDataObject in DataClassSet)
-	        {
-		        switch (itemDataObject.ClassDataObj)
-		        {
-					case @"SPC":
-						SPC_ClassUpdate(itemDataObject, iedServer, iedModel);
-						continue;
-					case @"INC":
-						INC_ClassUpdate(itemDataObject, iedServer, iedModel);
-						continue;
-				}
-	        }
+	   //     foreach (var itemDataObject in DataClassSet)
+	   //     {
+		  //      switch (itemDataObject.ClassDataObj)
+		  //      {
+				//	case @"SPC":
+				//		SPC_ClassUpdate(itemDataObject, iedServer, iedModel);
+				//		continue;
+				//	case @"INC":
+				//		INC_ClassUpdate(itemDataObject, iedServer, iedModel);
+				//		continue;
+				//}
+	   //     }
         }
 
 		#region Классы общих данных для информации о состоянии
