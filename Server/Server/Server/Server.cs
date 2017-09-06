@@ -20,17 +20,17 @@ namespace Server.Server
 		{
 			while (_running)
 			{
-				if (ModBus.ModBus.StartPort)
-				{
-					_iedServer.LockDataModel();
+				//if (ModBus.ModBus.StartPort)
+				//{
+				//	_iedServer.LockDataModel();
 
-					lock (Locker)
-					{
-						UpdateDataObj.UpdateDataGet(_iedServer, _iedModel);
-					}
+				//	lock (Locker)
+				//	{
+				//		//	UpdateDataGet(_iedServer, _iedModel);
+				//	}
 
-					_iedServer.UnlockDataModel();
-				}
+				//	_iedServer.UnlockDataModel();
+				//}
 
 				Thread.Sleep(ServerConfig.TimeUpdate);
 			}
@@ -51,8 +51,8 @@ namespace Server.Server
 			}
 
 			GC.Collect();   //Габредж коллектор
-			UpdateDataObj.StaticUpdateData(_iedServer, _iedModel);      //Заполнение данными
-			UpdateDataObj.InitControlClass(_iedServer, _iedModel);			//Установка оброботчиков событий
+			StaticUpdateData(_iedServer, _iedModel);      //Заполнение данными
+			InitControlClass(_iedServer, _iedModel);			//Установка оброботчиков событий
 
 			return true;
 		}
@@ -61,7 +61,6 @@ namespace Server.Server
 		{
 			if (_iedModel != null)
 			{
-
 				_iedServer.Start(ServerConfig.PortServer);
 
 				_serverThread = new Thread(RuningServer)

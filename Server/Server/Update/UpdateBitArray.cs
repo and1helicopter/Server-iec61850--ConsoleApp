@@ -19,13 +19,14 @@ namespace Server.Update
 			public BitArrayObj(string name, ushort value)
 			{
 				NameBitArray = name;
-				BitArray = new BitArray(value);
+				BitArray = new BitArray(16);
+				BitArray.SetAll(false);
 			}
 
 			/// <summary>  Установить в BitArray ushort</summary>
 			public void GetBitArrayObj(ushort value)
 			{
-				BitArray = new BitArray(value);
+				BitArray = new BitArray(BitConverter.GetBytes(value));
 			}
 
 			/// <summary>  Преобразовать BitArrayObj к ushort</summary>

@@ -96,7 +96,7 @@
     <Compile Include="Server\Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Settings.cs" />
-    <Compile Include="Update\UpdateServer.cs" />
+    <Compile Include="Server\ServerUpdate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".dockerignore">

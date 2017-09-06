@@ -1,6 +1,5 @@
 ﻿using System;
 using Server.Update;
-using UniSerialPort;
 
 namespace Server.ModBus
 {
@@ -8,40 +7,32 @@ namespace Server.ModBus
     {
         private static void DataRequest()
         {
-            #region Get
-            //if (UpdateDataObj.DataClassGet.Count != 0)
-            //{
-            //    for (var i = 0; i < UpdateDataObj.DataClassGet.Count; i++)
-            //    {
-            //        if (UpdateDataObj.GetData(i, out ushort addrGet, out ushort wordCount))
-            //        {
-            //            lock (Locker)
-            //            {
-            //                SerialPort.GetDataRTU(addrGet, wordCount, UpdateDataGet, i);
-            //            }
-            //        }
-            //    }
-            //}
-			#endregion
-
-			#region Set
-	   //     if (UpdateDataObj.DataClassSet.Count != 0)
-	   //     {
-		  //      for (var i = 0; i < UpdateDataObj.DataClassSet.Count; i++)
-			 //   {
-				//	if (UpdateDataObj.SetData(i, out ushort addrSet, out ushort wordCount))
-				//	{
-				//		lock (Locker)
-				//		{
-				//			SerialPort.GetDataRTU(addrSet, wordCount, UpdateDataSet, i);
-				//		}
-				//	}
-				//}
-	   //     }
-	        #endregion
+			if (UpdateDataObj.ClassGetObjects.Count != 0)
+			{
+				for (var i = 0; i < UpdateDataObj.ClassGetObjects.Count; i++)
+				{
+					if (UpdateDataObj.GetData(i, out ushort addrGet, out ushort wordCount))
+					{
+						lock (Locker)
+						{
+							SerialPort.GetDataRTU(addrGet, wordCount, UpdateDataGet, i);
+						}
+					}
+				}
+			}
 		}
 
-	    private class ParamSet
+	    private static void UpdateDataGet(bool dataOk, ushort[] paramRtu, object param)
+	    {
+		    var index = Convert.ToInt32(param);
+
+		    if (dataOk)
+		    {
+			    UpdateDataObj.UpdateDataGet(index, paramRtu);
+		    }
+	    }
+
+		private class ParamSet
 	    {
 		    public ushort[] Value { get; }
 			public int Index { get; }
@@ -55,14 +46,14 @@ namespace Server.ModBus
 
 		public static void DataSetRequest(int index, ushort[] value)
 		{
-			var param = new ParamSet(value, index);
-			if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort wordCount))
-			{
-				lock (Locker)
-				{
-					SerialPort.GetDataRTU(addrSet, wordCount, DataSetResponse, param);
-				}
-			}
+			//var param = new ParamSet(value, index);
+			//if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort wordCount))
+			//{
+			//	lock (Locker)
+			//	{
+			//		SerialPort.GetDataRTU(addrSet, wordCount, DataSetResponse, param);
+			//	}
+			//}
 		}
 
 	    private static void DataSetResponse(bool dataOk, ushort[] paramRtu, object param)
@@ -105,35 +96,15 @@ namespace Server.ModBus
 
 	    private static void SetINC(int index, ushort[] value)
 	    {
-		    ushort[] answer = value;
+		 //   ushort[] answer = value;
 			
-			if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort _))
-		    {
-			    lock (Locker)
-			    {
-				    SerialPort.SetDataRTU(addrSet, null, RequestPriority.High, null, answer);
-			    }
-		    }
+			//if (UpdateDataObj.SetData(index, out ushort addrSet, out ushort _))
+		 //   {
+			//    lock (Locker)
+			//    {
+			//	    SerialPort.SetDataRTU(addrSet, null, RequestPriority.High, null, answer);
+			//    }
+		 //   }
 	    }
-
-		private static void UpdateDataGet(bool dataOk, ushort[] paramRtu, object param)
-        {
-            var index = Convert.ToInt32(param);
-
-            if (dataOk)
-            {
-                UpdateDataObj.UpdateDataGet(index, paramRtu);
-            }
-        }
-
-	    private static void UpdateDataSet(bool dataOk, ushort[] paramRtu, object param)
-	    {
-		    var index = Convert.ToInt32(param);
-
-		    if (dataOk)
-		    {
-			    UpdateDataObj.UpdateDataSet(index, paramRtu);
-		    }
-	    }
-	}
+    }
 }
