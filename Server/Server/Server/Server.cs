@@ -63,11 +63,11 @@ namespace Server.Server
 			{
 				_iedServer.Start(ServerConfig.PortServer);
 
-				_serverThread = new Thread(RuningServer)
-				{
-					Name = @"Server IEC61850"
-				};
-				_serverThread.Start();
+				//_serverThread = new Thread(RuningServer)
+				//{
+				//	Name = @"Server IEC61850"
+				//};
+				//_serverThread.Start();
 				_running = true;
 
 				Log.Log.Write(@"Server.StartServer: Server started", @"Start");

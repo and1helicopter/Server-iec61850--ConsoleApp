@@ -1,54 +1,74 @@
 ﻿using System;
+using System.Collections;
+using IEC61850.Common;
 using IEC61850.Server;
 using Server.DataClasses;
+using Server.Update;
 
 namespace Server.Server
 {
     public static partial class Server
 	{
-		public static void InitControlClass(IedServer iedServer, IedModel iedModel)
+		private static void InitControlClass(IedServer iedServer, IedModel iedModel)
 	    {
-			//foreach (var item in DataClassSet)
-			//{
-			//	var temp = (IEC61850.Server.DataObject)iedModel.GetModelNodeByShortObjectReference(item.NameDataObj);
+			foreach (var itemGetObjects in UpdateDataObj.ClassGetObjects)
+			{
+				foreach (var itemDataClass in itemGetObjects.DataClass)
+				{
+					var temp = (DataObject)iedModel.GetModelNodeByShortObjectReference(itemDataClass.NameDataObj);
+					
+					switch (itemDataClass.ClassDataObj)
+					{
+						case "SPC":
+							iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+							{
+								UpdateSPC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), itemGetObjects.DataClass.IndexOf(itemDataClass), ctlVal.GetBoolean());
+								return ControlHandlerResult.OK;
+							}, null);
+							break;
+						case "INC":
+							iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+							{
+								UpdateINC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), ctlVal.ToInt32());
+								return ControlHandlerResult.OK;
+							}, null);
+							break;
+						case "APC":
+							break;
+					}
+				}
+			}
+		}
 
-			//	switch (item.ClassDataObj)
-			//	{
-			//		case "SPC":
-			//			iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-			//			{
-			//				UpdateSPC(DataClassSet.IndexOf(item), ctlVal.GetBoolean());
-			//				return ControlHandlerResult.OK;
-			//			}, null);
-			//			break;
-			//		case "INC":
-			//			iedServer.SetControlHandler(temp, delegate (IEC61850.Server.DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-			//			{
-			//				UpdateINC(DataClassSet.IndexOf(item), ctlVal.ToInt32());
-			//				return ControlHandlerResult.OK;
-			//			}, null);
-			//			break;
-			//		case "APC":
-			//			break;
-			//	}
-			//}
-	    }
-
-	    private static void UpdateSPC(int index, bool value)
+	    private static void UpdateSPC(int indexClassGetObjects, int indexDataClass, bool value)
 		{
+			BitArray bitArray = new BitArray(UpdateDataObj.ClassGetObjects[indexClassGetObjects].BitArray.BitArray);
+			var index = UpdateDataObj.ClassGetObjects[indexClassGetObjects].DataClass[indexDataClass].IndexDataOBj;
+			bitArray.Set(index, value);
+
 			//Записать значение на плату
-			ushort[] val = { Convert.ToUInt16(value ? 1 : 0) };
-			ModBus.ModBus.DataSetRequest(index, val);
+
+			ushort temp = 0;
+			for (int i = 0; i < bitArray.Count; i++)
+			{
+				if (bitArray[i])
+				{
+					temp |= (ushort)(1 << i);
+				}
+			}
+			ushort[] val = { temp };
+
+			ModBus.ModBus.DataSetRequest(indexClassGetObjects, val);
 		}
 		
-	    private static void UpdateINC(int index, int value)
+	    private static void UpdateINC(int indexClassGetObjects, int value)
 	    {
 		    //Записать значение на плату
 		    ushort[] val = { (ushort)value, (ushort)(value >> 16)};
-		    ModBus.ModBus.DataSetRequest(index, val);
+		    ModBus.ModBus.DataSetRequest(indexClassGetObjects, val);
 	    }
-	    
-		public static void StaticUpdateData(IedServer iedServer, IedModel iedModel)
+
+		private static void StaticUpdateData(IedServer iedServer, IedModel iedModel)
         {
             iedServer.LockDataModel();
 
@@ -129,7 +149,7 @@ namespace Server.Server
             iedServer.UpdateQuality((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
         }
 
-        public static void UpdateDataGet(Update.UpdateDataObj.DataObject itemDataObject)
+        public static void UpdateDataGet(UpdateDataObj.DataObject itemDataObject)
         {
 	        switch (itemDataObject.ClassDataObj)
 	        {
@@ -158,7 +178,7 @@ namespace Server.Server
 		}
 
 		#region Классы общих данных для информации о состоянии
-		private static void SPS_ClassUpdate(Update.UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+		private static void SPS_ClassUpdate(UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
 	    {
 		    ((SpsClass)itemDataObject.DataObj).QualityCheckClass();
 
@@ -175,7 +195,7 @@ namespace Server.Server
 		    iedServer.UpdateQuality(qPath, qVal);
 	    }
 
-	    private static void INS_ClassUpdate(Update.UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    private static void INS_ClassUpdate(UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
 	    {
 		    ((InsClass)itemDataObject.DataObj).QualityCheckClass();
 
@@ -192,7 +212,7 @@ namespace Server.Server
 		    iedServer.UpdateQuality(qPath, qVal);
 	    }
 
-	    private static void ACT_ClassUpdate(Update.UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    private static void ACT_ClassUpdate(UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
 	    {
 		    ((ActClass)itemDataObject.DataObj).QualityCheckClass();
 
@@ -209,7 +229,7 @@ namespace Server.Server
 		    iedServer.UpdateQuality(qPath, qVal);
 	    }
 
-	    private static void BCR_ClassUpdate(Update.UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    private static void BCR_ClassUpdate(UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
 	    {
 		    ((BcrClass)itemDataObject.DataObj).QualityCheckClass();
 
@@ -228,7 +248,7 @@ namespace Server.Server
 		#endregion
 
 		#region  Классы общих данных для информации об измеряемой величине
-		private static void MV_ClassUpdate(Update.UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+		private static void MV_ClassUpdate(UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
 		{
 			((MvClass)itemDataObject.DataObj).QualityCheckClass();
 
@@ -247,7 +267,7 @@ namespace Server.Server
 		#endregion
 
 		#region  Спецификации класса общих данных для управления состоянием и информации о состоянии
-		private static void SPC_ClassUpdate(Update.UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+		private static void SPC_ClassUpdate(UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
 	    {
 		    ((SpcClass)itemDataObject.DataObj).QualityCheckClass();
 
@@ -264,7 +284,7 @@ namespace Server.Server
 		    iedServer.UpdateQuality(qPath, qVal);
 	    }
 	    
-	    private static void INC_ClassUpdate(Update.UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
+	    private static void INC_ClassUpdate(UpdateDataObj.DataObject itemDataObject, IedServer iedServer, IedModel iedModel)
 	    {
 		    ((IncClass)itemDataObject.DataObj).QualityCheckClass();
 

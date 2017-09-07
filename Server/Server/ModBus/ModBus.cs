@@ -97,7 +97,7 @@ namespace Server.ModBus
 				
 				if (SerialPort.requests.Count == 0) //Ждем пока обработается запрос 
 				{
-					DataRequest();
+					DataGetRequest();
 
 					ScopoeRequest();
 				}

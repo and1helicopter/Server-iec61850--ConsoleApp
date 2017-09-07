@@ -36,7 +36,7 @@ namespace Server.Update
 			}
 
 			/// <summary> Установить бит index в значение value </summary>
-			public void SetBit(ushort index, bool value)
+			public void SetBit(int index, bool value)
 			{
 				BitArray.Set(index, value);
 			}
