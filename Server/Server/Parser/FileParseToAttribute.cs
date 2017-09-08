@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using Server.DataClasses;
 using Server.Update;
@@ -397,7 +398,21 @@ namespace Server.Parser
 
 				//С учетом формата
 
-				if (da.BTypeDA.ToUpper() == "INT32" || da.BTypeDA.ToUpper() == "INT")
+				if (da.BTypeDA.ToUpper() == "Unicode255".ToUpper() || da.BTypeDA.ToUpper() == "VisString255".ToUpper())
+				{
+					btype = "string";
+
+					try
+					{
+						da.Value = value;
+					}
+					catch
+					{
+						Log.Log.Write("FileParseToAttribute.ParseFillModelBDA: DA.BTypeDA.INT32", "Warning ");
+						return;
+					}
+				}
+				else if (da.BTypeDA.ToUpper() == "INT32" || da.BTypeDA.ToUpper() == "INT")
 				{
 					btype = "int";
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Text;
 using IEC61850.Common;
 using IEC61850.Server;
 using Server.DataClasses;
@@ -133,7 +134,7 @@ namespace Server.Server
 
         private static void UpdateString(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-            string str = Convert.ToString(value);
+	       string str = Convert.ToString(value);
             iedServer.UpdateVisibleStringAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
         }
 
