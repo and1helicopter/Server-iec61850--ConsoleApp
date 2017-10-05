@@ -48,8 +48,7 @@ namespace ServerWPF
 
 		private void TimerLoadOscOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
 		{
-			double count;
-			if (ModBus.StatusLoad(out count))
+			if (ModBus.StatusLoad(out var count))
 			{
 				Dispatcher.Invoke(() => { ProgressBar.Value = Math.Round(count, 2);});
 				Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
@@ -137,9 +136,6 @@ namespace ServerWPF
 			CheckedStart = true;
 			_checkedStop = false;
 
-
-			//Settings.SaveSettings();
-
 			//Парсим файл конфигурации
 			if (!Parser.ParseFile(Server.Server.Server.ServerConfig.NameConfigFile))
 			{
@@ -147,10 +143,7 @@ namespace ServerWPF
 				return;
 			}
 			Log.Write(@"ParseFile: File parse success", @"Success");
-
-			ModBus.ConfigModBusPort();
-			ModBus.StartModBus();
-
+			
 			if (ConfigDownloadScope.Enable)
 			{
 				TimerLoadOsc.Enabled = true;
@@ -163,6 +156,9 @@ namespace ServerWPF
 			//Запуск сервера 
 			if (!Server.Server.Server.StartServer()) return;
 
+			ModBus.ConfigModBusPort();
+			ModBus.StartModBus();
+
 			Start.Background = new SolidColorBrush(Colors.LimeGreen);
 			Start.BorderBrush = new SolidColorBrush(Colors.DarkGreen);
 			Start.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
@@ -172,8 +168,6 @@ namespace ServerWPF
 			Stop.Foreground = new SolidColorBrush(Colors.Black);
 
 			Status();
-
-
 		}
 
 		private void Stop_Button_Click(object sender, RoutedEventArgs e)
@@ -182,6 +176,8 @@ namespace ServerWPF
 			{
 				return;
 			}
+
+			Server.Server.Server.StopServer();
 
 			if (ConfigDownloadScope.Enable)
 			{
@@ -192,8 +188,6 @@ namespace ServerWPF
 
 			CheckedStart = false;
 			_checkedStop = true;
-
-			Server.Server.Server.StopServer();
 
 			Stop.Background = new SolidColorBrush(Colors.Red);
 			Stop.BorderBrush = new SolidColorBrush(Colors.DarkRed);
