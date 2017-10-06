@@ -5,7 +5,7 @@ using Server.DataClasses;
 
 namespace Server.Update
 {
-    public static partial class UpdateDataObj
+    public partial class UpdateDataObj
     {
         public static bool GetData(int currentIndex, out ushort addrGet, out ushort wordCount)
         {
@@ -35,7 +35,7 @@ namespace Server.Update
 		    {
 				if (itemDataClass.DataObj.GetType() == typeof(SpsClass))
 				{
-					await UpdateSPS(index, itemDataClass);
+					await UpdateSps(index, itemDataClass);
 				}
 				else if (itemDataClass.DataObj.GetType() == typeof(ActClass))
 				{
@@ -48,7 +48,7 @@ namespace Server.Update
 			}
 	    }
 
-	    private static async Task UpdateSPS(int index, DataObject itemDataClass)
+	    private static  async Task UpdateSps(int index, DataObject itemDataClass)
 	    {
 		    var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
 		    ((SpsClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);

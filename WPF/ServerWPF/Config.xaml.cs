@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 using Server.ModBus;
@@ -104,9 +105,21 @@ namespace ServerWPF
 			OldFormatLabel.Content = Server.Server.Server.ServerConfig.OldFormat ? @"OLD" : @"NEW";
 		}
 
-		private void Ok_Button_Click(object sender, System.Windows.RoutedEventArgs e)
+		private void Ok_Button_Click(object sender, RoutedEventArgs e)
 		{
-			if (!MainWindow.CheckedStart)
+			if (MainWindow.CheckedStart)
+			{
+				if (MessageBox.Show(@"Перезапустить сервер с новыми параметрами?", @"Сервер запущен", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+				{
+					App._mainWindow.Stop_Button_Click(null, null);
+
+					SetSettings();
+					Settings.SaveSettings();
+
+					App._mainWindow.Start_Button_Click(null, null);
+				}
+			}
+			else
 			{
 				SetSettings();
 				Settings.SaveSettings();
@@ -139,7 +152,7 @@ namespace ServerWPF
 				);
 		}
 
-		private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
+		private void Button_Click(object sender, RoutedEventArgs e)
 		{
 			OpenFileDialog ofd = new OpenFileDialog
 			{

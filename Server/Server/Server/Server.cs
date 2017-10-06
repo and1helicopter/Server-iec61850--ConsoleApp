@@ -1,4 +1,5 @@
-﻿using IEC61850.Server;
+﻿using System.IO;
+using IEC61850.Server;
 using Server.DataClasses;
 using Server.Update;
 
@@ -14,6 +15,8 @@ namespace Server.Server
 		{
 			try
 			{
+				Directory.CreateDirectory(@"vmd-filestore" + "\\" + ModBus.ConfigDownloadScope.PathScope);
+
 				_iedModel = IedModel.CreateFromFile(ServerConfig.NameModelFile);
 
 				_iedServer = new IedServer(_iedModel);

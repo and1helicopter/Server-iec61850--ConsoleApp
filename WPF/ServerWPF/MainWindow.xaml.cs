@@ -126,7 +126,7 @@ namespace ServerWPF
 			Width = 200;
 		}
 
-		private void Start_Button_Click(object sender, RoutedEventArgs e)
+		public void Start_Button_Click(object sender, RoutedEventArgs e)
 		{
 			if (CheckedStart)
 			{
@@ -170,7 +170,7 @@ namespace ServerWPF
 			Status();
 		}
 
-		private void Stop_Button_Click(object sender, RoutedEventArgs e)
+		public void Stop_Button_Click(object sender, RoutedEventArgs e)
 		{
 			if (_checkedStop)
 			{
