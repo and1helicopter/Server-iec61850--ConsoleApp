@@ -25,11 +25,9 @@ namespace Server.ModBus
 
 	    private static void UpdateDataGet(bool dataOk, ushort[] paramRtu, object param)
 	    {
-		    var index = Convert.ToInt32(param);
-
 		    if (dataOk)
 		    {
-			    UpdateDataObj.UpdateDataGet(index, paramRtu);
+			    UpdateDataObj.UpdateDataGet(Convert.ToInt32(param), paramRtu);
 		    }
 	    }
 

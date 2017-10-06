@@ -99,11 +99,7 @@
     <Compile Include="Server\ServerUpdate.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".dockerignore">
-      <DependentUpon>Dockerfile</DependentUpon>
-    </None>
     <None Include="App.config" />
-    <None Include="Dockerfile" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\UniSerialPort\UniSerialPort.csproj">

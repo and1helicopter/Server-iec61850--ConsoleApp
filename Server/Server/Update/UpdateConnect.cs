@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Server.DataClasses;
 
 namespace Server.Update
@@ -25,7 +26,7 @@ namespace Server.Update
 			}
 		}
 
-	    private static void UpdateD(int index, ushort[] paramRtu)
+	    private static async void UpdateD(int index, ushort[] paramRtu)
 	    {
 		    ClassGetObjects[index].BitArray.GetBitArrayObj(paramRtu[0]);
 			
@@ -34,74 +35,119 @@ namespace Server.Update
 		    {
 				if (itemDataClass.DataObj.GetType() == typeof(SpsClass))
 				{
-					var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
-					((SpsClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
-			    }
+					await UpdateSPS(index, itemDataClass);
+				}
 				else if (itemDataClass.DataObj.GetType() == typeof(ActClass))
 				{
-					var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
-					((ActClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);			
+					await UpdateACT(index, itemDataClass);
 				}
 				else if (itemDataClass.DataObj.GetType() == typeof(SpcClass))
 				{
-					var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
-					((SpcClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+					await UpdateSPC(index, itemDataClass);
 				}
-
-				Server.Server.UpdateDataGet(itemDataClass);
 			}
 	    }
 
-	    private static void UpdateA(int index, ushort[] paramRtu)
+	    private static async Task UpdateSPS(int index, DataObject itemDataClass)
+	    {
+		    var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
+		    ((SpsClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+
+			Server.Server.UpdateDataGet(itemDataClass);
+		}
+
+	    private static async Task UpdateACT(int index, DataObject itemDataClass)
+	    {
+			var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
+		    ((ActClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+
+			Server.Server.UpdateDataGet(itemDataClass);
+	    }
+
+	    private static async Task UpdateSPC(int index, DataObject itemDataClass)
+	    {
+		    var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
+		    ((SpcClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+
+			Server.Server.UpdateDataGet(itemDataClass);
+	    }
+
+		private static async void UpdateA(int index, ushort[] paramRtu)
 	    {
 		    var itemDataClass = ClassGetObjects[index].DataClass.First();
 
 		    if (itemDataClass.DataObj.GetType() == typeof(MvClass))
 		    {
-				Int64 val = 0;
-
-			    for (int i = paramRtu.Length - 1; i >= 0; i--)
-			    {
-				    val += (long)paramRtu[i] << i * 16;
-			    }
-				
-				((MvClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, (ulong)val);
+			    await UpdateMV(paramRtu, itemDataClass);
 		    }
 		    else if (itemDataClass.DataObj.GetType() == typeof(InsClass))
 		    {
-			    Int32 val = 0;
-
-			    for (int i = paramRtu.Length - 1; i >= 0; i--)
-			    {
-				    val += paramRtu[i] << i * 16;
-			    }
-
-				((InsClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
-		    }
+			    await UpdateINS(paramRtu, itemDataClass);
+			}
 		    else if (itemDataClass.DataObj.GetType() == typeof(BcrClass))
 		    {
-			    Int32 val = 0;
-
-			    for (int i = paramRtu.Length - 1; i >= 0; i--)
-			    {
-				    val += paramRtu[i] << i * 16;
-			    }
-
-			    ((BcrClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
-		    }
+			    await UpdateBCR(paramRtu, itemDataClass);
+			}
 		    else if (itemDataClass.DataObj.GetType() == typeof(IncClass))
 		    {
-				Int32 val = 0;
+			    await UpdateINC(paramRtu, itemDataClass);
+			}
+		}
+		
+		private static async Task UpdateMV(ushort[] paramRtu, DataObject itemDataClass)
+		{
+			Int64 val = 0;
 
-			    for (int i = paramRtu.Length - 1; i >= 0; i--)
-			    {
-				    val += paramRtu[i] << i * 16;
-			    }
+			for (int i = paramRtu.Length - 1; i >= 0; i--)
+			{
+				val += (long)paramRtu[i] << i * 16;
+			}
 
-			    ((IncClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
-		    }
+			((MvClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, (ulong)val);
 
 			Server.Server.UpdateDataGet(itemDataClass);
 		}
+
+	    private static async Task UpdateINS(ushort[] paramRtu, DataObject itemDataClass)
+	    {
+			Int32 val = 0;
+
+		    for (int i = paramRtu.Length - 1; i >= 0; i--)
+		    {
+			    val += paramRtu[i] << i * 16;
+		    }
+
+		    ((InsClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+
+			Server.Server.UpdateDataGet(itemDataClass);
+	    }
+
+	    private static async Task UpdateBCR(ushort[] paramRtu, DataObject itemDataClass)
+	    {
+			Int32 val = 0;
+
+		    for (int i = paramRtu.Length - 1; i >= 0; i--)
+		    {
+			    val += paramRtu[i] << i * 16;
+		    }
+
+		    ((BcrClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+
+			Server.Server.UpdateDataGet(itemDataClass);
+	    }
+
+	    private static async Task UpdateINC(ushort[] paramRtu, DataObject itemDataClass)
+	    {
+			Int32 val = 0;
+
+		    for (int i = paramRtu.Length - 1; i >= 0; i--)
+		    {
+			    val += paramRtu[i] << i * 16;
+		    }
+
+		    ((IncClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+
+			Server.Server.UpdateDataGet(itemDataClass);
+	    }
 	}
 }
