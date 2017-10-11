@@ -16,25 +16,22 @@ namespace Server.Server
 				foreach (var itemDataClass in itemGetObjects.DataClass)
 				{
 					var temp = (DataObject)iedModel.GetModelNodeByShortObjectReference(itemDataClass.NameDataObj);
-					
-					switch (itemDataClass.ClassDataObj)
+
+					if (itemDataClass.DataObj.GetType() == typeof(SpcClass))
 					{
-						case "SPC":
-							iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-							{
-								UpdateSPC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), itemGetObjects.DataClass.IndexOf(itemDataClass), ctlVal.GetBoolean());
-								return ControlHandlerResult.OK;
-							}, null);
-							break;
-						case "INC":
-							iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-							{
-								UpdateINC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), ctlVal.ToInt32());
-								return ControlHandlerResult.OK;
-							}, null);
-							break;
-						case "APC":
-							break;
+						iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+						{
+							UpdateSPC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), itemGetObjects.DataClass.IndexOf(itemDataClass), ctlVal.GetBoolean());
+							return ControlHandlerResult.OK;
+						}, null);
+					}
+					else if (itemDataClass.DataObj.GetType() == typeof(IncClass))
+					{
+						iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+						{
+							UpdateINC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), ctlVal.ToInt32());
+							return ControlHandlerResult.OK;
+						}, null);
 					}
 				}
 			}
@@ -151,29 +148,33 @@ namespace Server.Server
 
         public static void UpdateDataGet(UpdateDataObj.DataObject itemDataObject)
         {
-	        switch (itemDataObject.ClassDataObj)
+	        if (itemDataObject.DataObj.GetType() == typeof(SpcClass))
 	        {
-		        case @"SPS":
-			        SPS_ClassUpdate(itemDataObject, _iedServer, _iedModel);
-			        break;
-				case @"INS":
-					INS_ClassUpdate(itemDataObject, _iedServer, _iedModel);
-					break;
-				case @"ACT":
-					ACT_ClassUpdate(itemDataObject, _iedServer, _iedModel);
-					break;
-				case @"BCR":
-					BCR_ClassUpdate(itemDataObject, _iedServer, _iedModel);
-					break;
-				case @"MV":
-					MV_ClassUpdate(itemDataObject, _iedServer, _iedModel);
-					break;
-				case @"SPC":
-					SPC_ClassUpdate(itemDataObject, _iedServer, _iedModel);
-					break;
-				case @"INC":
-					INC_ClassUpdate(itemDataObject, _iedServer, _iedModel);
-					break;
+				SPS_ClassUpdate(itemDataObject, _iedServer, _iedModel);
+			}
+			else if (itemDataObject.DataObj.GetType() == typeof(InsClass))
+	        {
+		        INS_ClassUpdate(itemDataObject, _iedServer, _iedModel);
+			}
+	        else if (itemDataObject.DataObj.GetType() == typeof(ActClass))
+	        {
+				ACT_ClassUpdate(itemDataObject, _iedServer, _iedModel);
+			}
+	        else if (itemDataObject.DataObj.GetType() == typeof(BcrClass))
+	        {
+				BCR_ClassUpdate(itemDataObject, _iedServer, _iedModel);
+			}
+	        else if (itemDataObject.DataObj.GetType() == typeof(MvClass))
+	        {
+				MV_ClassUpdate(itemDataObject, _iedServer, _iedModel);
+			}
+	        else if (itemDataObject.DataObj.GetType() == typeof(SpcClass))
+	        {
+		        SPC_ClassUpdate(itemDataObject, _iedServer, _iedModel);
+			}
+			else if (itemDataObject.DataObj.GetType() == typeof(IncClass))
+	        {
+				INC_ClassUpdate(itemDataObject, _iedServer, _iedModel);
 			}
 		}
 

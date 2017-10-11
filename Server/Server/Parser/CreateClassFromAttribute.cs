@@ -109,7 +109,7 @@ namespace Server.Parser
 						mv.ClassFill(siUnit, multiplier, scaleFactor, offset, itemDo.DescDO);
 						ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo,  0, itemDo.TypeDO, mv);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo,  0, mv);
 						UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
 						{
 							BitArray = null,
@@ -134,7 +134,7 @@ namespace Server.Parser
 						var index = itemDo.Index;
 						var addrDig = itemDo.Addr;
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, index, itemDo.TypeDO, sps);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, index, sps);
 						var getObject = (from y in ((from x in UpdateDataObj.ClassGetObjects
 												 where x.TypeObj
 												 select x).ToList())
@@ -157,7 +157,7 @@ namespace Server.Parser
 						var ins = new InsClass(stval, itemDo.DescDO);
 						ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, itemDo.TypeDO, ins);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0,  ins);
 						UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
 						{
 							BitArray = null,
@@ -179,7 +179,7 @@ namespace Server.Parser
 						var act = new ActClass(general, itemDo.DescDO);
 						ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, itemDo.TypeDO, act);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, act);
 						UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
 						{
 							BitArray = null,
@@ -201,7 +201,7 @@ namespace Server.Parser
 						var bcr = new BcrClass(actVal, itemDo.DescDO);
 						ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, itemDo.TypeDO, bcr);
+						UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0,  bcr);
 						UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
 						{
 							BitArray = null,
@@ -229,7 +229,7 @@ namespace Server.Parser
 							var index = itemDo.Index;
 							var addrDig = itemDo.Addr;
 
-							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, index, itemDo.TypeDO, spc);
+							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, index,  spc);
 							var getObject = (from y in ((from x in UpdateDataObj.ClassGetObjects
 														 where x.TypeObj
 														 select x).ToList())
@@ -256,7 +256,7 @@ namespace Server.Parser
 							var inc = new IncClass(ctlVal, stval, ctlModel, itemDo.DescDO);
 							ushort addr = Convert.ToUInt16(itemDo.Addr);
 
-							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, itemDo.TypeDO, inc);
+							UpdateDataObj.DataObject dataObj = new UpdateDataObj.DataObject(pathNameDo, 0, inc);
 							UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addr, itemDo.Byte, false)
 							{
 								BitArray = null,

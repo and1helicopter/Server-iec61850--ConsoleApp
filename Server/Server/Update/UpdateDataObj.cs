@@ -10,15 +10,13 @@ namespace Server.Update
         {
 	        public string NameDataObj { get; }			//Путь до класса  
 			public int  IndexDataOBj { get; }				//Индекс для дискретного канала
-			public string ClassDataObj { get; }			//CDC объекта
 
             public object DataObj { get; }						//Ссылка на объект управления
 
-	        public DataObject(string nameDataObj, int indexDataOBj,  string classDataObj, object dataObj)
+	        public DataObject(string nameDataObj, int indexDataOBj,  object dataObj)
 	        {
 		        NameDataObj = nameDataObj;
 		        IndexDataOBj = indexDataOBj;
-		        ClassDataObj = classDataObj;
 		        DataObj = dataObj;
 	        }
 		}
