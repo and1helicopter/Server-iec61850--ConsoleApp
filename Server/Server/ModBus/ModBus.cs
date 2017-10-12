@@ -94,7 +94,9 @@ namespace Server.ModBus
 						}
 					}
 				}
-				
+
+				Update.UpdateDataObj.ChackChangeStatus.Chack(!ErrorPort);
+
 				if (SerialPort.requests.Count == 0) //Ждем пока обработается запрос 
 				{
 					DataGetRequest();

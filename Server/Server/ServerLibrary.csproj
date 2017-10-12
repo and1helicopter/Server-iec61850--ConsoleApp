@@ -78,6 +78,7 @@
     <Compile Include="Parser\CreateFileConfig.cs" />
     <Compile Include="Parser\FileParseToAttribute.cs" />
     <Compile Include="Parser\ModelFillDefultParam.cs" />
+    <Compile Include="Parser\ModelParseToUpdateStatus.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Parser\FileParseToModel.cs" />
     <Compile Include="DataClasses\DataObj.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Settings.cs" />
     <Compile Include="Server\ServerUpdate.cs" />
+    <Compile Include="Update\UpdateStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

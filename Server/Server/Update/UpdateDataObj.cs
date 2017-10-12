@@ -10,8 +10,7 @@ namespace Server.Update
         {
 	        public string NameDataObj { get; }			//Путь до класса  
 			public int  IndexDataOBj { get; }				//Индекс для дискретного канала
-
-            public object DataObj { get; }						//Ссылка на объект управления
+            public object DataObj { get; }					//Ссылка на объект управления
 
 	        public DataObject(string nameDataObj, int indexDataOBj,  object dataObj)
 	        {

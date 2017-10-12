@@ -40,7 +40,9 @@ namespace Server.Parser
 
                 CreateClassFromAttribute(); //Создаем обновляймые классы 
 
-                SaveFileConfig(); //Создаем из объектной модели - конфигурационную 
+	            ModelParseToUpdateStatus();//Создаем классы для данных Mod, Beh, Health
+
+				SaveFileConfig(); //Создаем из объектной модели - конфигурационную 
             }
 
             return true;

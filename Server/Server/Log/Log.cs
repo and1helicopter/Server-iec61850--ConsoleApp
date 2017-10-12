@@ -7,10 +7,17 @@ namespace Server.Log
     {
         public static void Write(string logMessage, string exaption)
         {
-            using (StreamWriter w = File.AppendText("log.txt"))
-            {
-                Message(logMessage, exaption, w);
-            }
+	        try
+	        {
+		        using (StreamWriter w = File.AppendText("log.txt"))
+		        {
+			        Message(logMessage, exaption, w);
+		        }
+			}
+	        catch
+	        {
+		        // ignored
+	        }
         }
 
         private static void Message(string logMessage, string exaption, TextWriter w)

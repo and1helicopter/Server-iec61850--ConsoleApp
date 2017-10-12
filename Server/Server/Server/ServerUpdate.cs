@@ -148,7 +148,7 @@ namespace Server.Server
 
         public static void UpdateDataGet(UpdateDataObj.DataObject itemDataObject)
         {
-	        if (itemDataObject.DataObj.GetType() == typeof(SpcClass))
+	        if (itemDataObject.DataObj.GetType() == typeof(SpsClass))
 	        {
 				SPS_ClassUpdate(itemDataObject, _iedServer, _iedModel);
 			}
@@ -301,6 +301,15 @@ namespace Server.Server
 		    var qVal = Convert.ToUInt16(((IncClass)itemDataObject.DataObj).q.Validity);
 		    iedServer.UpdateQuality(qPath, qVal);
 	    }
-	    #endregion
+		#endregion
+
+		public static void INT_UpdateStatus(string stValPath, int stVal)
+		{
+			var stPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(stValPath + @".stVal");
+			_iedServer.UpdateInt32AttributeValue(stPath, stVal);
+
+			var tPath = (DataAttribute)_iedModel.GetModelNodeByShortObjectReference(stValPath + @".t");
+			_iedServer.UpdateUTCTimeAttributeValue(tPath, DateTime.Now);
+		}
 	}
 }
