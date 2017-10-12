@@ -20,6 +20,11 @@ namespace ServerWPF
 		public MainWindow()
 		{
 			InitializeComponent();
+
+			Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
+			TimerLoadOsc.Elapsed -= TimerLoadOscOnElapsed;
+			TimerLoadOsc.Enabled = false;
+
 			ConfigStackPanel.Children.Add(_config);
 			//Открываем настройки сервера
 			if (!Settings.ReadSettings())
@@ -132,8 +137,7 @@ namespace ServerWPF
 			{
 				return;
 			}
-
-			CheckedStart = true;
+			
 			_checkedStop = false;
 
 			//Парсим файл конфигурации
@@ -157,7 +161,16 @@ namespace ServerWPF
 			if (!Server.Server.Server.StartServer()) return;
 
 			ModBus.ConfigModBusPort();
-			ModBus.StartModBus();
+			if (!ModBus.StartModBus())
+			{
+				SerialPortStopBits.Content = @"COM Port";
+				ComPortName.Content = @"Not Open";
+				SerialPortStopBits.Visibility = Visibility.Visible;
+				ComPortName.Visibility = Visibility.Visible;
+				return;
+			}
+
+			CheckedStart = true;
 
 			Start.Background = new SolidColorBrush(Colors.LimeGreen);
 			Start.BorderBrush = new SolidColorBrush(Colors.DarkGreen);

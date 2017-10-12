@@ -52,10 +52,18 @@ namespace Server.ModBus
 			ConfigModBusPort();
 		}
 
-		public static void StartModBus()
+		public static bool StartModBus()
 		{
-			OpenModBusPort();
-			Log.Log.Write(@"ModBus: StartModBus!!!", @"Success");
+			if (OpenModBusPort())
+			{
+				Log.Log.Write(@"ModBus: StartModBus!!!", @"Success");
+				return true;
+			}
+			else
+			{
+				Log.Log.Write(@"ModBus port not open!", @"Error");
+				return false;
+			}
 		}
 
 		public static void CloseModBus()

@@ -24,7 +24,7 @@ namespace Server.ModBus
 			Log.Log.Write("ModBus! SerialPort configured", "Success");
 		}
 
-		private static void OpenModBusPort()
+		private static bool OpenModBusPort()
 		{
 			try
 			{
@@ -49,10 +49,11 @@ namespace Server.ModBus
 						_modbusThread.Start();
 					}
 				}
+				return true;
 			}
 			catch
 			{
-				Log.Log.Write("ModBus port not open!", "Error");
+				return false;
 			}
 		}
 
