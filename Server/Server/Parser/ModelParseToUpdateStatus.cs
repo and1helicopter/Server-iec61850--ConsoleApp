@@ -1,4 +1,5 @@
 ﻿using Server.DataClasses;
+using Server.Update;
 
 namespace Server.Parser
 {
@@ -34,21 +35,21 @@ namespace Server.Parser
 		{
 			if (itemDO.NameDO.ToUpper() == @"Mod".ToUpper())
 			{
-				Update.UpdateDataObj.ModClass.PathModList.Add(path +  "." + itemDO.NameDO); 
+				UpdateDataObj.ModClass.PathModList.Add(path +  "." + itemDO.NameDO);
 			}
 			else if (itemDO.NameDO.ToUpper() == @"Beh".ToUpper())
 			{
-				Update.UpdateDataObj.BehClass.PathBehList.Add(path + "." + itemDO.NameDO);
+				UpdateDataObj.BehClass.PathBehList.Add(path + "." + itemDO.NameDO);
 
 			}
 			else if (itemDO.NameDO.ToUpper() == @"Health".ToUpper())
 			{
-				Update.UpdateDataObj.HealthClass.PathHealthList.Add(path + "." + itemDO.NameDO);
+				UpdateDataObj.HealthClass.PathHealthList.Add(path + "." + itemDO.NameDO);
 
 			}
 			else if (itemDO.NameDO.ToUpper() == @"PhyHealth".ToUpper())
 			{
-				Update.UpdateDataObj.HealthClass.PathPhyHealthList.Add(path + "." + itemDO.NameDO);
+				UpdateDataObj.HealthClass.PathPhyHealthList.Add(path + "." + itemDO.NameDO);
 
 			}
 		}

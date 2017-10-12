@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Server.Update
 {
@@ -34,41 +36,48 @@ namespace Server.Update
 			{
 				if (goodStatus != GoodStatus)
 				{
+					StatusChange(goodStatus ? 1 : 5);
 					GoodStatus = goodStatus;
-					StatusChange(GoodStatus ? 1 : 5);
 				}
 			}
 		}
 
-		private static void StatusChange(int status)
+		public static async void StatusChange(int status)
 		{
-			switch (status)
+			try
 			{
-				case 1:
-					ModStatusChange(1);
-					BehStatusChange(1);
-					HealthStatusChange(1);
-					break;
-				case 2:
-					break;
-				case 3:
-					break;
-				case 4:
-					break;
-				case 5:
-					ModStatusChange(5);
-					BehStatusChange(5);
-					HealthStatusChange(3);
-					break;
-				default:
-					ModStatusChange(5);
-					BehStatusChange(5);
-					HealthStatusChange(3);
-					break;
+				switch (status)
+				{
+					case 1:
+						await ModStatusChange(1);
+						await BehStatusChange(1);
+						await HealthStatusChange(1);
+						break;
+					case 2:
+						break;
+					case 3:
+						break;
+					case 4:
+						break;
+					case 5:
+						await ModStatusChange(5);
+						await BehStatusChange(5);
+						await HealthStatusChange(3);
+						break;
+					default:
+						await ModStatusChange(5);
+						await BehStatusChange(5);
+						await HealthStatusChange(3);
+						break;
+				}
+			}
+			catch
+			{
+				// ignored
 			}
 		}
 
-		private static void ModStatusChange(int status)
+		private static async Task ModStatusChange(int status)
 		{
 			ModClass.ValMod = status;
 
@@ -79,7 +88,7 @@ namespace Server.Update
 		}
 
 
-		private static void BehStatusChange(int status)
+		private static async Task BehStatusChange(int status)
 		{
 			BehClass.ValBeh = status;
 
@@ -89,7 +98,7 @@ namespace Server.Update
 			}
 		}
 
-		private static void HealthStatusChange(int status)
+		private static async Task HealthStatusChange(int status)
 		{
 			HealthClass.ValHealth = status;
 

@@ -12,7 +12,7 @@ namespace Server.Parser
 		#region Сохранение объектной модели в конфигурациионную модель для сервера
 		private static void SaveFileConfig()
 		{
-			string savePath = "test.cfg";
+			string savePath = "model.cfg";
 			FileStream fs = new FileStream(savePath, FileMode.Create);
 
 			string str = $"MODEL({ServerModel.Model.NameModel}){{\n";

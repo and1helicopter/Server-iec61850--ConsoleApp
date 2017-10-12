@@ -16,36 +16,49 @@ namespace Server.Update
 
         public static void UpdateDataGet(int currentIndex, ushort[] paramRtu)
         {
-	        if (ClassGetObjects[currentIndex].TypeObj)  //Если дискретные 
+	        try
 	        {
-		        UpdateD(currentIndex, paramRtu);
-	        }
-	        else
-	        {
-				UpdateA(currentIndex, paramRtu);
+		        if (ClassGetObjects[currentIndex].TypeObj)  //Если дискретные 
+		        {
+			        UpdateD(currentIndex, paramRtu);
+		        }
+		        else
+		        {
+			        UpdateA(currentIndex, paramRtu);
+		        }
 			}
-		}
+	        catch
+	        {
+		        // ignored
+	        }
+        }
 
 	    private static async void UpdateD(int index, ushort[] paramRtu)
 	    {
 		    ClassGetObjects[index].BitArray.GetBitArrayObj(paramRtu[0]);
-			
-			//Обновление
-		    foreach (var itemDataClass in ClassGetObjects[index].DataClass)
+
+		    try
 		    {
-				if (itemDataClass.DataObj.GetType() == typeof(SpsClass))
-				{
-					await UpdateSps(index, itemDataClass);
-				}
-				else if (itemDataClass.DataObj.GetType() == typeof(ActClass))
-				{
-					await UpdateACT(index, itemDataClass);
-				}
-				else if (itemDataClass.DataObj.GetType() == typeof(SpcClass))
-				{
-					await UpdateSPC(index, itemDataClass);
-				}
+			    foreach (var itemDataClass in ClassGetObjects[index].DataClass)
+			    {
+				    if (itemDataClass.DataObj.GetType() == typeof(SpsClass))
+				    {
+					    await UpdateSps(index, itemDataClass);
+				    }
+				    else if (itemDataClass.DataObj.GetType() == typeof(ActClass))
+				    {
+					    await UpdateACT(index, itemDataClass);
+				    }
+				    else if (itemDataClass.DataObj.GetType() == typeof(SpcClass))
+				    {
+					    await UpdateSPC(index, itemDataClass);
+				    }
+			    }
 			}
+		    catch
+		    {
+			    // ignored
+		    }
 	    }
 
 	    private static  async Task UpdateSps(int index, DataObject itemDataClass)
@@ -76,23 +89,30 @@ namespace Server.Update
 	    {
 		    var itemDataClass = ClassGetObjects[index].DataClass.First();
 
-		    if (itemDataClass.DataObj.GetType() == typeof(MvClass))
+		    try
 		    {
-			    await UpdateMV(paramRtu, itemDataClass);
+			    if (itemDataClass.DataObj.GetType() == typeof(MvClass))
+			    {
+				    await UpdateMV(paramRtu, itemDataClass);
+			    }
+			    else if (itemDataClass.DataObj.GetType() == typeof(InsClass))
+			    {
+				    await UpdateINS(paramRtu, itemDataClass);
+			    }
+			    else if (itemDataClass.DataObj.GetType() == typeof(BcrClass))
+			    {
+				    await UpdateBCR(paramRtu, itemDataClass);
+			    }
+			    else if (itemDataClass.DataObj.GetType() == typeof(IncClass))
+			    {
+				    await UpdateINC(paramRtu, itemDataClass);
+			    }
+			}
+		    catch 
+		    {
+			    // ignored
 		    }
-		    else if (itemDataClass.DataObj.GetType() == typeof(InsClass))
-		    {
-			    await UpdateINS(paramRtu, itemDataClass);
-			}
-		    else if (itemDataClass.DataObj.GetType() == typeof(BcrClass))
-		    {
-			    await UpdateBCR(paramRtu, itemDataClass);
-			}
-		    else if (itemDataClass.DataObj.GetType() == typeof(IncClass))
-		    {
-			    await UpdateINC(paramRtu, itemDataClass);
-			}
-		}
+	    }
 		
 		private static async Task UpdateMV(ushort[] paramRtu, DataObject itemDataClass)
 		{

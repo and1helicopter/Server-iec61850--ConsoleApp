@@ -35,6 +35,33 @@ namespace Server.Server
 					}
 				}
 			}
+
+			foreach (var itemMod in UpdateDataObj.ModClass.PathModList)
+			{
+				var temp = (DataObject)iedModel.GetModelNodeByShortObjectReference(itemMod);
+				
+				iedServer.SetControlHandler(temp,
+				 delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+				 {
+					 UpdateMod(ctlVal.ToInt32());
+					 return ControlHandlerResult.OK;
+				 }, null);
+			}
+		}
+
+		private static void UpdateMod(int value)
+		{
+			switch (value)
+			{
+				case 1:
+					UpdateDataObj.StatusChange(1);
+					if(!ModBus.ModBus.StartPort) ModBus.ModBus.StartModBus();//Запуск сервисов обмена
+					break;
+				case 5:
+					UpdateDataObj.StatusChange(5);
+					if (ModBus.ModBus.StartPort) ModBus.ModBus.CloseModBus();//Остановка сервисов обмен
+					break;
+			}
 		}
 
 	    private static void UpdateSPC(int indexClassGetObjects, int indexDataClass, bool value)
@@ -112,38 +139,80 @@ namespace Server.Server
 
         private static void UpdateBool(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-            bool str = Convert.ToBoolean(value);
-			iedServer.UpdateBooleanAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+	        try
+	        {
+		        bool str = Convert.ToBoolean(value);
+		        iedServer.UpdateBooleanAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+			}
+	        catch
+	        {
+		        // ignored
+	        }
         }
 
         private static void UpdateInt(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-            int str = Convert.ToInt32(value);
-            iedServer.UpdateInt32AttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+	        try
+	        {
+		        int str = Convert.ToInt32(value);
+		        iedServer.UpdateInt32AttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+			}
+	        catch
+	        {
+		        // ignored
+	        }
         }
 
         private static void UpdateFloat(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-            float str = Convert.ToSingle(value);
-            iedServer.UpdateFloatAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+	        try
+	        {
+		        float str = Convert.ToSingle(value);
+		        iedServer.UpdateFloatAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+			}
+	        catch 
+	        {
+		        // ignored
+	        }
         }
 
         private static void UpdateString(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-	       string str = Convert.ToString(value);
-            iedServer.UpdateVisibleStringAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+	        try
+	        {
+		        string str = Convert.ToString(value);
+		        iedServer.UpdateVisibleStringAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+			}
+	        catch
+	        {
+		        // ignored
+	        }
         }
 
         private static void UpdateDateTime(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-            DateTime str = Convert.ToDateTime(value);
-            iedServer.UpdateUTCTimeAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+	        try
+	        {
+		        DateTime str = Convert.ToDateTime(value);
+		        iedServer.UpdateUTCTimeAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+			}
+	        catch
+	        {
+		        // ignored
+	        }
         }
 
         private static void UpdateUshort(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-            ushort str = Convert.ToUInt16(value);
-            iedServer.UpdateQuality((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+	        try
+	        {
+		        ushort str = Convert.ToUInt16(value);
+		        iedServer.UpdateQuality((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+			}
+	        catch 
+	        {
+		        // ignored
+	        }
         }
 
         public static void UpdateDataGet(UpdateDataObj.DataObject itemDataObject)

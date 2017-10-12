@@ -37,7 +37,7 @@ namespace Server.ModBus
 			{
 				lock (Locker)
 				{
-					SerialPort.SetDataRTU(addrSet, null, RequestPriority.High, null, value);
+					SerialPort.SetDataRTU(addrSet, null, RequestPriority.Normal, null, value);
 				}
 			}
 	    }

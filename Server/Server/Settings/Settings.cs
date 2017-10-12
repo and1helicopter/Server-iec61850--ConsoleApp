@@ -55,9 +55,9 @@ namespace Server.Settings
                 if (elSs != null)
                 {
                     Server.Server.ServerConfig.PortServer = elSs.Attribute("PortServer") != null ? Convert.ToInt32(elSs.Attribute("PortServer").Value): 102;
-                    Server.Server.ServerConfig.NameConfigFile = elSs.Attribute("NameConfigFile") != null ? Convert.ToString(elSs.Attribute("NameConfigFile").Value):"test.icd";
+                    Server.Server.ServerConfig.NameConfigFile = elSs.Attribute("NameConfigFile") != null ? Convert.ToString(elSs.Attribute("NameConfigFile").Value):"model.icd";
                     Server.Server.ServerConfig.TimeUpdate = elSs.Attribute("TimeUpdate") != null ? Convert.ToInt32(elSs.Attribute("TimeUpdate").Value) : 100;
-                    Server.Server.ServerConfig.NameModelFile = elSs.Attribute("NameModelFile") != null ? Convert.ToString(elSs.Attribute("NameModelFile").Value) : "test.cfg";
+                    Server.Server.ServerConfig.NameModelFile = elSs.Attribute("NameModelFile") != null ? Convert.ToString(elSs.Attribute("NameModelFile").Value) : "model.cfg";
                     Server.Server.ServerConfig.LocalIPAddr = elSs.Attribute("LocalIPAddr") != null ? Convert.ToString(elSs.Attribute("LocalIPAddr").Value) : "localhost";
                     Server.Server.ServerConfig.Autostart = elSs.Attribute("Autostart") != null && Convert.ToBoolean(elSs.Attribute("Autostart").Value);
                 }
