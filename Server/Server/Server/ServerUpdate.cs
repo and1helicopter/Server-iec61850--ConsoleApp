@@ -55,11 +55,11 @@ namespace Server.Server
 			{
 				case 1:
 					UpdateDataObj.StatusChange(1);
-					if(!ModBus.ModBus.StartPort) ModBus.ModBus.StartModBus();//Запуск сервисов обмена
+					ModBus.ModBus.StopUpdate = false;//Запуск сервисов обмена
 					break;
 				case 5:
 					UpdateDataObj.StatusChange(5);
-					if (ModBus.ModBus.StartPort) ModBus.ModBus.CloseModBus();//Остановка сервисов обмен
+					ModBus.ModBus.StopUpdate = true;//Остановка сервисов обмен
 					break;
 			}
 		}

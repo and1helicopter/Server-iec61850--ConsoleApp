@@ -8,6 +8,7 @@ namespace Server.ModBus
 	{
 		public static bool StartPort { get; private set; }
 		public static bool ErrorPort { get; private set; }
+		public static bool StopUpdate { get; set; }
 
 		private static int _loadConfigStep;
 		private static int _indexChannel;
@@ -89,27 +90,30 @@ namespace Server.ModBus
 		{
 			while (_running)
 			{
-				if (!SerialPort.IsOpen)     //Если порт закрыт пытаемся открыть его
+				if (!StopUpdate)
 				{
-					if (ErrorPort)
+					if (!SerialPort.IsOpen)     //Если порт закрыт пытаемся открыть его
 					{
-						Log.Log.Write(@"ModBus: OpenModBusPort", @"Warning");
-						OpenModBusPort();
-
-						if (ConfigDownloadScope.Enable && SerialPort.IsOpen && _startDownloadScope)
+						if (ErrorPort)
 						{
-							ScopeDownloadRequestSet();
+							Log.Log.Write(@"ModBus: OpenModBusPort", @"Warning");
+							OpenModBusPort();
+
+							if (ConfigDownloadScope.Enable && SerialPort.IsOpen && _startDownloadScope)
+							{
+								ScopeDownloadRequestSet();
+							}
 						}
 					}
-				}
 
-				Update.UpdateDataObj.ChackChangeStatus.Chack(!ErrorPort);
+					Update.UpdateDataObj.ChackChangeStatus.Chack(!ErrorPort);
 
-				if (SerialPort.requests.Count == 0) //Ждем пока обработается запрос 
-				{
-					DataGetRequest();
+					if (SerialPort.requests.Count == 0) //Ждем пока обработается запрос 
+					{
+						DataGetRequest();
 
-					ScopoeRequest();
+						ScopoeRequest();
+					}
 				}
 
 				Thread.Sleep(ConfigModBus.TimeUpdate);
