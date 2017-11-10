@@ -78,11 +78,6 @@ namespace Server.Parser
 
                         ServerModel.Model.ListLD.Last().ListLN.Add(new ServerModel.NodeLN(nameLN, ln.Attribute("lnType")?.Value, ""));
                     }
-                    //else
-                    //{
-                    //    Log.Log.Write("ParseDocunent: LN.lnClass == null or LN.inst == null", "Error   ");
-                    //    return false;
-                    //}
                 }
             }
 
@@ -369,8 +364,11 @@ namespace Server.Parser
         {
             foreach (var tempDo in ServerModel.ListTempDO)
             {
-                if (DO.Last().TypeDO == tempDo.NameDO)
+                var tDo = DO.Last();
+                if (tDo.TypeDO == tempDo.NameDO)
                 {
+                    tDo.SetTypeDO(tempDo.TypeDO);
+                    
                     foreach (var tempDa in tempDo.ListDA)
                     {
                         ServerModel.NodeDA da = new ServerModel.NodeDA(tempDa.NameDA, tempDa.FCDA, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA)

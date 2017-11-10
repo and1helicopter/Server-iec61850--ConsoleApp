@@ -67,7 +67,7 @@ namespace Server.DataClasses
 		public class NodeDO     //DO - объекты данных
 		{
 			public string NameDO { get; }
-			public string TypeDO { get; }
+			public string TypeDO { get; private set; }
 			public string DescDO { get; }
 
 			public List<NodeDA> ListDA = new List<NodeDA>();
@@ -83,6 +83,11 @@ namespace Server.DataClasses
 				NameDO = nameDO;
 				TypeDO = typeDO;
 				DescDO = descDO;
+			}
+
+			public void SetTypeDO(string typeDO)
+			{
+				TypeDO = typeDO;
 			}
 		}
 

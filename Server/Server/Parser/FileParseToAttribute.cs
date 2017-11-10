@@ -411,7 +411,7 @@ namespace Server.Parser
 						return;
 					}
 				}
-				else if (da.BTypeDA.ToUpper() == "INT32" || da.BTypeDA.ToUpper() == "INT")
+				else if (da.BTypeDA.ToUpper() == "INT32" || da.BTypeDA.ToUpper() == "INT" || da.BTypeDA.ToUpper() == "INT32U" || da.BTypeDA.ToUpper() == "UINT")
 				{
 					btype = "int";
 

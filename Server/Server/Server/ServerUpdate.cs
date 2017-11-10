@@ -18,9 +18,39 @@ namespace Server.Server
 					var temp = (DataObject)iedModel.GetModelNodeByShortObjectReference(itemDataClass.NameDataObj);
 
 					if (itemDataClass.DataObj.GetType() == typeof(SpcClass))
-					{
+					{				
+						iedServer.SetCheckHandler(temp, 
+							delegate(DataObject controlObject, object parameter, MmsValue val, bool test, bool check, ClientConnection connection)
+							{										
+								return temp == controlObject ? CheckHandlerResult.ACCEPTED : CheckHandlerResult.OBJECT_UNDEFINED;
+							}, null);
+
+
+						iedServer.SetWaitForExecutionHandler(temp,
+							delegate (DataObject controlObject, object parameter, MmsValue val, bool test, bool check)
+							{
+								if (temp == controlObject)
+									return ControlHandlerResult.OK;
+
+								return ControlHandlerResult.FAILED;
+							}, null);
+
+
+						switch (((SpcClass) itemDataClass.DataObj).ctlModel.CtlModels)
+						{
+							case 1:
+								break;
+							case 2:
+								break;
+							case 3:
+								break;
+							case 4:
+								break;
+						}
+
 						iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
 						{
+							var lol = temp;
 							UpdateSPC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), itemGetObjects.DataClass.IndexOf(itemDataClass), ctlVal.GetBoolean());
 							return ControlHandlerResult.OK;
 						}, null);
@@ -48,7 +78,7 @@ namespace Server.Server
 				 }, null);
 			}
 		}
-
+		
 		private static void UpdateMod(int value)
 		{
 			switch (value)
@@ -94,14 +124,10 @@ namespace Server.Server
 
 		private static void StaticUpdateData(IedServer iedServer, IedModel iedModel)
         {
-            iedServer.LockDataModel();
-
             foreach (var itemDefultDataObj in DataObj.StructDataObj)
             {
                 InitStaticUpdateData(itemDefultDataObj.Type, itemDefultDataObj.Value, itemDefultDataObj.Path, iedServer, iedModel);
             }
-
-            iedServer.UnlockDataModel();
         }
 
         private static void InitStaticUpdateData(string format, string value, string path, IedServer iedServer, IedModel iedModel)
@@ -139,8 +165,10 @@ namespace Server.Server
 
         private static void UpdateBool(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-	        try
-	        {
+	        iedServer.LockDataModel();
+
+			try
+			{
 		        bool str = Convert.ToBoolean(value);
 		        iedServer.UpdateBooleanAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
 			}
@@ -148,12 +176,16 @@ namespace Server.Server
 	        {
 		        // ignored
 	        }
-        }
 
-        private static void UpdateInt(string path, string value, IedServer iedServer, IedModel iedModel)
+	        iedServer.UnlockDataModel();
+		}
+
+		private static void UpdateInt(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-	        try
-	        {
+	        iedServer.LockDataModel();
+
+			try
+			{
 		        int str = Convert.ToInt32(value);
 		        iedServer.UpdateInt32AttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
 			}
@@ -161,12 +193,16 @@ namespace Server.Server
 	        {
 		        // ignored
 	        }
-        }
 
-        private static void UpdateFloat(string path, string value, IedServer iedServer, IedModel iedModel)
+	        iedServer.UnlockDataModel();
+		}
+
+		private static void UpdateFloat(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-	        try
-	        {
+	        iedServer.LockDataModel();
+
+			try
+			{
 		        float str = Convert.ToSingle(value);
 		        iedServer.UpdateFloatAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
 			}
@@ -174,12 +210,16 @@ namespace Server.Server
 	        {
 		        // ignored
 	        }
-        }
 
-        private static void UpdateString(string path, string value, IedServer iedServer, IedModel iedModel)
+	        iedServer.UnlockDataModel();
+		}
+
+		private static void UpdateString(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-	        try
-	        {
+	        iedServer.LockDataModel();
+
+			try
+			{
 		        string str = Convert.ToString(value);
 		        iedServer.UpdateVisibleStringAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
 			}
@@ -187,12 +227,16 @@ namespace Server.Server
 	        {
 		        // ignored
 	        }
-        }
 
-        private static void UpdateDateTime(string path, string value, IedServer iedServer, IedModel iedModel)
+	        iedServer.UnlockDataModel();
+		}
+
+		private static void UpdateDateTime(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-	        try
-	        {
+	        iedServer.LockDataModel();
+
+			try
+			{
 		        DateTime str = Convert.ToDateTime(value);
 		        iedServer.UpdateUTCTimeAttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
 			}
@@ -200,12 +244,16 @@ namespace Server.Server
 	        {
 		        // ignored
 	        }
-        }
 
-        private static void UpdateUshort(string path, string value, IedServer iedServer, IedModel iedModel)
+	        iedServer.UnlockDataModel();
+		}
+
+		private static void UpdateUshort(string path, string value, IedServer iedServer, IedModel iedModel)
         {
-	        try
-	        {
+	        iedServer.LockDataModel();
+
+			try
+			{
 		        ushort str = Convert.ToUInt16(value);
 		        iedServer.UpdateQuality((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
 			}
@@ -213,9 +261,11 @@ namespace Server.Server
 	        {
 		        // ignored
 	        }
-        }
 
-        public static void UpdateDataGet(UpdateDataObj.DataObject itemDataObject)
+	        iedServer.UnlockDataModel();
+		}
+
+		public static void UpdateDataGet(UpdateDataObj.DataObject itemDataObject)
         {
 	        if (itemDataObject.DataObj.GetType() == typeof(SpsClass))
 	        {

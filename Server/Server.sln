@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniSerialPort", "..\UniSeri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerWPF", "..\WPF\ServerWPF\ServerWPF.csproj", "{33DFA75E-4028-473E-8B84-98D8D8549A55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject1", "..\Unit Test\UnitTestProject1\UnitTestProject1.csproj", "{4BCA8F01-F34C-452C-94E7-E7C97D1A3690}"
-EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
@@ -39,12 +37,6 @@ Global
 		{33DFA75E-4028-473E-8B84-98D8D8549A55}.Release|Any CPU.Build.0 = Release|Any CPU
 		{33DFA75E-4028-473E-8B84-98D8D8549A55}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{33DFA75E-4028-473E-8B84-98D8D8549A55}.Test|Any CPU.Build.0 = Release|Any CPU
-		{4BCA8F01-F34C-452C-94E7-E7C97D1A3690}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4BCA8F01-F34C-452C-94E7-E7C97D1A3690}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4BCA8F01-F34C-452C-94E7-E7C97D1A3690}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4BCA8F01-F34C-452C-94E7-E7C97D1A3690}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4BCA8F01-F34C-452C-94E7-E7C97D1A3690}.Test|Any CPU.ActiveCfg = Release|Any CPU
-		{4BCA8F01-F34C-452C-94E7-E7C97D1A3690}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

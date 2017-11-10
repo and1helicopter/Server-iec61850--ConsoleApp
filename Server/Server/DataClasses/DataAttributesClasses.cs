@@ -267,6 +267,21 @@ namespace Server.DataClasses
 				case @"sbo-with-enhanced-security":
 					value = (int) ControlModel.SBO_ENHANCED;
 					break;
+				case @"0":
+					value = (int)ControlModel.STATUS_ONLY;
+					break;
+				case @"1":
+					value = (int)ControlModel.DIRECT_NORMAL;
+					break;
+				case @"2":
+					value = (int)ControlModel.SBO_NORMAL;
+					break;
+				case @"3":
+					value = (int)ControlModel.DIRECT_ENHANCED;
+					break;
+				case @"4":
+					value = (int)ControlModel.SBO_ENHANCED;
+					break;
 			}
 			return value;
 		}
