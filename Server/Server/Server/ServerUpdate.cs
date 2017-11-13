@@ -18,47 +18,33 @@ namespace Server.Server
 					var temp = (DataObject)iedModel.GetModelNodeByShortObjectReference(itemDataClass.NameDataObj);
 
 					if (itemDataClass.DataObj.GetType() == typeof(SpcClass))
-					{				
-						iedServer.SetCheckHandler(temp, 
-							delegate(DataObject controlObject, object parameter, MmsValue val, bool test, bool check, ClientConnection connection)
-							{										
-								return temp == controlObject ? CheckHandlerResult.ACCEPTED : CheckHandlerResult.OBJECT_UNDEFINED;
-							}, null);
-
-
-						iedServer.SetWaitForExecutionHandler(temp,
-							delegate (DataObject controlObject, object parameter, MmsValue val, bool test, bool check)
-							{
-								if (temp == controlObject)
-									return ControlHandlerResult.OK;
-
+					{
+						//switch (((SpcClass) itemDataClass.DataObj).ctlModel.CtlModels)
+						
+						iedServer.SetWaitForExecutionHandler(temp, (controlObject, parameter, val, test, check) => 
+							test ? ControlHandlerResult.FAILED : ControlHandlerResult.OK, null);
+						
+						iedServer.SetControlHandler(temp, (controlObject, parameter, ctlVal, test) =>
+						{
+							if (ctlVal.GetType() != MmsType.MMS_BOOLEAN )
 								return ControlHandlerResult.FAILED;
-							}, null);
 
-
-						switch (((SpcClass) itemDataClass.DataObj).ctlModel.CtlModels)
-						{
-							case 1:
-								break;
-							case 2:
-								break;
-							case 3:
-								break;
-							case 4:
-								break;
-						}
-
-						iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-						{
-							var lol = temp;
 							UpdateSPC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), itemGetObjects.DataClass.IndexOf(itemDataClass), ctlVal.GetBoolean());
+							
 							return ControlHandlerResult.OK;
 						}, null);
+
 					}
 					else if (itemDataClass.DataObj.GetType() == typeof(IncClass))
 					{
-						iedServer.SetControlHandler(temp, delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
+						iedServer.SetWaitForExecutionHandler(temp, (controlObject, parameter, val, test, check) => 
+							test ? ControlHandlerResult.FAILED : ControlHandlerResult.OK, null);
+						
+						iedServer.SetControlHandler(temp, (controlObject, parameter, ctlVal, test) =>
 						{
+							if (ctlVal.GetType() != MmsType.MMS_INTEGER)
+								return ControlHandlerResult.FAILED;
+							
 							UpdateINC(UpdateDataObj.ClassGetObjects.IndexOf(itemGetObjects), ctlVal.ToInt32());
 							return ControlHandlerResult.OK;
 						}, null);
@@ -70,12 +56,17 @@ namespace Server.Server
 			{
 				var temp = (DataObject)iedModel.GetModelNodeByShortObjectReference(itemMod);
 				
-				iedServer.SetControlHandler(temp,
-				 delegate (DataObject controlObject, object parameter, MmsValue ctlVal, bool test)
-				 {
-					 UpdateMod(ctlVal.ToInt32());
-					 return ControlHandlerResult.OK;
-				 }, null);
+				iedServer.SetWaitForExecutionHandler(temp, (controlObject, parameter, val, test, check) => 
+					test ? ControlHandlerResult.FAILED : ControlHandlerResult.OK, null);
+				
+				iedServer.SetControlHandler(temp, (controlObject, parameter, ctlVal, test) =>
+				{
+					if (ctlVal.GetType() != MmsType.MMS_INTEGER)
+						return ControlHandlerResult.FAILED;
+					
+					UpdateMod(ctlVal.ToInt32());
+					return ControlHandlerResult.OK;
+				}, null);
 			}
 		}
 		
@@ -94,7 +85,7 @@ namespace Server.Server
 			}
 		}
 
-	    private static void UpdateSPC(int indexClassGetObjects, int indexDataClass, bool value)
+	  private static void UpdateSPC(int indexClassGetObjects, int indexDataClass, bool value)
 		{
 			BitArray bitArray = new BitArray(UpdateDataObj.ClassGetObjects[indexClassGetObjects].BitArray.BitArray);
 			var index = UpdateDataObj.ClassGetObjects[indexClassGetObjects].DataClass[indexDataClass].IndexDataOBj;
@@ -181,20 +172,20 @@ namespace Server.Server
 		}
 
 		private static void UpdateInt(string path, string value, IedServer iedServer, IedModel iedModel)
-        {
-	        iedServer.LockDataModel();
+		{
+	    iedServer.LockDataModel();
 
 			try
 			{
-		        int str = Convert.ToInt32(value);
-		        iedServer.UpdateInt32AttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
+		  	int str = Convert.ToInt32(value);
+		  	iedServer.UpdateInt32AttributeValue((DataAttribute)iedModel.GetModelNodeByShortObjectReference(path), str);
 			}
-	        catch
-	        {
-		        // ignored
-	        }
+			catch
+	    {
+		  	// ignored
+	    }
 
-	        iedServer.UnlockDataModel();
+	    iedServer.UnlockDataModel();
 		}
 
 		private static void UpdateFloat(string path, string value, IedServer iedServer, IedModel iedModel)
