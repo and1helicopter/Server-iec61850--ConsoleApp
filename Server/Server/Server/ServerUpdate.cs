@@ -33,8 +33,8 @@ namespace Server.Server
 							
 							return ControlHandlerResult.OK;
 						}, null);
-
 					}
+					
 					else if (itemDataClass.DataObj.GetType() == typeof(IncClass))
 					{
 						iedServer.SetWaitForExecutionHandler(temp, (controlObject, parameter, val, test, check) => 

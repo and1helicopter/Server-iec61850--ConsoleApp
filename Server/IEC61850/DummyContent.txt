@@ -1,0 +1,13 @@
+This file is here to trick NuGet into installing the package.
+Without the file, NuGet complains with an error along the lines of:
+
+Install-Package : Could not install package 'Tigra.CodeContracts.MSBuild 
+1.7.11202.1005'. You are trying to install this package into a project that targets 
+'.NETFramework,Version=v4.6', but the package does not contain any assembly 
+references or content files that are compatible with that framework. For more 
+information, contact the package author.
+
+This file is installed in the generic '.net' folder and _should_ match any version
+of the .net framework.
+
+--Tim Long / Tigra Astronomy, November 2015

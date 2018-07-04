@@ -8,12 +8,16 @@ namespace Server.Settings
     public static class Settings
     {     
         [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-        public static bool ReadSettings()
+        public static bool ReadSettings(string str)
         {
             //задаем путь к нашему рабочему файлу XML
             string filePath = @"Settings.xml";
+	        if (str != null)
+	        {
+		        filePath = str;
+	        }
             
-            XDocument doc;
+			XDocument doc;
             try
             {
                 doc = XDocument.Load(filePath);

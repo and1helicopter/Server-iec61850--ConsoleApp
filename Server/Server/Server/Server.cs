@@ -28,7 +28,7 @@ namespace Server.Server
 				return false;
 			}
 
-			StaticUpdateData(_iedServer, _iedModel);      //Заполнение данными
+			StaticUpdateData(_iedServer, _iedModel);			//Заполнение данными
 			InitControlClass(_iedServer, _iedModel);			//Установка оброботчиков событий
 
 			return true;

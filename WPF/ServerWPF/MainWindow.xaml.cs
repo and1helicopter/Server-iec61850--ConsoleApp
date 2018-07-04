@@ -24,7 +24,7 @@ namespace ServerWPF
 
 			ConfigStackPanel.Children.Add(_config);
 			//Открываем настройки сервера
-			if (!Settings.ReadSettings())
+			if (!Settings.ReadSettings(null))
 			{
 				Log.Write(@"Settings: ReadSettings finish with status false. Stop server", @"Error");
 			}
