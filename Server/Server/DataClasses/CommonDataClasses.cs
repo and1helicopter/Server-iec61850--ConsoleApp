@@ -2,12 +2,15 @@
 
 namespace Server.DataClasses
 {
-    public class BaseClass
+    public abstract class BaseClass
     {
         public DateTime t;
         public Quality q;
 
-        protected BaseClass()
+	    public abstract void UpdateClass(object value);
+	    public abstract void QualityCheckClass();
+
+		protected BaseClass()
         {
             t = DateTime.Now;
             q = new Quality();
@@ -18,17 +21,19 @@ namespace Server.DataClasses
     //Двоичное состояние SPS
     public class SpsClass : BaseClass
     {
-        public Boolean stVal;
-        public String d;
-        
-        public void UpdateClass(DateTime time, bool value)
+        public Boolean stVal { get; set; }
+		public String d { get; set; }
+
+		public override void UpdateClass(object obj)
         {
-            stVal = value;
-            t = time;
-            q.UpdateQuality(time);
+	        var item = (SpsSignature) obj;
+
+			stVal = item.Value;
+            t = item.Time;
+            q.UpdateQuality(t);
         }
 
-        public void QualityCheckClass()
+		public override void QualityCheckClass()
         {
             q.QualityCheckClass(t);
         }
@@ -40,20 +45,39 @@ namespace Server.DataClasses
         }
     }
 
-    //Целочисленное состояние
-    public class InsClass : BaseClass
+	//Дублированное состояние DPS
+	public class DpsClass : BaseClass
+	{
+		public Enum stVal;
+
+
+		public override void UpdateClass(object value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void QualityCheckClass()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	//Целочисленное состояние
+	public class InsClass : BaseClass
     {
         public Int32 stVal;
         public String d;
 
-        public void UpdateClass(DateTime time, int value)
+        public override void UpdateClass(object obj)
         {
-            stVal = value;
-            t = time;
-            q.UpdateQuality(time);
+	        var item = (InsSignature)obj;
+
+			stVal = item.Value;
+            t = item.Time;
+            q.UpdateQuality(t);
         }
 
-        public void QualityCheckClass()
+        public override void QualityCheckClass()
         {
             q.QualityCheckClass(t);
         }
@@ -71,14 +95,16 @@ namespace Server.DataClasses
 		public Boolean general;
 		public String d;
 
-		public void UpdateClass(DateTime time, bool value)
+		public override void UpdateClass(object obj)
 		{
-			general = value;
-			t = time;
-			q.UpdateQuality(time);
+			var item = (ActSignature)obj;
+
+			general = item.Value;
+			t = item.Time;
+			q.UpdateQuality(t);
 		}
 
-		public void QualityCheckClass()
+		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
 		}
@@ -148,14 +174,16 @@ namespace Server.DataClasses
 		public Int32 actVal;
 		public String d;
 
-		public void UpdateClass(DateTime time, int value)
+		public override void UpdateClass(object obj)
 		{
-			actVal = value;
-			t = time;
-			q.UpdateQuality(time);
+			var item = (BcrSignature)obj;
+
+			actVal = item.Value;
+			t = item.Time;
+			q.UpdateQuality(t);
 		}
 
-		public void QualityCheckClass()
+		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
 		}
@@ -204,14 +232,16 @@ namespace Server.DataClasses
             d = str;
         }
 
-        public void UpdateClass(DateTime time, ulong value)
+        public override void UpdateClass(object obj)
         {
-            Mag.AnalogueValue.f = Convert.ToSingle(value * sVC.ScaleFactor + sVC.Offset);
-            t = time;
-            q.UpdateQuality(time);
+	        var item = (MvSignature)obj;
+
+			Mag.AnalogueValue.f = Convert.ToSingle(item.Value * sVC.ScaleFactor + sVC.Offset);
+            t = item.Time;
+            q.UpdateQuality(t);
         }
 
-        public void QualityCheckClass()
+        public override void QualityCheckClass()
         {
             q.QualityCheckClass(t);
         }
@@ -237,15 +267,17 @@ namespace Server.DataClasses
             d = str;
         }
 
-        public void UpdateClass(DateTime time, long valueMag, long valueAng)
+        public override void UpdateClass(object obj)
         {
-            cVal.mag.f = Convert.ToSingle(valueMag * magSVC.ScaleFactor + magSVC.Offset);
-            cVal.ang.f = Convert.ToSingle(valueAng * angSVC.ScaleFactor + angSVC.Offset);
-            t = time;
-            q.UpdateQuality(time);
+	        var item = (CmvSignature)obj;
+
+			cVal.mag.f = Convert.ToSingle(item.valueMag * magSVC.ScaleFactor + magSVC.Offset);
+            cVal.ang.f = Convert.ToSingle(item.valueAng * angSVC.ScaleFactor + angSVC.Offset);
+            t = item.time;
+            q.UpdateQuality(t);
         }
 
-        public void QualityCheckClass()
+        public override void QualityCheckClass()
         {
             q.QualityCheckClass(t);
         }
@@ -278,16 +310,18 @@ namespace Server.DataClasses
             d = strd;
         }
 
-	    public void QualityCheckClass()
+	    public override void QualityCheckClass()
 	    {
 		    q.QualityCheckClass(t);
 	    }
 
-		public void UpdateClass(DateTime time, bool stValue)
+		public override void UpdateClass(object obj)
 		{
-            stVal = stValue;
-            t = time;
-            q.UpdateQuality(time);
+			var item = (SpcSignature)obj;
+
+			stVal = item.StValue;
+            t = item.Time;
+            q.UpdateQuality(t);
         }
 	}
 
@@ -307,24 +341,25 @@ namespace Server.DataClasses
             d = strd;
         }
 	    
-	    public void QualityCheckClass()
+	    public override void QualityCheckClass()
 	    {
 		    q.QualityCheckClass(t);
 	    }
 
-        public void UpdateClass(DateTime time, int stValue)
+        public override void UpdateClass(object obj)
         {
-            stVal = stValue;
-            t = time;
-            q.UpdateQuality(time);
-        }
+	        var item = (IncSignature)obj;
 
+			stVal = item.StValue;
+            t = item.Time;
+            q.UpdateQuality(t);
+        }
 	}
     #endregion
 
     #region Спецификации класса общих данных для описательной информации
     // Класс DPL (паспортная табличка устройства)
-    public class DplClass
+    public class DplClass : BaseClass
     {
         public string vendor;
         public string hwRev;
@@ -352,11 +387,19 @@ namespace Server.DataClasses
             model = "";
             location = "";
         }
+
+	    public override void UpdateClass(dynamic value)
+	    {
+	    }
+
+	    public override void QualityCheckClass()
+	    {
+	    }
     }
 
     //Класс LPL (паспортная табличка логического узла)
-    public class LplClass
-    {
+    public class LplClass : BaseClass
+	{
         public string vendor;
         public string swRev;
         public string d;
@@ -377,6 +420,14 @@ namespace Server.DataClasses
             d = "";
             configRev = "";
         }
-    }
+
+	    public override void UpdateClass(dynamic value)
+	    {
+	    }
+
+	    public override void QualityCheckClass()
+	    {
+	    }
+	}
     #endregion
 }

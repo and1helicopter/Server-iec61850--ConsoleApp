@@ -61,10 +61,12 @@ namespace Server.Update
 		    }
 	    }
 
-	    private static  async Task UpdateSps(int index, DataObject itemDataClass)
+	    private static async Task UpdateSps(int index, DataObject itemDataClass)
 	    {
 		    var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
-		    ((SpsClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+			
+			var value = new SpsSignature(DateTime.Now, val);
+		    itemDataClass.DataObj.UpdateClass(value);
 
 			Server.Server.UpdateDataGet(itemDataClass);
 		}
@@ -72,7 +74,9 @@ namespace Server.Update
 	    private static async Task UpdateACT(int index, DataObject itemDataClass)
 	    {
 			var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
-		    ((ActClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+
+		    var value = new ActSignature(DateTime.Now, val);
+		    itemDataClass.DataObj.UpdateClass(value);
 
 			Server.Server.UpdateDataGet(itemDataClass);
 	    }
@@ -80,7 +84,9 @@ namespace Server.Update
 	    private static async Task UpdateSPC(int index, DataObject itemDataClass)
 	    {
 		    var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
-		    ((SpcClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+
+		    var value = new SpcSignature(DateTime.Now, val);
+		    itemDataClass.DataObj.UpdateClass(value);
 
 			Server.Server.UpdateDataGet(itemDataClass);
 	    }
@@ -123,7 +129,8 @@ namespace Server.Update
 				val += (long)paramRtu[i] << i * 16;
 			}
 
-			((MvClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, (ulong)val);
+			var value = new MvSignature(DateTime.Now, val);
+			itemDataClass.DataObj.UpdateClass(value);
 
 			Server.Server.UpdateDataGet(itemDataClass);
 		}
@@ -137,7 +144,8 @@ namespace Server.Update
 			    val += paramRtu[i] << i * 16;
 		    }
 
-		    ((InsClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+		    var value = new InsSignature(DateTime.Now, val);
+		    itemDataClass.DataObj.UpdateClass(value);
 
 			Server.Server.UpdateDataGet(itemDataClass);
 	    }
@@ -151,7 +159,8 @@ namespace Server.Update
 			    val += paramRtu[i] << i * 16;
 		    }
 
-		    ((BcrClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+		    var value = new BcrSignature(DateTime.Now, val);
+		    itemDataClass.DataObj.UpdateClass(value);
 
 			Server.Server.UpdateDataGet(itemDataClass);
 	    }
@@ -165,7 +174,8 @@ namespace Server.Update
 			    val += paramRtu[i] << i * 16;
 		    }
 
-		    ((IncClass)itemDataClass.DataObj).UpdateClass(DateTime.Now, val);
+		    var value = new IncSignature(DateTime.Now, val);
+		    itemDataClass.DataObj.UpdateClass(value);
 
 			Server.Server.UpdateDataGet(itemDataClass);
 	    }

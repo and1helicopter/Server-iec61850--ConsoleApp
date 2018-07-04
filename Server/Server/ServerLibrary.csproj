@@ -86,6 +86,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataClasses\CommonDataClassesSignature.cs" />
     <Compile Include="Format\FormatConverter.cs" />
     <Compile Include="Format\FormatList.cs" />
     <Compile Include="Log\Log.cs" />

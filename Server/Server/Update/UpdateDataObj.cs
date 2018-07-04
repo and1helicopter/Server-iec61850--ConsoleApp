@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Server.DataClasses;
 
 namespace Server.Update
 {
@@ -10,9 +11,9 @@ namespace Server.Update
         {
 	        public string NameDataObj { get; }			//Путь до класса  
 			public int  IndexDataOBj { get; }				//Индекс для дискретного канала
-            public object DataObj { get; }					//Ссылка на объект управления
+            public BaseClass DataObj { get; }					//Ссылка на объект управления
 
-	        public DataObject(string nameDataObj, int indexDataOBj,  object dataObj)
+	        public DataObject(string nameDataObj, int indexDataOBj, BaseClass dataObj)
 	        {
 		        NameDataObj = nameDataObj;
 		        IndexDataOBj = indexDataOBj;
