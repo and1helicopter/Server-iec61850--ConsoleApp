@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace Server.Format
+namespace ServerLib.Format
 {
 	public static partial class FormatConverter
 	{
@@ -334,7 +334,7 @@ namespace Server.Format
 
 		private static string BitDepthToString(BitDepth item)
 		{
-			//public ushort Bit { get; }      // 16 - 1, 32 - 2, 64 - 3
+			//public ushort Bit { get; }   // 16 - 1, 32 - 2, 64 - 3
 			//public bool Sign { get; }		// Signed - true, Unsigned - false
 
 			string val;

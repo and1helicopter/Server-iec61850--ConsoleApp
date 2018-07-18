@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.ServiceProcess;
-using Server.Parser;
+using ServerLib.Parser;
 
 namespace ServiceIec61850
 {
@@ -9,15 +9,15 @@ namespace ServiceIec61850
         public Service()
         {
             InitializeComponent();
-            if (!EventLog.SourceExists("IEC61850 Server"))
+            if (!EventLog.SourceExists("IEC61850 ServerIEC61850"))
             {
-                EventLog.CreateEventSource("IEC61850 Server", "Log IEC61850 Server");
+                EventLog.CreateEventSource("IEC61850 ServerIEC61850", "Log IEC61850 ServerIEC61850");
             }
 
             eventLog = new EventLog
             {
-                Source = "IEC61850 Server",
-                Log = "Log IEC61850 Server"
+                Source = "IEC61850 ServerIEC61850",
+                Log = "Log IEC61850 ServerIEC61850"
             };
         }
 
@@ -26,29 +26,29 @@ namespace ServiceIec61850
             try
             {
 				//Считает что находится в директории C:\WINDOWS\system32
-				var str = "F:\\project\\Server-iec61850--ConsoleApp\\Server\\IEC61850\\bin\\x86\\Debug\\Settings.xml";
-	            if (!Server.Settings.Settings.ReadSettings(str))
+				var str = "F:\\project\\ServerIEC61850-iec61850--ConsoleApp\\ServerIEC61850\\IEC61850\\bin\\x86\\Debug\\Settings.xml";
+	            if (!ServerLib.Server.ServerIEC61850.ReadConfig(str))
 	            {
 					eventLog.WriteEntry("Read Settings Error", EventLogEntryType.Error);
 		            return;
 				}
 
-				str = "F:\\project\\Server-iec61850--ConsoleApp\\Server\\IEC61850\\bin\\x86\\Debug\\ESSrv.icd";
-				if (!Parser.ParseFile(str))
+				str = "F:\\project\\ServerIEC61850-iec61850--ConsoleApp\\ServerIEC61850\\IEC61850\\bin\\x86\\Debug\\ESSrv.icd";
+				if (!ServerLib.Server.ServerIEC61850.ParseFile(str))
                 {
                     eventLog.WriteEntry("Parse File Error", EventLogEntryType.Error);
                     return;
                 }
 
-				if (!Server.Server.Server.ConfigServer())
+				if (!ServerLib.Server.ServerIEC61850.ConfigServer())
 	            {
-		            eventLog.WriteEntry("Config Server Error", EventLogEntryType.Error);
+		            eventLog.WriteEntry("Config ServerIEC61850 Error", EventLogEntryType.Error);
 		            return;
 				}
 
-	            if (!Server.Server.Server.StartServer())
+	            if (!ServerLib.Server.ServerIEC61850.StartServer())
 	            {
-		            eventLog.WriteEntry("Start Server Error", EventLogEntryType.Error);
+		            eventLog.WriteEntry("Start ServerIEC61850 Error", EventLogEntryType.Error);
 		            return;
 				}
 
@@ -64,9 +64,9 @@ namespace ServiceIec61850
         {
             try
             {
-	            if (!Server.Server.Server.StopServer())
+	            if (!ServerLib.Server.ServerIEC61850.StopServer())
 	            {
-		            eventLog.WriteEntry("Stop Server Error", EventLogEntryType.Error);
+		            eventLog.WriteEntry("Stop ServerIEC61850 Error", EventLogEntryType.Error);
 		            return;
 	            }
 

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Server.Update
+namespace ServerLib.Update
 {
 	public static partial class UpdateDataObj
 	{
@@ -83,7 +82,7 @@ namespace Server.Update
 
 			foreach (var itemMod in ModClass.PathModList)
 			{
-				Server.Server.INT_UpdateStatus(itemMod, ModClass.ValMod);
+				Server.ServerIEC61850.INT_UpdateStatus(itemMod, ModClass.ValMod);
 			}
 		}
 
@@ -94,7 +93,7 @@ namespace Server.Update
 
 			foreach (var itemBeh in BehClass.PathBehList)
 			{
-				Server.Server.INT_UpdateStatus(itemBeh, BehClass.ValBeh);
+				Server.ServerIEC61850.INT_UpdateStatus(itemBeh, BehClass.ValBeh);
 			}
 		}
 
@@ -104,12 +103,12 @@ namespace Server.Update
 
 			foreach (var itemHealth in HealthClass.PathHealthList)
 			{
-				Server.Server.INT_UpdateStatus(itemHealth, HealthClass.ValHealth);
+				Server.ServerIEC61850.INT_UpdateStatus(itemHealth, HealthClass.ValHealth);
 			}
 
 			foreach (var itemHealth in HealthClass.PathPhyHealthList)
 			{
-				Server.Server.INT_UpdateStatus(itemHealth, HealthClass.ValHealth);
+				Server.ServerIEC61850.INT_UpdateStatus(itemHealth, HealthClass.ValHealth);
 			}
 		}
 	}

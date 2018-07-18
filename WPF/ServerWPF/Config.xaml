@@ -8,7 +8,7 @@
     <Grid>
         <Button Content="OK" Margin="409,320,16,10" BorderBrush="LightGray" Background="White" Click="Ok_Button_Click" />
         <TabControl HorizontalAlignment="Left" Height="305" VerticalAlignment="Top" Width="484" Margin="0,5,0,0">
-            <TabItem Header="Server">
+            <TabItem Header="ServerIEC61850">
                 <Grid Background="White">
                     <TextBox x:Name="PortTextBox" Height="23" Margin="0,23,69,0" TextWrapping="Wrap" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120"/>
                     <Label Content="Port:" HorizontalAlignment="Left" Margin="36,20,0,0" VerticalAlignment="Top"/>
@@ -21,7 +21,7 @@
                     <TextBox x:Name="PathTextBox" HorizontalAlignment="Right" Height="23" Margin="0,111,69,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsEnabled="False"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="ModBus">
+            <TabItem Header="UpdateModBus">
                 <Grid Background="White">
                     <Label Content="Baud Rate:" HorizontalAlignment="Left" Margin="35,14,0,0" VerticalAlignment="Top"/>
                     <Label Content="Serial Port Parity:" HorizontalAlignment="Left" Margin="35,41,0,0" VerticalAlignment="Top"/>

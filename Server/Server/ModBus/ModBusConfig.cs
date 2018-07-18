@@ -3,15 +3,15 @@ using System.IO.Ports;
 using System.Threading;
 using UniSerialPort;
 
-namespace Server.ModBus
+namespace ServerLib.ModBus
 {
-	public static partial class ModBus
+	public static partial class UpdateModBus
 	{
 		public static void ConfigModBusPort()
 		{
 			if (SerialPort.IsOpen)
 			{
-				Log.Log.Write("ModBus port is open! Close ModBus SerialPort and repeat.", "Error");
+				Log.Log.Write("UpdateModBus port is open! Close UpdateModBus SerialPort and repeat.", "Error");
 				return;
 			}
 
@@ -20,8 +20,10 @@ namespace Server.ModBus
 			SerialPort.Parity = ConfigModBus.SerialPortParity;
 			SerialPort.StopBits = ConfigModBus.SerialPortStopBits;
 			SerialPort.PortName = ConfigModBus.ComPortName;
-			
-			Log.Log.Write("ModBus! SerialPort configured", "Success");
+			SerialPort.SlaveAddr = ConfigModBus.AddrPort;
+
+
+			Log.Log.Write("UpdateModBus! SerialPort configured", "Success");
 		}
 
 		private static bool OpenModBusPort()
@@ -42,11 +44,16 @@ namespace Server.ModBus
 
 					if (_modbusThread == null)
 					{
-						_modbusThread = new Thread(RunModBusPort)
+						_modbusThread = new Thread(ModBusRead)
 						{
-							Name = @"ModBus"
+							Name = @"UpdateModBus"
 						};
 						_modbusThread.Start();
+					}
+
+					if (_configScopeDownload)
+					{
+
 					}
 				}
 				return true;
@@ -59,7 +66,7 @@ namespace Server.ModBus
 
 		private static void SerialPort_SerialPortError(object sender, System.EventArgs e)
 		{
-			Log.Log.Write("ModBus port: SerialPortError!", "Error");
+			Log.Log.Write("UpdateModBus port: SerialPortError!", "Error");
 
 			ErrorPort = true;
 
@@ -78,7 +85,7 @@ namespace Server.ModBus
 		}
 	}
 
-	/* Настройки ModBus port  */
+	/* Настройки UpdateModBus port  */
 
 	public static class ConfigModBus
 	{
@@ -86,7 +93,7 @@ namespace Server.ModBus
 		public static Parity SerialPortParity { get; private set; }
 		public static StopBits SerialPortStopBits { get; private set; }
 		public static string ComPortName { get; private set; }
-		public static int TimeUpdate { get; private set; }
+		public static byte AddrPort { get; private set; }
 
 		private static void ChangeBaudRate(int baudRate)
 		{
@@ -135,7 +142,6 @@ namespace Server.ModBus
 			}
 		}
 
-
 		private static void ChangeSerialPortStopBits(string serialPortStopBits)
 		{
 			switch (serialPortStopBits)
@@ -157,7 +163,6 @@ namespace Server.ModBus
 
 		}
 
-
 		private static void ChangeComPortName(string comPort)
 		{
 			ReadPortList();
@@ -171,6 +176,11 @@ namespace Server.ModBus
 				ComPortName = "";
 			}
 
+		}
+
+		private static void ChangeAddrPort(byte addrPort)
+		{
+			AddrPort = addrPort;
 		}
 
 		//Список всех COM-портов на компьютере
@@ -187,18 +197,13 @@ namespace Server.ModBus
 			PortList.Sort();
 		}
 
-		private static void ChangeTimeUpdate(int timeUpdate)
-		{
-			TimeUpdate = timeUpdate;
-		}
-
-		public static void InitConfigModBus(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort, int timeUpdate)
+		public static void InitConfigModBus(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort, byte addrPort)
 		{
 			ChangeBaudRate(serialPortSpeedIndex);
 			ChangeSerialPortParity(serialPortParity);
 			ChangeSerialPortStopBits(serialPortStopBits);
 			ChangeComPortName(comPort);
-			ChangeTimeUpdate(timeUpdate);
+			ChangeAddrPort(addrPort);
 		}
 	}
 

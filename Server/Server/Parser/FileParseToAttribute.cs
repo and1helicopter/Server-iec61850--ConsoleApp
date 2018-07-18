@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
-using Server.DataClasses;
-using Server.Update;
+using ServerLib.Update;
+using ServerLib.DataClasses;
 
-namespace Server.Parser
+namespace ServerLib.Parser
 {
 	public partial class Parser
 	{
@@ -49,32 +49,34 @@ namespace Server.Parser
 
 				foreach (var lnitem in xLn)
 				{
-					if (lnitem.Attribute("type")?.Value.ToUpper() == "EnergocomplektBitArray".ToUpper())
-					{
-						try
-						{
-							var nameBitArray = lnitem.Value.Split(';')[0];
-							var addrBitArray = Convert.ToUInt16(lnitem.Value.Split(';')[1]);
+					//if (lnitem.Attribute("type")?.Value.ToUpper() == "EnergocomplektBitArray".ToUpper())
+					//{
+					//	try
+					//	{
+					//		var nameBitArray = lnitem.Value.Split(';')[0];
+					//		var addrBitArray = Convert.ToUInt16(lnitem.Value.Split(';')[1]);
 
-							UpdateDataObj.BitArray.Add(new UpdateDataObj.BitArrayObj(nameBitArray, 0));
-							UpdateDataObj.ClassGetObjects.Add(new UpdateDataObj.GetObject(addrBitArray, 2, true)
-							{
-								BitArray = UpdateDataObj.BitArray.Last()
-							});
+					//		//Новый объект source
+					//		UpdateDataObj.SourceList.Add(new UpdateDataObj.SourceClassDigital()
+					//		{
+					//			Addr = addrBitArray,
+					//			Count = 1,
+					//			NameBitArray = nameBitArray
+					//		});
 
-							continue;
-						}
-						catch
-						{
-							Log.Log.Write("FileParseToAttribute: LN.type == EnergocomplektBitArray", "Warning ");
-							continue;
-						}
-					}
-					if (lnitem.Attribute("lnClass") == null || lnitem.Attribute("inst") == null)
-					{
-						Log.Log.Write("FileParseToAttribute: LN.lnClass == null or LN.inst == null", "Warning ");
-						continue;
-					}
+					//		continue;
+					//	}
+					//	catch
+					//	{
+					//		Log.Log.Write("FileParseToAttribute: LN.type == EnergocomplektBitArray", "Warning ");
+					//		continue;
+					//	}
+					//}
+					//if (lnitem.Attribute("lnClass") == null || lnitem.Attribute("inst") == null)
+					//{
+					//	Log.Log.Write("FileParseToAttribute: LN.lnClass == null or LN.inst == null", "Warning ");
+					//	continue;
+					//}
 
 					string ln = lnitem.Attribute("prefix")?.Value + lnitem.Attribute("lnClass")?.Value + lnitem.Attribute("inst")?.Value;
 
@@ -108,7 +110,7 @@ namespace Server.Parser
 									where z.NameDO.ToUpper() == doi?.ToUpper()
 									select z).ToList().First();
 
-								tempDo.Type = type.First().Value;
+								//tempDo.Type = type.First().Value;
 							}
 							catch
 							{
@@ -251,7 +253,7 @@ namespace Server.Parser
 							try
 							{
 								if (ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
-									    .First(y => y.NameLN == fullName) != null)
+									 .First(y => y.NameLN == fullName) != null)
 								{
 									ServerModel.Model.ListLD.First(x => x.NameLD == ldname).ListLN
 										.First(y => y.NameLN == fullName).ListRCB.Add(new ServerModel.RCB(nameRCB + (indexed ? (i + 1).ToString("D2") : ""), refRCB, rptOptions, trgOptions, bufferedRCB, rptId, datSet, confRev, bufTime, intgPd));
@@ -522,19 +524,20 @@ namespace Server.Parser
 					da.Value = value;
 				}
 
-				var item = (from x in DataObj.StructDataObj
-							where x.Path == path + "." + list[0]
-							select x).ToList();
+				//Ищем файл 
+				//var item = (from x in DataObj.StructDataObj
+				//			where x.Path == path + "." + list[0]
+				//			select x).ToList();
 
-				if (item.Count == 0)
-				{
-					DataObj.StructDataObj.Add(new DataObj.DefultDataObj(path + "." + list[0], btype, da.Value));
-				}
-				else
-				{
-					item.First().Value = da.Value;
-					item.First().Type = btype;
-				}
+				//if (item.Count == 0)
+				//{
+				//	DataObj.StructDataObj.Add(new DataObj.DefultDataObj(path + "." + list[0], btype, da.Value));
+				//}
+				//else
+				//{
+				//	item.First().Value = da.Value;
+				//	item.First().Type = btype;
+				//}
 			}
 			else
 			{

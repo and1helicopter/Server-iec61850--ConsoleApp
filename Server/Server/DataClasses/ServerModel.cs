@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using IEC61850.Common;
 
-namespace Server.DataClasses
+namespace ServerLib.DataClasses
 {
 	public static class ServerModel
 	{
-		public static NodeModel Model;      //Модель сервера 
+		public static NodeModel Model;   //Модель сервера 
 
 		public class NodeModel
 		{
@@ -29,7 +29,7 @@ namespace Server.DataClasses
 			}
 		}
 
-		public class NodeLD     //LD - логические устройства
+		public class NodeLD  //LD - логические устройства
 		{
 			public string NameLD { get; }
 
@@ -41,9 +41,9 @@ namespace Server.DataClasses
 			}
 		}
 
-		public static readonly List<NodeLN> ListTempLN = new List<NodeLN>();    //Логические узлы необходимые для формирования модели
+		public static readonly List<NodeLN> ListTempLN = new List<NodeLN>(); //Логические узлы необходимые для формирования модели
 
-		public class NodeLN     //LN - догические узлы
+		public class NodeLN  //LN - догические узлы
 		{
 			public string NameLN { get; }
 			public string LnClassLN { get; }
@@ -62,21 +62,15 @@ namespace Server.DataClasses
 			}
 		}
 
-		public static readonly List<NodeDO> ListTempDO = new List<NodeDO>();    //Объекты данных необходимые для формирования модели
+		public static readonly List<NodeDO> ListTempDO = new List<NodeDO>(); //Объекты данных необходимые для формирования модели
 		
-		public class NodeDO     //DO - объекты данных
+		public class NodeDO  //DO - объекты данных
 		{
 			public string NameDO { get; }
 			public string TypeDO { get; private set; }
 			public string DescDO { get; }
 
 			public List<NodeDA> ListDA = new List<NodeDA>();
-
-			//Служебная информация
-			public string Type { get; set; }
-			public int Index { get; set; }
-			public string Addr { get; set; }
-			public ushort Byte { get; set; }
 			
 			public NodeDO(string nameDO, string typeDO, string descDO)
 			{
@@ -91,7 +85,7 @@ namespace Server.DataClasses
 			}
 		}
 
-		public class NodeDA     //DA - атрибуты данных
+		public class NodeDA  //DA - атрибуты данных
 		{
 			public string NameDA { get;  }
 			public string FCDA { get; }

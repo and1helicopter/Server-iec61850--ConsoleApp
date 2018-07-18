@@ -4,8 +4,8 @@ using System.IO.Ports;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
-using Server.ModBus;
-using Server.Settings;
+using ServerLib.ModBus;
+using ServerLib.Settings;
 
 namespace ServerWPF
 {
@@ -21,10 +21,10 @@ namespace ServerWPF
 
 		public void InitConfig()
 		{
-			PortTextBox.Text = Server.Server.Server.ServerConfig.PortServer.ToString();
-			HostTextBox.Text = Server.Server.Server.ServerConfig.LocalIPAddr;
-			AutostartCheckBox.IsChecked = Server.Server.Server.ServerConfig.Autostart;
-			PathTextBox.Text = Server.Server.Server.ServerConfig.NameConfigFile;
+			PortTextBox.Text = ServerLib.Server.ServerIEC61850.ServerConfig.ServerPort.ToString();
+			HostTextBox.Text = ServerLib.Server.ServerIEC61850.ServerConfig.LocalIPAddr;
+			AutostartCheckBox.IsChecked = ServerLib.Server.ServerIEC61850.ServerConfig.Autostart;
+			PathTextBox.Text = ServerLib.Server.ServerIEC61850.ServerConfig.NameConfigFile;
 
 			foreach (var item in BaudRateComboBox.Items)
 			{
@@ -102,7 +102,7 @@ namespace ServerWPF
 			PathScopeTextBox.Text = ConfigDownloadScope.PathScope?.Replace("\\", "");
 			OscilNominalFrequencyTextBox.Text = ConfigDownloadScope.OscilNominalFrequency;
 
-			OldFormatLabel.Content = Server.Server.Server.ServerConfig.OldFormat ? @"OLD" : @"NEW";
+			OldFormatLabel.Content = ServerLib.Server.ServerIEC61850.ServerConfig.AdditionalParams ? @"OLD" : @"NEW";
 		}
 
 		private void Ok_Button_Click(object sender, RoutedEventArgs e)
@@ -128,17 +128,17 @@ namespace ServerWPF
 
 		private void SetSettings()
 		{
-			Server.Server.Server.ServerConfig.PortServer = Convert.ToInt32(PortTextBox.Text);
-			Server.Server.Server.ServerConfig.LocalIPAddr = HostTextBox.Text;
-			Server.Server.Server.ServerConfig.Autostart = Convert.ToBoolean(AutostartCheckBox.IsChecked.ToString());
-			Server.Server.Server.ServerConfig.NameConfigFile = Convert.ToString(PathTextBox.Text);
+			ServerLib.Server.ServerIEC61850.ServerConfig.ServerPort = Convert.ToInt32(PortTextBox.Text);
+			ServerLib.Server.ServerIEC61850.ServerConfig.LocalIPAddr = HostTextBox.Text;
+			ServerLib.Server.ServerIEC61850.ServerConfig.Autostart = Convert.ToBoolean(AutostartCheckBox.IsChecked.ToString());
+			ServerLib.Server.ServerIEC61850.ServerConfig.NameConfigFile = Convert.ToString(PathTextBox.Text);
 
 			ConfigModBus.InitConfigModBus(
 				Convert.ToInt32(BaudRateComboBox.Text), 
 				SerialPortParityComboBox.Text, 
 				SerialPortStopBitsComboBox.Text,
 				ComPortNameComboBox.Text, 
-				ConfigModBus.TimeUpdate);
+				ConfigModBus.AddrPort);
 
 			ConfigDownloadScope.InitConfigDownloadScope(
 				Convert.ToString(DownloadScopeCheckBox.IsChecked),

@@ -1,183 +1,185 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Server.DataClasses;
+using ServerLib.DataClasses;
 
-namespace Server.Update
+namespace ServerLib.Update
 {
-    public partial class UpdateDataObj
-    {
-        public static bool GetData(int currentIndex, out ushort addrGet, out ushort wordCount)
-        {
-			addrGet = ClassGetObjects[currentIndex].AddrObj;
-			wordCount = (ushort)(ClassGetObjects[currentIndex].ByteObj >> 1);
-			return true;
-        }
+	//public partial class UpdateDataObj
+	//{
+	//	public static bool GetData(int currentIndex, out ushort addrGet, out ushort wordCount)
+	//	{
+	//		addrGet = ClassGetObjects[currentIndex].AddrObj;
+	//		wordCount = (ushort)(ClassGetObjects[currentIndex].ByteObj >> 1);
+	//		return true;
+	//	}
 
-        public static void UpdateDataGet(int currentIndex, ushort[] paramRtu)
-        {
-	        try
-	        {
-		        if (ClassGetObjects[currentIndex].TypeObj)  //Если дискретные 
-		        {
-			        UpdateD(currentIndex, paramRtu);
-		        }
-		        else
-		        {
-			        UpdateA(currentIndex, paramRtu);
-		        }
-			}
-	        catch
-	        {
-		        // ignored
-	        }
-        }
+	//	public static bool GetData(ItemObject item, out ushort addrGet, out ushort wordCount)
+	//	{
+	//		addrGet = item.AddrObj;
+	//		wordCount = (ushort)(item.ByteObj >> 1);
+	//		return true;
+	//	}
 
-	    private static async void UpdateD(int index, ushort[] paramRtu)
-	    {
-		    ClassGetObjects[index].BitArray.GetBitArrayObj(paramRtu[0]);
+	//	public static void UpdateDataGet(int currentIndex, ushort[] paramRtu)
+	//	{
+	//		try
+	//		{
+	//			if (ClassGetObjects[currentIndex].TypeObj)  //Если дискретные 
+	//			{
+	//				UpdateD(currentIndex, paramRtu);
+	//			}
+	//			else
+	//			{
+	//				UpdateA(currentIndex, paramRtu);
+	//			}
+	//		}
+	//		catch
+	//		{
+	//			// ignored
+	//		}
+	//	}
 
-		    try
-		    {
-			    foreach (var itemDataClass in ClassGetObjects[index].DataClass)
-			    {
-				    if (itemDataClass.DataObj.GetType() == typeof(SpsClass))
-				    {
-					    await UpdateSps(index, itemDataClass);
-				    }
-				    else if (itemDataClass.DataObj.GetType() == typeof(ActClass))
-				    {
-					    await UpdateACT(index, itemDataClass);
-				    }
-				    else if (itemDataClass.DataObj.GetType() == typeof(SpcClass))
-				    {
-					    await UpdateSPC(index, itemDataClass);
-				    }
-			    }
-			}
-		    catch
-		    {
-			    // ignored
-		    }
-	    }
+	//	private static async void UpdateD(int index, ushort[] paramRtu)
+	//	{
+	//		ClassGetObjects[index].BitArray.GetBitArrayObj(paramRtu[0]);
 
-	    private static async Task UpdateSps(int index, DataObject itemDataClass)
-	    {
-		    var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
-			
-			var value = new SpsSignature(DateTime.Now, val);
-		    itemDataClass.DataObj.UpdateClass(value);
+	//		try
+	//		{
+	//			foreach (var itemDataClass in ClassGetObjects[index].DataClass)
+	//			{
+	//				if (itemDataClass.DataObj.GetType() == typeof(SpsClass))
+	//				{
+	//					await UpdateSPS(index, itemDataClass);
+	//				}
+	//				else if (itemDataClass.DataObj.GetType() == typeof(ActClass))
+	//				{
+	//					await UpdateACT(index, itemDataClass);
+	//				}
+	//				else if (itemDataClass.DataObj.GetType() == typeof(SpcClass))
+	//				{
+	//					await UpdateSPC(index, itemDataClass);
+	//				}
+	//			}
+	//		}
+	//		catch
+	//		{
+	//			// ignored
+	//		}
+	//	}
 
-			Server.Server.UpdateDataGet(itemDataClass);
-		}
+	//	private static async void UpdateA(int index, ushort[] paramRtu)
+	//	{
+	//		var itemDataClass = ClassGetObjects[index].DataClass.First();
 
-	    private static async Task UpdateACT(int index, DataObject itemDataClass)
-	    {
-			var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
+	//		try
+	//		{
+	//			if (itemDataClass.DataObj.GetType() == typeof(MvClass))
+	//			{
+	//				await UpdateMV(paramRtu, itemDataClass);
+	//			}
+	//			else if (itemDataClass.DataObj.GetType() == typeof(InsClass))
+	//			{
+	//				await UpdateINS(paramRtu, itemDataClass);
+	//			}
+	//			else if (itemDataClass.DataObj.GetType() == typeof(BcrClass))
+	//			{
+	//				await UpdateBCR(paramRtu, itemDataClass);
+	//			}
+	//			else if (itemDataClass.DataObj.GetType() == typeof(IncClass))
+	//			{
+	//				await UpdateINC(paramRtu, itemDataClass);
+	//			}
+	//		}
+	//		catch
+	//		{
+	//			// ignored
+	//		}
+	//	}
 
-		    var value = new ActSignature(DateTime.Now, val);
-		    itemDataClass.DataObj.UpdateClass(value);
+	//	private static async Task UpdateSPS(int index, DataObject itemDataClass)
+	//	{
+	//		var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
 
-			Server.Server.UpdateDataGet(itemDataClass);
-	    }
+	//		itemDataClass.DataObj.UpdateClass(val);
 
-	    private static async Task UpdateSPC(int index, DataObject itemDataClass)
-	    {
-		    var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
+	//		ServerIEC61850.ServerIEC61850.UpdateDataServer(itemDataClass);
+	//	}
 
-		    var value = new SpcSignature(DateTime.Now, val);
-		    itemDataClass.DataObj.UpdateClass(value);
+	//	private static async Task UpdateACT(int index, DataObject itemDataClass)
+	//	{
+	//		var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
 
-			Server.Server.UpdateDataGet(itemDataClass);
-	    }
+	//		itemDataClass.DataObj.UpdateClass(val);
 
-		private static async void UpdateA(int index, ushort[] paramRtu)
-	    {
-		    var itemDataClass = ClassGetObjects[index].DataClass.First();
+	//		ServerIEC61850.ServerIEC61850.UpdateDataServer(itemDataClass);
+	//	}
 
-		    try
-		    {
-			    if (itemDataClass.DataObj.GetType() == typeof(MvClass))
-			    {
-				    await UpdateMV(paramRtu, itemDataClass);
-			    }
-			    else if (itemDataClass.DataObj.GetType() == typeof(InsClass))
-			    {
-				    await UpdateINS(paramRtu, itemDataClass);
-			    }
-			    else if (itemDataClass.DataObj.GetType() == typeof(BcrClass))
-			    {
-				    await UpdateBCR(paramRtu, itemDataClass);
-			    }
-			    else if (itemDataClass.DataObj.GetType() == typeof(IncClass))
-			    {
-				    await UpdateINC(paramRtu, itemDataClass);
-			    }
-			}
-		    catch 
-		    {
-			    // ignored
-		    }
-	    }
-		
-		private static async Task UpdateMV(ushort[] paramRtu, DataObject itemDataClass)
-		{
-			Int64 val = 0;
+	//	private static async Task UpdateSPC(int index, DataObject itemDataClass)
+	//	{
+	//		var val = ClassGetObjects[index].BitArray.BitArray.Get(itemDataClass.IndexDataOBj);
 
-			for (int i = paramRtu.Length - 1; i >= 0; i--)
-			{
-				val += (long)paramRtu[i] << i * 16;
-			}
+	//		itemDataClass.DataObj.UpdateClass(val);
 
-			var value = new MvSignature(DateTime.Now, val);
-			itemDataClass.DataObj.UpdateClass(value);
+	//		ServerIEC61850.ServerIEC61850.UpdateDataServer(itemDataClass);
+	//	}
 
-			Server.Server.UpdateDataGet(itemDataClass);
-		}
 
-	    private static async Task UpdateINS(ushort[] paramRtu, DataObject itemDataClass)
-	    {
-			Int32 val = 0;
 
-		    for (int i = paramRtu.Length - 1; i >= 0; i--)
-		    {
-			    val += paramRtu[i] << i * 16;
-		    }
+	//	private static async Task UpdateMV(ushort[] paramRtu, DataObject itemDataClass)
+	//	{
+	//		Int64 val = 0;
 
-		    var value = new InsSignature(DateTime.Now, val);
-		    itemDataClass.DataObj.UpdateClass(value);
+	//		for (int i = paramRtu.Length - 1; i >= 0; i--)
+	//		{
+	//			val += (Int64)paramRtu[i] << i * 16;
+	//		}
 
-			Server.Server.UpdateDataGet(itemDataClass);
-	    }
+	//		itemDataClass.DataObj.UpdateClass(val);
 
-	    private static async Task UpdateBCR(ushort[] paramRtu, DataObject itemDataClass)
-	    {
-			Int32 val = 0;
+	//		ServerIEC61850.ServerIEC61850.UpdateDataServer(itemDataClass);
+	//	}
 
-		    for (int i = paramRtu.Length - 1; i >= 0; i--)
-		    {
-			    val += paramRtu[i] << i * 16;
-		    }
+	//	private static async Task UpdateINS(ushort[] paramRtu, DataObject itemDataClass)
+	//	{
+	//		Int32 val = 0;
 
-		    var value = new BcrSignature(DateTime.Now, val);
-		    itemDataClass.DataObj.UpdateClass(value);
+	//		for (int i = paramRtu.Length - 1; i >= 0; i--)
+	//		{
+	//			val += paramRtu[i] << i * 16;
+	//		}
 
-			Server.Server.UpdateDataGet(itemDataClass);
-	    }
+	//		itemDataClass.DataObj.UpdateClass(val);
 
-	    private static async Task UpdateINC(ushort[] paramRtu, DataObject itemDataClass)
-	    {
-			Int32 val = 0;
+	//		ServerIEC61850.ServerIEC61850.UpdateDataServer(itemDataClass);
+	//	}
 
-		    for (int i = paramRtu.Length - 1; i >= 0; i--)
-		    {
-			    val += paramRtu[i] << i * 16;
-		    }
+	//	private static async Task UpdateBCR(ushort[] paramRtu, DataObject itemDataClass)
+	//	{
+	//		Int32 val = 0;
 
-		    var value = new IncSignature(DateTime.Now, val);
-		    itemDataClass.DataObj.UpdateClass(value);
+	//		for (int i = paramRtu.Length - 1; i >= 0; i--)
+	//		{
+	//			val += paramRtu[i] << i * 16;
+	//		}
 
-			Server.Server.UpdateDataGet(itemDataClass);
-	    }
-	}
+	//		itemDataClass.DataObj.UpdateClass(val);
+
+	//		ServerIEC61850.ServerIEC61850.UpdateDataServer(itemDataClass);
+	//	}
+
+	//	private static async Task UpdateINC(ushort[] paramRtu, DataObject itemDataClass)
+	//	{
+	//		Int32 val = 0;
+
+	//		for (int i = paramRtu.Length - 1; i >= 0; i--)
+	//		{
+	//			val += paramRtu[i] << i * 16;
+	//		}
+
+	//		itemDataClass.DataObj.UpdateClass(val);
+
+	//		ServerIEC61850.ServerIEC61850.UpdateDataServer(itemDataClass);
+	//	}
+	//}
 }

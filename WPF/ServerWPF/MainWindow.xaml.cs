@@ -4,11 +4,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using Server.Format;
-using Server.Settings;
-using Server.ModBus;
-using Server.Log;
-using Server.Parser;
+using ServerLib.Format;
+using ServerLib.ModBus;
+using ServerLib.Log;
+using ServerLib.Server;
 
 namespace ServerWPF
 {
@@ -24,14 +23,14 @@ namespace ServerWPF
 
 			ConfigStackPanel.Children.Add(_config);
 			//Открываем настройки сервера
-			if (!Settings.ReadSettings(null))
+			if (!ServerIEC61850.ReadConfig(null))
 			{
 				Log.Write(@"Settings: ReadSettings finish with status false. Stop server", @"Error");
 			}
 
 			FormatConverter.ReadFormats(null);
 
-			if (Server.Server.Server.ServerConfig.Autostart)
+			if (ServerIEC61850.ServerConfig.Autostart)
 			{
 				Start_Button_Click(null,null);
 			}
@@ -50,7 +49,7 @@ namespace ServerWPF
 
 		private void TimerLoadOscOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
 		{
-			if (ModBus.StatusLoad(out var count))
+			if (UpdateModBus.StatusLoad(out var count))
 			{
 				Dispatcher.Invoke(() => { ProgressBar.Value = Math.Round(count, 2);});
 				Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
@@ -76,11 +75,11 @@ namespace ServerWPF
 			else if (CheckedStart)
 			{
 				Host.Visibility = Visibility.Visible;
-				Host.Content = Server.Server.Server.ServerConfig.LocalIPAddr;
+				Host.Content = ServerLib.Server.ServerIEC61850.ServerConfig.LocalIPAddr;
 				Port.Visibility = Visibility.Visible;
-				Port.Content = Server.Server.Server.ServerConfig.PortServer;
+				Port.Content = ServerLib.Server.ServerIEC61850.ServerConfig.ServerPort;
 				
-				if (ModBus.StartPort)
+				if (UpdateModBus.StartPort)
 				{
 					BaudRate.Visibility = Visibility.Visible;
 					BaudRate.Content = ConfigModBus.BaudRate;
@@ -95,7 +94,7 @@ namespace ServerWPF
 				else
 				{
 					ModBusStatus.Visibility = Visibility.Visible;
-					ModBusStatus.Content = "ModBus not started!";
+					ModBusStatus.Content = "UpdateModBus not started!";
 				}
 			}
 		}
@@ -138,7 +137,7 @@ namespace ServerWPF
 			_checkedStop = false;
 
 			//Парсим файл конфигурации
-			if (!Parser.ParseFile(Server.Server.Server.ServerConfig.NameConfigFile))
+			if (!ServerLib.Server.ServerIEC61850.ParseFile(ServerLib.Server.ServerIEC61850.ServerConfig.NameConfigFile))
 			{
 				Log.Write(@"ParseFile: Finish with status false. Stop server", @"Error");
 				return;
@@ -152,20 +151,19 @@ namespace ServerWPF
 			}
 
 			//Создаем модель сервера
-			if (!Server.Server.Server.ConfigServer()) return;
+			if (!ServerLib.Server.ServerIEC61850.ConfigServer()) return;
 
 			//Запуск сервера 
-			if (!Server.Server.Server.StartServer()) return;
+			if (!ServerLib.Server.ServerIEC61850.StartServer()) return;
 
-			ModBus.ConfigModBusPort();
-			if (!ModBus.StartModBus())
-			{
-				SerialPortStopBits.Content = @"COM Port";
-				ComPortName.Content = @"Not Open";
-				SerialPortStopBits.Visibility = Visibility.Visible;
-				ComPortName.Visibility = Visibility.Visible;
-				return;
-			}
+			//if (!UpdateModBus.StartModBus())
+			//{
+			//	SerialPortStopBits.Content = @"COM Port";
+			//	ComPortName.Content = @"Not Open";
+			//	SerialPortStopBits.Visibility = Visibility.Visible;
+			//	ComPortName.Visibility = Visibility.Visible;
+			//	return;
+			//}
 
 			CheckedStart = true;
 
@@ -187,7 +185,7 @@ namespace ServerWPF
 				return;
 			}
 
-			Server.Server.Server.StopServer();
+			ServerLib.Server.ServerIEC61850.StopServer();
 
 			if (ConfigDownloadScope.Enable)
 			{
@@ -233,7 +231,7 @@ namespace ServerWPF
 
 		private void Window_Closed(object sender, EventArgs e)
 		{
-			Server.Server.Server.StopServer();
+			ServerLib.Server.ServerIEC61850.StopServer();
 		}
 	}
 }

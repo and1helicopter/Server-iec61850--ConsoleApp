@@ -1,197 +1,527 @@
 ﻿using System;
+using System.Collections;
+using System.ComponentModel;
+using IEC61850.Server;
 
-namespace Server.DataClasses
+namespace ServerLib.DataClasses
 {
-    public abstract class BaseClass
-    {
-        public DateTime t;
-        public Quality q;
+	public abstract class BaseClass
+	{
+		public DateTime t;
+		public Quality q;
 
-	    public abstract void UpdateClass(object value);
-	    public abstract void QualityCheckClass();
+		public abstract void UpdateClass(dynamic value);
+		public abstract void UpdateServer(string path, IedServer iedServer, IedModel iedModel);
+		public abstract void InitServer(string path, IedServer iedServer, IedModel iedModel);
+		public abstract void QualityCheckClass();
+
+		internal void GetBoolean(dynamic value, ref bool? obj)
+		{
+			var dataValue = new BitArray(BitConverter.GetBytes(value.Value)); ;
+			var indexValue = value.Index;
+
+			var tempValue = dataValue[indexValue];
+
+			obj = tempValue;
+		}
+
+		internal void GetDoublePoint(dynamic value, ref DoublePoint? obj)
+		{
+			var dataValue = new BitArray(BitConverter.GetBytes(value.Value));
+
+			var indexValue = value.Index;
+
+			var tempValue0 = dataValue[indexValue] == true ? 0b01 : 0b00;
+			var tempValue1 = dataValue[indexValue + 1] == true ? 0b10 : 0b00;
+
+			var tempValue = tempValue0 + tempValue1;
+
+			obj = (DoublePoint)tempValue;
+		}
+
+		internal void GetInt32(dynamic value, ref Int32? obj)
+		{
+			ushort[] xxxx = value.Value;
+
+			byte[] tempArrayByte = new byte[4];
+
+			for (int i = 0; i < xxxx.Length;)
+			{
+				var ffff = BitConverter.GetBytes(xxxx[i / 2]);
+				tempArrayByte[i++] = ffff[0];
+				tempArrayByte[i++] = ffff[1];
+			}
+
+			var tempValue = BitConverter.ToInt32(tempArrayByte, 0);
+
+			obj = tempValue;
+		}
+
+		internal void GetDirectionalProtection(dynamic value, ref DirectionalProtection? obj)
+		{
+
+			var dataValue = new BitArray(BitConverter.GetBytes(value.Value));
+
+			var indexValue = value.Index;
+
+			var tempValue0 = dataValue[indexValue] == true ? 0b01 : 0b00;
+			var tempValue1 = dataValue[indexValue + 1] == true ? 0b10 : 0b00;
+
+			var tempValue = tempValue0 + tempValue1;
+
+			obj = (DirectionalProtection)tempValue;
+		}
+
+		internal void SetBooleanValue(string name, Boolean? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToBoolean(value);
+				iedServer.UpdateBooleanAttributeValue(namePath, val);
+			}
+		}
+
+		internal void SetDataTimeValue(string name, DateTime? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToDateTime(value);
+				iedServer.UpdateUTCTimeAttributeValue(namePath, val);
+			}
+		}
+
+		internal void SetQualityValue(string name, UInt16? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToUInt16(value);
+				iedServer.UpdateQuality(namePath, val);
+			}
+		}
+
+		internal void SetStringValue(string name, String value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = value;
+				iedServer.UpdateVisibleStringAttributeValue(namePath, val);
+			}
+		}
+
+		internal void SetDoublePointValue(string name, DoublePoint? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToInt32(value);
+				iedServer.UpdateInt32AttributeValue(namePath, val);
+			}
+		}
+
+		internal void SetInt32Value(string name, Int32? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToInt32(value);
+				iedServer.UpdateInt32AttributeValue(namePath, val);
+			}
+		}
+
+		internal void SetDoublePointValue(string name, DirectionalProtection? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToInt32(value);
+				iedServer.UpdateInt32AttributeValue(namePath, val);
+			}
+		}
 
 		protected BaseClass()
-        {
-            t = DateTime.Now;
-            q = new Quality();
-        }
-    }
-
-    #region Классы общих данных для информации о состоянии
-    //Двоичное состояние SPS
-    public class SpsClass : BaseClass
-    {
-        public Boolean stVal { get; set; }
-		public String d { get; set; }
-
-		public override void UpdateClass(object obj)
-        {
-	        var item = (SpsSignature) obj;
-
-			stVal = item.Value;
-            t = item.Time;
-            q.UpdateQuality(t);
-        }
-
-		public override void QualityCheckClass()
-        {
-            q.QualityCheckClass(t);
-        }
-
-        public SpsClass(bool stval,string strd)
-        {
-            stVal = stval;
-            d = strd;
-        }
-    }
-
-	//Дублированное состояние DPS
-	public class DpsClass : BaseClass
-	{
-		public Enum stVal;
-
-
-		public override void UpdateClass(object value)
 		{
-			throw new NotImplementedException();
+			t = DateTime.Now;
+			q = new Quality();
+		}
+	}
+
+	#region Классы общих данных для информации о состоянии
+	//Двоичное состояние SPS
+	public class SpsClass : BaseClass
+	{
+		public Boolean? stVal;
+		public String d = null;
+
+		public override void UpdateClass(dynamic value)
+		{
+			try
+			{
+				switch (value.Key)
+				{
+					case "stVal":
+						GetBoolean(value, ref stVal);
+						break;
+				}
+
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("SPS UpdateClass", "Error");
+			}
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			SetBooleanValue(path + @".stVal", stVal, iedModel, iedServer);
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
 		public override void QualityCheckClass()
 		{
-			throw new NotImplementedException();
+			q.QualityCheckClass(t);
+		}
+	}
+
+	//Дублированное состояние DPS
+	public class DpsClass : BaseClass
+	{
+		public DoublePoint? stVal;
+		public String d = null;
+		
+		public override void UpdateClass(dynamic value)
+		{
+			try
+			{
+				switch (value.Key)
+				{
+					case "stVal":
+						GetDoublePoint(value, ref stVal);
+						break;
+				}
+
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("DPS UpdateClass", "Error");
+			}
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			SetDoublePointValue(path + @".stVal", stVal, iedModel, iedServer);
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			SetStringValue(path + @".d", d, iedModel, iedServer);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
 		}
 	}
 
 	//Целочисленное состояние
 	public class InsClass : BaseClass
-    {
-        public Int32 stVal;
-        public String d;
+	{
+		public Int32? stVal;
+		public String d = null;
 
-        public override void UpdateClass(object obj)
-        {
-	        var item = (InsSignature)obj;
+		public override void UpdateClass(dynamic value)
+		{
+			try
+			{
+				switch (value.Key)
+				{
+					case "stVal":
+						GetInt32(value, ref stVal);
+						break;
+				}
 
-			stVal = item.Value;
-            t = item.Time;
-            q.UpdateQuality(t);
-        }
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("INS UpdateClass", "Error");
+			}
+		}
 
-        public override void QualityCheckClass()
-        {
-            q.QualityCheckClass(t);
-        }
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
 
-        public InsClass(Int32 stval, string strd)
-        {
-            stVal = stval;
-            d = strd;
-        }
-    }
+			SetInt32Value(path + @".stVal", stVal, iedModel, iedServer);
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			SetStringValue(path + @".d", d, iedModel, iedServer);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+	}
 
 	//Сведения об активации защиты
 	public class ActClass : BaseClass
 	{
-		public Boolean general;
-		public String d;
+		public Boolean? general;
+		public String d = null;
 
-		public override void UpdateClass(object obj)
+		//Опциональные классы
+		public Boolean? phsA;
+		public Boolean? phsB;
+		public Boolean? phsC;
+		public Boolean? neut;
+
+		public override void UpdateClass(dynamic value)
 		{
-			var item = (ActSignature)obj;
+			try
+			{
+				switch (value.Key)
+				{
+					case "general":
+						GetBoolean(value, ref general);
+						break;
+					case "phsA":
+						GetBoolean(value, ref phsA);
+						break;
+					case "phsB":
+						GetBoolean(value, ref phsB);
+						break;
+					case "phsC":
+						GetBoolean(value, ref phsC);
+						break;
+					case "neut":
+						GetBoolean(value, ref neut);
+						break;
+				}
 
-			general = item.Value;
-			t = item.Time;
-			q.UpdateQuality(t);
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch 
+			{
+				Log.Log.Write("ACT UpdateClass", "Error");
+			}
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			SetBooleanValue(path + @".general", general, iedModel, iedServer);
+			SetBooleanValue(path + @".phsA", phsA, iedModel, iedServer);
+			SetBooleanValue(path + @".phsB", phsB, iedModel, iedServer);
+			SetBooleanValue(path + @".phsC", phsC, iedModel, iedServer);
+			SetBooleanValue(path + @".neut", neut, iedModel, iedServer);
+
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
-		}
-
-		public ActClass(bool gen , string strd)
-		{
-			general = gen;
-			d = strd;
 		}
 	}
 
 	////Сведения об активации направленной защиты
-	//public class AcdClass : BaseClass
-	//{
-	//    public Boolean general;
-	//    public Int32 dirGeneral;
-	//    public String d;
-
-	//    public AcdClass()
-	//    {
-	//        general = false;
-	//        dirGeneral = 0;
-	//        d = "";
-	//    }
-
-	//    public void UpdateClass(DateTime time, bool value, string valueDir)
-	//    {
-	//        general = value;
-	//        if (value) dirGeneral = MapDirGeneral(valueDir);
-	//        t = time;
-	//        q.UpdateQuality(time, value);
-	//    }
-
-	//    private ushort MapDirGeneral(string quality)
-	//    {
-	//        ushort qual = 0;
-	//        switch (quality.ToUpper())
-	//        {
-	//            case "UNKNOWN":
-	//                qual = (ushort)ValidityDirGeneral.UNKNOWN;
-	//                break;
-	//            case "FORWARD":
-	//                qual = (ushort)ValidityDirGeneral.FORWARD;
-	//                break;
-	//            case "BACKWARD":
-	//                qual = (ushort)ValidityDirGeneral.BACKWARD;
-	//                break;
-	//            case "BOTH":
-	//                qual = (ushort)ValidityDirGeneral.BOTH;
-	//                break;
-	//        }
-	//        return qual;
-	//    }
-
-	//    enum ValidityDirGeneral
-	//    {
-	//        UNKNOWN = 0,
-	//        FORWARD = 1,
-	//        BACKWARD = 2,
-	//        BOTH = 3
-	//    }
-	//}
-
-	//Считывание показаний двоичного счетчика
-	public class BcrClass : BaseClass
+	public class AcdClass : BaseClass
 	{
-		public Int32 actVal;
-		public String d;
+		public Boolean? general;
+		public DirectionalProtection? dirGeneral;
+		public String d = null;
 
-		public override void UpdateClass(object obj)
+		//Опциональные классы
+		public Boolean? phsA = null;
+		public Boolean? phsB = null;
+		public Boolean? phsC = null;
+		public Boolean? neut = null;
+
+		public DirectionalProtection? dirPhsA = null;
+		public DirectionalProtection? dirPhsB = null;
+		public DirectionalProtection? dirPhsC = null;
+		public DirectionalProtection? dirNeut = null;
+
+		public override void UpdateClass(dynamic value)
 		{
-			var item = (BcrSignature)obj;
+			try
+			{
+				switch (value.Key)
+				{
+					case "general":
+						GetBoolean(value, ref general);
+						break;
+					case "dirGeneral":
+						GetDirectionalProtection(value, ref dirGeneral);
+						break;
+					case "phsA":
+						GetBoolean(value, ref general);
+						break;
+					case "dirPhsA":
+						GetDirectionalProtection(value, ref dirGeneral);
+						break;
+					case "phsB":
+						GetBoolean(value, ref general);
+						break;
+					case "dirPhsB":
+						GetDirectionalProtection(value, ref dirGeneral);
+						break;
+					case "phsC":
+						GetBoolean(value, ref general);
+						break;
+					case "dirPhsC":
+						GetDirectionalProtection(value, ref dirGeneral);
+						break;
+					case "neut":
+						GetBoolean(value, ref general);
+						break;
+					case "dirNeut":
+						GetDirectionalProtection(value, ref dirGeneral);
+						break;
+				}
+			}
+			catch
+			{
+				Log.Log.Write("ACD UpdateClass", "Error");
+			}
+		}
 
-			actVal = item.Value;
-			t = item.Time;
-			q.UpdateQuality(t);
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			SetBooleanValue(path + @".general", general, iedModel, iedServer);
+			SetBooleanValue(path + @".phsA", phsA, iedModel, iedServer);
+			SetBooleanValue(path + @".phsB", phsB, iedModel, iedServer);
+			SetBooleanValue(path + @".phsC", phsC, iedModel, iedServer);
+			SetBooleanValue(path + @".neut", neut, iedModel, iedServer);
+
+			SetDoublePointValue(path + @".dirGeneral", dirGeneral, iedModel, iedServer);
+			SetDoublePointValue(path + @".dirPhsA", dirPhsA, iedModel, iedServer);
+			SetDoublePointValue(path + @".dirPhsB", dirPhsB, iedModel, iedServer);
+			SetDoublePointValue(path + @".dirPhsC", dirPhsC, iedModel, iedServer);
+			SetDoublePointValue(path + @".dirNeut", dirNeut, iedModel, iedServer);
+
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
 		}
+	}
 
-		public BcrClass(int act, string strd)
+	//Считывание показаний двоичного счетчика
+	public class BcrClass : BaseClass
+	{
+		public Int64 actVal;
+		public String d;
+
+
+
+		public override void UpdateClass(dynamic value)
 		{
-			actVal = act;
-			d = strd;
+			try
+			{
+				ushort[] xxxx = value.Value;
+				byte[] tempArrayByte = new byte[8];
+				for (int i = 0; i < xxxx.Length;)
+				{
+					var ffff = BitConverter.GetBytes(xxxx[i / 2]);
+					tempArrayByte[i++] = ffff[0];
+					tempArrayByte[i++] = ffff[1];
+				}
+
+				var tempValue = BitConverter.ToInt64(tempArrayByte, 0);
+
+				actVal = tempValue;
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("BCR UpdateClass", "Error");
+			}
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			var actValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".actVal");
+			var actValVal = Convert.ToInt64(actVal);
+			//iedServer.UpdateInt64AttributeValue(actValPath, actValVal);
+
+			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".t");
+			var tVal = Convert.ToDateTime(t);
+			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".q");
+			var qVal = Convert.ToUInt16(q.Validity);
+			iedServer.UpdateQuality(qPath, qVal);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
+			var dVal = d;
+			iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
 		}
 	}
 	#endregion
@@ -199,235 +529,380 @@ namespace Server.DataClasses
 	#region  Классы общих данных для информации об измеряемой величине
 	//измеряемые значения
 	public class MvClass : BaseClass
-    {
-        public MagClass Mag;
-        public UnitClass Unit;
-        public ScaledValueClass sVC;
-        public String d;
+	{
+		public MagClass Mag;
+		public UnitClass Unit;
+		public ScaledValueClass sVC;
+		public String d;
 
-        public class MagClass
-        {
-            public AnalogueValueClass AnalogueValue;
+		public class MagClass
+		{
+			public AnalogueValueClass AnalogueValue;
 
-            public MagClass()
-            {
-                AnalogueValue = new AnalogueValueClass();
-            }
-        }
+			public MagClass()
+			{
+				AnalogueValue = new AnalogueValueClass();
+			}
+		}
 
-        public MvClass() : base()
-        {
-            Mag = new MagClass();
-            Unit = new UnitClass();
-            sVC = new ScaledValueClass();
-            d = "";
-        }
+		public MvClass() : base()
+		{
+			Mag = new MagClass();
+			Unit = new UnitClass();
+			sVC = new ScaledValueClass();
+			d = "";
+		}
 
-        public void ClassFill(int siUnit, int multiplier, float scaleFactor, float offset, string str)
-        {
-            Unit.SIUnit = siUnit;
-            Unit.Multiplier = multiplier;
-            sVC.ScaleFactor = scaleFactor;
-            sVC.Offset = offset;
-            d = str;
-        }
+		public override void UpdateClass(dynamic value)
+		{
+			try
+			{
+				//Может не верно работать
+				ushort[] xxxx = value.Value;
+				byte[] tempArrayByte = new byte[4];
+				for (int i = 0; i < xxxx.Length;)
+				{
+					var ffff = BitConverter.GetBytes(xxxx[i / 2]);
+					tempArrayByte[i++] = ffff[0];
+					tempArrayByte[i++] = ffff[1];
+				}
 
-        public override void UpdateClass(object obj)
-        {
-	        var item = (MvSignature)obj;
+				if (tempArrayByte.Length != 0)
+				{
+					var tempValue = BitConverter.ToInt32(tempArrayByte, 0);
+					Mag.AnalogueValue.f = Convert.ToSingle(tempValue * sVC.ScaleFactor + sVC.Offset);
+				}
 
-			Mag.AnalogueValue.f = Convert.ToSingle(item.Value * sVC.ScaleFactor + sVC.Offset);
-            t = item.Time;
-            q.UpdateQuality(t);
-        }
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("MV UpdateClass", "Error");
+			}
+		}
 
-        public override void QualityCheckClass()
-        {
-            q.QualityCheckClass(t);
-        }
-    }
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
 
-    //комплексные измеряемые значения
-    public class CmvClass : BaseClass
-    {
-        public VectorClass cVal;
-        public UnitClass Unit;
-        public ScaledValueClass magSVC;
-        public ScaledValueClass angSVC;
-        public String d;
-		
-        public void ClassFill(int siUnit, int multiplier, float scaleFactorMag, float offsetMag, float scaleFactorAng, float offsetAng, string str)
-        {
-            Unit.SIUnit = siUnit;
-            Unit.Multiplier = multiplier;
-            magSVC.ScaleFactor = scaleFactorMag;
-            magSVC.Offset = offsetMag;
-            angSVC.ScaleFactor = scaleFactorAng;
-            angSVC.Offset = offsetAng;
-            d = str;
-        }
+			var magPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".mag.f");
+			var magVal = Convert.ToSingle(Mag.AnalogueValue.f);
+			iedServer.UpdateFloatAttributeValue(magPath, magVal);
 
-        public override void UpdateClass(object obj)
-        {
-	        var item = (CmvSignature)obj;
+			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".t");
+			var tVal = Convert.ToDateTime(t);
+			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
 
-			cVal.mag.f = Convert.ToSingle(item.valueMag * magSVC.ScaleFactor + magSVC.Offset);
-            cVal.ang.f = Convert.ToSingle(item.valueAng * angSVC.ScaleFactor + angSVC.Offset);
-            t = item.time;
-            q.UpdateQuality(t);
-        }
+			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".q");
+			var qVal = Convert.ToUInt16(q.Validity);
+			iedServer.UpdateQuality(qPath, qVal);
+		}
 
-        public override void QualityCheckClass()
-        {
-            q.QualityCheckClass(t);
-        }
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
 
-        public CmvClass() : base()
-        {
-            cVal = new VectorClass();
-            Unit = new UnitClass();
-            magSVC = new ScaledValueClass();
-            angSVC = new ScaledValueClass();
-            d = "";
-        }
-    }
-    #endregion
+			var siunitPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".units.SIUnit");
+			var siunitVal = Unit.SIUnit;
+			iedServer.UpdateInt32AttributeValue(siunitPath, siunitVal);
 
-    #region Спецификации класса общих данных для управления состоянием и информации о состоянии
-    //Класс SPC (недублированное управление и состояние)
-    public class SpcClass : BaseClass
-    {
-	    public Boolean ctlVal;
-        public Boolean stVal;
-	    public CtlModelsClass ctlModel;
-        public String d;
+			var multiplierPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".units.multiplier");
+			var multiplierVal = Unit.Multiplier;
+			iedServer.UpdateInt32AttributeValue(multiplierPath, multiplierVal);
 
-        public SpcClass(bool ctlval, bool stval, string ctlmodel, string strd)
-        {
-            ctlVal = ctlval;
-            stVal = stval;
-            ctlModel = new CtlModelsClass(ctlmodel);
-            d = strd;
-        }
+			var scalePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".sVC.scaleFactor");
+			var scaleVal = sVC.ScaleFactor;
+			iedServer.UpdateFloatAttributeValue(scalePath, scaleVal);
 
-	    public override void QualityCheckClass()
-	    {
-		    q.QualityCheckClass(t);
-	    }
+			var ofssetPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".sVC.offset");
+			var ofssetVal = sVC.Offset;
+			iedServer.UpdateFloatAttributeValue(ofssetPath, ofssetVal);
+
+			var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
+			var dVal = d;
+			iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+	}
+
+	//комплексные измеряемые значения
+	public class CmvClass : BaseClass
+	{
+		public VectorClass cVal;
+		public UnitClass Unit;
+		public ScaledValueClass magSVC;
+		public ScaledValueClass angSVC;
+		public String d;
+
+		public void ClassFill(int siUnit, int multiplier, float scaleFactorMag, float offsetMag, float scaleFactorAng, float offsetAng, string str)
+		{
+			Unit.SIUnit = siUnit;
+			Unit.Multiplier = multiplier;
+			magSVC.ScaleFactor = scaleFactorMag;
+			magSVC.Offset = offsetMag;
+			angSVC.ScaleFactor = scaleFactorAng;
+			angSVC.Offset = offsetAng;
+			d = str;
+		}
 
 		public override void UpdateClass(object obj)
 		{
-			var item = (SpcSignature)obj;
+			//   var item = ()obj;
 
-			stVal = item.StValue;
-            t = item.Time;
-            q.UpdateQuality(t);
-        }
+			//cVal.mag.f = Convert.ToSingle(item.valueMag * magSVC.ScaleFactor + magSVC.Offset);
+			//   cVal.ang.f = Convert.ToSingle(item.valueAng * angSVC.ScaleFactor + angSVC.Offset);
+			t = DateTime.Now;
+			q.UpdateQuality(t);
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+
+		public CmvClass() : base()
+		{
+			cVal = new VectorClass();
+			Unit = new UnitClass();
+			magSVC = new ScaledValueClass();
+			angSVC = new ScaledValueClass();
+			d = "";
+		}
 	}
+	#endregion
 
-    //Класс INC (целочисленное управление и состояние)
-    public class IncClass : BaseClass
-    {
-        public Int32 ctlVal;
-        public Int32 stVal;
-        public CtlModelsClass ctlModel;
-        public String d;
-
-        public IncClass(int ctlval, int stval, string ctrMod, string strd)
-        {
-            ctlVal = ctlval;
-            stVal = stval;
-            ctlModel = new CtlModelsClass(ctrMod);
-            d = strd;
-        }
-	    
-	    public override void QualityCheckClass()
-	    {
-		    q.QualityCheckClass(t);
-	    }
-
-        public override void UpdateClass(object obj)
-        {
-	        var item = (IncSignature)obj;
-
-			stVal = item.StValue;
-            t = item.Time;
-            q.UpdateQuality(t);
-        }
-	}
-    #endregion
-
-    #region Спецификации класса общих данных для описательной информации
-    // Класс DPL (паспортная табличка устройства)
-    public class DplClass : BaseClass
-    {
-        public string vendor;
-        public string hwRev;
-        public string swRev;
-        public string serNum;
-        public string model;
-        public string location;
-
-        public void UpdateClass(string vendorStr, string hwRevStr, string swRevStr, string serNumStr, string modelStr, string locationStr)
-        {
-            vendor = vendorStr;
-            hwRev = hwRevStr;
-            swRev = swRevStr;
-            serNum = serNumStr;
-            model = modelStr;
-            location = locationStr;
-        }
-
-        public DplClass()
-        {
-            vendor = "Energocomplekt";
-            hwRev = "";
-            swRev = "";
-            serNum = "";
-            model = "";
-            location = "";
-        }
-
-	    public override void UpdateClass(dynamic value)
-	    {
-	    }
-
-	    public override void QualityCheckClass()
-	    {
-	    }
-    }
-
-    //Класс LPL (паспортная табличка логического узла)
-    public class LplClass : BaseClass
+	#region Спецификации класса общих данных для управления состоянием и информации о состоянии
+	//Класс SPC (недублированное управление и состояние)
+	public class SpcClass : BaseClass
 	{
-        public string vendor;
-        public string swRev;
-        public string d;
-        public string configRev;
+		public Boolean ctlVal;
+		public Boolean stVal;
+		public CtlModelsClass ctlModel;
+		public String d;
 
-        public void UpdateClass(string vendorStr, string swRevStr, string dStr, string configRevStr)
-        {
-            vendor = vendorStr;
-            swRev = swRevStr;
-            d = dStr;
-            configRev = configRevStr;
-        }
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
 
-        public LplClass()
-        {
-            vendor = "Energocomplekt";
-            swRev = "";
-            d = "";
-            configRev = "";
-        }
+			var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".stVal");
+			var stValVal = Convert.ToBoolean(stVal);
+			iedServer.UpdateBooleanAttributeValue(stValPath, stValVal);
 
-	    public override void UpdateClass(dynamic value)
-	    {
-	    }
+			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".t");
+			var tVal = Convert.ToDateTime(t);
+			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
 
-	    public override void QualityCheckClass()
-	    {
-	    }
+			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".q");
+			var qVal = Convert.ToUInt16(q.Validity);
+			iedServer.UpdateQuality(qPath, qVal);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
+			var dVal = d;
+			iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+
+		public override void UpdateClass(dynamic value)
+		{
+			var dataValue = new BitArray(BitConverter.GetBytes(value.Value));
+			var indexValue = value.Index;
+
+			var tempValue = dataValue[indexValue];
+
+			stVal = tempValue;
+			t = DateTime.Now;
+			q.UpdateQuality(t);
+		}
 	}
-    #endregion
+
+	//Класс INC (целочисленное управление и состояние)
+	public class IncClass : BaseClass
+	{
+		public Int32 ctlVal;
+		public Int32 stVal;
+		public CtlModelsClass ctlModel;
+		public String d;
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".stVal");
+			var stValVal = Convert.ToInt32(stVal);
+			iedServer.UpdateInt32AttributeValue(stValPath, stValVal);
+
+			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".t");
+			var tVal = Convert.ToDateTime(t);
+			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
+
+			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".q");
+			var qVal = Convert.ToUInt16(q.Validity);
+			iedServer.UpdateQuality(qPath, qVal);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
+			var dVal = d;
+			iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+
+		public override void UpdateClass(dynamic value)
+		{
+			byte[] tempArrayByte = BitConverter.GetBytes(value.Value);
+
+			var tempValue = BitConverter.ToInt32(tempArrayByte, 0);
+
+			stVal = tempValue;
+			t = DateTime.Now;
+			q.UpdateQuality(t);
+		}
+	}
+	#endregion
+
+	#region Спецификации класса общих данных для описательной информации
+	// Класс DPL (паспортная табличка устройства)
+	public class DplClass : BaseClass
+	{
+		public string vendor { get; set; }
+		public string hwRev { get; set; }
+		public string swRev { get; set; }
+		public string serNum { get; set; }
+		public string model { get; set; }
+		public string location { get; set; }
+
+		public override void UpdateClass(dynamic value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			try
+			{
+				var vendorPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".vendor");
+				var vendorVal = vendor;
+				iedServer.UpdateVisibleStringAttributeValue(vendorPath, vendorVal);
+
+				var serNumPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".serNum");
+				var serNumVal = serNum;
+				iedServer.UpdateVisibleStringAttributeValue(serNumPath, serNumVal);
+
+				var modelPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".model");
+				var modelVal = model;
+				iedServer.UpdateVisibleStringAttributeValue(modelPath, modelVal);
+
+				var locationPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".location");
+				var locationVal = location;
+				iedServer.UpdateVisibleStringAttributeValue(locationPath, locationVal);
+
+				var hwRevPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".hwRev");
+				var hwRevVal = hwRev;
+				iedServer.UpdateVisibleStringAttributeValue(hwRevPath, hwRevVal);
+
+				var swRevPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".swRev");
+				var swRevVal = vendor;
+				iedServer.UpdateVisibleStringAttributeValue(swRevPath, swRevVal);
+			}
+			catch
+			{
+				// ignored
+			}
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+		}
+
+		public override void QualityCheckClass()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	//Класс LPL (паспортная табличка логического узла)
+	public class LplClass : BaseClass
+	{
+		public string vendor;
+		public string swRev;
+		public string d;
+		public string configRev;
+
+
+		public override void UpdateClass(dynamic value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			try
+			{
+				var vendorPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".vendor");
+				var vendorVal = vendor;
+				iedServer.UpdateVisibleStringAttributeValue(vendorPath, vendorVal);
+
+				var swRevPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".swRev");
+				var swRevVal = swRev;
+				iedServer.UpdateVisibleStringAttributeValue(swRevPath, swRevVal);
+
+				var configRevPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".configRev");
+				var configRevVal = configRev;
+				iedServer.UpdateVisibleStringAttributeValue(configRevPath, configRevVal);
+
+				var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
+				var dVal = d;
+				iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+			}
+			catch
+			{
+				// ignored
+			}
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+		}
+
+		public override void QualityCheckClass()
+		{
+			throw new NotImplementedException();
+		}
+	}
+	#endregion
+
+
 }

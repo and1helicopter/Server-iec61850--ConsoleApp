@@ -1,7 +1,7 @@
-﻿using Server.DataClasses;
-using Server.Update;
+﻿using ServerLib.DataClasses;
+using ServerLib.Update;
 
-namespace Server.Parser
+namespace ServerLib.Parser
 {
 	public partial class Parser
 	{

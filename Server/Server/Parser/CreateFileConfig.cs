@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Server.DataClasses;
+using ServerLib.DataClasses;
 
-namespace Server.Parser
+namespace ServerLib.Parser
 {
 	public partial class Parser 
 	{
@@ -327,7 +327,6 @@ namespace Server.Parser
 
 		static int MapLibiecFc(string fc)
 		{
-
 			int fco;
 			if (fc != null)
 			{

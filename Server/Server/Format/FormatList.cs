@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 
-namespace Server.Format
+namespace ServerLib.Format
 {
 	public static partial class FormatConverter
 	{
@@ -101,8 +101,8 @@ namespace Server.Format
 
 		public static string GetEquationFormat(int index)
 		{
-			return global::Server.Format.FormatConverter.FormatList[index].A.ToString(CultureInfo.InvariantCulture) +
-			                @" * value + " + global::Server.Format.FormatConverter.FormatList[index].B.ToString(CultureInfo.InvariantCulture); ;
+			return global::ServerLib.Format.FormatConverter.FormatList[index].A.ToString(CultureInfo.InvariantCulture) +
+			    @" * value + " + global::ServerLib.Format.FormatConverter.FormatList[index].B.ToString(CultureInfo.InvariantCulture); ;
 		}
 	}
 }

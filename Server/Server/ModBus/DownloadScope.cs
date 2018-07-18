@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Server.Format;
+using ServerLib.Format;
 using UniSerialPort;
 
-namespace Server.ModBus
+namespace ServerLib.ModBus
 {
-	public static  partial class ModBus
+	public static  partial class UpdateModBus
 	{
 		private static void ScopoeRequest()
 		{
@@ -66,12 +66,12 @@ namespace Server.ModBus
 			var statusGet = NowStatus[index];
 			if ((byte)statusGet == 0x04)
 			{
-				if ((byte) ((statusGet >> 8) & (ushort) (1 << Server.Server.ServerConfig.CodeDevice)) !=
-				    (1 << Server.Server.ServerConfig.CodeDevice))
+				//(byte) ((statusGet >> 8) & (ushort) (1 << Server.ServerIEC61850.ServerConfig.CodeDevice)) != (1 << Server.ServerIEC61850.ServerConfig.CodeDevice)
+				if (true)
 				{
 					ushort[] statusSet =
 					{
-						Convert.ToUInt16(statusGet | (1 << 8 + Server.Server.ServerConfig.CodeDevice))
+						Convert.ToUInt16(statusGet ) //| (1 << 8 + Server.ServerIEC61850.ServerConfig.CodeDevice)
 					};
 
 					ushort addr = (ushort) (ConfigDownloadScope.OscilCmndAddr + 8 + index);
@@ -94,7 +94,8 @@ namespace Server.ModBus
 				var index = Convert.ToInt32(param);
 
 				var statusGet = paramRtu[0];
-				if ((byte)((statusGet >> 8) & (ushort)(1 << Server.Server.ServerConfig.CodeDevice)) == (1 << Server.Server.ServerConfig.CodeDevice))
+				//(byte)((statusGet >> 8) & (ushort)(1 << Server.ServerIEC61850.ServerConfig.CodeDevice)) == (1 << Server.ServerIEC61850.ServerConfig.CodeDevice)
+				if (true)
 				{
 					OldStatus[index] = statusGet;
 					//Начинаем загрузку
@@ -132,11 +133,12 @@ namespace Server.ModBus
 				{
 					if ((byte)(statusGet >> 8) != 0)
 					{
-						if ((byte)((statusGet >> 8) & (ushort)(1 << Server.Server.ServerConfig.CodeDevice)) == (1 << Server.Server.ServerConfig.CodeDevice))
+						//(byte)((statusGet >> 8) & (ushort)(1 << Server.ServerIEC61850.ServerConfig.CodeDevice)) == (1 << Server.ServerIEC61850.ServerConfig.CodeDevice)
+						if (true)
 						{
 							ushort[] statusSet =
 							{
-								Convert.ToUInt16(statusGet ^ (1 << 8 + Server.Server.ServerConfig.CodeDevice))
+								Convert.ToUInt16(statusGet ) //^ (1 << 8 + Server.ServerIEC61850.ServerConfig.CodeDevice)
 							};
 
 							SerialPort.SetDataRTU(addr, null, RequestPriority.Normal, null, statusSet);
@@ -165,12 +167,12 @@ namespace Server.ModBus
 
 		private static uint CalcOscilLoadTemp()
 		{
-			if (_countTemp < (ScopeConfig.OscilSize >> 1))                               //Проход по осциллограмме 
+			if (_countTemp < (ScopeConfig.OscilSize >> 1))          //Проход по осциллограмме 
 			{
-				_loadOscilTemp += 32;                                                    //Какую часть осциллограммы грузим 
+				_loadOscilTemp += 32;             //Какую часть осциллограммы грузим 
 				_countTemp += 32;
 			}
-			return (_loadOscilTemp - 32 + _oscilStartTemp);                               //+Положение относительно начала массива
+			return (_loadOscilTemp - 32 + _oscilStartTemp);          //+Положение относительно начала массива
 		}
 
 		private static void ScopeDownloadRequestSet()
@@ -548,12 +550,12 @@ namespace Server.ModBus
 				try
 				{
 					DateTime dateTemp = _stampDate;
-					sw.WriteLine(dateTemp.ToString("dd'/'MM'/'yyyy HH:mm:ss.fff000"));                  //Штамп времени
-					sw.WriteLine(Convert.ToString(ScopeConfig.SampleRate / ScopeConfig.FreqCount));     //Частота выборки (частота запуска осциллогрофа/ делитель)
-					sw.WriteLine(ScopeConfig.OscilHistCount);                                           //Предыстория 
-					sw.WriteLine(FileHeaderLine());                                                     //Формирование заголовка (подписи названия каналов)
+					sw.WriteLine(dateTemp.ToString("dd'/'MM'/'yyyy HH:mm:ss.fff000"));      //Штамп времени
+					sw.WriteLine(Convert.ToString(ScopeConfig.SampleRate / ScopeConfig.FreqCount));  //Частота выборки (частота запуска осциллогрофа/ делитель)
+					sw.WriteLine(ScopeConfig.OscilHistCount);             //Предыстория 
+					sw.WriteLine(FileHeaderLine());              //Формирование заголовка (подписи названия каналов)
 
-					List<ushort[]> lu = InitParamsLines();                                              //Формирование строк всех загруженных данных (отсортированых с предысторией)
+					List<ushort[]> lu = InitParamsLines();             //Формирование строк всех загруженных данных (отсортированых с предысторией)
 					for (int i = 0; i < lu.Count; i++)
 					{
 						sw.WriteLine(FileParamLine(lu[i], i));
@@ -732,7 +734,7 @@ namespace Server.ModBus
 			catch 
 			{
 				ChangeEnabale(false);
-				Log.Log.Write("ModBus: DownloadScope.InitConfigDownloadScope finish with error - Scope = disable ", "Warning ");
+				Log.Log.Write("UpdateModBus: DownloadScope.InitConfigDownloadScope finish with error - Scope = disable ", "Warning ");
 			}
 
 		}

@@ -1,41 +1,290 @@
-﻿using System.Collections.Generic;
-using Server.DataClasses;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
+using IEC61850.Server;
+using ServerLib.DataClasses;
+using ServerLib.ModBus;
 
-namespace Server.Update
+namespace ServerLib.Update
 {
-    public static partial class UpdateDataObj
-    {
-		public static readonly  List<GetObject> ClassGetObjects = new List<GetObject>();  //Список 
+	public static partial class UpdateDataObj
+	{
+		//public static readonly  List<ItemObject> ClassGetObjects = new List<ItemObject>();  //Список 
+		internal static readonly List<DestinationDataObject> StaticListDestination = new List<DestinationDataObject>();
+		internal static readonly List<DestinationDataObject> UpdateListDestination = new List<DestinationDataObject>();
+		internal static readonly List<SourceClass> SourceList = new List<SourceClass>();
+		
+		private static IedServer _iedServer;
+		private static IedModel _iedModel;
 
-        public class DataObject
-        {
-	        public string NameDataObj { get; }			//Путь до класса  
-			public int  IndexDataOBj { get; }				//Индекс для дискретного канала
-            public BaseClass DataObj { get; }					//Ссылка на объект управления
-
-	        public DataObject(string nameDataObj, int indexDataOBj, BaseClass dataObj)
-	        {
-		        NameDataObj = nameDataObj;
-		        IndexDataOBj = indexDataOBj;
-		        DataObj = dataObj;
-	        }
+		internal static void SetParamsServer(IedServer iedServer, IedModel iedModel)
+		{
+			_iedServer = iedServer;
+			_iedModel = iedModel;
 		}
 
-	    public class GetObject
-	    {
-		    public ushort AddrObj { get; }			 //Адрес куда писать или откуда брать данные
-		    public ushort ByteObj { get; }			//Колличество байт
-		    public bool TypeObj { get; }              //Тип получаймых данных Дискретные или Аналоговые
+		#region Source
+		//Базовый класс
+		public abstract class SourceClass
+		{
+			public abstract ushort Addr { get; set; }
+			public abstract ushort Count { get; set; }
+			public abstract dynamic Value { get; set; }
 
-		    public List<DataObject> DataClass = new List<DataObject>();              //Ссылка на управляймые объекты
-			public BitArrayObj BitArray { get; set; }                        //Битовое поле для Дискретных объектов 
+			public abstract void GetValueRequest();
+			public abstract void GetValueResponse(dynamic value);
 
-			public GetObject(ushort addrObj, ushort byteObj, bool typeObj)
+			public abstract void SetValue(dynamic value);
+
+			public delegate void ClassStateHandler(dynamic value);
+
+			public abstract event ClassStateHandler ReadValue;
+		}
+
+		//Digital
+		public class SourceClassDigital : SourceClass, ISourceDigital
+		{
+			public override ushort Addr { get; set; }
+			public override ushort Count { get; set; }
+			public override dynamic Value { get; set; }
+			public string NameBitArray { get; set; }
+
+			public override void GetValueRequest()          //Read ModBus
 			{
-				AddrObj = addrObj;
-				ByteObj = byteObj;
-				TypeObj = typeObj;
+				UpdateModBus.GetRequest(Addr, Count, this);    //Читаю значение по адресу
 			}
-	    }
+
+			public override void GetValueResponse(dynamic value)
+			{
+				Value = value;
+				ReadValue?.Invoke(this);
+			}
+
+			public override void SetValue(dynamic value)
+			{
+				var index = value.Index;
+				var val = value.Value;
+
+				Value = new BitArray(BitConverter.GetBytes(Value)).Set(index, val);
+
+				UpdateModBus.SetRequest(Addr, Value);
+			}
+
+			public override event ClassStateHandler ReadValue;
+		}
+
+		//Analog
+		public class SourceClassAnalog : SourceClass, ISourceAnalog
+		{
+			public override ushort Addr { get; set; }
+			public override ushort Count { get; set; }
+			public override dynamic Value { get; set; }
+
+			public override void GetValueRequest()          //Read UpdateModBus
+			{
+				UpdateModBus.GetRequest(Addr, Count, this);    //Читаю значение по адресу
+			}
+
+			public override void GetValueResponse(dynamic value)
+			{
+				Value = value;
+				ReadValue?.Invoke(this);
+			}
+
+			public override void SetValue(dynamic value)
+			{
+				UpdateModBus.SetRequest(Addr, Value);
+			}
+
+			public override event ClassStateHandler ReadValue;
+		}
+
+		interface ISourceDigital
+		{
+			string NameBitArray { get; set; }
+		}
+
+		interface ISourceAnalog
+		{
+			
+		}
+		#endregion
+
+		public abstract class DestinationDataObject
+		{
+			public abstract string NameDataObj { get; set; }            //Путь до класса (destination)
+			public abstract BaseClass BaseClass { get; set; }                  //Ссылка на объект управления
+			protected abstract bool ReadyForUpdate { get; set; }
+
+			protected abstract Dictionary<string, bool> ReadValue { get; set; }
+			protected abstract Dictionary<string, SourceClass> Dictionary { get; set; }
+			protected abstract List<SourceClass> SourceList { get; set; }			//Подписка на 
+			
+			public abstract void AddSource(SourceClass source, string name);
+
+			protected abstract void OnReadValue(dynamic value);
+			public abstract void WriteValue(dynamic value);
+
+			protected abstract void Reset();
+		}
+
+		//Digital
+		public class DestinationObjectDigital : DestinationDataObject, IDestinationDigital
+		{
+			public override string NameDataObj { get; set; }
+			public override BaseClass BaseClass { get; set; }
+			protected override bool ReadyForUpdate { get; set; }
+
+			protected override Dictionary<string, bool> ReadValue { get; set; } = new Dictionary<string, bool>();
+			protected override Dictionary<string, SourceClass> Dictionary { get; set; } = new Dictionary<string, SourceClass>();
+			protected override List<SourceClass> SourceList { get; set; } = new List<SourceClass>();
+
+			public Dictionary<string, int> IndexData { get; set; } = new Dictionary<string, int>();
+
+			public override void AddSource(SourceClass source, string name)
+			{
+				ReadValue.Add(name, false);
+				Dictionary.Add(name, source);
+
+				if (!SourceList.Contains(source))
+				{
+					SourceList.Add(source);
+					source.ReadValue += OnReadValue;
+				}
+			}
+
+			protected override void OnReadValue(dynamic value)
+			{
+				try
+				{
+					var source = value;
+					if (Dictionary.ContainsValue(source))
+					{
+						var tempValNameList = Dictionary.Where(x => x.Value == source);
+						foreach (var tempValName in tempValNameList)
+						{
+							var tempIndex = IndexData[tempValName.Key];
+
+							var tempValue = new { Value = source.Value[0], Index = tempIndex, tempValName.Key };
+							BaseClass.UpdateClass(tempValue);
+							ReadValue[tempValName.Key] = true;
+						}
+
+						if (!ReadValue.ContainsValue(false))
+							ReadyForUpdate = true;
+					}
+
+					if (ReadyForUpdate)
+					{
+						BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel);
+						Reset();
+					}
+				}
+				catch
+				{
+					Log.Log.Write($"DestinationObjectAnalog OnReadValue {value.GetType()}", "Warrning");
+				}
+			}
+
+			public override void WriteValue(dynamic value)
+			{
+				//var temp = new { Value = value, Index = IndexData };
+				//SourceList[0].SetValue(temp);
+			}
+
+			protected override void Reset()
+			{
+				foreach (var item in ReadValue.ToList())
+				{
+					ReadValue[item.Key] = false;
+				}
+
+				ReadyForUpdate = true;
+			}
+		}
+
+		public class DestinationObjectAnalog : DestinationDataObject, IDestinationAnalog
+		{
+			public override string NameDataObj { get; set; }
+			public override BaseClass BaseClass { get; set; }
+
+			protected override bool ReadyForUpdate { get; set; }
+			protected override Dictionary<string, bool> ReadValue { get; set; } = new Dictionary<string, bool>();
+			protected override Dictionary<string, SourceClass> Dictionary { get; set; } = new Dictionary<string, SourceClass>();
+			protected override List<SourceClass> SourceList { get; set; } = new List<SourceClass>();
+
+			public override void AddSource(SourceClass source, string name)
+			{
+				ReadValue.Add(name, false);
+				Dictionary.Add(name, source);
+
+				if (!SourceList.Contains(source))
+				{
+					SourceList.Add(source);
+					source.ReadValue += OnReadValue;
+				}
+			}
+
+			protected override void OnReadValue(dynamic value)
+			{
+				try
+				{
+					dynamic source = value;
+
+					if (Dictionary.ContainsValue(source))
+					{
+						var tempValNameList = Dictionary.Where(x => x.Value == source);
+
+						foreach (var tempValName in tempValNameList)
+						{
+							var tempValue = new { source.Value, tempValName.Key };
+							BaseClass.UpdateClass(tempValue);
+							ReadValue[tempValName.Key] = true;
+						}
+
+						if (!ReadValue.ContainsValue(false))
+							ReadyForUpdate = true;
+					}
+
+					if (ReadyForUpdate)
+					{
+						BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel);
+						Reset();
+					}
+				}
+				catch
+				{
+					Log.Log.Write($"DestinationObjectAnalog OnReadValue {value.GetType()}", "Warrning");
+				}
+			}
+
+			public override void WriteValue(dynamic value)
+			{
+				throw new NotImplementedException();
+			}
+
+			protected override void Reset()
+			{
+				foreach (var item in ReadValue.ToList())
+				{
+					ReadValue[item.Key] = false;
+				}
+
+				ReadyForUpdate = true; 
+			}
+		}
+
+		interface IDestinationDigital
+		{
+			Dictionary <string, int> IndexData { get; set; } 
+			//int IndexData { get; set; }             //Индекс для дискретного канала
+		}
+
+		interface IDestinationAnalog
+		{
+
+		}
 	}
 }
