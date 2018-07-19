@@ -188,38 +188,27 @@ namespace ServerLib.Parser
 				case "SPS":
 					try
 					{
-						var stval = false;
-						string str = null;
+						string stVal = null;
+
 						string d = itemDo.DescDO;
-
-						if (xElement != null)
-						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "stVal") != 0)
-									stval = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "stVal").Value);
-
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-									d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-							}
-
-							if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
-							{
-								str = (from x in xElement.Descendants()
-									where x.Name.LocalName == "private"
-									select x).First().Value;
-							}
-						}
-
-						var pathNameDo = path + "." + itemDo.NameDO;
 
 						var sps = new SpsClass
 						{
-							stVal = stval,
+							stVal = false,
 							q = new Quality(),
 							t = DateTime.Now,
 							d = d
 						};
+
+						SetAttributeBoolean(xElement, @"stVal", ref sps.stVal);
+
+						SetAttributeString(xElement, @"d", ref sps.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"stVal", ref stVal);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
 						
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
@@ -231,14 +220,9 @@ namespace ServerLib.Parser
 								  where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
 								  select x).ToList();
 
-						//stVal
-						if (str != null)
-						{
-							GetAddrD(str, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "stVal");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
+						SetAddressD(destination, sourceList, @"stVal", stVal);
 
+						UpdateDataObj.UpdateListDestination.Add(destination);
 						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
@@ -251,39 +235,27 @@ namespace ServerLib.Parser
 				case "DPS":
 					try
 					{
-						var stval = (DoublePoint)0;
+						string stVal = null;
+
 						var d = itemDo.DescDO;
-
-						string str = null;
-
-						if (xElement != null)
-						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "stVal") != 0)
-									stval = (DoublePoint) Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "stVal").Value);
-
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-									d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-							}
-
-							if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
-							{
-								str = (from x in xElement.Descendants()
-									where x.Name.LocalName == "private"
-									select x).First().Value;
-							}
-						}
-
-						var pathNameDo = path + "." + itemDo.NameDO;
 
 						var dps = new DpsClass
 						{
-							stVal = (DoublePoint)stval,
+							stVal = (DoublePoint)0,
 							q = new Quality(),
 							t = DateTime.Now,
 							d = d
 						};
+
+						SetAttributeDoublePoint(xElement, @"stVal", ref dps.stVal);
+
+						SetAttributeString(xElement, @"d", ref dps.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"stVal", ref stVal);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
 
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
@@ -295,14 +267,9 @@ namespace ServerLib.Parser
 							where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
 							select x).ToList();
 
-						//stVal
-						if (str != null)
-						{
-							GetAddrD(str, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "stVal");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
+						SetAddressD(destination, sourceList, @"stVal", stVal);
 
+						UpdateDataObj.UpdateListDestination.Add(destination);
 						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
@@ -315,39 +282,27 @@ namespace ServerLib.Parser
 				case "INS":
 					try
 					{
-						var stval = 0;
 						var d = itemDo.DescDO;
 
-						string str = null;
-
-						if (xElement != null)
-						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "stVal") != 0)
-									stval = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "stVal").Value);
-
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-									d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-							}
-
-							if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
-							{
-								str = (from x in xElement.Descendants()
-									where x.Name.LocalName == "private"
-									select x).First().Value;
-							}
-						}
-
-						var pathNameDo = path + "." + itemDo.NameDO;
-
+						string stVal = null;
+						
 						var ins = new InsClass
 						{
-							stVal = stval,
+							stVal = 0,
 							q = new Quality(),
 							t = DateTime.Now,
 							d = d
 						};
+
+						SetAttributeInt32(xElement, @"stVal", ref ins.stVal);
+
+						SetAttributeString(xElement, @"d", ref ins.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"stVal", ref stVal);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
 
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
@@ -355,22 +310,9 @@ namespace ServerLib.Parser
 							NameDataObj = pathNameDo
 						};
 
-						if (str != null)
-						{
-							GetAddrA(str, out ushort count, out ushort addr);
+						SetAddressA(destination, @"stVal", stVal);
 
-							var source = new UpdateDataObj.SourceClassAnalog
-							{
-								Addr = addr,
-								Count = count
-							};
-
-							UpdateDataObj.SourceList.Add(source);
-
-							destination.AddSource(source, "stVal");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
-
+						UpdateDataObj.UpdateListDestination.Add(destination);
 						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
@@ -383,13 +325,13 @@ namespace ServerLib.Parser
 				case "ACT":
 					try
 					{
-						string str = null;
+						string d = itemDo.DescDO;
+
+						string general = null;
 						string phsA = null;
 						string phsB = null;
 						string phsC = null;
 						string neut = null;
-
-						string d = itemDo.DescDO;
 
 						var act = new ActClass
 						{
@@ -399,70 +341,23 @@ namespace ServerLib.Parser
 							d = d
 						};
 
-						if (xElement != null)
-						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "general") != 0)
-								{
-									act.general = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "general").Value);
-								}
+						SetAttributeBoolean(xElement, @"general", ref act.general);
+						SetAttributeBoolean(xElement, @"phsA", ref act.phsA);
+						SetAttributeBoolean(xElement, @"phsB", ref act.phsB);
+						SetAttributeBoolean(xElement, @"phsC", ref act.phsC);
+						SetAttributeBoolean(xElement, @"neut", ref act.neut);
 
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-								{
-									act.d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-								}
-							}
+						SetAttributeString(xElement, @"d", ref act.d);
 
-							var list = xElement.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
 
-							if (list.Count() != 0)
-							{
-								str = (from x in xElement.Descendants()
-									   where x.Name.LocalName == "private"
-									   select x).First(x => x.Attribute("value")?.Value == "general").Value;
-
-								if (itemDo.ListDA.Count(x => x.NameDA == "phsA") != 0)
-								{
-									act.phsA = false;
-									if (list.Count(x => x.Attribute("value")?.Value == "phsA") != 0)
-										phsA = (from x in xElement.Descendants()
-											where x.Name.LocalName == "private"
-											select x).First(x => x.Attribute("value")?.Value == "phsA").Value;
-								}
-
-								if (itemDo.ListDA.Count(x => x.NameDA == "phsB") != 0)
-								{
-									act.phsB = false;
-									if (list.Count(x => x.Attribute("value")?.Value == "phsB") != 0)
-										phsB = (from x in xElement.Descendants()
-												where x.Name.LocalName == "private"
-												select x).First(x => x.Attribute("value")?.Value == "phsB").Value;
-								}
-
-								if (itemDo.ListDA.Count(x => x.NameDA == "phsC") != 0)
-								{
-									act.phsC = false;
-									if (list.Count(x => x.Attribute("value")?.Value == "phsC") != 0)
-										phsC = (from x in xElement.Descendants()
-											where x.Name.LocalName == "private"
-											select x).First(x => x.Attribute("value")?.Value == "phsC").Value;
-								}
-
-								if (itemDo.ListDA.Count(x => x.NameDA == "neut") != 0)
-								{
-									act.neut = false;
-									if (list.Count(x => x.Attribute("value")?.Value == "neut") != 0)
-										neut = (from x in xElement.Descendants()
-											where x.Name.LocalName == "private"
-											select x).First(x => x.Attribute("value")?.Value == "neut").Value;
-								}
-							}
-						}
+						SetAddres(list, xElement, itemDo, @"general", ref general);
+						SetAddres(list, xElement, itemDo, @"phsA", ref phsA);
+						SetAddres(list, xElement, itemDo, @"phsB", ref phsB);
+						SetAddres(list, xElement, itemDo, @"phsC", ref phsC);
+						SetAddres(list, xElement, itemDo, @"neut", ref neut);
 
 						var pathNameDo = path + "." + itemDo.NameDO;
-												
-
 
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
@@ -471,45 +366,16 @@ namespace ServerLib.Parser
 						};
 
 						var sourceList = (from x in UpdateDataObj.SourceList
-							where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
-							select x).ToList();
+										  where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+										  select x).ToList();
 
-						//phsA
-						if (phsA != null)
-						{
-							GetAddrD(phsA, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "phsA");
-						}
+						SetAddressD(destination, sourceList, @"general", general);
+						SetAddressD(destination, sourceList, @"phsA", phsA);
+						SetAddressD(destination, sourceList, @"phsB", phsB);
+						SetAddressD(destination, sourceList, @"phsC", phsC);
+						SetAddressD(destination, sourceList, @"neut", neut);
 
-						//phsB
-						if (phsB != null)
-						{
-							GetAddrD(phsB, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "phsB");
-						}
-
-						//phsC
-						if (phsC != null)
-						{
-							GetAddrD(phsC, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "phsC");
-						}
-
-						//neut
-						if (neut != null)
-						{
-							GetAddrD(neut, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "neut");
-						}
-
-						//general
-						if (str != null)
-						{
-							GetAddrD(str, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "general");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
-
+						UpdateDataObj.UpdateListDestination.Add(destination);
 						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
@@ -522,7 +388,7 @@ namespace ServerLib.Parser
 				case "ACD":
 					try
 					{
-						string str = null;
+						string general = null;
 						string phsA = null;
 						string phsB = null;
 						string phsC = null;
@@ -536,7 +402,7 @@ namespace ServerLib.Parser
 
 						string d = itemDo.DescDO;
 
-						var act = new ActClass
+						var acd = new AcdClass
 						{
 							general = false,
 							q = new Quality(),
@@ -544,74 +410,39 @@ namespace ServerLib.Parser
 							d = d
 						};
 
-						if (xElement != null)
-						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "general") != 0)
-								{
-									act.general = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "general").Value);
-								}
+						SetAttributeBoolean(xElement, @"general", ref acd.general);
+						SetAttributeBoolean(xElement, @"phsA", ref acd.phsA);
+						SetAttributeBoolean(xElement, @"phsB", ref acd.phsB);
+						SetAttributeBoolean(xElement, @"phsC", ref acd.phsC);
+						SetAttributeBoolean(xElement, @"neut", ref acd.neut);
 
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-								{
-									act.d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-								}
-							}
+						SetAttributDirectionalProtection(xElement, @"dirGeneral", ref acd.dirGeneral);
+						SetAttributDirectionalProtection(xElement, @"dirPhsA", ref acd.dirPhsA);
+						SetAttributDirectionalProtection(xElement, @"dirPhsB", ref acd.dirPhsB);
+						SetAttributDirectionalProtection(xElement, @"dirPhsC", ref acd.dirPhsC);
+						SetAttributDirectionalProtection(xElement, @"dirNeut", ref acd.dirNeut);
 
-							var list = xElement.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						SetAttributeString(xElement, @"d", ref acd.d);
 
-							if (list.Count() != 0)
-							{
-								str = (from x in xElement.Descendants()
-									   where x.Name.LocalName == "private"
-									   select x).First(x => x.Attribute("value")?.Value == "general").Value;
+						var list = xElement.Elements().Where(x => x.Name.LocalName == "private").ToList();
 
-								if (itemDo.ListDA.Count(x => x.NameDA == "phsA") != 0)
-								{
-									act.phsA = false;
-									if (list.Count(x => x.Attribute("value")?.Value == "phsA") != 0)
-										phsA = (from x in xElement.Descendants()
-												where x.Name.LocalName == "private"
-												select x).First(x => x.Attribute("value")?.Value == "phsA").Value;
-								}
+						SetAddres(list, xElement, itemDo, @"general", ref general);
+						SetAddres(list, xElement, itemDo, @"phsA", ref phsA);
+						SetAddres(list, xElement, itemDo, @"phsB", ref phsB);
+						SetAddres(list, xElement, itemDo, @"phsC", ref phsC);
+						SetAddres(list, xElement, itemDo, @"neut", ref neut);
 
-								if (itemDo.ListDA.Count(x => x.NameDA == "phsB") != 0)
-								{
-									act.phsB = false;
-									if (list.Count(x => x.Attribute("value")?.Value == "phsB") != 0)
-										phsB = (from x in xElement.Descendants()
-												where x.Name.LocalName == "private"
-												select x).First(x => x.Attribute("value")?.Value == "phsB").Value;
-								}
-
-								if (itemDo.ListDA.Count(x => x.NameDA == "phsC") != 0)
-								{
-									act.phsC = false;
-									if (list.Count(x => x.Attribute("value")?.Value == "phsC") != 0)
-										phsC = (from x in xElement.Descendants()
-												where x.Name.LocalName == "private"
-												select x).First(x => x.Attribute("value")?.Value == "phsC").Value;
-								}
-
-								if (itemDo.ListDA.Count(x => x.NameDA == "neut") != 0)
-								{
-									act.neut = false;
-									if (list.Count(x => x.Attribute("value")?.Value == "neut") != 0)
-										neut = (from x in xElement.Descendants()
-												where x.Name.LocalName == "private"
-												select x).First(x => x.Attribute("value")?.Value == "neut").Value;
-								}
-							}
-						}
+						SetAddres(list, xElement, itemDo, @"dirGeneral", ref dirGeneral);
+						SetAddres(list, xElement, itemDo, @"dirPhsA", ref dirPhsA);
+						SetAddres(list, xElement, itemDo, @"dirPhsB", ref dirPhsB);
+						SetAddres(list, xElement, itemDo, @"dirPhsC", ref dirPhsC);
+						SetAddres(list, xElement, itemDo, @"dirNeut", ref dirNeut);
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-
-
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
-							BaseClass = act,
+							BaseClass = acd,
 							NameDataObj = pathNameDo,
 						};
 
@@ -619,49 +450,73 @@ namespace ServerLib.Parser
 										  where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
 										  select x).ToList();
 
-						//phsA
-						if (phsA != null)
-						{
-							GetAddrD(phsA, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "phsA");
-						}
+						SetAddressD(destination, sourceList, @"general", general);
+						SetAddressD(destination, sourceList, @"phsA", phsA);
+						SetAddressD(destination, sourceList, @"phsB", phsB);
+						SetAddressD(destination, sourceList, @"phsC", phsC);
+						SetAddressD(destination, sourceList, @"neut", neut);
 
-						//phsB
-						if (phsB != null)
-						{
-							GetAddrD(phsB, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "phsB");
-						}
+						SetAddressD(destination, sourceList, @"dirGeneral", dirGeneral);
+						SetAddressD(destination, sourceList, @"dirPhsA", dirPhsA);
+						SetAddressD(destination, sourceList, @"dirPhsB", dirPhsB);
+						SetAddressD(destination, sourceList, @"dirPhsC", dirPhsC);
+						SetAddressD(destination, sourceList, @"dirNeut", dirNeut);
 
-						//phsC
-						if (phsC != null)
-						{
-							GetAddrD(phsC, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "phsC");
-						}
-
-						//neut
-						if (neut != null)
-						{
-							GetAddrD(neut, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "neut");
-						}
-
-						//general
-						if (str != null)
-						{
-							GetAddrD(str, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "general");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
-
+						UpdateDataObj.UpdateListDestination.Add(destination);
 						UpdateDataObj.StaticListDestination.Add(destination);
 						return;
-
 					}
 					catch
 					{
 						Log.Log.Write("CreateClassFromAttribute.GetDo: ACD finish whith status false", "Error");
+						return;
+					}
+				case "SEC":
+					try
+					{
+						var d = itemDo.DescDO;
+
+						string cnt = null;
+						string sev = null;
+
+						var sec = new SecClass
+						{
+							cnt = 0,
+							sev = (SecurityViolation)0,
+							q = new Quality(),
+							t = DateTime.Now,
+							d = d
+						};
+
+						SetAttributeUInt32(xElement, @"cnt", ref sec.cnt);
+						SetAttributeSecurityViolation(xElement, @"sev", ref sec.sev);
+
+						SetAttributeString(xElement, @"d", ref sec.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"cnt", ref cnt);
+						SetAddres(list, xElement, itemDo, @"sev", ref sev);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
+
+						var destination = new UpdateDataObj.DestinationObjectAnalog
+						{
+							BaseClass = sec,
+							NameDataObj = pathNameDo
+						};
+
+						SetAddressA(destination, @"cnt", cnt);
+						SetAddressA(destination, @"sev", sev);
+
+						UpdateDataObj.UpdateListDestination.Add(destination);
+						UpdateDataObj.StaticListDestination.Add(destination);
+
+						return;
+					}
+					catch
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: SEC finish whith status false", "Error");
 						return;
 					}
 				case "BCR":
@@ -1052,6 +907,144 @@ namespace ServerLib.Parser
 				#endregion
 			}
 		}
+
+
+
+
+		#region SetAttribute
+		private static void SetAttributeBoolean(XElement xElement, string name, ref bool? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					obj = Convert.ToBoolean(
+						xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+				}
+			}
+		}
+
+		private static void SetAttributeDoublePoint(XElement xElement, string name, ref DoublePoint? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					obj = (DoublePoint)Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+				}
+			}
+		}
+
+		private static void SetAttributeInt32(XElement xElement, string name, ref int? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					obj = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+				}
+			}
+		}
+
+		private static void SetAttributeUInt32(XElement xElement, string name, ref uint? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					obj = Convert.ToUInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+				}
+			}
+		}
+
+		private static void SetAttributDirectionalProtection(XElement xElement, string name, ref DirectionalProtection? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					obj = (DirectionalProtection) Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+				}
+			}
+		}
+
+		private static void SetAttributeString(XElement xElement, string name, ref string obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					obj = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value;
+				}
+			}
+		}
+
+		private static void SetAttributeSecurityViolation(XElement xElement, string name, ref SecurityViolation? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					var tempValue = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+					tempValue = tempValue > 4 ? 0 : tempValue;
+					obj = (SecurityViolation) tempValue;
+				}
+			}
+		}
+		#endregion
+
+		#region SetAddress
+		private static void SetAddres(List<XElement> list, XElement xElement, ServerModel.NodeDO itemDo, string name,ref string str)
+		{
+			try
+			{
+				if (list.Count != 0)
+				{
+					if (itemDo.ListDA.Count(x => x.NameDA == name) != 0)
+					{
+						if (list.Count(x => x.Attribute("value")?.Value == name) != 0)
+							str = (from x in xElement.Descendants()
+								where x.Name.LocalName == "private"
+								select x).First(x => x.Attribute("value")?.Value == name).Value;
+					}
+				}
+			}
+			catch
+			{
+				//ignored
+			}
+		}
+
+
+		#endregion
+
+		#region SetAddressD
+		private static void SetAddressD(UpdateDataObj.DestinationObjectDigital destination, List<UpdateDataObj.SourceClass> sourceList, string name, string str)
+		{
+			if (str != null)
+			{
+				GetAddrD(str, out int index, out string addr);
+				SetDestinationD(destination, sourceList, index, addr, name);
+			}
+		}
+
+
+		private static void SetAddressA(UpdateDataObj.DestinationObjectAnalog destination, string name, string str)
+		{
+			if (str != null)
+			{
+				GetAddrA(str, out ushort count, out ushort addr);
+
+				var source = new UpdateDataObj.SourceClassAnalog
+				{
+					Addr = addr,
+					Count = count
+				};
+
+				destination.AddSource(source, name);
+			}
+		}
+		#endregion
 
 		private static void SetDestinationD(UpdateDataObj.DestinationObjectDigital destination, List<UpdateDataObj.SourceClass> sourceList, int index, string addr, string value)
 		{

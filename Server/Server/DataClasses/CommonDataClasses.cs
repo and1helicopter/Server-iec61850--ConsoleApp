@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.ComponentModel;
+using IEC61850.Common;
 using IEC61850.Server;
 
 namespace ServerLib.DataClasses
@@ -72,6 +73,39 @@ namespace ServerLib.DataClasses
 			obj = (DirectionalProtection)tempValue;
 		}
 
+		internal void GetSecurityViolation(dynamic value, ref SecurityViolation? obj)
+		{
+			var dataValue = new BitArray(BitConverter.GetBytes(value.Value[0]));
+
+			var tempValue0 = dataValue[0] ? 0b001 : 0b000;
+			var tempValue1 = dataValue[1] ? 0b010 : 0b000;
+			var tempValue2 = dataValue[2] ? 0b100 : 0b000;
+
+			var tempValue = tempValue0 + tempValue1 + tempValue2;
+
+			tempValue = tempValue > 4 ? 0 : tempValue;
+
+			obj = (SecurityViolation)tempValue;
+		}
+
+		internal void GetUInt32(dynamic value, ref UInt32? obj)
+		{
+			ushort[] xxxx = value.Value;
+
+			byte[] tempArrayByte = new byte[4];
+
+			for (int i = 0; i < xxxx.Length;)
+			{
+				var ffff = BitConverter.GetBytes(xxxx[i / 2]);
+				tempArrayByte[i++] = ffff[0];
+				tempArrayByte[i++] = ffff[1];
+			}
+
+			var tempValue = BitConverter.ToUInt32(tempArrayByte, 0);
+
+			obj = tempValue;
+		}
+
 		internal void SetBooleanValue(string name, Boolean? value, IedModel iedModel, IedServer iedServer)
 		{
 			if (value != null)
@@ -132,7 +166,27 @@ namespace ServerLib.DataClasses
 			}
 		}
 
+		internal void SetUInt32Value(string name, UInt32? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToUInt32(value);
+				iedServer.UpdateAttributeValue(namePath, new MmsValue(val));
+			}
+		}
+
 		internal void SetDoublePointValue(string name, DirectionalProtection? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToInt32(value);
+				iedServer.UpdateAttributeValue(namePath, new MmsValue(val));
+			}
+		}
+
+		internal void SetSecurityviolationValue(string name, SecurityViolation ? value, IedModel iedModel, IedServer iedServer)
 		{
 			if (value != null)
 			{
@@ -420,6 +474,9 @@ namespace ServerLib.DataClasses
 						GetDirectionalProtection(value, ref dirGeneral);
 						break;
 				}
+
+				t = DateTime.Now;
+				q.UpdateQuality(t);
 			}
 			catch
 			{
@@ -451,6 +508,56 @@ namespace ServerLib.DataClasses
 		{
 			UpdateServer(path, iedServer, iedModel);
 
+			SetStringValue(path + @".d", d, iedModel, iedServer);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+	}
+
+	public class SecClass : BaseClass
+	{
+		public UInt32? cnt;
+		public SecurityViolation? sev;
+		public String addr = null;
+		public String addInfo = null;
+		public String d = null;
+
+		public override void UpdateClass(dynamic value)
+		{
+			switch (value.Key)
+			{
+				case "cnt":
+					GetUInt32(value, ref cnt);
+					break;
+				case "sev":
+					GetSecurityViolation(value, ref sev);
+					break;
+			}
+
+			t = DateTime.Now;
+			q.UpdateQuality(t);
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			SetUInt32Value(path + @".cnt", cnt, iedModel, iedServer);
+			SetSecurityviolationValue(path + @".sev", sev, iedModel, iedServer);
+
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			SetStringValue(path + @".addr", d, iedModel, iedServer);
+			SetStringValue(path + @".addInfo", d, iedModel, iedServer);
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 

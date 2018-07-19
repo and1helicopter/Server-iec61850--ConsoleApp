@@ -15,4 +15,13 @@
 		BACKWARD,
 		BOTH
 	}
+
+	public enum SecurityViolation
+	{
+		UNKNOWN,
+		CRITICAL,
+		MAJOR,
+		MINOR,
+		WARNINING
+	}
 }

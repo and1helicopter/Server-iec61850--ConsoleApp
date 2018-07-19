@@ -120,7 +120,7 @@ namespace ServerLib.Update
 
 			protected abstract Dictionary<string, bool> ReadValue { get; set; }
 			protected abstract Dictionary<string, SourceClass> Dictionary { get; set; }
-			protected abstract List<SourceClass> SourceList { get; set; }			//Подписка на 
+			protected abstract List<SourceClass> SourceItem { get; set; }			//Подписка на 
 			
 			public abstract void AddSource(SourceClass source, string name);
 
@@ -139,7 +139,7 @@ namespace ServerLib.Update
 
 			protected override Dictionary<string, bool> ReadValue { get; set; } = new Dictionary<string, bool>();
 			protected override Dictionary<string, SourceClass> Dictionary { get; set; } = new Dictionary<string, SourceClass>();
-			protected override List<SourceClass> SourceList { get; set; } = new List<SourceClass>();
+			protected override List<SourceClass> SourceItem { get; set; } = new List<SourceClass>();
 
 			public Dictionary<string, int> IndexData { get; set; } = new Dictionary<string, int>();
 
@@ -148,9 +148,9 @@ namespace ServerLib.Update
 				ReadValue.Add(name, false);
 				Dictionary.Add(name, source);
 
-				if (!SourceList.Contains(source))
+				if (!SourceItem.Contains(source))
 				{
-					SourceList.Add(source);
+					SourceItem.Add(source);
 					source.ReadValue += OnReadValue;
 				}
 			}
@@ -213,7 +213,7 @@ namespace ServerLib.Update
 			protected override bool ReadyForUpdate { get; set; }
 			protected override Dictionary<string, bool> ReadValue { get; set; } = new Dictionary<string, bool>();
 			protected override Dictionary<string, SourceClass> Dictionary { get; set; } = new Dictionary<string, SourceClass>();
-			protected override List<SourceClass> SourceList { get; set; } = new List<SourceClass>();
+			protected override List<SourceClass> SourceItem { get; set; } = new List<SourceClass>();
 
 			public override void AddSource(SourceClass source, string name)
 			{
@@ -223,6 +223,11 @@ namespace ServerLib.Update
 				if (!SourceList.Contains(source))
 				{
 					SourceList.Add(source);
+				}
+
+				if (!SourceItem.Contains(source))
+				{
+					SourceItem.Add(source);
 					source.ReadValue += OnReadValue;
 				}
 			}
