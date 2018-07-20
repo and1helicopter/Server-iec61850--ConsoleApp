@@ -43,17 +43,13 @@ namespace ServerLib.DataClasses
 		internal void GetInt32(dynamic value, ref Int32? obj)
 		{
 			ushort[] xxxx = value.Value;
+			Int32 tempValue = 0;
 
-			byte[] tempArrayByte = new byte[4];
-
-			for (int i = 0; i < xxxx.Length;)
+			for (int i = 0; i < xxxx.Length; i++)
 			{
-				var ffff = BitConverter.GetBytes(xxxx[i / 2]);
-				tempArrayByte[i++] = ffff[0];
-				tempArrayByte[i++] = ffff[1];
+				var temp = (Int32)xxxx[i];
+				tempValue += (temp) << (16 * (xxxx.Length - 1 - i));
 			}
-
-			var tempValue = BitConverter.ToInt32(tempArrayByte, 0);
 
 			obj = tempValue;
 		}
@@ -91,19 +87,32 @@ namespace ServerLib.DataClasses
 		internal void GetUInt32(dynamic value, ref UInt32? obj)
 		{
 			ushort[] xxxx = value.Value;
+			UInt32 tempValue = 0;
 
-			byte[] tempArrayByte = new byte[4];
-
-			for (int i = 0; i < xxxx.Length;)
+			for (int i = 0; i < xxxx.Length; i++)
 			{
-				var ffff = BitConverter.GetBytes(xxxx[i / 2]);
-				tempArrayByte[i++] = ffff[0];
-				tempArrayByte[i++] = ffff[1];
+				var temp = (UInt32)xxxx[i];
+				tempValue += (temp) << (16 * (xxxx.Length - 1 - i));
 			}
 
-			var tempValue = BitConverter.ToUInt32(tempArrayByte, 0);
-
 			obj = tempValue;
+		}
+
+		internal void GetInt64(dynamic value, ref Int64? obj)
+		{
+			if (value != null)
+			{
+				ushort[] xxxx = value.Value;
+				Int64 tempValue = 0;
+
+				for (int i = 0; i < xxxx.Length; i++)
+				{
+					var temp = (Int64) xxxx[i];
+					tempValue += (temp) << (16 * (xxxx.Length - 1 - i));
+				}
+
+				obj = tempValue;
+			}
 		}
 
 		internal void SetBooleanValue(string name, Boolean? value, IedModel iedModel, IedServer iedServer)
@@ -193,6 +202,26 @@ namespace ServerLib.DataClasses
 				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
 				var val = Convert.ToInt32(value);
 				iedServer.UpdateInt32AttributeValue(namePath, val);
+			}
+		}
+
+		internal void SetInt64Value(string name, Int64? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToInt64(value);
+				iedServer.UpdateAttributeValue(namePath, new MmsValue(val));
+			}
+		}
+
+		internal void SetSingleValue(string name, Single? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToSingle(value);
+				iedServer.UpdateAttributeValue(namePath, new MmsValue(val));
 			}
 		}
 
@@ -570,27 +599,25 @@ namespace ServerLib.DataClasses
 	//Считывание показаний двоичного счетчика
 	public class BcrClass : BaseClass
 	{
-		public Int64 actVal;
-		public String d;
+		public Int64? actVal;
+		public Single? pulsQty;
+		public Single? Value;
 
-
+		public String d = null;
 
 		public override void UpdateClass(dynamic value)
 		{
 			try
 			{
-				ushort[] xxxx = value.Value;
-				byte[] tempArrayByte = new byte[8];
-				for (int i = 0; i < xxxx.Length;)
+				switch (value.Key)
 				{
-					var ffff = BitConverter.GetBytes(xxxx[i / 2]);
-					tempArrayByte[i++] = ffff[0];
-					tempArrayByte[i++] = ffff[1];
+					case "actVal":
+						GetInt64(value, ref actVal);
+						break;
 				}
 
-				var tempValue = BitConverter.ToInt64(tempArrayByte, 0);
+				pulsQty = Value / actVal;
 
-				actVal = tempValue;
 				t = DateTime.Now;
 				q.UpdateQuality(t);
 			}
@@ -604,26 +631,18 @@ namespace ServerLib.DataClasses
 		{
 			QualityCheckClass();
 
-			var actValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".actVal");
-			var actValVal = Convert.ToInt64(actVal);
-			//iedServer.UpdateInt64AttributeValue(actValPath, actValVal);
+			SetInt64Value(path + @".actVal", actVal, iedModel, iedServer);
+			SetSingleValue(path + @".pulsQty", pulsQty, iedModel, iedServer);
 
-			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".t");
-			var tVal = Convert.ToDateTime(t);
-			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
-
-			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".q");
-			var qVal = Convert.ToUInt16(q.Validity);
-			iedServer.UpdateQuality(qPath, qVal);
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
 		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
 		{
 			UpdateServer(path, iedServer, iedModel);
 
-			var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
-			var dVal = d;
-			iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
 		public override void QualityCheckClass()

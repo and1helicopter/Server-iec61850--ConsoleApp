@@ -241,7 +241,7 @@ namespace ServerLib.Parser
 
 						var dps = new DpsClass
 						{
-							stVal = (DoublePoint)0,
+							stVal = 0,
 							q = new Quality(),
 							t = DateTime.Now,
 							d = d
@@ -482,7 +482,7 @@ namespace ServerLib.Parser
 						var sec = new SecClass
 						{
 							cnt = 0,
-							sev = (SecurityViolation)0,
+							sev = 0,
 							q = new Quality(),
 							t = DateTime.Now,
 							d = d
@@ -522,50 +522,29 @@ namespace ServerLib.Parser
 				case "BCR":
 					try
 					{
-						var actVal = 0;
+						string actVal = null;
+
 						var d = itemDo.DescDO;
-
-						string str = null;
-
-						if (xElement != null)
-						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "actVal") != 0)
-									actVal = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "actVal").Value);
-
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-									d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-							}
-
-							if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
-							{
-								str = (from x in xElement.Descendants()
-									where x.Name.LocalName == "private"
-									select x).First().Value;
-							}
-						}
-
-						ushort count = 1;
-						ushort addr = 0;
-
-						if (str != null)
-						{
-							var splitStr = str.Split(';');
-
-							count = Count(splitStr[1].Split(':')[1]);
-							addr = Convert.ToUInt16(splitStr[1].Split(':')[0]);
-						}
-
-						var pathNameDo = path + "." + itemDo.NameDO;
 
 						var bcr = new BcrClass
 						{
-							actVal = actVal,
+							actVal = 0,
+							Value = 1,
 							q = new Quality(),
 							t = DateTime.Now,
 							d = d
 						};
+
+						SetAttributeInt64(xElement, @"actVal", ref bcr.actVal);
+						SetAttributeSingle(xElement, @"pulsQty", ref bcr.Value);
+
+						SetAttributeString(xElement, @"d", ref bcr.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"actVal", ref actVal);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
 
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
@@ -573,20 +552,9 @@ namespace ServerLib.Parser
 							NameDataObj = pathNameDo
 						};
 
-						if (str != null)
-						{
-							var source = new UpdateDataObj.SourceClassAnalog
-							{
-								Addr = addr,
-								Count = count
-							};
+						SetAddressA(destination, @"actVal", actVal);
 
-							UpdateDataObj.SourceList.Add(source);
-
-							destination.AddSource(source, "actVal");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
-
+						UpdateDataObj.UpdateListDestination.Add(destination);
 						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
@@ -988,6 +956,30 @@ namespace ServerLib.Parser
 					var tempValue = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
 					tempValue = tempValue > 4 ? 0 : tempValue;
 					obj = (SecurityViolation) tempValue;
+				}
+			}
+		}
+
+		private static void SetAttributeInt64(XElement xElement, string name, ref Int64? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					var tempValue = Convert.ToInt64(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+					obj = tempValue;
+				}
+			}
+		}
+
+		private static void SetAttributeSingle(XElement xElement, string name, ref Single? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					var tempValue = Convert.ToSingle(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+					obj = tempValue;
 				}
 			}
 		}
