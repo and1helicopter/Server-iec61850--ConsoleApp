@@ -84,106 +84,6 @@ namespace ServerLib.Parser
 			//Проверка MV класса
 			switch (itemDo.TypeDO)
 			{
-				#region Классы общих данных для информации об измеряемой величине
-				case "MV":
-					try
-					{
-						var siUnit = 0;
-						var multiplier = 0;
-						var scaleFactor = 1;
-						var offset = 0;
-						var d = itemDo.DescDO;
-						string str = null;
-
-						if (xElement != null)
-						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Descendants().Count(x => x.Attribute("name")?.Value == "SIUnit") != 0)
-									siUnit = Convert.ToInt32(xElement.Elements().Descendants().First(x => x.Attribute("name")?.Value == "SIUnit").Value);
-
-								if (xElement.Elements().Descendants().Count(x => x.Attribute("name")?.Value == "multiplier") != 0)
-									multiplier = Convert.ToInt32(xElement.Elements().Descendants().First(x => x.Attribute("name")?.Value == "multiplier").Value);
-
-								if (xElement.Elements().Descendants().Count(x => x.Attribute("name")?.Value == "scaleFactor") != 0)
-									scaleFactor = Convert.ToInt32(xElement.Elements().Descendants().First(x => x.Attribute("name")?.Value == "scaleFactor").Value);
-
-								if (xElement.Elements().Descendants().Count(x => x.Attribute("name")?.Value == "offset") != 0)
-									offset = Convert.ToInt32(xElement.Elements().Descendants().First(x => x.Attribute("name")?.Value == "offset").Value);
-
-								if (xElement.Elements().Descendants().Count(x => x.Attribute("name")?.Value == "d") != 0)
-									d = xElement.Elements().Descendants().First(x => x.Attribute("name")?.Value == "d").Value;
-							}
-
-							if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
-							{
-								str = (from x in xElement.Descendants()
-									where x.Name.LocalName == "private"
-									select x).First().Value;
-							}
-						}
-
-						ushort count = 1;
-						ushort addr = 0;
-
-						if (str != null)
-						{
-							var splitStr = str.Split(';');
-
-							count = Count(splitStr[1].Split(':')[1]);
-							addr = Convert.ToUInt16(splitStr[1].Split(':')[0]);
-						}
-
-						var pathNameDo = path + "." + itemDo.NameDO;
-
-						var mv = new MvClass
-						{
-							q = new Quality(),
-							t = DateTime.Now,
-							sVC = new ScaledValueClass
-							{
-								Offset = offset,
-								ScaleFactor = scaleFactor
-							},
-							Unit = new UnitClass
-							{
-								Multiplier = multiplier,
-								SIUnit = siUnit
-							},
-							d = d
-						};
-
-						var destination = new UpdateDataObj.DestinationObjectAnalog
-						{
-							BaseClass = mv,
-							NameDataObj = pathNameDo
-						};
-
-						if (str != null)
-						{
-							var source = new UpdateDataObj.SourceClassAnalog
-							{
-								Addr = addr,
-								Count = count
-							};
-
-							UpdateDataObj.SourceList.Add(source);
-
-							destination.AddSource(source, "mag.f");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
-						
-						UpdateDataObj.StaticListDestination.Add(destination);
-
-						return;
-					}
-					catch
-					{
-						Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
-						return;
-					}
-				#endregion
-
 				#region Классы общих данных для информации о состоянии
 				case "SPS":
 					try
@@ -529,14 +429,13 @@ namespace ServerLib.Parser
 						var bcr = new BcrClass
 						{
 							actVal = 0,
-							Value = 1,
 							q = new Quality(),
 							t = DateTime.Now,
 							d = d
 						};
 
 						SetAttributeInt64(xElement, @"actVal", ref bcr.actVal);
-						SetAttributeSingle(xElement, @"pulsQty", ref bcr.Value);
+						SetAttributeSingle(xElement, @"pulsQty", ref bcr.pulsQty);
 
 						SetAttributeString(xElement, @"d", ref bcr.d);
 
@@ -565,6 +464,178 @@ namespace ServerLib.Parser
 						return;
 					}
 				#endregion
+
+				#region Классы общих данных для информации об измеряемой величине
+				case "MV":
+					try
+					{
+						var d = itemDo.DescDO;
+						string mag = null;
+
+						var mv = new MvClass
+						{
+							Mag = new MagClass
+							{
+								AnalogueValue = new AnalogueValueClass
+								{
+									f = 0
+								}
+							},
+							q = new Quality(),
+							t = DateTime.Now,
+							sVC = new ScaledValueClass
+							{
+								Offset = 0,
+								ScaleFactor = 1
+							},
+							Unit = new UnitClass
+							{
+								Multiplier = 0,
+								SIUnit = 0
+							},
+							d = d
+						};
+
+						if (xElement?.Attribute("name") != null)
+						{
+							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "units") != 0)
+							{
+								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "units");
+
+								SetAttributeInt32(temp, @"SIUnit", ref mv.Unit.SIUnit);
+								SetAttributeInt32(temp, @"multiplier", ref mv.Unit.Multiplier);
+							}
+
+							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "sVC") != 0)
+							{
+								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "sVC");
+
+								SetAttributeSingle(temp, @"scaleFactor", ref mv.sVC.ScaleFactor);
+								SetAttributeSingle(temp, @"offset", ref mv.sVC.Offset);
+							}
+						}
+
+						SetAttributeString(xElement, @"d", ref mv.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"mag", ref mag);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
+
+						var destination = new UpdateDataObj.DestinationObjectAnalog
+						{
+							BaseClass = mv,
+							NameDataObj = pathNameDo
+						};
+
+						SetAddressA(destination, @"mag", mag);
+
+						UpdateDataObj.UpdateListDestination.Add(destination);				
+						UpdateDataObj.StaticListDestination.Add(destination);
+
+						return;
+					}
+					catch
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
+						return;
+					}
+				case "CMV":
+					try
+					{
+						var d = itemDo.DescDO;
+						string mag = null;
+						string ang = null;
+
+						var cmv = new CmvClass
+						{
+							cVal = new VectorClass
+							{
+								mag = new AnalogueValueClass
+								{
+									f = 0
+								},
+								ang = new AnalogueValueClass
+								{
+									f = 0
+								}
+							},
+							magSVC = new ScaledValueClass
+								{
+								Offset = 0,
+								ScaleFactor = 1
+							},
+							angSVC = new ScaledValueClass
+							{
+								Offset = 0,
+								ScaleFactor = 1
+							},
+							Unit = new UnitClass
+							{
+								Multiplier = 0,
+								SIUnit = 0
+							},
+							d = d
+						};
+
+						if (xElement?.Attribute("name") != null)
+						{
+							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "units") != 0)
+							{
+								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "units");
+
+								SetAttributeInt32(temp, @"SIUnit", ref cmv.Unit.SIUnit);
+								SetAttributeInt32(temp, @"multiplier", ref cmv.Unit.Multiplier);
+							}
+
+							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "magSVC") != 0)
+							{
+								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "magSVC");
+
+								SetAttributeSingle(temp, @"scaleFactor", ref cmv.magSVC.ScaleFactor);
+								SetAttributeSingle(temp, @"offset", ref cmv.magSVC.Offset);
+							}
+
+							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "angSVC") != 0)
+							{
+								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "angSVC");
+
+								SetAttributeSingle(temp, @"scaleFactor", ref cmv.angSVC.ScaleFactor);
+								SetAttributeSingle(temp, @"offset", ref cmv.angSVC.Offset);
+							}
+						}
+
+						SetAttributeString(xElement, @"d", ref cmv.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						
+						SetAddres(list, xElement, itemDo, @"mag", @"cVal", ref mag);
+						SetAddres(list, xElement, itemDo, @"ang", @"cVal", ref ang);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
+
+						var destination = new UpdateDataObj.DestinationObjectAnalog
+						{
+							BaseClass = cmv,
+							NameDataObj = pathNameDo
+						};
+
+						SetAddressA(destination, @"mag", mag);
+						SetAddressA(destination, @"ang", ang);
+
+						UpdateDataObj.UpdateListDestination.Add(destination);
+						UpdateDataObj.StaticListDestination.Add(destination);
+
+						return;
+					}
+					catch
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: CMV finish whith status false", "Error   ");
+						return;
+					}
+				#endregion
+
 
 				#region Спецификации класса общих данных для управления состоянием и информации о состоянии
 				case "SPC":
@@ -978,7 +1049,8 @@ namespace ServerLib.Parser
 			{
 				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
 				{
-					var tempValue = Convert.ToSingle(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
+					var val = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value.Replace('.', ',');
+					var tempValue = Convert.ToSingle(val);
 					obj = tempValue;
 				}
 			}
@@ -1007,7 +1079,26 @@ namespace ServerLib.Parser
 			}
 		}
 
-
+		private static void SetAddres(List<XElement> list, XElement xElement, ServerModel.NodeDO itemDo, string name, string nameBase, ref string str)
+		{
+			try
+			{
+				if (list.Count != 0)
+				{
+					if (itemDo.ListDA.Count(x => x.NameDA == nameBase) != 0)
+					{
+						if (list.Count(x => x.Attribute("value")?.Value == name) != 0)
+							str = (from x in xElement.Descendants()
+								where x.Name.LocalName == "private"
+								select x).First(x => x.Attribute("value")?.Value == name).Value;
+					}
+				}
+			}
+			catch
+			{
+				//ignored
+			}
+		}
 		#endregion
 
 		#region SetAddressD

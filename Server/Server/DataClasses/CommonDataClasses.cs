@@ -115,6 +115,23 @@ namespace ServerLib.DataClasses
 			}
 		}
 
+		internal void GetSingle(dynamic value, ref Single? obj)
+		{
+			if (value != null)
+			{
+				ushort[] xxxx = value.Value;
+				Int64 tempValue = 0;
+
+				for (int i = 0; i < xxxx.Length; i++)
+				{
+					var temp = (Int64)xxxx[i];
+					tempValue += (temp) << (16 * (xxxx.Length - 1 - i));
+				}
+
+				obj = tempValue;
+			}
+		}
+
 		internal void SetBooleanValue(string name, Boolean? value, IedModel iedModel, IedServer iedServer)
 		{
 			if (value != null)
@@ -601,7 +618,6 @@ namespace ServerLib.DataClasses
 	{
 		public Int64? actVal;
 		public Single? pulsQty;
-		public Single? Value;
 
 		public String d = null;
 
@@ -615,8 +631,6 @@ namespace ServerLib.DataClasses
 						GetInt64(value, ref actVal);
 						break;
 				}
-
-				pulsQty = Value / actVal;
 
 				t = DateTime.Now;
 				q.UpdateQuality(t);
@@ -632,7 +646,7 @@ namespace ServerLib.DataClasses
 			QualityCheckClass();
 
 			SetInt64Value(path + @".actVal", actVal, iedModel, iedServer);
-			SetSingleValue(path + @".pulsQty", pulsQty, iedModel, iedServer);
+			SetSingleValue(path + @".pulsQty", pulsQty / actVal, iedModel, iedServer);
 
 			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
@@ -660,43 +674,18 @@ namespace ServerLib.DataClasses
 		public UnitClass Unit;
 		public ScaledValueClass sVC;
 		public String d;
-
-		public class MagClass
-		{
-			public AnalogueValueClass AnalogueValue;
-
-			public MagClass()
-			{
-				AnalogueValue = new AnalogueValueClass();
-			}
-		}
-
-		public MvClass() : base()
-		{
-			Mag = new MagClass();
-			Unit = new UnitClass();
-			sVC = new ScaledValueClass();
-			d = "";
-		}
-
+	
 		public override void UpdateClass(dynamic value)
 		{
 			try
 			{
-				//Может не верно работать
-				ushort[] xxxx = value.Value;
-				byte[] tempArrayByte = new byte[4];
-				for (int i = 0; i < xxxx.Length;)
+				switch (value.Key)
 				{
-					var ffff = BitConverter.GetBytes(xxxx[i / 2]);
-					tempArrayByte[i++] = ffff[0];
-					tempArrayByte[i++] = ffff[1];
-				}
-
-				if (tempArrayByte.Length != 0)
-				{
-					var tempValue = BitConverter.ToInt32(tempArrayByte, 0);
-					Mag.AnalogueValue.f = Convert.ToSingle(tempValue * sVC.ScaleFactor + sVC.Offset);
+					case "mag":
+						Int32? tempValue = 0;
+						GetInt32(value, ref tempValue);
+						Mag.AnalogueValue.f = tempValue * sVC.ScaleFactor + sVC.Offset;
+						break;
 				}
 
 				t = DateTime.Now;
@@ -712,42 +701,23 @@ namespace ServerLib.DataClasses
 		{
 			QualityCheckClass();
 
-			var magPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".mag.f");
-			var magVal = Convert.ToSingle(Mag.AnalogueValue.f);
-			iedServer.UpdateFloatAttributeValue(magPath, magVal);
+			SetSingleValue(path + @".mag.f", Mag.AnalogueValue.f, iedModel, iedServer);
 
-			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".t");
-			var tVal = Convert.ToDateTime(t);
-			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
-
-			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".q");
-			var qVal = Convert.ToUInt16(q.Validity);
-			iedServer.UpdateQuality(qPath, qVal);
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
 		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
 		{
 			UpdateServer(path, iedServer, iedModel);
 
-			var siunitPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".units.SIUnit");
-			var siunitVal = Unit.SIUnit;
-			iedServer.UpdateInt32AttributeValue(siunitPath, siunitVal);
+			SetInt32Value(path + @".units.SIUnit", Unit.SIUnit, iedModel, iedServer);
+			SetInt32Value(path + @".units.multiplier", Unit.Multiplier, iedModel, iedServer);
 
-			var multiplierPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".units.multiplier");
-			var multiplierVal = Unit.Multiplier;
-			iedServer.UpdateInt32AttributeValue(multiplierPath, multiplierVal);
+			SetSingleValue(path + @".sVC.scaleFactor", sVC.ScaleFactor, iedModel, iedServer);
+			SetSingleValue(path + @".sVC.offset", sVC.Offset, iedModel, iedServer);
 
-			var scalePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".sVC.scaleFactor");
-			var scaleVal = sVC.ScaleFactor;
-			iedServer.UpdateFloatAttributeValue(scalePath, scaleVal);
-
-			var ofssetPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".sVC.offset");
-			var ofssetVal = sVC.Offset;
-			iedServer.UpdateFloatAttributeValue(ofssetPath, ofssetVal);
-
-			var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
-			var dVal = d;
-			iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
 		public override void QualityCheckClass()
@@ -765,49 +735,62 @@ namespace ServerLib.DataClasses
 		public ScaledValueClass angSVC;
 		public String d;
 
-		public void ClassFill(int siUnit, int multiplier, float scaleFactorMag, float offsetMag, float scaleFactorAng, float offsetAng, string str)
+		public override void UpdateClass(dynamic value)
 		{
-			Unit.SIUnit = siUnit;
-			Unit.Multiplier = multiplier;
-			magSVC.ScaleFactor = scaleFactorMag;
-			magSVC.Offset = offsetMag;
-			angSVC.ScaleFactor = scaleFactorAng;
-			angSVC.Offset = offsetAng;
-			d = str;
-		}
+			try
+			{
+				int? tempValue;
+				switch (value.Key)
+				{
+					case "mag":
+						tempValue = 0;
+						GetInt32(value, ref tempValue);
+						cVal.mag.f = tempValue * magSVC.ScaleFactor + magSVC.Offset;
+						break;
+					case "ang":
+						tempValue = 0;
+						GetInt32(value, ref tempValue);
+						cVal.ang.f = tempValue * angSVC.ScaleFactor + angSVC.Offset;
+						break;
+				}
 
-		public override void UpdateClass(object obj)
-		{
-			//   var item = ()obj;
-
-			//cVal.mag.f = Convert.ToSingle(item.valueMag * magSVC.ScaleFactor + magSVC.Offset);
-			//   cVal.ang.f = Convert.ToSingle(item.valueAng * angSVC.ScaleFactor + angSVC.Offset);
-			t = DateTime.Now;
-			q.UpdateQuality(t);
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("CMV UpdateClass", "Error");
+			}
 		}
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
-			throw new NotImplementedException();
+			SetSingleValue(path + @".cVal.mag.f", cVal.mag.f, iedModel, iedServer);
+			SetSingleValue(path + @".cVal.ang.f", cVal.ang.f, iedModel, iedServer);
+
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
 		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
 		{
-			throw new NotImplementedException();
+			UpdateServer(path, iedServer, iedModel);
+
+			SetInt32Value(path + @".units.SIUnit", Unit.SIUnit, iedModel, iedServer);
+			SetInt32Value(path + @".units.multiplier", Unit.Multiplier, iedModel, iedServer);
+
+			SetSingleValue(path + @".magSVC.scaleFactor", magSVC.ScaleFactor, iedModel, iedServer);
+			SetSingleValue(path + @".magSVC.offset", magSVC.Offset, iedModel, iedServer);
+
+			SetSingleValue(path + @".angSVC.scaleFactor", angSVC.ScaleFactor, iedModel, iedServer);
+			SetSingleValue(path + @".angSVC.offset", angSVC.Offset, iedModel, iedServer);
+
+			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
-		}
-
-		public CmvClass() : base()
-		{
-			cVal = new VectorClass();
-			Unit = new UnitClass();
-			magSVC = new ScaledValueClass();
-			angSVC = new ScaledValueClass();
-			d = "";
 		}
 	}
 	#endregion
