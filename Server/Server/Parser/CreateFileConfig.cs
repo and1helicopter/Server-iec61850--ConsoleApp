@@ -132,6 +132,7 @@ namespace ServerLib.Parser
 				fs.Write(array, 0, array.Length);
 
 				SaveDa(fs, DO.ListDA);
+				SaveDo(fs, DO.ListDO);
 
 				str = "}\n";
 				array = System.Text.Encoding.Default.GetBytes(str);

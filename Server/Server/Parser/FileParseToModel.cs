@@ -100,7 +100,7 @@ namespace ServerLib.Parser
 			{
 				Log.Log.Write("ParseDocunent.ParseEnum: Finish with status false", "Warning ");
 			}
-			if (!JoinModel())      //Создаем объектную модель 
+			if (!JoinModel())									//Создаем объектную модель 
 			{
 				Log.Log.Write("ParseDocunent.JoinModel: Finish with status false", "Error   ");
 				return false;
@@ -195,28 +195,38 @@ namespace ServerLib.Parser
 
 				foreach (var da in xDAElements)
 				{
-					if (da.Attribute("name") == null || da.Attribute("bType") == null || da.Attribute("fc") == null)
+					if (da.Attribute("name") != null && da.Attribute("bType")?.Value == "Class")
 					{
-						Log.Log.Write("ParseDocunent.ParseDO: DA.name == null or DA.bType == null or DA.fc == null", "Warning ");
-						continue;
+						var nameDA = da.Attribute("name")?.Value;
+						var typeDA = da.Attribute("type") != null ? da.Attribute("type")?.Value : da.Parent.Attribute("type") != null ? da.Parent.Attribute("type")?.Value : null;
+
+						ServerModel.ListTempDO.Last().ListDO.Add(new ServerModel.NodeDO(nameDA, typeDA, da.Attribute("desc") != null ? da.Attribute("desc")?.Value : ""));
 					}
-
-					var nameDA = da.Attribute("name")?.Value;
-					var fcDA = da.Attribute("fc")?.Value;
-					var bTypeDA = da.Attribute("bType")?.Value;
-					var typeDA = da.Attribute("type") != null ? da.Attribute("type")?.Value : da.Parent.Attribute("type") != null ? da.Parent.Attribute("type")?.Value : null;
-					var trgOpsDA = TriggerOptions.NONE;
-					var countDA = da.Attribute("count") != null ? da.Attribute("count")?.Value : "0";
-
-					if ((da.Attribute("dchg")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.DATA_CHANGED;
-					if ((da.Attribute("qchg")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.QUALITY_CHANGED;
-					if ((da.Attribute("dupd")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.DATA_UPDATE;
-
-					ServerModel.ListTempDO.Last().ListDA.Add(new ServerModel.NodeDA(nameDA, fcDA, bTypeDA, typeDA, (byte)trgOpsDA, countDA));
-
-					if (da.Value != null)
+					else
 					{
-						ServerModel.ListTempDO.Last().ListDA.Last().Value = da.Value;
+						if (da.Attribute("name") == null || da.Attribute("bType") == null || da.Attribute("fc") == null)
+						{
+							Log.Log.Write("ParseDocunent.ParseDO: DA.name == null or DA.bType == null or DA.fc == null", "Warning ");
+							continue;
+						}
+
+						var nameDA = da.Attribute("name")?.Value;
+						var fcDA = da.Attribute("fc")?.Value;
+						var bTypeDA = da.Attribute("bType")?.Value;
+						var typeDA = da.Attribute("type") != null ? da.Attribute("type")?.Value : da.Parent.Attribute("type") != null ? da.Parent.Attribute("type")?.Value : null;
+						var trgOpsDA = TriggerOptions.NONE;
+						var countDA = da.Attribute("count") != null ? da.Attribute("count")?.Value : "0";
+
+						if ((da.Attribute("dchg")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.DATA_CHANGED;
+						if ((da.Attribute("qchg")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.QUALITY_CHANGED;
+						if ((da.Attribute("dupd")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.DATA_UPDATE;
+
+						ServerModel.ListTempDO.Last().ListDA.Add(new ServerModel.NodeDA(nameDA, fcDA, bTypeDA, typeDA, (byte)trgOpsDA, countDA));
+
+						if (da.Value != null)
+						{
+							ServerModel.ListTempDO.Last().ListDA.Last().Value = da.Value;
+						}
 					}
 				}
 			}
@@ -383,11 +393,22 @@ namespace ServerLib.Parser
 							AddBda(DO.Last().ListDA.Last(), da.FCDA);
 						}
 					}
+
+					foreach (var tempDoo in tempDo.ListDO)
+					{
+						ServerModel.NodeDO doo = new ServerModel.NodeDO(tempDoo.NameDO, tempDoo.TypeDO, tempDoo.DescDO)
+						{
+							
+						};
+
+						DO.Last().ListDO.Add(doo);
+
+						AddDa(DO.Last().ListDO);
+					}
 					break;
 				}
 			}
 		}
-
 
 		private static void AddBda(ServerModel.NodeDA listDa, string fcDa)
 		{

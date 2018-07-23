@@ -164,7 +164,7 @@ namespace ServerLib.DataClasses
 
 		internal void SetStringValue(string name, String value, IedModel iedModel, IedServer iedServer)
 		{
-			if (value != null)
+			if (!string.IsNullOrEmpty(value))
 			{
 				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
 				var val = value;
@@ -765,6 +765,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			QualityCheckClass();
+
 			SetSingleValue(path + @".cVal.mag.f", cVal.mag.f, iedModel, iedServer);
 			SetSingleValue(path + @".cVal.ang.f", cVal.ang.f, iedModel, iedServer);
 
@@ -819,7 +821,7 @@ namespace ServerLib.DataClasses
 			}
 			catch
 			{
-				Log.Log.Write("MV UpdateClass", "Error");
+				Log.Log.Write("SAV UpdateClass", "Error");
 			}
 		}
 
@@ -852,6 +854,54 @@ namespace ServerLib.DataClasses
 		}
 	}
 
+	public class WyeClass : BaseClass
+	{
+		public String d;
+
+		public override void UpdateClass(dynamic value)
+		{
+
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			SetStringValue(path + @".d", d, iedModel, iedServer);
+		}
+
+		public override void QualityCheckClass()
+		{
+
+		}
+	}
+
+	public class DelClass : BaseClass
+	{
+		public String d;
+
+		public override void UpdateClass(dynamic value)
+		{
+
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			SetStringValue(path + @".d", d, iedModel, iedServer);
+		}
+
+		public override void QualityCheckClass()
+		{
+
+		}
+	}
 	#endregion
 
 	#region Спецификации класса общих данных для управления состоянием и информации о состоянии

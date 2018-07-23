@@ -71,6 +71,7 @@ namespace ServerLib.DataClasses
 			public string DescDO { get; }
 
 			public List<NodeDA> ListDA = new List<NodeDA>();
+			public List<NodeDO> ListDO = new List<NodeDO>();
 			
 			public NodeDO(string nameDO, string typeDO, string descDO)
 			{

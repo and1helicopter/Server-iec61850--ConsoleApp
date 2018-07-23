@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Xml.Linq;
 using ServerLib.DataClasses;
 using ServerLib.Update;
@@ -700,11 +699,89 @@ namespace ServerLib.Parser
 					}
 					catch
 					{
-						Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
+						Log.Log.Write("CreateClassFromAttribute.GetDo: SAV finish whith status false", "Error");
 						return;
 					}
+				case "WYE":
+					try
+					{
+						var d = itemDo.DescDO;
 
+						foreach (var item in itemDo.ListDO)
+						{
+							var xxx = itemDo;
+							var ddd = path;
 
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+
+							var fff = xDoi.First(x=>x.Attribute("name")?.Value == item.NameDO);
+
+							GetDo(item, $"{ddd}.{itemDo.NameDO}", fff);
+						}
+
+						var wye = new WyeClass
+						{
+							d = d
+						};
+						
+						var pathNameDo = path + "." + itemDo.NameDO;
+
+						var destination = new UpdateDataObj.DestinationObjectAnalog
+						{
+							BaseClass = wye,
+							NameDataObj = pathNameDo
+						};
+
+						UpdateDataObj.UpdateListDestination.Add(destination);
+						UpdateDataObj.StaticListDestination.Add(destination);
+
+						return;
+					}
+					catch
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: WYE finish whith status false", "Error");
+						return;
+					}
+				case "DEL":
+					try
+					{
+						var d = itemDo.DescDO;
+
+						foreach (var item in itemDo.ListDO)
+						{
+							var xxx = itemDo;
+							var ddd = path;
+
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+
+							var fff = xDoi.First(x => x.Attribute("name")?.Value == item.NameDO);
+
+							GetDo(item, $"{ddd}.{itemDo.NameDO}", fff);
+						}
+
+						var del = new DelClass()
+						{
+							d = d
+						};
+
+						var pathNameDo = path + "." + itemDo.NameDO;
+
+						var destination = new UpdateDataObj.DestinationObjectAnalog
+						{
+							BaseClass = del,
+							NameDataObj = pathNameDo
+						};
+
+						UpdateDataObj.UpdateListDestination.Add(destination);
+						UpdateDataObj.StaticListDestination.Add(destination);
+
+						return;
+					}
+					catch
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: DEL finish whith status false", "Error");
+						return;
+					}
 
 
 				#endregion

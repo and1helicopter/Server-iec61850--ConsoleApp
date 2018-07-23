@@ -10,7 +10,7 @@ namespace ServerLib.Update
 		{
 			foreach (var item in UpdateDataObj.StaticListDestination)
 			{
-				item.BaseClass.UpdateServer(item.NameDataObj, iedServer, iedModel);
+				item.BaseClass.InitServer(item.NameDataObj, iedServer, iedModel);
 			}
 		}
 

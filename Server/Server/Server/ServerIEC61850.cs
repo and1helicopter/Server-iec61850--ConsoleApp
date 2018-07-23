@@ -35,7 +35,6 @@ namespace ServerLib.Server
 
 			UpdateModBus.ConfigModBusPort();
 
-
 			return true;
 		}
 
