@@ -670,7 +670,7 @@ namespace ServerLib.DataClasses
 	//измеряемые значения
 	public class MvClass : BaseClass
 	{
-		public MagClass Mag;
+		public AnalogueValueClass Mag;
 		public UnitClass Unit;
 		public ScaledValueClass sVC;
 		public String d;
@@ -684,7 +684,7 @@ namespace ServerLib.DataClasses
 					case "mag":
 						Int32? tempValue = 0;
 						GetInt32(value, ref tempValue);
-						Mag.AnalogueValue.f = tempValue * sVC.ScaleFactor + sVC.Offset;
+						Mag.f = tempValue * sVC.ScaleFactor + sVC.Offset;
 						break;
 				}
 
@@ -701,7 +701,7 @@ namespace ServerLib.DataClasses
 		{
 			QualityCheckClass();
 
-			SetSingleValue(path + @".mag.f", Mag.AnalogueValue.f, iedModel, iedServer);
+			SetSingleValue(path + @".mag.f", Mag.f, iedModel, iedServer);
 
 			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
@@ -793,6 +793,65 @@ namespace ServerLib.DataClasses
 			q.QualityCheckClass(t);
 		}
 	}
+
+	public class SavClass : BaseClass
+	{
+		public AnalogueValueClass instMag;
+		public UnitClass Unit;
+		public ScaledValueClass sVC;
+		public String d;
+
+		public override void UpdateClass(dynamic value)
+		{
+			try
+			{
+				switch (value.Key)
+				{
+					case "instMag":
+						Int32? tempValue = 0;
+						GetInt32(value, ref tempValue);
+						instMag.f = tempValue * sVC.ScaleFactor + sVC.Offset;
+						break;
+				}
+
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("MV UpdateClass", "Error");
+			}
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			SetSingleValue(path + @".instMag.f", instMag.f, iedModel, iedServer);
+
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			SetInt32Value(path + @".units.SIUnit", Unit.SIUnit, iedModel, iedServer);
+			SetInt32Value(path + @".units.multiplier", Unit.Multiplier, iedModel, iedServer);
+
+			SetSingleValue(path + @".sVC.scaleFactor", sVC.ScaleFactor, iedModel, iedServer);
+			SetSingleValue(path + @".sVC.offset", sVC.Offset, iedModel, iedServer);
+
+			SetStringValue(path + @".d", d, iedModel, iedServer);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+	}
+
 	#endregion
 
 	#region Спецификации класса общих данных для управления состоянием и информации о состоянии

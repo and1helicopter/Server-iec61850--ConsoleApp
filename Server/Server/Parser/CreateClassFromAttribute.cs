@@ -474,12 +474,9 @@ namespace ServerLib.Parser
 
 						var mv = new MvClass
 						{
-							Mag = new MagClass
+							Mag = new AnalogueValueClass
 							{
-								AnalogueValue = new AnalogueValueClass
-								{
-									f = 0
-								}
+								f = 0
 							},
 							q = new Quality(),
 							t = DateTime.Now,
@@ -634,6 +631,82 @@ namespace ServerLib.Parser
 						Log.Log.Write("CreateClassFromAttribute.GetDo: CMV finish whith status false", "Error   ");
 						return;
 					}
+				case "SAV":
+					try
+					{
+						var d = itemDo.DescDO;
+						string instMag = null;
+
+						var sav = new SavClass
+						{
+							instMag = new AnalogueValueClass
+							{
+								f = 0
+							},
+							q = new Quality(),
+							t = DateTime.Now,
+							sVC = new ScaledValueClass
+							{
+								Offset = 0,
+								ScaleFactor = 1
+							},
+							Unit = new UnitClass
+							{
+								Multiplier = 0,
+								SIUnit = 0
+							},
+							d = d
+						};
+
+						if (xElement?.Attribute("name") != null)
+						{
+							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "units") != 0)
+							{
+								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "units");
+
+								SetAttributeInt32(temp, @"SIUnit", ref sav.Unit.SIUnit);
+								SetAttributeInt32(temp, @"multiplier", ref sav.Unit.Multiplier);
+							}
+
+							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "sVC") != 0)
+							{
+								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "sVC");
+
+								SetAttributeSingle(temp, @"scaleFactor", ref sav.sVC.ScaleFactor);
+								SetAttributeSingle(temp, @"offset", ref sav.sVC.Offset);
+							}
+						}
+
+						SetAttributeString(xElement, @"d", ref sav.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"instMag", ref instMag);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
+
+						var destination = new UpdateDataObj.DestinationObjectAnalog
+						{
+							BaseClass = sav,
+							NameDataObj = pathNameDo
+						};
+
+						SetAddressA(destination, @"instMag", instMag);
+
+						UpdateDataObj.UpdateListDestination.Add(destination);
+						UpdateDataObj.StaticListDestination.Add(destination);
+
+						return;
+					}
+					catch
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
+						return;
+					}
+
+
+
+
 				#endregion
 
 
