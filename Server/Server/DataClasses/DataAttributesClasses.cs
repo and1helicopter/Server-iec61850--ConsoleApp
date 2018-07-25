@@ -244,7 +244,7 @@ namespace ServerLib.DataClasses
 
 	public class CtlModelsClass
 	{
-		public int CtlModels;
+		public int? CtlModels;
 
 		public CtlModelsClass(string ctlModels)
 		{

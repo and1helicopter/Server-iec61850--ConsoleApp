@@ -242,6 +242,16 @@ namespace ServerLib.DataClasses
 			}
 		}
 
+		internal void SetCtlModel(string name, ControlModel? value, IedModel iedModel, IedServer iedServer)
+		{
+			if (value != null)
+			{
+				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
+				var val = Convert.ToInt32(value);
+				iedServer.UpdateAttributeValue(namePath, new MmsValue(val));
+			}
+		}
+		
 		protected BaseClass()
 		{
 			t = DateTime.Now;
@@ -902,6 +912,56 @@ namespace ServerLib.DataClasses
 
 		}
 	}
+
+	public class SeqClass : BaseClass
+	{
+		public String d;
+
+		public override void UpdateClass(dynamic value)
+		{
+
+		}
+
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			SetStringValue(path + @".d", d, iedModel, iedServer);
+		}
+
+		public override void QualityCheckClass()
+		{
+
+		}
+	}
+
+	//public class HmvClass : BaseClass
+	//{
+	//	public UInt16? evalTm;
+
+	//	public override void UpdateClass(dynamic value)
+	//	{
+	//		throw new NotImplementedException();
+	//	}
+
+	//	public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+	//	{
+	//		throw new NotImplementedException();
+	//	}
+
+	//	public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+	//	{
+	//		throw new NotImplementedException();
+	//	}
+
+	//	public override void QualityCheckClass()
+	//	{
+	//		throw new NotImplementedException();
+	//	}
+	//}
 	#endregion
 
 	#region Спецификации класса общих данных для управления состоянием и информации о состоянии
@@ -909,51 +969,50 @@ namespace ServerLib.DataClasses
 	public class SpcClass : BaseClass
 	{
 		public Boolean ctlVal;
-		public Boolean stVal;
-		public CtlModelsClass ctlModel;
+		public Boolean? stVal;
+		public ControlModel? ctlModel;
 		public String d;
+
+		public override void UpdateClass(dynamic value)
+		{
+			try
+			{
+				switch (value.Key)
+				{
+					case "stVal":
+						GetBoolean(value, ref stVal);
+						break;
+				}
+
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("SPC UpdateClass", "Error");
+			}
+		}
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
 			QualityCheckClass();
 
-			var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".stVal");
-			var stValVal = Convert.ToBoolean(stVal);
-			iedServer.UpdateBooleanAttributeValue(stValPath, stValVal);
-
-			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".t");
-			var tVal = Convert.ToDateTime(t);
-			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
-
-			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".q");
-			var qVal = Convert.ToUInt16(q.Validity);
-			iedServer.UpdateQuality(qPath, qVal);
+			SetBooleanValue(path + @".stVal", stVal, iedModel, iedServer);
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
 		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
 		{
 			UpdateServer(path, iedServer, iedModel);
 
-			var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
-			var dVal = d;
-			iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+			SetCtlModel(path + @".ctlModel", ctlModel, iedModel, iedServer);
+			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
-		}
-
-		public override void UpdateClass(dynamic value)
-		{
-			var dataValue = new BitArray(BitConverter.GetBytes(value.Value));
-			var indexValue = value.Index;
-
-			var tempValue = dataValue[indexValue];
-
-			stVal = tempValue;
-			t = DateTime.Now;
-			q.UpdateQuality(t);
 		}
 	}
 
@@ -962,7 +1021,7 @@ namespace ServerLib.DataClasses
 	{
 		public Int32 ctlVal;
 		public Int32 stVal;
-		public CtlModelsClass ctlModel;
+		//public CtlModelsClass ctlModel;
 		public String d;
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
 using IEC61850.Server;
@@ -12,7 +13,7 @@ namespace ServerLib.Update
 	public static partial class UpdateDataObj
 	{
 		//public static readonly  List<ItemObject> ClassGetObjects = new List<ItemObject>();  //Список 
-		internal static readonly List<DestinationDataObject> StaticListDestination = new List<DestinationDataObject>();
+		//internal static readonly List<DestinationDataObject> StaticListDestination = new List<DestinationDataObject>();
 		internal static readonly List<DestinationDataObject> UpdateListDestination = new List<DestinationDataObject>();
 		internal static readonly List<SourceClass> SourceList = new List<SourceClass>();
 		
@@ -64,12 +65,14 @@ namespace ServerLib.Update
 
 			public override void SetValue(dynamic value)
 			{
-				var index = value.Index;
-				var val = value.Value;
+				ushort mask = (ushort) value.Mask;
+				ushort val = (ushort) value.Value;
 
-				Value = new BitArray(BitConverter.GetBytes(Value)).Set(index, val);
+				ushort[] tempValue = new ushort[1];
+				
+				tempValue[0] = (ushort)((Value[0] & mask) | val);
 
-				UpdateModBus.SetRequest(Addr, Value);
+				UpdateModBus.SetRequest(Addr, tempValue);
 			}
 
 			public override event ClassStateHandler ReadValue;
@@ -190,8 +193,32 @@ namespace ServerLib.Update
 
 			public override void WriteValue(dynamic value)
 			{
-				//var temp = new { Value = value, Index = IndexData };
-				//SourceList[0].SetValue(temp);
+				//Отправить значение на плату
+				var key = value.Key;
+				var val = value.Value;
+				ushort tempMask = 0xffff;
+				ushort tempVal = 0x0000;
+				
+				var index = IndexData[key];
+				var source = Dictionary[key];
+
+				if (BaseClass.GetType() == typeof(SpcClass))
+				{
+					tempMask = (ushort)(tempMask - (1 << index));
+					tempVal = (ushort)(Convert.ToInt32(val) << index);
+				}
+				else if (BaseClass.GetType() == typeof(DpsClass))
+				{
+
+				}
+
+				var tempValue = new
+				{
+					Mask = tempMask,
+					Value = tempVal
+				};
+			
+				source.SetValue(tempValue);
 			}
 
 			protected override void Reset()

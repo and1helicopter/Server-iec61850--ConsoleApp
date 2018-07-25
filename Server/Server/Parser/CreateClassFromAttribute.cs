@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using IEC61850.Common;
 using ServerLib.DataClasses;
 using ServerLib.Update;
+using Quality = ServerLib.DataClasses.Quality;
 
 namespace ServerLib.Parser
 {
@@ -122,7 +124,6 @@ namespace ServerLib.Parser
 						SetAddressD(destination, sourceList, @"stVal", stVal);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -169,7 +170,6 @@ namespace ServerLib.Parser
 						SetAddressD(destination, sourceList, @"stVal", stVal);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -212,7 +212,6 @@ namespace ServerLib.Parser
 						SetAddressA(destination, @"stVal", stVal);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -275,7 +274,6 @@ namespace ServerLib.Parser
 						SetAddressD(destination, sourceList, @"neut", neut);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -362,7 +360,6 @@ namespace ServerLib.Parser
 						SetAddressD(destination, sourceList, @"dirNeut", dirNeut);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 						return;
 					}
 					catch
@@ -409,7 +406,6 @@ namespace ServerLib.Parser
 						SetAddressA(destination, @"sev", sev);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -453,7 +449,6 @@ namespace ServerLib.Parser
 						SetAddressA(destination, @"actVal", actVal);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -528,7 +523,6 @@ namespace ServerLib.Parser
 						SetAddressA(destination, @"mag", mag);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);				
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -621,7 +615,6 @@ namespace ServerLib.Parser
 						SetAddressA(destination, @"ang", ang);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -693,7 +686,6 @@ namespace ServerLib.Parser
 						SetAddressA(destination, @"instMag", instMag);
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -733,7 +725,6 @@ namespace ServerLib.Parser
 						};
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -773,7 +764,6 @@ namespace ServerLib.Parser
 						};
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -782,78 +772,152 @@ namespace ServerLib.Parser
 						Log.Log.Write("CreateClassFromAttribute.GetDo: DEL finish whith status false", "Error");
 						return;
 					}
+				case "SEQ":
+					try
+					{
+						var d = itemDo.DescDO;
 
+						foreach (var item in itemDo.ListDO)
+						{
+							var xxx = itemDo;
+							var ddd = path;
 
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+
+							var fff = xDoi.First(x => x.Attribute("name")?.Value == item.NameDO);
+
+							GetDo(item, $"{ddd}.{itemDo.NameDO}", fff);
+						}
+
+						var del = new DelClass()
+						{
+							d = d
+						};
+
+						var pathNameDo = path + "." + itemDo.NameDO;
+
+						var destination = new UpdateDataObj.DestinationObjectAnalog
+						{
+							BaseClass = del,
+							NameDataObj = pathNameDo
+						};
+
+						UpdateDataObj.UpdateListDestination.Add(destination);
+
+						return;
+					}
+					catch
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: SEQ finish whith status false", "Error");
+						return;
+					}
+				//case "HMV":
+				//	try
+				//	{
+				//		return;
+				//	}
+				//	catch
+				//	{
+				//		Log.Log.Write("CreateClassFromAttribute.GetDo: HMV finish whith status false", "Error");
+				//		return;
+				//	}
 				#endregion
-
-
+				
 				#region Спецификации класса общих данных для управления состоянием и информации о состоянии
 				case "SPC":
 					try
 					{
-						var stval = false;
-						var ctlval = false;
-						var ctlmodel = @"status-only";
+						string stval = null;
+						string ctlval = null;
+						string ctlmodel = null;
 						var d = itemDo.DescDO;
 
 						string str = null;
 
-						if (xElement != null)
-						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "stVal") != 0)
-									stval = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "stVal").Value);
-
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "ctlVal") != 0)
-									ctlval = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "ctlVal").Value);
-
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "ctlModel") != 0)
-									ctlmodel = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "ctlModel").Value;
-
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-									d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-
-							}
-
-							if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
-							{
-								str = (from x in xElement.Descendants()
-									where x.Name.LocalName == "private"
-									select x).First().Value;
-							}
-						}
-
-						var pathNameDo = path + "." + itemDo.NameDO;
-
 						var spc = new SpcClass
 						{
-							stVal = stval,
-							ctlModel = new CtlModelsClass(ctlmodel),
-							ctlVal = ctlval,
-							q = new Quality(),
-							t = DateTime.Now,
+							stVal = false,
+							ctlModel = ControlModel.STATUS_ONLY,
+							ctlVal = false,
 							d = d
 						};
+
+						SetAttributeBoolean(xElement, @"stVal", ref spc.stVal);
+						SetAttributeCtlModel(xElement, @"CtlModels", ref spc.ctlModel);
+						
+						itemDo.ListDA.First(x => x.TypeDA == @"CtlModels").Value = Convert.ToInt32(spc.ctlModel).ToString();
+
+						SetAttributeString(xElement, @"d", ref spc.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"stVal", ref stval);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
 
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
 							BaseClass = spc,
-							NameDataObj = pathNameDo,
+							NameDataObj = pathNameDo
 						};
 
 						var sourceList = (from x in UpdateDataObj.SourceList
 							where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
 							select x).ToList();
 
-						if (str != null)
-						{
-							GetAddrD(str, out int index, out string addr);
-							SetDestinationD(destination, sourceList, index, addr, "stVal");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
+						SetAddressD(destination, sourceList, @"stVal", stval);
 
-						UpdateDataObj.StaticListDestination.Add(destination);
+						UpdateDataObj.UpdateListDestination.Add(destination);
+
+
+
+
+						//if (xElement != null)
+						//{
+						//	if (xElement.Attribute("name") != null)
+						//	{
+						//		if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "stVal") != 0)
+						//			stval = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "stVal").Value);
+
+						//		if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "ctlVal") != 0)
+						//			ctlval = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "ctlVal").Value);
+
+						//		if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "ctlModel") != 0)
+						//			ctlmodel = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "ctlModel").Value;
+
+						//		if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
+						//			d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
+
+						//	}
+
+						//	if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
+						//	{
+						//		str = (from x in xElement.Descendants()
+						//			where x.Name.LocalName == "private"
+						//			select x).First().Value;
+						//	}
+						//}
+
+						//var pathNameDo = path + "." + itemDo.NameDO;
+
+
+
+						//var destination = new UpdateDataObj.DestinationObjectDigital
+						//{
+						//	BaseClass = spc,
+						//	NameDataObj = pathNameDo,
+						//};
+
+						//var sourceList = (from x in UpdateDataObj.SourceList
+						//	where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+						//	select x).ToList();
+
+						//if (str != null)
+						//{
+						//	GetAddrD(str, out int index, out string addr);
+						//	SetDestinationD(destination, sourceList, index, addr, "stVal");
+						//	UpdateDataObj.UpdateListDestination.Add(destination);
+						//}
 
 						return;
 					}
@@ -914,7 +978,7 @@ namespace ServerLib.Parser
 						{
 							stVal = stval,
 							ctlVal = ctlval,
-							ctlModel = new CtlModelsClass(ctlmodel),
+							//ctlModel = new CtlModelsClass(ctlmodel),
 							q = new Quality(),
 							t = DateTime.Now,
 							d = d
@@ -943,7 +1007,6 @@ namespace ServerLib.Parser
 							UpdateDataObj.UpdateListDestination.Add(destination);
 						}
 
-						UpdateDataObj.StaticListDestination.Add(destination);
 
 						return;
 					}
@@ -1023,7 +1086,7 @@ namespace ServerLib.Parser
 							NameDataObj = pathNameDo
 						};
 
-						UpdateDataObj.StaticListDestination.Add(destination);
+						UpdateDataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -1084,13 +1147,13 @@ namespace ServerLib.Parser
 							NameDataObj = pathNameDo
 						};
 
-						UpdateDataObj.StaticListDestination.Add(destination);
+						UpdateDataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
 					catch
 					{
-						Log.Log.Write("CreateClassFromAttribute.GetDo: LPL finish whith status false", "Error   ");
+						Log.Log.Write("CreateClassFromAttribute.GetDo: LPL finish whith status false", "Error");
 						return;
 					}
 				#endregion
@@ -1202,6 +1265,20 @@ namespace ServerLib.Parser
 					var val = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value.Replace('.', ',');
 					var tempValue = Convert.ToSingle(val);
 					obj = tempValue;
+				}
+			}
+		}
+
+		private static void SetAttributeCtlModel(XElement xElement, string name, ref ControlModel? obj)
+		{
+			if (xElement?.Attribute("name") != null)
+			{
+				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
+				{
+					var val = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value.ToLower();
+
+					var tempValue = new CtlModelsClass(val);
+					obj = (ControlModel?) tempValue.CtlModels;
 				}
 			}
 		}

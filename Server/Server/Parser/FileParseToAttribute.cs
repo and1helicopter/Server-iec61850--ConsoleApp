@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
-using ServerLib.Update;
 using ServerLib.DataClasses;
 
 namespace ServerLib.Parser

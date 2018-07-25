@@ -8,7 +8,7 @@ namespace ServerLib.Update
 	{
 		public static void InitUpdate(IedServer iedServer, IedModel iedModel)
 		{
-			foreach (var item in UpdateDataObj.StaticListDestination)
+			foreach (var item in UpdateDataObj.UpdateListDestination)
 			{
 				item.BaseClass.InitServer(item.NameDataObj, iedServer, iedModel);
 			}
@@ -23,29 +23,60 @@ namespace ServerLib.Update
 		{
 			UpdateDataObj.SourceList?.Clear();
 			UpdateDataObj.UpdateListDestination?.Clear();
-			UpdateDataObj.StaticListDestination?.Clear();
 		}
 
 		public static void InitHandlers(IedServer iedServer, IedModel iedModel)
-		{
+		{			
 			foreach (var itemDataObject in UpdateDataObj.UpdateListDestination)
 			{
 				var temp = (DataObject)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj);
 
 				if (itemDataObject.BaseClass.GetType() == typeof(SpcClass))
 				{
-					iedServer.SetWaitForExecutionHandler(temp, (controlObject, parameter, val, test, check) =>
-						test ? ControlHandlerResult.FAILED : ControlHandlerResult.OK, null);
+					object tempParam = ((SpcClass)itemDataObject.BaseClass).ctlModel;
+						
+					iedServer.SetCheckHandler(temp,
+						(controlObject, parameter, ctlVal, test, interlockCheck, connection) =>
+						{
+							
+							//controlObject
+							//iedServer.
 
-					iedServer.SetControlHandler(temp, (controlObject, parameter, ctlVal, test) =>
-					{
-						if (ctlVal.GetType() != MmsType.MMS_BOOLEAN)
-							return ControlHandlerResult.FAILED;
+							//if(interlockCheck)
+								
+							var result = CheckHandlerResult.ACCEPTED;
+							return result;
+						},
+						tempParam);
 
-						itemDataObject.WriteValue(ctlVal.GetBoolean());
+					iedServer.SetWaitForExecutionHandler(temp,
+						(controlObject, parameter, ctlVal, test, synchroCheck) =>
+						{
+							//ControlHandlerResult.WAITING
+							var result = ControlHandlerResult.OK;
+							return result;
+						}, 
+						tempParam);
 
-						return ControlHandlerResult.OK;
-					}, null);
+					iedServer.SetControlHandler(temp, 
+						(controlObject, parameter, ctlVal, test) =>
+						{
+							if (ctlVal.GetType() != MmsType.MMS_BOOLEAN)
+								return ControlHandlerResult.FAILED;
+
+							if (!test)
+							{
+								var tempValue = new
+								{
+									Key = "stVal",
+									Value = ctlVal.GetBoolean()
+								};
+								itemDataObject.WriteValue(tempValue);
+							}
+
+							return ControlHandlerResult.OK;
+						},
+						tempParam);
 				}
 				else if (itemDataObject.BaseClass.GetType() == typeof(IncClass))
 				{
