@@ -22,6 +22,9 @@ namespace ServerWPF
 			TimerLoadOsc.Enabled = false;
 
 			ConfigStackPanel.Children.Add(_config);
+			//Установка пути для лог файла
+			Log.SetRootPath(null);
+			
 			//Открываем настройки сервера
 			if (!ServerIEC61850.ReadConfig(null))
 			{
@@ -75,9 +78,9 @@ namespace ServerWPF
 			else if (CheckedStart)
 			{
 				Host.Visibility = Visibility.Visible;
-				Host.Content = ServerLib.Server.ServerIEC61850.ServerConfig.LocalIPAddr;
+				Host.Content = ServerIEC61850.ServerConfig.LocalIPAddr;
 				Port.Visibility = Visibility.Visible;
-				Port.Content = ServerLib.Server.ServerIEC61850.ServerConfig.ServerPort;
+				Port.Content = ServerIEC61850.ServerConfig.ServerPort;
 				
 				if (UpdateModBus.StartPort)
 				{
@@ -135,9 +138,11 @@ namespace ServerWPF
 			}
 			
 			_checkedStop = false;
+			
+
 
 			//Парсим файл конфигурации
-			if (!ServerLib.Server.ServerIEC61850.ParseFile(ServerLib.Server.ServerIEC61850.ServerConfig.NameConfigFile))
+			if (!ServerIEC61850.ParseFile(ServerIEC61850.ServerConfig.NameConfigFile))
 			{
 				Log.Write(@"ParseFile: Finish with status false. Stop server", @"Error");
 				return;
@@ -151,10 +156,10 @@ namespace ServerWPF
 			}
 
 			//Создаем модель сервера
-			if (!ServerLib.Server.ServerIEC61850.ConfigServer()) return;
+			if (!ServerIEC61850.ConfigServer(null)) return;
 
 			//Запуск сервера 
-			if (!ServerLib.Server.ServerIEC61850.StartServer()) return;
+			if (!ServerIEC61850.StartServer()) return;
 
 			//if (!UpdateModBus.StartModBus())
 			//{
@@ -185,7 +190,7 @@ namespace ServerWPF
 				return;
 			}
 
-			ServerLib.Server.ServerIEC61850.StopServer();
+			ServerIEC61850.StopServer();
 
 			if (ConfigDownloadScope.Enable)
 			{
@@ -231,7 +236,7 @@ namespace ServerWPF
 
 		private void Window_Closed(object sender, EventArgs e)
 		{
-			ServerLib.Server.ServerIEC61850.StopServer();
+			ServerIEC61850.StopServer();
 		}
 	}
 }

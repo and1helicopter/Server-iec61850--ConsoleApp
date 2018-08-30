@@ -15,7 +15,7 @@ namespace ServerLib.Parser
 			}
 			catch
 			{
-				Log.Log.Write("ParseDocunent: File icd no found!!!", "Error   ");
+				Log.Log.Write("ParseDocunent: File icd no found!!!", "Error");
 				return false;
 			}
 
@@ -23,7 +23,7 @@ namespace ServerLib.Parser
 			{
 				if (!ParseDocument(doc)) //Парсим классы модели
 				{
-					Log.Log.Write("ParseDocunent: Finish whith status false", "Error   ");
+					Log.Log.Write("ParseDocunent: Finish whith status false", "Error");
 					return false;
 				}
 
@@ -39,16 +39,16 @@ namespace ServerLib.Parser
 					return false;
 				}
 
-				//if (!ModelFillDefultParam()) //Заполнение  модели параметрами по-умолчанию
-				//{
-				//	Log.Log.Write("ModelFillDefultParam: Finish whith status false", "Error   ");
-				//	return false;
-				//}
+//				if (!ModelFillDefultParam()) //Заполнение  модели параметрами по-умолчанию
+//				{
+//					Log.Log.Write("ModelFillDefultParam: Finish whith status false", "Error   ");
+//					return false;
+//				}
 
-				//if (!FileParseToAttribute(doc)) //Заполняем объектную модель инициализированными параметрами 
-				//{
-				//	Log.Log.Write("FileParseToAttribute: Finish whith status false", "Warning ");
-				//}
+//				if (!FileParseToAttribute(doc)) //Заполняем объектную модель инициализированными параметрами 
+//				{
+//					Log.Log.Write("FileParseToAttribute: Finish whith status false", "Warning ");
+//				}
 
 
 				//ModelParseToUpdateStatus();//Создаем классы для данных Mod, Beh, Health

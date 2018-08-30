@@ -82,7 +82,7 @@ namespace ServerLib.Update
 
 			foreach (var itemMod in ModClass.PathModList)
 			{
-				Server.ServerIEC61850.INT_UpdateStatus(itemMod, ModClass.ValMod);
+				//Server.ServerIEC61850.INT_UpdateStatus(itemMod, ModClass.ValMod);
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace ServerLib.Update
 
 			foreach (var itemBeh in BehClass.PathBehList)
 			{
-				Server.ServerIEC61850.INT_UpdateStatus(itemBeh, BehClass.ValBeh);
+				//Server.ServerIEC61850.INT_UpdateStatus(itemBeh, BehClass.ValBeh);
 			}
 		}
 
@@ -103,12 +103,12 @@ namespace ServerLib.Update
 
 			foreach (var itemHealth in HealthClass.PathHealthList)
 			{
-				Server.ServerIEC61850.INT_UpdateStatus(itemHealth, HealthClass.ValHealth);
+				//Server.ServerIEC61850.INT_UpdateStatus(itemHealth, HealthClass.ValHealth);
 			}
 
 			foreach (var itemHealth in HealthClass.PathPhyHealthList)
 			{
-				Server.ServerIEC61850.INT_UpdateStatus(itemHealth, HealthClass.ValHealth);
+				//Server.ServerIEC61850.INT_UpdateStatus(itemHealth, HealthClass.ValHealth);
 			}
 		}
 	}

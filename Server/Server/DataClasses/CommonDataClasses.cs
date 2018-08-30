@@ -15,6 +15,7 @@ namespace ServerLib.DataClasses
 		public abstract void UpdateServer(string path, IedServer iedServer, IedModel iedModel);
 		public abstract void InitServer(string path, IedServer iedServer, IedModel iedModel);
 		public abstract void QualityCheckClass();
+		public abstract dynamic SetValue(dynamic oldValue, dynamic newValue, string name);
 
 		internal void GetBoolean(dynamic value, ref bool? obj)
 		{
@@ -306,6 +307,11 @@ namespace ServerLib.DataClasses
 		{
 			q.QualityCheckClass(t);
 		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	//Дублированное состояние DPS
@@ -354,6 +360,11 @@ namespace ServerLib.DataClasses
 		{
 			q.QualityCheckClass(t);
 		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	//Целочисленное состояние
@@ -401,6 +412,11 @@ namespace ServerLib.DataClasses
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
@@ -472,6 +488,11 @@ namespace ServerLib.DataClasses
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
@@ -571,6 +592,11 @@ namespace ServerLib.DataClasses
 		{
 			q.QualityCheckClass(t);
 		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	public class SecClass : BaseClass
@@ -620,6 +646,11 @@ namespace ServerLib.DataClasses
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
@@ -672,6 +703,11 @@ namespace ServerLib.DataClasses
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
 		}
 	}
 	#endregion
@@ -733,6 +769,11 @@ namespace ServerLib.DataClasses
 		public override void QualityCheckClass()
 		{
 			q.QualityCheckClass(t);
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
@@ -804,6 +845,11 @@ namespace ServerLib.DataClasses
 		{
 			q.QualityCheckClass(t);
 		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	public class SavClass : BaseClass
@@ -862,6 +908,11 @@ namespace ServerLib.DataClasses
 		{
 			q.QualityCheckClass(t);
 		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	public class WyeClass : BaseClass
@@ -885,6 +936,11 @@ namespace ServerLib.DataClasses
 		public override void QualityCheckClass()
 		{
 
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
@@ -911,6 +967,11 @@ namespace ServerLib.DataClasses
 		{
 
 		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	public class SeqClass : BaseClass
@@ -935,6 +996,11 @@ namespace ServerLib.DataClasses
 		public override void QualityCheckClass()
 		{
 
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
@@ -1014,40 +1080,65 @@ namespace ServerLib.DataClasses
 		{
 			q.QualityCheckClass(t);
 		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			ushort tempMask = 0xffff;
+			ushort tempVal = 0x0000;
+					
+			tempMask = (ushort)(tempMask - (1 << newValue.Index));
+			tempVal = (ushort)(Convert.ToInt32(newValue.Value) << newValue.Index);
+
+			ushort[] tempValue = new ushort[1];
+				
+			tempValue[0] = (ushort)((oldValue[0] & tempMask) | tempVal);
+
+			return tempValue;
+		}
 	}
 
-	//Класс INC (целочисленное управление и состояние)
-	public class IncClass : BaseClass
+	public class DpcClass : BaseClass
 	{
-		public Int32 ctlVal;
-		public Int32 stVal;
-		//public CtlModelsClass ctlModel;
-		public String d;
+		public DoublePoint ctlVal;
+		public DoublePoint? stVal;
+		public ControlModel? ctlModel;
+		public String d = null;
+		
+		public override void UpdateClass(dynamic value)
+		{
+			try
+			{
+				switch (value.Key)
+				{
+					case "stVal":
+						GetDoublePoint(value, ref stVal);
+						break;
+				}
+
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("DPC UpdateClass", "Error");
+			}
+		}
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
 			QualityCheckClass();
 
-			var stValPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".stVal");
-			var stValVal = Convert.ToInt32(stVal);
-			iedServer.UpdateInt32AttributeValue(stValPath, stValVal);
-
-			var tPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".t");
-			var tVal = Convert.ToDateTime(t);
-			iedServer.UpdateUTCTimeAttributeValue(tPath, tVal);
-
-			var qPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".q");
-			var qVal = Convert.ToUInt16(q.Validity);
-			iedServer.UpdateQuality(qPath, qVal);
+			SetDoublePointValue(path + @".stVal", stVal, iedModel, iedServer);
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
 		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
 		{
 			UpdateServer(path, iedServer, iedModel);
 
-			var dPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".d");
-			var dVal = d;
-			iedServer.UpdateVisibleStringAttributeValue(dPath, dVal);
+			SetCtlModel(path + @".ctlModel", ctlModel, iedModel, iedServer);
+			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
 		public override void QualityCheckClass()
@@ -1055,15 +1146,73 @@ namespace ServerLib.DataClasses
 			q.QualityCheckClass(t);
 		}
 
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	//Класс INC (целочисленное управление и состояние)
+	public class IncClass : BaseClass
+	{
+		public Int32 ctlVal;
+		public Int32? stVal;
+		public ControlModel? ctlModel;
+		public String d;
+
 		public override void UpdateClass(dynamic value)
 		{
-			byte[] tempArrayByte = BitConverter.GetBytes(value.Value);
+			try
+			{
+				switch (value.Key)
+				{
+					case "stVal":
+						GetInt32(value, ref stVal);
+						break;
+				}
 
-			var tempValue = BitConverter.ToInt32(tempArrayByte, 0);
+				t = DateTime.Now;
+				q.UpdateQuality(t);
+			}
+			catch
+			{
+				Log.Log.Write("INS UpdateClass", "Error");
+			}
+		}
 
-			stVal = tempValue;
-			t = DateTime.Now;
-			q.UpdateQuality(t);
+		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			QualityCheckClass();
+
+			SetInt32Value(path + @".stVal", stVal, iedModel, iedServer);
+			SetDataTimeValue(path + @".t", t, iedModel, iedServer);
+			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+		}
+
+		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		{
+			UpdateServer(path, iedServer, iedModel);
+
+			SetCtlModel(path + @".ctlModel", ctlModel, iedModel, iedServer);
+			SetStringValue(path + @".d", d, iedModel, iedServer);
+		}
+
+		public override void QualityCheckClass()
+		{
+			q.QualityCheckClass(t);
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			var val = newValue.Value;
+			var count = newValue.Count;
+			
+			ushort[] tempValue = new ushort[count];
+
+			for (int i = 0; i < count; i++)
+				tempValue[i] = (ushort) (val >> (count -1 - i) * 16);
+
+			return tempValue;
 		}
 	}
 	#endregion
@@ -1127,6 +1276,11 @@ namespace ServerLib.DataClasses
 		{
 			throw new NotImplementedException();
 		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	//Класс LPL (паспортная табличка логического узла)
@@ -1175,6 +1329,11 @@ namespace ServerLib.DataClasses
 		}
 
 		public override void QualityCheckClass()
+		{
+			throw new NotImplementedException();
+		}
+
+		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
 		{
 			throw new NotImplementedException();
 		}

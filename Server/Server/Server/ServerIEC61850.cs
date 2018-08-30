@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using IEC61850.Common;
 using IEC61850.Server;
 using ServerLib.DataClasses;
@@ -13,11 +14,12 @@ namespace ServerLib.Server
 		private static IedServer _iedServer;
 		private static IedModel _iedModel;
 
-		public static bool ConfigServer()
+		public static bool ConfigServer(string pathName)
 		{
 			try
 			{
-				Directory.CreateDirectory(@"vmd-filestore" + "\\");
+				//Создавать в дириктории с настройками
+				Directory.CreateDirectory(pathName != String.Empty ? $"{pathName}vmd-filestore\\" : "vmd-filestore\\");
 
 				_iedModel = IedModel.CreateFromFile(ServerConfig.NameModelFile);
 

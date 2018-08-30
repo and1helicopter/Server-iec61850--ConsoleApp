@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.ServiceProcess;
+using ServerLib.Log;
 using ServerLib.Parser;
 
 namespace ServiceIec61850
@@ -25,22 +26,27 @@ namespace ServiceIec61850
         {
             try
             {
+	            var rootName = "F:\\project\\ServerIEC61850-iec61850--ConsoleApp\\ServerIEC61850\\IEC61850\\bin\\x86\\Debug\\";
+	            var icdName = "ESSrv.icd";
 				//Считает что находится в директории C:\WINDOWS\system32
-				var str = "F:\\project\\ServerIEC61850-iec61850--ConsoleApp\\ServerIEC61850\\IEC61850\\bin\\x86\\Debug\\Settings.xml";
+	            //Установка пути для лог файла
+	            Log.SetRootPath(rootName);
+	            
+				var str = rootName + "Settings.xml";
 	            if (!ServerLib.Server.ServerIEC61850.ReadConfig(str))
 	            {
 					eventLog.WriteEntry("Read Settings Error", EventLogEntryType.Error);
 		            return;
 				}
 
-				str = "F:\\project\\ServerIEC61850-iec61850--ConsoleApp\\ServerIEC61850\\IEC61850\\bin\\x86\\Debug\\ESSrv.icd";
+				str = rootName + icdName;
 				if (!ServerLib.Server.ServerIEC61850.ParseFile(str))
                 {
                     eventLog.WriteEntry("Parse File Error", EventLogEntryType.Error);
                     return;
                 }
 
-				if (!ServerLib.Server.ServerIEC61850.ConfigServer())
+				if (!ServerLib.Server.ServerIEC61850.ConfigServer(rootName))
 	            {
 		            eventLog.WriteEntry("Config ServerIEC61850 Error", EventLogEntryType.Error);
 		            return;

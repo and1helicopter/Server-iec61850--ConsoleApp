@@ -38,12 +38,6 @@ namespace ServerLib.Update
 					iedServer.SetCheckHandler(temp,
 						(controlObject, parameter, ctlVal, test, interlockCheck, connection) =>
 						{
-							
-							//controlObject
-							//iedServer.
-
-							//if(interlockCheck)
-								
 							var result = CheckHandlerResult.ACCEPTED;
 							return result;
 						},
@@ -52,7 +46,46 @@ namespace ServerLib.Update
 					iedServer.SetWaitForExecutionHandler(temp,
 						(controlObject, parameter, ctlVal, test, synchroCheck) =>
 						{
-							//ControlHandlerResult.WAITING
+							var result = ControlHandlerResult.OK;
+							return result;
+						}, 
+						tempParam);
+
+					iedServer.SetControlHandler(temp, 
+						(controlObject, parameter, ctlVal, test) =>
+						{
+							if (ctlVal.GetType() != MmsType.MMS_BOOLEAN)
+								return ControlHandlerResult.FAILED;
+
+							if (!test)
+							{
+								var tempValue = new
+								{
+									Key = "stVal",
+									Value = ctlVal.GetBoolean()
+								};
+								itemDataObject.WriteValue(tempValue);
+							}
+
+							return ControlHandlerResult.OK;
+						},
+						tempParam);
+				}
+				else if (itemDataObject.BaseClass.GetType() == typeof(DpcClass))
+				{
+					object tempParam = ((DpcClass)itemDataObject.BaseClass).ctlModel;
+						
+					iedServer.SetCheckHandler(temp,
+						(controlObject, parameter, ctlVal, test, interlockCheck, connection) =>
+						{
+							var result = CheckHandlerResult.ACCEPTED;
+							return result;
+						},
+						tempParam);
+
+					iedServer.SetWaitForExecutionHandler(temp,
+						(controlObject, parameter, ctlVal, test, synchroCheck) =>
+						{
 							var result = ControlHandlerResult.OK;
 							return result;
 						}, 
@@ -80,18 +113,43 @@ namespace ServerLib.Update
 				}
 				else if (itemDataObject.BaseClass.GetType() == typeof(IncClass))
 				{
-					iedServer.SetWaitForExecutionHandler(temp, (controlObject, parameter, val, test, check) =>
-						test ? ControlHandlerResult.FAILED : ControlHandlerResult.OK, null);
+					object tempParam = ((IncClass)itemDataObject.BaseClass).ctlModel;
+						
+					iedServer.SetCheckHandler(temp,
+						(controlObject, parameter, ctlVal, test, interlockCheck, connection) =>
+						{
+							var result = CheckHandlerResult.ACCEPTED;
+							return result;
+						},
+						tempParam);
 
-					iedServer.SetControlHandler(temp, (controlObject, parameter, ctlVal, test) =>
-					{
-						if (ctlVal.GetType() != MmsType.MMS_INTEGER)
-							return ControlHandlerResult.FAILED;
+					iedServer.SetWaitForExecutionHandler(temp,
+						(controlObject, parameter, ctlVal, test, synchroCheck) =>
+						{
+							var result = ControlHandlerResult.OK;
+							return result;
+						}, 
+						tempParam);
 
-						itemDataObject.WriteValue(ctlVal.ToInt32());
+					iedServer.SetControlHandler(temp, 
+						(controlObject, parameter, ctlVal, test) =>
+						{
+							if (ctlVal.GetType() != MmsType.MMS_INTEGER)
+								return ControlHandlerResult.FAILED;
 
-						return ControlHandlerResult.OK;
-					}, null);
+							if (!test)
+							{
+								var tempValue = new
+								{
+									Key = "stVal",
+									Value = ctlVal.ToInt32()
+								};
+								itemDataObject.WriteValue(tempValue);
+							}
+
+							return ControlHandlerResult.OK;
+						},
+						tempParam);
 				}
 			}
 		}

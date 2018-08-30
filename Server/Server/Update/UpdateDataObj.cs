@@ -65,14 +65,7 @@ namespace ServerLib.Update
 
 			public override void SetValue(dynamic value)
 			{
-				ushort mask = (ushort) value.Mask;
-				ushort val = (ushort) value.Value;
-
-				ushort[] tempValue = new ushort[1];
-				
-				tempValue[0] = (ushort)((Value[0] & mask) | val);
-
-				UpdateModBus.SetRequest(Addr, tempValue);
+				UpdateModBus.SetRequest(Addr, value);
 			}
 
 			public override event ClassStateHandler ReadValue;
@@ -98,7 +91,7 @@ namespace ServerLib.Update
 
 			public override void SetValue(dynamic value)
 			{
-				UpdateModBus.SetRequest(Addr, Value);
+				UpdateModBus.SetRequest(Addr, value);
 			}
 
 			public override event ClassStateHandler ReadValue;
@@ -193,32 +186,19 @@ namespace ServerLib.Update
 
 			public override void WriteValue(dynamic value)
 			{
-				//Отправить значение на плату
-				var key = value.Key;
-				var val = value.Value;
-				ushort tempMask = 0xffff;
-				ushort tempVal = 0x0000;
-				
-				var index = IndexData[key];
-				var source = Dictionary[key];
-
-				if (BaseClass.GetType() == typeof(SpcClass))
+				//Отправить значение на плату				
+				var index = IndexData[value.Key];
+				var source = Dictionary[value.Key];
+				var oldValue = (SourceClassDigital) source;
+				var newValue = new
 				{
-					tempMask = (ushort)(tempMask - (1 << index));
-					tempVal = (ushort)(Convert.ToInt32(val) << index);
-				}
-				else if (BaseClass.GetType() == typeof(DpsClass))
-				{
-
-				}
-
-				var tempValue = new
-				{
-					Mask = tempMask,
-					Value = tempVal
+					Index = index,
+					value.Value
 				};
-			
-				source.SetValue(tempValue);
+				
+				var xxx = BaseClass.SetValue(oldValue.Value, newValue, value.Key);
+
+				source.SetValue(xxx);
 			}
 
 			protected override void Reset()
@@ -294,7 +274,16 @@ namespace ServerLib.Update
 
 			public override void WriteValue(dynamic value)
 			{
-				throw new NotImplementedException();
+				var source = (SourceClass) Dictionary[value.Key];
+
+				var newValue = new
+				{
+					source.Count,
+					value.Value
+				};
+				var tempValue = BaseClass.SetValue(null, newValue, value.Key);
+				
+				source.SetValue(tempValue);
 			}
 
 			protected override void Reset()

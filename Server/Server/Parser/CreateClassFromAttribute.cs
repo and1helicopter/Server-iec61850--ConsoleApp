@@ -14,75 +14,80 @@ namespace ServerLib.Parser
 		#region Создание обновляймых классов 
 		private static bool CreateClassFromAttribute(XDocument doc)
 		{
-			if (doc.Root == null)
+			try
 			{
-				Log.Log.Write("FileParseToAttribute: doc.Root == null", "Warning ");
-				return false;
-			}
-
-			IEnumerable<XElement> xLd = (from x in doc.Descendants()
-				where x.Name.LocalName == "LDevice"
-				select x).ToList();
-
-			if (!xLd.Any())
-			{
-				Log.Log.Write("FileParseToAttribute: LDevice == null", "Warning ");
-				return false;
-			}
-
-			foreach (var itemLd in ServerModel.Model.ListLD)
-			{
-				string pathNameLD = itemLd.NameLD;
-
-				var lditem = from x in xLd
-							 where x.Attribute("inst")?.Value == pathNameLD
-							 select x;
-
-				var xLn = lditem.Elements().ToList();
-
-				foreach (var itemLn in itemLd.ListLN)
+				if (doc.Root == null)
 				{
-					string pathNameLN = itemLn.NameLN;
+					Log.Log.Write("FileParseToAttribute: doc.Root == null", "Warning ");
+					return false;
+				}
 
-					if (!xLn.Any())
+				IEnumerable<XElement> xLd = (from x in doc.Descendants()
+					where x.Name.LocalName == "LDevice"
+					select x).ToList();
+
+				if (!xLd.Any())
+				{
+					Log.Log.Write("FileParseToAttribute: LDevice == null", "Warning ");
+					return false;
+				}
+
+				foreach (var itemLd in ServerModel.Model.ListLD)
+				{
+					string pathNameLD = itemLd.NameLD;
+
+					var lditem = from x in xLd
+						where x.Attribute("inst")?.Value == pathNameLD
+						select x;
+
+					var xLn = lditem.Elements().ToList();
+
+					foreach (var itemLn in itemLd.ListLN)
 					{
-						Log.Log.Write("FileParseToAttribute: LN == null", "Warning ");
-						return false;
-					}
-					
-					var lnitem = from x in xLn
-								 where x.Attribute("prefix")?.Value + x.Attribute("lnClass")?.Value + x.Attribute("inst")?.Value == pathNameLN
-								 select x;
+						string pathNameLN = itemLn.NameLN;
 
-					IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
-
-					foreach (var DO in itemLn.ListDO)
-					{
-						var nameDO = DO.NameDO;
-
-						//Проверяю на собственный формат 
-
-						XElement xElement = null;
-						if (xDoi.Count(x => x.Attribute("name")?.Value == nameDO) != 0)
+						if (!xLn.Any())
 						{
-							xElement = (from x in xDoi
-										where x.Attribute("name")?.Value == nameDO
-										select x).First();
+							Log.Log.Write("FileParseToAttribute: LN == null", "Warning ");
+							return false;
 						}
+					
+						var lnitem = from x in xLn
+							where x.Attribute("prefix")?.Value + x.Attribute("lnClass")?.Value + x.Attribute("inst")?.Value == pathNameLN
+							select x;
 
-						GetDo(DO, pathNameLD + "/" + pathNameLN, xElement);
+						IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+
+						foreach (var DO in itemLn.ListDO)
+						{
+							var nameDO = DO.NameDO;
+
+							//Проверяю на собственный формат 
+
+							XElement xElement = null;
+							if (xDoi.Count(x => x.Attribute("name")?.Value == nameDO) != 0)
+							{
+								xElement = (from x in xDoi
+									where x.Attribute("name")?.Value == nameDO
+									select x).First();
+							}
+
+							GetDo(DO, pathNameLD + "/" + pathNameLN, xElement);
+						}
 					}
 				}
+
+				return true;
 			}
-
-			return true;
+			catch
+			{
+				return false;
+			}
 		}
-
-
 
 		private static void GetDo(ServerModel.NodeDO itemDo, string path, XElement xElement)
 		{
-			//Проверка MV класса
+			//Проверка классов
 			switch (itemDo.TypeDO)
 			{
 				#region Классы общих данных для информации о состоянии
@@ -701,7 +706,6 @@ namespace ServerLib.Parser
 
 						foreach (var item in itemDo.ListDO)
 						{
-							var xxx = itemDo;
 							var ddd = path;
 
 							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
@@ -740,7 +744,6 @@ namespace ServerLib.Parser
 
 						foreach (var item in itemDo.ListDO)
 						{
-							var xxx = itemDo;
 							var ddd = path;
 
 							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
@@ -779,7 +782,6 @@ namespace ServerLib.Parser
 
 						foreach (var item in itemDo.ListDO)
 						{
-							var xxx = itemDo;
 							var ddd = path;
 
 							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
@@ -828,11 +830,7 @@ namespace ServerLib.Parser
 					try
 					{
 						string stval = null;
-						string ctlval = null;
-						string ctlmodel = null;
 						var d = itemDo.DescDO;
-
-						string str = null;
 
 						var spc = new SpcClass
 						{
@@ -869,56 +867,6 @@ namespace ServerLib.Parser
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
 
-
-
-
-						//if (xElement != null)
-						//{
-						//	if (xElement.Attribute("name") != null)
-						//	{
-						//		if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "stVal") != 0)
-						//			stval = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "stVal").Value);
-
-						//		if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "ctlVal") != 0)
-						//			ctlval = Convert.ToBoolean(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "ctlVal").Value);
-
-						//		if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "ctlModel") != 0)
-						//			ctlmodel = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "ctlModel").Value;
-
-						//		if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-						//			d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-
-						//	}
-
-						//	if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
-						//	{
-						//		str = (from x in xElement.Descendants()
-						//			where x.Name.LocalName == "private"
-						//			select x).First().Value;
-						//	}
-						//}
-
-						//var pathNameDo = path + "." + itemDo.NameDO;
-
-
-
-						//var destination = new UpdateDataObj.DestinationObjectDigital
-						//{
-						//	BaseClass = spc,
-						//	NameDataObj = pathNameDo,
-						//};
-
-						//var sourceList = (from x in UpdateDataObj.SourceList
-						//	where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
-						//	select x).ToList();
-
-						//if (str != null)
-						//{
-						//	GetAddrD(str, out int index, out string addr);
-						//	SetDestinationD(destination, sourceList, index, addr, "stVal");
-						//	UpdateDataObj.UpdateListDestination.Add(destination);
-						//}
-
 						return;
 					}
 					catch
@@ -926,63 +874,79 @@ namespace ServerLib.Parser
 						Log.Log.Write("CreateClassFromAttribute.GetDo: SPC finish whith status false", "Error   ");
 						return;
 					}
-				case "INC":
+				case "DPC":
 					try
 					{
-						var stval = 0;
-						var ctlval = 0;
-						var ctlmodel = @"status-only";
+						string stval = null;
 						var d = itemDo.DescDO;
 
-						string str = null;
-
-						if (xElement != null)
+						var dpc = new DpcClass
 						{
-							if (xElement.Attribute("name") != null)
-							{
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "stVal") != 0)
-									stval = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "stVal").Value);
+							stVal = DoublePoint.OFF,
+							ctlModel = ControlModel.STATUS_ONLY,
+							ctlVal = DoublePoint.OFF,
+							d = d
+						};
 
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "ctlVal") != 0)
-									ctlval = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "ctlVal").Value);
+						SetAttributeDoublePoint(xElement, @"stVal", ref dpc.stVal);
+						SetAttributeCtlModel(xElement, @"CtlModels", ref dpc.ctlModel);
+						
+						itemDo.ListDA.First(x => x.TypeDA == @"CtlModels").Value = Convert.ToInt32(dpc.ctlModel).ToString();
 
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "ctlModel") != 0)
-									ctlmodel = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "ctlModel").Value;
+						SetAttributeString(xElement, @"d", ref dpc.d);
 
-								if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-									d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
-							}
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
 
-							if (xElement.Elements().Count(x => x.Name.LocalName == "private") != 0)
-							{
-								str = (from x in xElement.Descendants()
-									where x.Name.LocalName == "private"
-									select x).First().Value;
-							}
-						}
-
-						ushort count = 0;
-						ushort addr = 0;
-
-						if (str != null)
-						{
-							var splitStr = str.Split(';');
-
-							count = Count(splitStr[1].Split(':')[1]);
-							addr = Convert.ToUInt16(splitStr[1].Split(':')[0]);
-						}
+						SetAddres(list, xElement, itemDo, @"stVal", ref stval);
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
+						var destination = new UpdateDataObj.DestinationObjectDigital
+						{
+							BaseClass = dpc,
+							NameDataObj = pathNameDo
+						};
+
+						var sourceList = (from x in UpdateDataObj.SourceList
+							where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+							select x).ToList();
+
+						SetAddressD(destination, sourceList, @"stVal", stval);
+
+						UpdateDataObj.UpdateListDestination.Add(destination);
+						
+						return;
+					}
+					catch
+					{
+						Log.Log.Write("CreateClassFromAttribute.GetDo: DPC finish whith status false", "Error   ");
+						return;
+					}
+				case "INC":
+					try
+					{
+						string stval = null;
+						var d = itemDo.DescDO;
+
 						var inc = new IncClass
 						{
-							stVal = stval,
-							ctlVal = ctlval,
-							//ctlModel = new CtlModelsClass(ctlmodel),
-							q = new Quality(),
-							t = DateTime.Now,
+							stVal = 0,
+							ctlModel = ControlModel.STATUS_ONLY,
 							d = d
 						};
+						
+						SetAttributeInt32(xElement, @"stVal", ref inc.stVal);
+						SetAttributeCtlModel(xElement, @"CtlModels", ref inc.ctlModel);
+						
+						itemDo.ListDA.First(x => x.TypeDA == @"CtlModels").Value = Convert.ToInt32(inc.ctlModel).ToString();
+
+						SetAttributeString(xElement, @"d", ref inc.d);
+
+						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+
+						SetAddres(list, xElement, itemDo, @"stVal", ref stval);
+
+						var pathNameDo = path + "." + itemDo.NameDO;
 
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
@@ -990,23 +954,9 @@ namespace ServerLib.Parser
 							NameDataObj = pathNameDo
 						};
 
-						//Если указан адрес куда записывать обновленное значение
-						if (str != null)
-						{
-							//Создаю объект храняший информацию о состояние на устройстве
-							var source = new UpdateDataObj.SourceClassAnalog
-							{
-								Addr = addr,
-								Count = count
-							};
+						SetAddressA(destination, @"stVal", stval);
 
-							UpdateDataObj.SourceList.Add(source);
-
-							//Добавляю обработчик на чтение
-							destination.AddSource(source, "stVal");
-							UpdateDataObj.UpdateListDestination.Add(destination);
-						}
-
+						UpdateDataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -1159,9 +1109,6 @@ namespace ServerLib.Parser
 				#endregion
 			}
 		}
-
-
-
 
 		#region SetAttribute
 		private static void SetAttributeBoolean(XElement xElement, string name, ref bool? obj)

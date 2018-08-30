@@ -112,14 +112,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Server\ServerConfig.cs" />
-    <Compile Include="Update\UpdateBitArray.cs" />
-    <Compile Include="Update\UpdateConnect.cs" />
     <Compile Include="Update\UpdateDataObj.cs" />
     <Compile Include="DataClasses\CommonDataClasses.cs" />
     <Compile Include="Server\ServerIEC61850.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Settings.cs" />
-    <Compile Include="Server\ServerUpdate.cs" />
     <Compile Include="Update\Update.cs" />
     <Compile Include="Update\UpdateStatus.cs" />
   </ItemGroup>

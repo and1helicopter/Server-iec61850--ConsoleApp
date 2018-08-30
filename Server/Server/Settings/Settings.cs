@@ -24,7 +24,7 @@ namespace ServerLib.Settings
 			}
 			catch
 			{
-				Log.Log.Write("Settings: File Settings no found!!!", "Error   ");
+				Log.Log.Write("Settings: File Settings no found!!!", "Error");
 				return false;
 			}
 

@@ -6,6 +6,12 @@ namespace ServerLib.Log
 	public static class Log
 	{
 		private static bool EnableLog = true;
+		private static string root;
+
+		public static void SetRootPath(string rootPath)
+		{
+			root = rootPath;
+		}
 
 		public static void Write(string logMessage, string exaption)
 		{
@@ -13,7 +19,7 @@ namespace ServerLib.Log
 			{
 				try
 				{
-					using (StreamWriter w = File.AppendText("log.txt"))
+					using (StreamWriter w = File.AppendText(root != String.Empty ? $"{root}\\log.txt":"log.txt"))
 					{
 						Message(logMessage, exaption, w);
 					}

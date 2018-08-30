@@ -18,96 +18,103 @@ namespace ServerLib.Parser
 				return false;
 			}
 
-			XNamespace xNamespace = doc.Root.Name.Namespace;
-
-			XElement xIed = doc.Root.Element(xNamespace + "IED");
-
-			if (xIed == null)
+			try
 			{
-				Log.Log.Write("ParseDocunent: IED == null", "Error   ");
-				return false;
-			}
-
-			if (xIed.Attribute("name") == null)
-			{
-				Log.Log.Write("ParseDocunent: IED.name == null", "Error   ");
-				return false;
-			}
-
-			ServerModel.Model = new ServerModel.NodeModel(xIed.Attribute("name")?.Value);
-
-			IEnumerable<XElement> xLd = (from x in doc.Descendants()
-										 where x.Name.LocalName == "LDevice"
-										 select x).ToList();
-
-			if (!xLd.Any())
-			{
-				Log.Log.Write("ParseDocunent: LDevice == null", "Error   ");
-				return false;
-			}
-
-			foreach (var ld in xLd)
-			{
-				if (ld.Attribute("inst") == null)
+				XNamespace xNamespace = doc.Root.Name.Namespace;
+	
+				XElement xIed = doc.Root.Element(xNamespace + "IED");
+	
+				if (xIed == null)
 				{
-					Log.Log.Write("ParseDocunent: LDevice.inst == null", "Error   ");
+					Log.Log.Write("ParseDocunent: IED == null", "Error   ");
 					return false;
 				}
-
-				ServerModel.Model.ListLD.Add(new ServerModel.NodeLD(ld.Attribute("inst")?.Value));
-
-				IEnumerable<XElement> xLn = ld.Elements().ToList();
-
-				if (!xLn.Any())
+	
+				if (xIed.Attribute("name") == null)
 				{
-					Log.Log.Write("ParseDocunent: LN == null", "Error   ");
+					Log.Log.Write("ParseDocunent: IED.name == null", "Error   ");
 					return false;
 				}
-
-				foreach (var ln in xLn)
+	
+				ServerModel.Model = new ServerModel.NodeModel(xIed.Attribute("name")?.Value);
+	
+				IEnumerable<XElement> xLd = (from x in doc.Descendants()
+											 where x.Name.LocalName == "LDevice"
+											 select x).ToList();
+	
+				if (!xLd.Any())
 				{
-					if (ln.Attribute("lnClass") != null && ln.Attribute("inst") != null)
+					Log.Log.Write("ParseDocunent: LDevice == null", "Error   ");
+					return false;
+				}
+	
+				foreach (var ld in xLd)
+				{
+					if (ld.Attribute("inst") == null)
 					{
-						string nameLN = ln.Attribute("prefix")?.Value + ln.Attribute("lnClass")?.Value + ln.Attribute("inst")?.Value;
-
-						if (ln.Attribute("lnType") == null)
+						Log.Log.Write("ParseDocunent: LDevice.inst == null", "Error   ");
+						return false;
+					}
+	
+					ServerModel.Model.ListLD.Add(new ServerModel.NodeLD(ld.Attribute("inst")?.Value));
+	
+					IEnumerable<XElement> xLn = ld.Elements().ToList();
+	
+					if (!xLn.Any())
+					{
+						Log.Log.Write("ParseDocunent: LN == null", "Error   ");
+						return false;
+					}
+	
+					foreach (var ln in xLn)
+					{
+						if (ln.Attribute("lnClass") != null && ln.Attribute("inst") != null)
 						{
-							Log.Log.Write("ParseDocunent: LN.lnType == null", "Error   ");
-							return false;
+							string nameLN = ln.Attribute("prefix")?.Value + ln.Attribute("lnClass")?.Value + ln.Attribute("inst")?.Value;
+	
+							if (ln.Attribute("lnType") == null)
+							{
+								Log.Log.Write("ParseDocunent: LN.lnType == null", "Error   ");
+								return false;
+							}
+	
+							ServerModel.Model.ListLD.Last().ListLN.Add(new ServerModel.NodeLN(nameLN, ln.Attribute("lnType")?.Value, ""));
 						}
-
-						ServerModel.Model.ListLD.Last().ListLN.Add(new ServerModel.NodeLN(nameLN, ln.Attribute("lnType")?.Value, ""));
 					}
 				}
+	
+				if (!ParseLN(doc))
+				{
+					Log.Log.Write("ParseDocunent.ParseLN: Finish with status false", "Error   ");
+					return false;
+				}
+				if (!ParseDO(doc))
+				{
+					Log.Log.Write("ParseDocunent.ParseDO: Finish with status false", "Error   ");
+					return false;
+				}
+				if (!ParseDA(doc))
+				{
+					Log.Log.Write("ParseDocunent.ParseDA: Finish with status false", "Error   ");
+					return false;
+				}
+				if (!ParseEnum(doc))
+				{
+					Log.Log.Write("ParseDocunent.ParseEnum: Finish with status false", "Warning ");
+				}
+				if (!JoinModel())									//Создаем объектную модель 
+				{
+					Log.Log.Write("ParseDocunent.JoinModel: Finish with status false", "Error   ");
+					return false;
+				}
+	
+				Log.Log.Write("ParseDocunent: File parse success", "Success ");
+				return true;
 			}
-
-			if (!ParseLN(doc))
+			catch
 			{
-				Log.Log.Write("ParseDocunent.ParseLN: Finish with status false", "Error   ");
 				return false;
 			}
-			if (!ParseDO(doc))
-			{
-				Log.Log.Write("ParseDocunent.ParseDO: Finish with status false", "Error   ");
-				return false;
-			}
-			if (!ParseDA(doc))
-			{
-				Log.Log.Write("ParseDocunent.ParseDA: Finish with status false", "Error   ");
-				return false;
-			}
-			if (!ParseEnum(doc))
-			{
-				Log.Log.Write("ParseDocunent.ParseEnum: Finish with status false", "Warning ");
-			}
-			if (!JoinModel())									//Создаем объектную модель 
-			{
-				Log.Log.Write("ParseDocunent.JoinModel: Finish with status false", "Error   ");
-				return false;
-			}
-
-			Log.Log.Write("ParseDocunent: File parse success", "Success ");
-			return true;
 		}
 
 		private static bool ParseLN(XDocument doc)
@@ -396,10 +403,7 @@ namespace ServerLib.Parser
 
 					foreach (var tempDoo in tempDo.ListDO)
 					{
-						ServerModel.NodeDO doo = new ServerModel.NodeDO(tempDoo.NameDO, tempDoo.TypeDO, tempDoo.DescDO)
-						{
-							
-						};
+						ServerModel.NodeDO doo = new ServerModel.NodeDO(tempDoo.NameDO, tempDoo.TypeDO, tempDoo.DescDO);
 
 						DO.Last().ListDO.Add(doo);
 
