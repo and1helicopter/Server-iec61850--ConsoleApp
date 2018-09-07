@@ -80,46 +80,46 @@ namespace ServerLib.Parser
 					string ln = lnitem.Attribute("prefix")?.Value + lnitem.Attribute("lnClass")?.Value + lnitem.Attribute("inst")?.Value;
 
 					#region DOI
-					IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
-
-					foreach (var doiitem in xDoi)
-					{
-						if (doiitem.Attribute("name") == null)
-						{
-							Log.Log.Write("FileParseToAttribute: DO.name == null", "Warning ");
-							continue;
-						}
-						var doi = doiitem.Attribute("name")?.Value;
-
-						//Проверяю на собственный формат 
-						var type = (from x in doiitem.Descendants()
-							where x.Name.LocalName == "private"
-							select x).ToList();
-
-						if (type.Count != 0) //Проверяю на собственный формат 
-						{
-							//Отметим объекты которые изменяются
-							try
-							{
-								var tempDo = (from z in (from y in (from x in ServerModel.Model.ListLD
-											where x.NameLD.ToUpper() == ld?.ToUpper()
-											select x).ToList().First().ListLN
-										where y.NameLN.ToUpper() == ln.ToUpper()
-										select y).ToList().First().ListDO
-									where z.NameDO.ToUpper() == doi?.ToUpper()
-									select z).ToList().First();
-
-								//tempDo.Type = type.First().Value;
-							}
-							catch
-							{
-								Log.Log.Write("FileParseToAttribute: private DA not found", "Warning ");
-								continue;
-							}
-						}
-
-						ParseDefultParamBda(doiitem, ld, ln, doi, null);
-					}
+//					IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+//
+//					foreach (var doiitem in xDoi)
+//					{
+//						if (doiitem.Attribute("name") == null)
+//						{
+//							Log.Log.Write("FileParseToAttribute: DO.name == null", "Warning ");
+//							continue;
+//						}
+//						var doi = doiitem.Attribute("name")?.Value;
+//
+//						//Проверяю на собственный формат 
+//						var type = (from x in doiitem.Descendants()
+//							where x.Name.LocalName == "private"
+//							select x).ToList();
+//
+//						if (type.Count != 0) //Проверяю на собственный формат 
+//						{
+//							//Отметим объекты которые изменяются
+//							try
+//							{
+//								var tempDo = (from z in (from y in (from x in ServerModel.Model.ListLD
+//											where x.NameLD.ToUpper() == ld?.ToUpper()
+//											select x).ToList().First().ListLN
+//										where y.NameLN.ToUpper() == ln.ToUpper()
+//										select y).ToList().First().ListDO
+//									where z.NameDO.ToUpper() == doi?.ToUpper()
+//									select z).ToList().First();
+//
+//								//tempDo.Type = type.First().Value;
+//							}
+//							catch
+//							{
+//								Log.Log.Write("FileParseToAttribute: private DA not found", "Warning ");
+//								continue;
+//							}
+//						}
+//
+//						ParseDefultParamBda(doiitem, ld, ln, doi, null);
+//					}
 					#endregion
 
 					#region DataSet

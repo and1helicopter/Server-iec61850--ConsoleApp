@@ -76,7 +76,7 @@ namespace ServerLib.Parser
 						}
 					}
 				}
-
+				
 				return true;
 			}
 			catch
@@ -119,7 +119,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
 							BaseClass = sps,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						var sourceList = (from x in UpdateDataObj.SourceList
@@ -165,7 +166,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
 							BaseClass = dps,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						var sourceList = (from x in UpdateDataObj.SourceList
@@ -211,7 +213,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = ins,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						SetAddressA(destination, @"stVal", stVal);
@@ -266,6 +269,7 @@ namespace ServerLib.Parser
 						{
 							BaseClass = act,
 							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						var sourceList = (from x in UpdateDataObj.SourceList
@@ -346,6 +350,7 @@ namespace ServerLib.Parser
 						{
 							BaseClass = acd,
 							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						var sourceList = (from x in UpdateDataObj.SourceList
@@ -404,7 +409,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = sec,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						SetAddressA(destination, @"cnt", cnt);
@@ -448,7 +454,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = bcr,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						SetAddressA(destination, @"actVal", actVal);
@@ -522,7 +529,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = mv,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						SetAddressA(destination, @"mag", mag);
@@ -613,7 +621,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = cmv,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						SetAddressA(destination, @"mag", mag);
@@ -685,7 +694,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = sav,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						SetAddressA(destination, @"instMag", instMag);
@@ -725,7 +735,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = wye,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
@@ -763,7 +774,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = del,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
@@ -801,7 +813,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = del,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
@@ -856,7 +869,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
 							BaseClass = spc,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						var sourceList = (from x in UpdateDataObj.SourceList
@@ -904,7 +918,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectDigital
 						{
 							BaseClass = dpc,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						var sourceList = (from x in UpdateDataObj.SourceList
@@ -951,7 +966,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = inc,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						SetAddressA(destination, @"stVal", stval);
@@ -1033,7 +1049,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = dpl,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						UpdateDataObj.UpdateListDestination.Add(destination);
@@ -1094,7 +1111,8 @@ namespace ServerLib.Parser
 						var destination = new UpdateDataObj.DestinationObjectAnalog
 						{
 							BaseClass = lpl,
-							NameDataObj = pathNameDo
+							NameDataObj = pathNameDo,
+							IsOn = true
 						};
 
 						UpdateDataObj.UpdateListDestination.Add(destination);

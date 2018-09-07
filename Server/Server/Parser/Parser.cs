@@ -39,6 +39,16 @@ namespace ServerLib.Parser
 					return false;
 				}
 
+				//
+				if (true)
+				{
+					if (!DependencesModel())
+					{
+						Log.Log.Write("DependencesModel: Finish whith status false", "Error");
+					}
+				}
+
+
 //				if (!ModelFillDefultParam()) //Заполнение  модели параметрами по-умолчанию
 //				{
 //					Log.Log.Write("ModelFillDefultParam: Finish whith status false", "Error   ");

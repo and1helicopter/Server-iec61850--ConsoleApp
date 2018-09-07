@@ -43,16 +43,24 @@ namespace ServerLib.DataClasses
 
 		internal void GetInt32(dynamic value, ref Int32? obj)
 		{
-			ushort[] xxxx = value.Value;
-			Int32 tempValue = 0;
-
-			for (int i = 0; i < xxxx.Length; i++)
+			try
 			{
-				var temp = (Int32)xxxx[i];
-				tempValue += (temp) << (16 * (xxxx.Length - 1 - i));
-			}
+				ushort[] xxxx = value.Value;
+				Int32 tempValue = 0;
 
-			obj = tempValue;
+				for (int i = 0; i < xxxx.Length; i++)
+				{
+					var temp = (Int32) xxxx[i];
+					tempValue += (temp) << (16 * (xxxx.Length - 1 - i));
+				}
+
+				obj = tempValue;
+			}
+			catch
+			{
+				Int32 tempValue = value.Value;
+				obj = tempValue;
+			}
 		}
 
 		internal void GetDirectionalProtection(dynamic value, ref DirectionalProtection? obj)
@@ -289,6 +297,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetBooleanValue(path + @".stVal", stVal, iedModel, iedServer);
@@ -342,6 +352,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetDoublePointValue(path + @".stVal", stVal, iedModel, iedServer);
@@ -395,6 +407,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetInt32Value(path + @".stVal", stVal, iedModel, iedServer);
@@ -466,6 +480,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetBooleanValue(path + @".general", general, iedModel, iedServer);
@@ -563,6 +579,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetBooleanValue(path + @".general", general, iedModel, iedServer);
@@ -625,6 +643,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetUInt32Value(path + @".cnt", cnt, iedModel, iedServer);
@@ -684,6 +704,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetInt64Value(path + @".actVal", actVal, iedModel, iedServer);
@@ -745,6 +767,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetSingleValue(path + @".mag.f", Mag.f, iedModel, iedServer);
@@ -816,6 +840,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetSingleValue(path + @".cVal.mag.f", cVal.mag.f, iedModel, iedServer);
@@ -883,6 +909,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetSingleValue(path + @".instMag.f", instMag.f, iedModel, iedServer);
@@ -926,6 +954,7 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
 		}
 
 		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
@@ -955,7 +984,7 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
-
+			if (iedModel == null || iedServer == null) return;
 		}
 
 		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
@@ -985,7 +1014,7 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
-
+			if (iedModel == null || iedServer == null) return;
 		}
 
 		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
@@ -1061,6 +1090,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetBooleanValue(path + @".stVal", stVal, iedModel, iedServer);
@@ -1126,6 +1157,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetDoublePointValue(path + @".stVal", stVal, iedModel, iedServer);
@@ -1176,12 +1209,14 @@ namespace ServerLib.DataClasses
 			}
 			catch
 			{
-				Log.Log.Write("INS UpdateClass", "Error");
+				Log.Log.Write("INC UpdateClass", "Error");
 			}
 		}
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if(iedModel == null || iedServer == null) return;
+
 			QualityCheckClass();
 
 			SetInt32Value(path + @".stVal", stVal, iedModel, iedServer);
@@ -1235,6 +1270,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			try
 			{
 				var vendorPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".vendor");
@@ -1299,6 +1336,8 @@ namespace ServerLib.DataClasses
 
 		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel)
 		{
+			if (iedModel == null || iedServer == null) return;
+
 			try
 			{
 				var vendorPath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(path + @".vendor");

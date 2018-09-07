@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Windows.Input;
 using IEC61850.Server;
 using ServerLib.DataClasses;
 using ServerLib.ModBus;
@@ -12,10 +9,9 @@ namespace ServerLib.Update
 {
 	public static partial class UpdateDataObj
 	{
-		//public static readonly  List<ItemObject> ClassGetObjects = new List<ItemObject>();  //Список 
-		//internal static readonly List<DestinationDataObject> StaticListDestination = new List<DestinationDataObject>();
-		internal static readonly List<DestinationDataObject> UpdateListDestination = new List<DestinationDataObject>();
+		public static readonly List<DestinationDataObject> UpdateListDestination = new List<DestinationDataObject>();
 		internal static readonly List<SourceClass> SourceList = new List<SourceClass>();
+		//Связанные данные Mod, Beh, Health обновляются связано
 		
 		private static IedServer _iedServer;
 		private static IedModel _iedModel;
@@ -39,9 +35,9 @@ namespace ServerLib.Update
 
 			public abstract void SetValue(dynamic value);
 
-			public delegate void ClassStateHandler(dynamic value);
+			public delegate void ClassStateHandlerRead(dynamic value);
 
-			public abstract event ClassStateHandler ReadValue;
+			public abstract event ClassStateHandlerRead ReadValueHandler;
 		}
 
 		//Digital
@@ -60,7 +56,7 @@ namespace ServerLib.Update
 			public override void GetValueResponse(dynamic value)
 			{
 				Value = value;
-				ReadValue?.Invoke(this);
+				ReadValueHandler?.Invoke(this);
 			}
 
 			public override void SetValue(dynamic value)
@@ -68,7 +64,7 @@ namespace ServerLib.Update
 				UpdateModBus.SetRequest(Addr, value);
 			}
 
-			public override event ClassStateHandler ReadValue;
+			public override event ClassStateHandlerRead ReadValueHandler;
 		}
 
 		//Analog
@@ -86,7 +82,7 @@ namespace ServerLib.Update
 			public override void GetValueResponse(dynamic value)
 			{
 				Value = value;
-				ReadValue?.Invoke(this);
+				ReadValueHandler?.Invoke(this);
 			}
 
 			public override void SetValue(dynamic value)
@@ -94,7 +90,7 @@ namespace ServerLib.Update
 				UpdateModBus.SetRequest(Addr, value);
 			}
 
-			public override event ClassStateHandler ReadValue;
+			public override event ClassStateHandlerRead ReadValueHandler;
 		}
 
 		interface ISourceDigital
@@ -110,20 +106,36 @@ namespace ServerLib.Update
 
 		public abstract class DestinationDataObject
 		{
-			public abstract string NameDataObj { get; set; }            //Путь до класса (destination)
-			public abstract BaseClass BaseClass { get; set; }                  //Ссылка на объект управления
-			protected abstract bool ReadyForUpdate { get; set; }
+			public abstract string NameDataObj { get; set; }			//Путь до класса (destination)
+			public abstract BaseClass BaseClass { get; set; }			//Ссылка на объект управления
+			protected abstract bool IsReady { get; set; }				//Готов к обновлению
+			public abstract bool IsBusy { get; set; }					//Занят
 
-			protected abstract Dictionary<string, bool> ReadValue { get; set; }
+			//Статусы контроля
+			public abstract bool IsOn { get; set; }
+			public abstract bool IsBlock { get; set; }
+			public abstract bool IsTest { get; set; }
+			public abstract bool IsTestBlock { get; set; }
+			public abstract bool IsOff { get; set; }
+
+			protected abstract bool IsErrorReadValue { get; set; }
+			protected abstract bool IsErrorWriteValue { get; set; }
+
+			protected abstract Dictionary<string, bool> ReadValue { get; set; }				//
 			protected abstract Dictionary<string, SourceClass> Dictionary { get; set; }
-			protected abstract List<SourceClass> SourceItem { get; set; }			//Подписка на 
+			protected abstract List<SourceClass> SourceItem { get; set; }					//Подписка на 
 			
 			public abstract void AddSource(SourceClass source, string name);
 
 			protected abstract void OnReadValue(dynamic value);
 			public abstract void WriteValue(dynamic value);
 
-			protected abstract void Reset();
+			//Обработчик для изменения статуса Mod, Beh, Health
+			public delegate void ClassStateHandlerWrite(dynamic value);
+			public abstract event ClassStateHandlerWrite WriteValueHandler;
+
+
+			protected abstract void ResetReady();
 		}
 
 		//Digital
@@ -131,7 +143,18 @@ namespace ServerLib.Update
 		{
 			public override string NameDataObj { get; set; }
 			public override BaseClass BaseClass { get; set; }
-			protected override bool ReadyForUpdate { get; set; }
+			protected override bool IsReady { get; set; }
+			public override bool IsBusy { get; set; }
+
+			//Статусы контроля
+			public override bool IsOn { get; set; }
+			public override bool IsBlock { get; set; }
+			public override bool IsTest { get; set; }
+			public override bool IsTestBlock { get; set; }
+			public override bool IsOff { get; set; }
+
+			protected override bool IsErrorReadValue { get; set; }
+			protected override bool IsErrorWriteValue { get; set; }
 
 			protected override Dictionary<string, bool> ReadValue { get; set; } = new Dictionary<string, bool>();
 			protected override Dictionary<string, SourceClass> Dictionary { get; set; } = new Dictionary<string, SourceClass>();
@@ -147,68 +170,137 @@ namespace ServerLib.Update
 				if (!SourceItem.Contains(source))
 				{
 					SourceItem.Add(source);
-					source.ReadValue += OnReadValue;
+					source.ReadValueHandler += OnReadValue;
 				}
 			}
 
-			protected override void OnReadValue(dynamic value)
+			protected override void OnReadValue(dynamic val)
 			{
 				try
 				{
-					var source = value;
-					if (Dictionary.ContainsValue(source))
+					if (IsOn)
 					{
-						var tempValNameList = Dictionary.Where(x => x.Value == source);
-						foreach (var tempValName in tempValNameList)
-						{
-							var tempIndex = IndexData[tempValName.Key];
+						IsReadValue(val);
+					}
+					else if (IsBlock)
+					{
 
-							var tempValue = new { Value = source.Value[0], Index = tempIndex, tempValName.Key };
-							BaseClass.UpdateClass(tempValue);
-							ReadValue[tempValName.Key] = true;
+					}
+					else if (IsTest)
+					{
+						IsReadValue(val);
+					}
+					else if (IsTestBlock)
+					{
+
+					}
+					else if (IsOff)
+					{
+
+					}
+					
+					void IsReadValue(dynamic value)
+					{
+						var source = value;
+						if (Dictionary.ContainsValue(source))
+						{
+							var tempValNameList = Dictionary.Where(x => x.Value == source);
+							foreach (var tempValName in tempValNameList)
+							{
+								var tempIndex = IndexData[tempValName.Key];
+
+								var tempValue = new { Value = source.Value[0], Index = tempIndex, tempValName.Key };
+								BaseClass.UpdateClass(tempValue);
+								ReadValue[tempValName.Key] = true;
+							}
+
+							if (!ReadValue.ContainsValue(false))
+								IsReady = true;
 						}
 
-						if (!ReadValue.ContainsValue(false))
-							ReadyForUpdate = true;
-					}
-
-					if (ReadyForUpdate)
-					{
-						BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel);
-						Reset();
+						if (IsReady)
+						{
+							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel);
+							ResetReady();
+						}
 					}
 				}
 				catch
 				{
-					Log.Log.Write($"DestinationObjectAnalog OnReadValue {value.GetType()}", "Warrning");
+					if (!IsErrorReadValue)
+					{
+						Log.Log.Write($"Destination ReadValue Error {val.GetType()}", "Warrning");
+						IsErrorReadValue = true;
+					}
 				}
 			}
 
-			public override void WriteValue(dynamic value)
+			public override void WriteValue(dynamic val)
 			{
-				//Отправить значение на плату				
-				var index = IndexData[value.Key];
-				var source = Dictionary[value.Key];
-				var oldValue = (SourceClassDigital) source;
-				var newValue = new
+				try
 				{
-					Index = index,
-					value.Value
-				};
-				
-				var xxx = BaseClass.SetValue(oldValue.Value, newValue, value.Key);
+					if (IsOn)
+					{
 
-				source.SetValue(xxx);
+						IsWriteValue(val);
+					}
+					else if (IsBlock)
+					{
+
+					}
+					else if (IsTest)
+					{
+						IsWriteValue(val);
+					}
+					else if (IsTestBlock)
+					{
+
+					}
+					else if (IsOff)
+					{
+
+					}
+
+					void IsWriteValue(dynamic value)
+					{
+						if (Dictionary.Count != 0)
+						{
+							//Отправить значение на плату				
+							var index = IndexData[value.Key];
+							var source = Dictionary[value.Key];
+							var oldValue = (SourceClassDigital)source;
+							var newValue = new
+							{
+								Index = index,
+								value.Value
+							};
+
+							var xxx = BaseClass.SetValue(oldValue.Value, newValue, value.Key);
+
+							source.SetValue(xxx);
+						}
+					}
+				}
+				catch
+				{
+					if (!IsErrorWriteValue)
+					{
+						Log.Log.Write($"Destination WriteValue Error {val.GetType()}", "Warrning");
+						IsErrorWriteValue = true;
+					}
+				}
 			}
 
-			protected override void Reset()
+			public override event ClassStateHandlerWrite WriteValueHandler;
+
+			protected override void ResetReady()
 			{
 				foreach (var item in ReadValue.ToList())
 				{
 					ReadValue[item.Key] = false;
 				}
 
-				ReadyForUpdate = true;
+				IsReady = true;
 			}
 		}
 
@@ -216,8 +308,19 @@ namespace ServerLib.Update
 		{
 			public override string NameDataObj { get; set; }
 			public override BaseClass BaseClass { get; set; }
+			protected override bool IsReady { get; set; }
+			public override bool IsBusy { get; set; }
 
-			protected override bool ReadyForUpdate { get; set; }
+			//Статусы контроля
+			public override bool IsOn { get; set; }
+			public override bool IsBlock { get; set; }
+			public override bool IsTest { get; set; }
+			public override bool IsTestBlock { get; set; }
+			public override bool IsOff { get; set; }
+
+			protected override bool IsErrorReadValue { get; set; }
+			protected override bool IsErrorWriteValue { get; set; }
+
 			protected override Dictionary<string, bool> ReadValue { get; set; } = new Dictionary<string, bool>();
 			protected override Dictionary<string, SourceClass> Dictionary { get; set; } = new Dictionary<string, SourceClass>();
 			protected override List<SourceClass> SourceItem { get; set; } = new List<SourceClass>();
@@ -235,65 +338,132 @@ namespace ServerLib.Update
 				if (!SourceItem.Contains(source))
 				{
 					SourceItem.Add(source);
-					source.ReadValue += OnReadValue;
+					source.ReadValueHandler += OnReadValue;
 				}
 			}
 
-			protected override void OnReadValue(dynamic value)
+			protected override void OnReadValue(dynamic val)
 			{
 				try
 				{
-					dynamic source = value;
-
-					if (Dictionary.ContainsValue(source))
+					if (IsOn)
 					{
-						var tempValNameList = Dictionary.Where(x => x.Value == source);
+						IsReadValue(val);
+					}
+					else if (IsBlock)
+					{
 
-						foreach (var tempValName in tempValNameList)
-						{
-							var tempValue = new { source.Value, tempValName.Key };
-							BaseClass.UpdateClass(tempValue);
-							ReadValue[tempValName.Key] = true;
-						}
+					}
+					else if (IsTest)
+					{
+						IsReadValue(val);
+					}
+					else if (IsTestBlock)
+					{
 
-						if (!ReadValue.ContainsValue(false))
-							ReadyForUpdate = true;
+					}
+					else if (IsOff)
+					{
+
 					}
 
-					if (ReadyForUpdate)
+					void IsReadValue(dynamic value)
 					{
-						BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel);
-						Reset();
+						dynamic source = value;
+
+						if (Dictionary.ContainsValue(source))
+						{
+							var tempValNameList = Dictionary.Where(x => x.Value == source);
+
+							foreach (var tempValName in tempValNameList)
+							{
+								var tempValue = new { source.Value, tempValName.Key };
+								BaseClass.UpdateClass(tempValue);
+								ReadValue[tempValName.Key] = true;
+							}
+
+							if (!ReadValue.ContainsValue(false))
+								IsReady = true;
+						}
+						if (IsReady)
+						{
+							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel);
+							ResetReady();
+						}
 					}
 				}
 				catch
 				{
-					Log.Log.Write($"DestinationObjectAnalog OnReadValue {value.GetType()}", "Warrning");
+					if (!IsErrorReadValue)
+					{
+						Log.Log.Write($"Destination ReadValue Error {val.GetType()}", "Warrning");
+						IsErrorReadValue = true;
+					}				
 				}
 			}
 
-			public override void WriteValue(dynamic value)
+			public override void WriteValue(dynamic val)
 			{
-				var source = (SourceClass) Dictionary[value.Key];
-
-				var newValue = new
+				try
 				{
-					source.Count,
-					value.Value
-				};
-				var tempValue = BaseClass.SetValue(null, newValue, value.Key);
-				
-				source.SetValue(tempValue);
+					WriteValueHandler?.Invoke(val);         //Событие WriteValueHandler
+
+					if (IsOn)
+					{
+						IsWriteValue(val);
+					}
+					else if (IsBlock)
+					{
+					}
+					else if (IsTest)
+					{
+						IsWriteValue(val);
+					}
+					else if (IsTestBlock)
+					{
+					}
+					else if (IsOff)
+					{
+					}
+
+					void IsWriteValue(dynamic value)
+					{
+
+						if (Dictionary.Count != 0)
+						{
+							var source = (SourceClass)Dictionary?[value.Key];
+
+							var newValue = new
+							{
+								source.Count,
+								value.Value
+							};
+							var tempValue = BaseClass.SetValue(null, newValue, value.Key);
+
+							source.SetValue(tempValue);
+						}
+					}
+				}
+				catch 
+				{
+					if (!IsErrorWriteValue)
+					{
+						Log.Log.Write($"Destination WriteValue Error {val.GetType()}", "Warrning");
+						IsErrorWriteValue = true;
+					}
+				}
 			}
 
-			protected override void Reset()
+			public override event ClassStateHandlerWrite WriteValueHandler;
+
+			protected override void ResetReady()
 			{
 				foreach (var item in ReadValue.ToList())
 				{
 					ReadValue[item.Key] = false;
 				}
 
-				ReadyForUpdate = true; 
+				IsReady = true; 
 			}
 		}
 

@@ -100,6 +100,7 @@
     <Compile Include="Parser\CreateBitArray.cs" />
     <Compile Include="Parser\CreateClassFromAttribute.cs" />
     <Compile Include="Parser\CreateFileConfig.cs" />
+    <Compile Include="Parser\DependencesModel.cs" />
     <Compile Include="Parser\FileParseToAttribute.cs" />
     <Compile Include="Parser\ModelFillDefultParam.cs" />
     <Compile Include="Parser\ModelParseToUpdateStatus.cs" />
@@ -112,6 +113,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Server\ServerConfig.cs" />
+    <Compile Include="Update\DependencesContols.cs" />
     <Compile Include="Update\UpdateDataObj.cs" />
     <Compile Include="DataClasses\CommonDataClasses.cs" />
     <Compile Include="Server\ServerIEC61850.cs" />
