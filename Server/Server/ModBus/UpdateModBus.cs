@@ -102,51 +102,22 @@ namespace ServerLib.ModBus
 		{
 			while (_running)
 			{
-				//Если все получено
-				if (_readAll)
+				if (ErrorPort)
 				{
-					foreach (var source in UpdateDataObj.SourceList)
-					{
-						source.GetValueRequest();
-					}
+					UpdateDataObj.UpdateListDestination.ForEach(destination => destination.Qality());
+					OpenModBusPort();
+					_readAll = true;
+					UpdateDataObj.UpdateListDestination.ForEach(destination => destination.Qality());
+				}
+				else
+				{
+					if (_readAll)
+						UpdateDataObj.SourceList.ForEach(source => source.GetValueRequest());
+
 				}
 
 				Thread.Sleep(10);
 			}
 		}
-
-		//private static void RunModBusPort()
-		//{
-		//	while (_running)
-		//	{
-		//		if (!StopUpdate)
-		//		{
-		//			if (!SerialPort.IsOpen)  //Если порт закрыт пытаемся открыть его
-		//			{
-		//				if (ErrorPort)
-		//				{
-		//					Log.Log.Write(@"UpdateModBus: OpenModBusPort", @"Warning");
-		//					OpenModBusPort();
-
-		//					if (ConfigDownloadScope.Enable && SerialPort.IsOpen && _startDownloadScope)
-		//					{
-		//						ScopeDownloadRequestSet();
-		//					}
-		//				}
-		//			}
-
-		//			Update.UpdateDataObj.ChackChangeStatus.Chack(!ErrorPort);
-
-		//			if (SerialPort.requests.Count == 0) //Ждем пока обработается запрос 
-		//			{
-		//				DataGetRequest();
-
-		//				ScopoeRequest();
-		//			}
-		//		}
-
-		//		//Thread.Sleep(ConfigModBus.TimeUpdate);
-		//	}
-		//}
 	}
 }

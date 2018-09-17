@@ -33,7 +33,8 @@ namespace ServerLib.Server
 
 			UpdateServer.SetParams(_iedServer, _iedModel);			//Устаовка 
 			UpdateServer.InitUpdate(_iedServer, _iedModel);			//Заполнение данными
-			UpdateServer.InitHandlers(_iedServer, _iedModel);		//Установка оброботчиков событий
+			UpdateServer.InitHandlers(_iedServer, _iedModel);       //Установка оброботчиков событий
+			UpdateServer.InitQualityAndTime(_iedServer, _iedModel);
 
 			UpdateModBus.ConfigModBusPort();
 

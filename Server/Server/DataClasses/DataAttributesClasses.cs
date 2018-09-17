@@ -70,7 +70,7 @@ namespace ServerLib.DataClasses
 			UpdateQualityClass();
 		}
 
-		public void QualityCheckClass(DateTime time)
+		public Quality QualityCheckClass(DateTime time)
 		{
 			//допустимый возраст в мск
 
@@ -79,6 +79,7 @@ namespace ServerLib.DataClasses
 
 			//Проверки
 			UpdateQualityClass();
+			return this;
 		}
 
 		private void UpdateBadReference(bool status)

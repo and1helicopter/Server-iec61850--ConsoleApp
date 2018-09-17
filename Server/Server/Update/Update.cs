@@ -153,5 +153,13 @@ namespace ServerLib.Update
 				}
 			}
 		}
+
+		public static void InitQualityAndTime(IedServer iedServer, IedModel iedModel)
+		{
+			foreach (var item in UpdateDataObj.UpdateListDestination)
+			{
+				item.Qality(true);
+			}
+		}
 	}
 }

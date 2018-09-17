@@ -60,13 +60,13 @@ namespace ServerLib.Update
 				if (BaseModDataObject != null)
 				{
 					BaseModDataObject.BaseClass.UpdateClass(tempValue);
-					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, _iedServer, _iedModel);
+					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, _iedServer, _iedModel, false);
 				}
 
 				if (BaseBehDataObject != null)
 				{
 					BaseBehDataObject.BaseClass.UpdateClass(tempValue);
-					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, _iedServer, _iedModel);
+					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, _iedServer, _iedModel, false);
 				}
 
 				UpdateModDependences();
@@ -243,14 +243,14 @@ namespace ServerLib.Update
 				if (BaseModDataObject != null)
 				{
 					BaseModDataObject.BaseClass.UpdateClass(tempModValue);
-					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, _iedServer, _iedModel);
+					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, _iedServer, _iedModel, false);
 				}
 
 				var tempBehValue = new { Value = ValBeh, val.Key };
 				if (BaseBehDataObject != null)
 				{
 					BaseBehDataObject.BaseClass.UpdateClass(tempBehValue);
-					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, _iedServer, _iedModel);
+					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, _iedServer, _iedModel, false);
 				}
 
 
@@ -311,7 +311,7 @@ namespace ServerLib.Update
 					if (BaseHealthDataObject != null)
 					{
 						BaseHealthDataObject.BaseClass.UpdateClass(tempValue);
-						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel);
+						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel, false);
 					}
 				}
 			}
@@ -346,7 +346,7 @@ namespace ServerLib.Update
 					if (BaseHealthDataObject != null)
 					{
 						BaseHealthDataObject.BaseClass.UpdateClass(tempValue);
-						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel);
+						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel, false);
 					}
 
 					if (ValHealth > HealthHead.ValHealth)

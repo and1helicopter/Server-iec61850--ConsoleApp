@@ -128,7 +128,8 @@ namespace ServerLib.Update
 			public abstract void AddSource(SourceClass source, string name);
 
 			protected abstract void OnReadValue(dynamic value);
-			public abstract void WriteValue(dynamic value);
+			internal abstract void WriteValue(dynamic value);
+			internal abstract void Qality(bool init = false);
 
 			//Обработчик для изменения статуса Mod, Beh, Health
 			public delegate void ClassStateHandlerWrite(dynamic value);
@@ -222,7 +223,7 @@ namespace ServerLib.Update
 
 						if (IsReady)
 						{
-							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel);
+							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, false);
 							ResetReady();
 						}
 					}
@@ -237,7 +238,7 @@ namespace ServerLib.Update
 				}
 			}
 
-			public override void WriteValue(dynamic val)
+			internal override void WriteValue(dynamic val)
 			{
 				try
 				{
@@ -293,6 +294,11 @@ namespace ServerLib.Update
 						IsErrorWriteValue = true;
 					}
 				}
+			}
+
+			internal override void Qality(bool init = false)
+			{
+				BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, init);
 			}
 
 			public override event ClassStateHandlerWrite WriteValueHandler;
@@ -394,7 +400,7 @@ namespace ServerLib.Update
 						}
 						if (IsReady)
 						{
-							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel);
+							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, false);
 							ResetReady();
 						}
 					}
@@ -409,7 +415,7 @@ namespace ServerLib.Update
 				}
 			}
 
-			public override void WriteValue(dynamic val)
+			internal override void WriteValue(dynamic val)
 			{
 				try
 				{
@@ -459,6 +465,11 @@ namespace ServerLib.Update
 						IsErrorWriteValue = true;
 					}
 				}
+			}
+
+			internal override void Qality(bool init=false)
+			{
+				BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, init);
 			}
 
 			public override event ClassStateHandlerWrite WriteValueHandler;
