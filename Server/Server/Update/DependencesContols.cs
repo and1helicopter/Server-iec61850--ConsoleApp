@@ -127,7 +127,6 @@ namespace ServerLib.Update
 			{
 				ResetStatus();
 				
-
 				switch (val.Value)
 				{
 					case 1:
@@ -275,6 +274,84 @@ namespace ServerLib.Update
 						destination.IsTestBlock = IsTestBlock;
 						destination.IsOff = IsOff;
 						destination.IsBusy = false;
+					}
+				}
+			}
+		}
+
+		public static class HealthHead
+		{
+			internal static DestinationDataObject BaseHealthDataObject { private get; set; }
+			internal static int ValHealth { get; private set; } = 1;
+
+			// ReSharper disable once CollectionNeverQueried.Global
+			internal static readonly List<HealthDependences> DependencesHealth = new List<HealthDependences>();
+			
+			public static void OnReadValue(dynamic val)
+			{
+				if (val.Value != ValHealth)
+				{
+					switch (val.Value)
+					{
+						case 1:
+							ValHealth = 1;
+							break;
+						case 2:
+							ValHealth = 2;
+							break;
+						case 3:
+							ValHealth = 3;
+							break;
+						default:
+							ValHealth = 1;
+							break;
+					}
+
+					var tempValue = new { Value = ValHealth, val.Key };
+					if (BaseHealthDataObject != null)
+					{
+						BaseHealthDataObject.BaseClass.UpdateClass(tempValue);
+						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel);
+					}
+				}
+			}
+		}
+
+		public class HealthDependences
+		{
+			internal DestinationDataObject BaseHealthDataObject { private get; set; }
+			private int ValHealth { get; set; } = 1;
+
+			internal void OnReadValue(dynamic val)
+			{
+				if(val.Value != ValHealth)
+				{
+					switch (val.Value)
+					{
+						case 1:
+							ValHealth = 1;
+							break;
+						case 2:
+							ValHealth = 2;
+							break;
+						case 3:
+							ValHealth = 3;
+							break;
+						default:
+							ValHealth = 1;
+							break;
+					}
+
+					var tempValue = new { Value = ValHealth, val.Key };
+					if (BaseHealthDataObject != null)
+					{
+						BaseHealthDataObject.BaseClass.UpdateClass(tempValue);
+						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel);
+					}
+
+					if (ValHealth > HealthHead.ValHealth)
+					{
+						HealthHead.OnReadValue(tempValue);
 					}
 				}
 			}

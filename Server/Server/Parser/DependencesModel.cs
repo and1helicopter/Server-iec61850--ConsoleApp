@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Windows.Input;
 using ServerLib.DataClasses;
 using ServerLib.Update;
 
@@ -40,14 +39,6 @@ namespace ServerLib.Parser
 					x.NameDataObj.ToUpperInvariant().Contains(".Mod".ToUpperInvariant()) && 
 					!x.NameDataObj.ToUpperInvariant().Contains("LLN0.Mod".ToUpperInvariant())).ToList();
 
-				//Список Beh
-				var behDataObjects = UpdateDataObj.UpdateListDestination.Where(x =>
-					x.NameDataObj.ToUpperInvariant().Contains(".Beh".ToUpperInvariant()) &&
-					!x.NameDataObj.ToUpperInvariant().Contains("LLN0.Beh".ToUpperInvariant())).ToList();
-
-				//Список Health
-
-
 				if (modDataObjects.Count != 0)
 				{
 					modDataObjects.ForEach(mod =>
@@ -76,6 +67,44 @@ namespace ServerLib.Parser
 						UpdateDataObj.ModHead.DependencesGroupes.Add(modDependences);
 					});
 				}
+
+				//Список Health
+				var baseHealthDataObject = UpdateDataObj.UpdateListDestination.First(x =>
+					x.NameDataObj.ToUpperInvariant().Contains("LLN0.Health".ToUpperInvariant()));
+
+				//Список Health
+				var healthDataObject = UpdateDataObj.UpdateListDestination.Where(x =>
+					x.NameDataObj.ToUpperInvariant().Contains("Health".ToUpperInvariant()) &&
+					!x.NameDataObj.ToUpperInvariant().Contains("LLN0.Health".ToUpperInvariant())).ToList();
+
+				if (baseHealthDataObject != null)
+				{
+					baseHealthDataObject.ReadValueHandler += UpdateDataObj.HealthHead.OnReadValue;
+
+					var val = ((InsClass)baseHealthDataObject.BaseClass).stVal;
+					UpdateDataObj.HealthHead.BaseHealthDataObject = baseHealthDataObject;
+
+					UpdateDataObj.HealthHead.OnReadValue(new { Value = val, Key = "stVal" });
+				}
+
+				if (healthDataObject.Any())
+				{
+					healthDataObject.ForEach(health =>
+					{
+						var healthDependences = new UpdateDataObj.HealthDependences
+						{
+							BaseHealthDataObject = health
+						};
+
+						health.ReadValueHandler += healthDependences.OnReadValue;
+
+						var val = ((InsClass)health.BaseClass).stVal;
+						healthDependences.OnReadValue(new { Value = val, Key = "stVal" });                //Устанавлваю значения по-умолчанию
+
+						UpdateDataObj.HealthHead.DependencesHealth.Add(healthDependences);
+					});
+				}
+
 				return true;
 			}
 			catch

@@ -133,7 +133,7 @@ namespace ServerLib.Update
 			//Обработчик для изменения статуса Mod, Beh, Health
 			public delegate void ClassStateHandlerWrite(dynamic value);
 			public abstract event ClassStateHandlerWrite WriteValueHandler;
-
+			public abstract event ClassStateHandlerWrite ReadValueHandler;
 
 			protected abstract void ResetReady();
 		}
@@ -178,6 +178,8 @@ namespace ServerLib.Update
 			{
 				try
 				{
+					//ReadValueHandler?.Invoke(val);
+
 					if (IsOn)
 					{
 						IsReadValue(val);
@@ -239,6 +241,8 @@ namespace ServerLib.Update
 			{
 				try
 				{
+					//WriteValueHandler?.Invoke(val);
+
 					if (IsOn)
 					{
 
@@ -292,6 +296,7 @@ namespace ServerLib.Update
 			}
 
 			public override event ClassStateHandlerWrite WriteValueHandler;
+			public override event ClassStateHandlerWrite ReadValueHandler;
 
 			protected override void ResetReady()
 			{
@@ -346,6 +351,8 @@ namespace ServerLib.Update
 			{
 				try
 				{
+					ReadValueHandler?.Invoke(val);
+
 					if (IsOn)
 					{
 						IsReadValue(val);
@@ -455,6 +462,7 @@ namespace ServerLib.Update
 			}
 
 			public override event ClassStateHandlerWrite WriteValueHandler;
+			public override event ClassStateHandlerWrite ReadValueHandler;
 
 			protected override void ResetReady()
 			{
