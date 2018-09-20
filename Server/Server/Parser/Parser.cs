@@ -4,7 +4,7 @@ namespace ServerLib.Parser
 {
 	public static partial class Parser
 	{
-		public static bool ParseFile(string filePath)
+		public static bool ParseFile(string filePath, bool dependencesModel)
 		{
 			// filePath = @"test.icd";
 			//читаем данные из файла
@@ -39,29 +39,19 @@ namespace ServerLib.Parser
 					return false;
 				}
 
-				//
-				if (true)
+				if (!CreateServices(doc))
+				{
+					Log.Log.Write("CreateServices: Finish whith status false", "Error");
+					return false;
+				}
+
+				if (dependencesModel)
 				{
 					if (!DependencesModel())
 					{
 						Log.Log.Write("DependencesModel: Finish whith status false", "Error");
 					}
 				}
-
-
-//				if (!ModelFillDefultParam()) //Заполнение  модели параметрами по-умолчанию
-//				{
-//					Log.Log.Write("ModelFillDefultParam: Finish whith status false", "Error   ");
-//					return false;
-//				}
-
-//				if (!FileParseToAttribute(doc)) //Заполняем объектную модель инициализированными параметрами 
-//				{
-//					Log.Log.Write("FileParseToAttribute: Finish whith status false", "Warning ");
-//				}
-
-
-				//ModelParseToUpdateStatus();//Создаем классы для данных Mod, Beh, Health
 
 				SaveFileConfig(); //Создаем из объектной модели - конфигурационную 
 			}

@@ -156,7 +156,8 @@ namespace ServerLib.DataClasses
 			{
 				var namePath = (DataAttribute)iedModel.GetModelNodeByShortObjectReference(name);
 				var val = Convert.ToDateTime(value);
-				iedServer.UpdateUTCTimeAttributeValue(namePath, val);
+				iedServer.UpdateUTCTimeAttributeValue(namePath, val);//UpdateTimestampAttributeValue(namePath, new Timestamp(val));;
+																	 //
 			}
 		}
 

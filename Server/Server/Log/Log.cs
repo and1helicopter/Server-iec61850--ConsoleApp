@@ -34,7 +34,7 @@ namespace ServerLib.Log
 		private static void Message(string logMessage, string exaption, TextWriter w)
 		{
 			w.Write($"#{DateTime.Now}{DateTime.Now.Millisecond}: {exaption} - Message: \"{logMessage}\"\n");
-			if (exaption.ToUpper() == "stop".ToUpper())
+			if (exaption.ToUpperInvariant() == "stop".ToUpperInvariant())
 			{
 				StopLine(w);
 			}

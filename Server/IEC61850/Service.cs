@@ -40,7 +40,7 @@ namespace ServiceIec61850
 				}
 
 				str = rootName + icdName;
-				if (!ServerLib.Server.ServerIEC61850.ParseFile(str))
+				if (!ServerLib.Server.ServerIEC61850.ParseFile(str, true))
                 {
                     eventLog.WriteEntry("Parse File Error", EventLogEntryType.Error);
                     return;

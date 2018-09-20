@@ -100,11 +100,10 @@
     <Compile Include="Parser\CreateBitArray.cs" />
     <Compile Include="Parser\CreateClassFromAttribute.cs" />
     <Compile Include="Parser\CreateFileConfig.cs" />
-    <Compile Include="Parser\DependencesModel.cs" />
-    <Compile Include="Parser\FileParseToAttribute.cs" />
-    <Compile Include="Parser\ModelFillDefultParam.cs" />
+    <Compile Include="Parser\CreateServices.cs" />
+    <Compile Include="Parser\CreateDependencesModel.cs" />
     <Compile Include="Parser\Parser.cs" />
-    <Compile Include="Parser\FileParseToModel.cs" />
+    <Compile Include="Parser\CreateModelFromFile.cs" />
     <Compile Include="DataClasses\ServerModel.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

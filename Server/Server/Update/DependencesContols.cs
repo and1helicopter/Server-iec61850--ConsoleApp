@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using IEC61850.Server;
 
 namespace ServerLib.Update
 {
@@ -110,8 +112,8 @@ namespace ServerLib.Update
 			private bool IsTest { get; set; }
 			private bool IsTestBlock { get; set; }
 			private bool IsOff { get; set; }
-			private int ValBeh { get; set; } = 1;
-			private int ValMod { get; set; } = 1;
+			private ModeValues ValBeh { get; set; } = ModeValues.ON;
+			private ModeValues ValMod { get; set; } = ModeValues.ON;
 
 			internal DestinationDataObject BaseModDataObject { private get; set; }
 			internal DestinationDataObject BaseBehDataObject { private get; set; }
@@ -133,110 +135,110 @@ namespace ServerLib.Update
 						if (ModHead.IsOn)
 						{
 							IsOn = true;
-							ValBeh = 1;
+							ValBeh = ModeValues.ON;
 						}
 						else if (ModHead.IsBlock)
 						{
 							IsBlock = true;
-							ValBeh = 2;
+							ValBeh = ModeValues.BLOCKED;
 						}
 						else if (ModHead.IsTest)
 						{
 							IsTest = true;
-							ValBeh = 3;
+							ValBeh = ModeValues.TEST;
 						}
 						else if (ModHead.IsTestBlock)
 						{
 							IsTestBlock = true;
-							ValBeh = 4;
+							ValBeh = ModeValues.TEST_BLOCKED;
 						}
 						else if (ModHead.IsOff)
 						{
 							IsOff = true;
-							ValBeh = 5;
+							ValBeh = ModeValues.OFF;
 						}
 						break;
 					case 2:
 						if (ModHead.IsOn || ModHead.IsBlock)
 						{
 							IsBlock = true;
-							ValBeh = 2;
+							ValBeh = ModeValues.BLOCKED;
 						}
 						else if (ModHead.IsTest || ModHead.IsTestBlock)
 						{
 							IsTestBlock = true;
-							ValBeh = 4;
+							ValBeh = ModeValues.TEST_BLOCKED;
 						}
 						else if (ModHead.IsOff)
 						{
 							IsOff = true;
-							ValBeh = 5;
+							ValBeh = ModeValues.OFF;
 						}
 						break;
 					case 3:
 						if (ModHead.IsOn || ModHead.IsTest)
 						{
 							IsTest = true;
-							ValBeh = 3;
+							ValBeh = ModeValues.TEST;
 						}
 						else if (ModHead.IsBlock || ModHead.IsTestBlock)
 						{
 							IsTestBlock = true;
-							ValBeh = 4;
+							ValBeh = ModeValues.TEST_BLOCKED;
 						}
 						else if (ModHead.IsOff)
 						{
 							IsOff = true;
-							ValBeh = 5;
+							ValBeh = ModeValues.OFF;
 						}
 						break;
 					case 4:
 						if (ModHead.IsOff)
 						{
 							IsOff = true;
-							ValBeh = 5;
+							ValBeh = ModeValues.OFF;
 						}
 						else if (ModHead.IsOn || ModHead.IsBlock || ModHead.IsTest || ModHead.IsTestBlock)
 						{
 							IsTestBlock = true;
-							ValBeh = 4;
+							ValBeh = ModeValues.TEST_BLOCKED;
 						}
 						break;
 					case 5:
 						IsOff = true;
-						ValBeh = 5;
+						ValBeh = ModeValues.OFF;
 						break;
 					default:
 						if (ModHead.IsOn)
 						{
 							IsOn = true;
-							ValBeh = 1;
+							ValBeh = ModeValues.ON;
 						}
 						else if (ModHead.IsBlock)
 						{
 							IsBlock = true;
-							ValBeh = 2;
+							ValBeh = ModeValues.BLOCKED;
 						}
 						else if (ModHead.IsTest)
 						{
 							IsTest = true;
-							ValBeh = 3;
+							ValBeh = ModeValues.TEST;
 						}
 						else if (ModHead.IsTestBlock)
 						{
 							IsTestBlock = true;
-							ValBeh = 4;
+							ValBeh = ModeValues.TEST_BLOCKED;
 						}
 						else if (ModHead.IsOff)
 						{
 							IsOff = true;
-							ValBeh = 5;
+							ValBeh = ModeValues.OFF;
 						}
 						val = new {Value = 1, val.Key };
 						break;
 				}
 
-				ValMod = val.Value;
+				ValMod = (ModeValues) val.Value;
 				ChangeStatus();
 
 				var tempModValue = new { val.Value, val.Key };
@@ -246,7 +248,7 @@ namespace ServerLib.Update
 					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, _iedServer, _iedModel, false);
 				}
 
-				var tempBehValue = new { Value = ValBeh, val.Key };
+				var tempBehValue = new { Value = (int) ValBeh, val.Key };
 				if (BaseBehDataObject != null)
 				{
 					BaseBehDataObject.BaseClass.UpdateClass(tempBehValue);
@@ -282,32 +284,32 @@ namespace ServerLib.Update
 		public static class HealthHead
 		{
 			internal static DestinationDataObject BaseHealthDataObject { private get; set; }
-			internal static int ValHealth { get; private set; } = 1;
+			internal static HealthValues ValHealth { get; private set; } = HealthValues.OK;
 
 			// ReSharper disable once CollectionNeverQueried.Global
 			internal static readonly List<HealthDependences> DependencesHealth = new List<HealthDependences>();
 			
 			public static void OnReadValue(dynamic val)
 			{
-				if (val.Value != ValHealth)
+				if (val.Value != (int) ValHealth)
 				{
 					switch (val.Value)
 					{
 						case 1:
-							ValHealth = 1;
+							ValHealth = HealthValues.OK;
 							break;
 						case 2:
-							ValHealth = 2;
+							ValHealth = HealthValues.ALARM;
 							break;
 						case 3:
-							ValHealth = 3;
+							ValHealth = HealthValues.WARNING;
 							break;
 						default:
-							ValHealth = 1;
+							ValHealth = HealthValues.OK;
 							break;
 					}
 
-					var tempValue = new { Value = ValHealth, val.Key };
+					var tempValue = new { Value = (int) ValHealth, val.Key };
 					if (BaseHealthDataObject != null)
 					{
 						BaseHealthDataObject.BaseClass.UpdateClass(tempValue);
@@ -320,36 +322,36 @@ namespace ServerLib.Update
 		public class HealthDependences
 		{
 			internal DestinationDataObject BaseHealthDataObject { private get; set; }
-			private int ValHealth { get; set; } = 1;
+			private HealthValues ValHealth { get; set; } = HealthValues.OK;
 
 			internal void OnReadValue(dynamic val)
 			{
-				if(val.Value != ValHealth)
+				if(val.Value != (int) ValHealth)
 				{
 					switch (val.Value)
 					{
 						case 1:
-							ValHealth = 1;
+							ValHealth = HealthValues.OK;
 							break;
 						case 2:
-							ValHealth = 2;
+							ValHealth = HealthValues.ALARM;
 							break;
 						case 3:
-							ValHealth = 3;
+							ValHealth = HealthValues.WARNING;
 							break;
 						default:
-							ValHealth = 1;
+							ValHealth = HealthValues.OK;
 							break;
 					}
 
-					var tempValue = new { Value = ValHealth, val.Key };
+					var tempValue = new { Value = (int) ValHealth, val.Key };
 					if (BaseHealthDataObject != null)
 					{
 						BaseHealthDataObject.BaseClass.UpdateClass(tempValue);
 						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel, false);
 					}
 
-					if (ValHealth > HealthHead.ValHealth)
+					if ((int)ValHealth > (int)HealthHead.ValHealth)
 					{
 						HealthHead.OnReadValue(tempValue);
 					}

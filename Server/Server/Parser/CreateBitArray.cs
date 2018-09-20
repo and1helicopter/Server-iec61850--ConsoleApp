@@ -46,7 +46,7 @@ namespace ServerLib.Parser
 
 					foreach (var lnitem in xLn)
 					{
-						if (lnitem.Attribute("type")?.Value.ToUpper() == "EnergocomplektBitArray".ToUpper() || lnitem.Attribute("type")?.Value.ToUpper() == "BitArray".ToUpper())
+						if (lnitem.Attribute("type")?.Value.ToUpperInvariant() == "EnergocomplektBitArray".ToUpperInvariant() || lnitem.Attribute("type")?.Value.ToUpperInvariant() == "BitArray".ToUpperInvariant())
 						{
 							try
 							{

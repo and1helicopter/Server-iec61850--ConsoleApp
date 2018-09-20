@@ -56,7 +56,7 @@ namespace ServerLib.Parser
 							where x.Attribute("prefix")?.Value + x.Attribute("lnClass")?.Value + x.Attribute("inst")?.Value == pathNameLN
 							select x;
 
-						IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+						IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DOI".ToUpperInvariant()).ToList();
 
 						foreach (var DO in itemLn.ListDO)
 						{
@@ -718,7 +718,7 @@ namespace ServerLib.Parser
 						{
 							var ddd = path;
 
-							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DOI".ToUpperInvariant()).ToList();
 
 							var fff = xDoi.First(x=>x.Attribute("name")?.Value == item.NameDO);
 
@@ -757,7 +757,7 @@ namespace ServerLib.Parser
 						{
 							var ddd = path;
 
-							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DOI".ToUpperInvariant()).ToList();
 
 							var fff = xDoi.First(x => x.Attribute("name")?.Value == item.NameDO);
 
@@ -796,7 +796,7 @@ namespace ServerLib.Parser
 						{
 							var ddd = path;
 
-							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpper() == "DOI".ToUpper()).ToList();
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DOI".ToUpperInvariant()).ToList();
 
 							var fff = xDoi.First(x => x.Attribute("name")?.Value == item.NameDO);
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using IEC61850.Common;
+using IEC61850.Server;
 
 namespace ServerLib.DataClasses
 {
@@ -89,8 +90,8 @@ namespace ServerLib.DataClasses
 		public class NodeDA  //DA - атрибуты данных
 		{
 			public string NameDA { get;  }
-			public string FCDA { get; }
-			public string BTypeDA { get; }
+			public FunctionalConstraint FCDA { get; }
+			public DataAttributeType BTypeDA { get; }
 			public string TypeDA { get;  }
 			public byte TrgOpsDA { get; }
 			public string CountDA { get;  }
@@ -98,7 +99,7 @@ namespace ServerLib.DataClasses
 
 			public List<NodeDA> ListDA = new List<NodeDA>();
 
-			public NodeDA(string nameDA, string fcDA, string bTypeDa, string typeDA, byte trgOpsDA, string countDA)
+			public NodeDA(string nameDA, FunctionalConstraint fcDA, DataAttributeType bTypeDa, string typeDA, byte trgOpsDA, string countDA)
 			{
 				NameDA = nameDA;
 				FCDA = fcDA;

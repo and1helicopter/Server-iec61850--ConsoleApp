@@ -21,9 +21,14 @@ namespace ServerLib.Server
 				//Создавать в дириктории с настройками
 				Directory.CreateDirectory(pathName != String.Empty ? $"{pathName}vmd-filestore\\" : "vmd-filestore\\");
 
-				_iedModel = IedModel.CreateFromFile(ServerConfig.NameModelFile);
-
-				_iedServer = new IedServer(_iedModel);
+				_iedModel = ConfigFileParser.CreateModelFromConfigFile(ServerConfig.NameModelFile);
+					// IedModel.CreateFromFile(ServerConfig.NameModelFile);
+				IedServerConfig config = new IedServerConfig
+				{
+					ReportBufferSize = 100000,
+					FileServiceBasePath = pathName != String.Empty ? $"{pathName}vmd-filestore\\" : "vmd-filestore\\"
+				};
+				_iedServer = new IedServer(_iedModel, config);
 			}
 			catch 
 			{
@@ -49,6 +54,8 @@ namespace ServerLib.Server
 				Log.Log.Write(@"ServerIEC61850.StartServer: ServerIEC61850 started", @"Start");
 				
 				UpdateModBus.StartModBus();
+
+				GC.Collect();
 			}
 			else
 			{
@@ -90,9 +97,9 @@ namespace ServerLib.Server
 			return true;
 		}
 
-		public static bool ParseFile(string pathName)
+		public static bool ParseFile(string pathName, bool dependencesModel)
 		{
-			return Parser.Parser.ParseFile(pathName);
+			return Parser.Parser.ParseFile(pathName, dependencesModel);
 		}
 
 		public static bool ReadConfig(string pathName)

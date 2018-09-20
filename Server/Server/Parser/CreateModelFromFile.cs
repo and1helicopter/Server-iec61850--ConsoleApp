@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using IEC61850.Common;
+using IEC61850.Server;
 using ServerLib.DataClasses;
 
 namespace ServerLib.Parser
@@ -218,15 +219,34 @@ namespace ServerLib.Parser
 						}
 
 						var nameDA = da.Attribute("name")?.Value;
-						var fcDA = da.Attribute("fc")?.Value;
-						var bTypeDA = da.Attribute("bType")?.Value;
+						FunctionalConstraint fcDA;
+						try
+						{
+							fcDA = (FunctionalConstraint)Enum.Parse(typeof(FunctionalConstraint), da.Attribute("fc")?.Value);
+						}
+						catch
+						{
+							fcDA = FunctionalConstraint.ALL;
+						}
+
+						DataAttributeType bTypeDA;
+						try
+						{
+							bTypeDA = (DataAttributeType)Enum.Parse(typeof(DataAttributeType), da.Attribute("bType")?.Value);
+						}
+						catch
+						{
+							bTypeDA = 0;
+						}
+						//var bTypeDA = da.Attribute("bType")?.Value;
 						var typeDA = da.Attribute("type") != null ? da.Attribute("type")?.Value : da.Parent.Attribute("type") != null ? da.Parent.Attribute("type")?.Value : null;
-						var trgOpsDA = TriggerOptions.NONE;
 						var countDA = da.Attribute("count") != null ? da.Attribute("count")?.Value : "0";
 
+						var trgOpsDA = TriggerOptions.NONE;
 						if ((da.Attribute("dchg")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.DATA_CHANGED;
 						if ((da.Attribute("qchg")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.QUALITY_CHANGED;
 						if ((da.Attribute("dupd")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.DATA_UPDATE;
+						if ((da.Attribute("integrity")?.Value ?? "false").ToLower() == "true") trgOpsDA |= TriggerOptions.INTEGRITY;
 
 						ServerModel.ListTempDO.Last().ListDA.Add(new ServerModel.NodeDA(nameDA, fcDA, bTypeDA, typeDA, (byte)trgOpsDA, countDA));
 
@@ -276,7 +296,15 @@ namespace ServerLib.Parser
 					}
 
 					var nameBda = bda.Attribute("name")?.Value;
-					var bTypeBda = bda.Attribute("bType")?.Value;
+					DataAttributeType bTypeBda;
+					try
+					{
+						bTypeBda = (DataAttributeType)Enum.Parse(typeof(DataAttributeType), da.Attribute("bType")?.Value);
+					}
+					catch
+					{
+						bTypeBda = 0;
+					}
 					var typeBda = bda.Attribute("type") != null ? bda.Attribute("type")?.Value : null;
 					var trgOpsBda = TriggerOptions.NONE;
 					var countBda = bda.Attribute("count") != null ? bda.Attribute("count")?.Value : "0";
@@ -284,8 +312,9 @@ namespace ServerLib.Parser
 					if ((bda.Attribute("dchg")?.Value ?? "false").ToLower() == "true") trgOpsBda |= TriggerOptions.DATA_CHANGED;
 					if ((bda.Attribute("qchg")?.Value ?? "false").ToLower() == "true") trgOpsBda |= TriggerOptions.QUALITY_CHANGED;
 					if ((bda.Attribute("dupd")?.Value ?? "false").ToLower() == "true") trgOpsBda |= TriggerOptions.DATA_UPDATE;
+					if ((bda.Attribute("integrity")?.Value ?? "false").ToLower() == "true") trgOpsBda |= TriggerOptions.INTEGRITY;
 
-					ServerModel.ListTempDA.Last().ListDA.Add(new ServerModel.NodeDA(nameBda, null, bTypeBda, typeBda, (byte)trgOpsBda, countBda));
+					ServerModel.ListTempDA.Last().ListDA.Add(new ServerModel.NodeDA(nameBda, FunctionalConstraint.NONE, bTypeBda, typeBda, (byte)trgOpsBda, countBda));
 
 					if (bda.Value != "")
 					{
@@ -395,7 +424,7 @@ namespace ServerLib.Parser
 
 						DO.Last().ListDA.Add(da);
 
-						if (DO.Last().ListDA.Last().TypeDA != null && DO.Last().ListDA.Last().BTypeDA != "Enum")
+						if (DO.Last().ListDA.Last().TypeDA != null && DO.Last().ListDA.Last().BTypeDA != DataAttributeType.ENUMERATED)
 						{
 							AddBda(DO.Last().ListDA.Last(), da.FCDA);
 						}
@@ -414,7 +443,7 @@ namespace ServerLib.Parser
 			}
 		}
 
-		private static void AddBda(ServerModel.NodeDA listDa, string fcDa)
+		private static void AddBda(ServerModel.NodeDA listDa, FunctionalConstraint fcDa)
 		{
 			foreach (var listTempDa in ServerModel.ListTempDA)
 			{
@@ -422,7 +451,7 @@ namespace ServerLib.Parser
 				{
 					foreach (var tempDa in listTempDa.ListDA)
 					{
-						ServerModel.NodeDA da = new ServerModel.NodeDA(tempDa.NameDA, tempDa.FCDA ?? fcDa, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
+						ServerModel.NodeDA da = new ServerModel.NodeDA(tempDa.NameDA, tempDa.FCDA != FunctionalConstraint.NONE?tempDa.FCDA:fcDa, tempDa.BTypeDA, tempDa.TypeDA, tempDa.TrgOpsDA, tempDa.CountDA);
 
 						listDa.ListDA.Add(da);
 						if (listDa.ListDA.Last().TypeDA != null)

@@ -125,7 +125,7 @@ namespace ServerLib.DataClasses
 		private ushort MapQuality(string quality)
 		{
 			ushort qual = 0;
-			switch (quality.ToUpper())
+			switch (quality.ToUpperInvariant())
 			{
 				case @"GOOD":
 					qual = (ushort)IEC61850.Common.Validity.GOOD;
