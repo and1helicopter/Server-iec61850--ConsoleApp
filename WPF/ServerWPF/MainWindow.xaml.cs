@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,11 +23,13 @@ namespace ServerWPF
 			TimerLoadOsc.Enabled = false;
 
 			ConfigStackPanel.Children.Add(_config);
+
+			var pathDirectory = Directory.GetCurrentDirectory();
 			//Установка пути для лог файла
-			Log.SetRootPath(null);
+			Log.SetRootPath(pathDirectory);
 			
 			//Открываем настройки сервера
-			if (!ServerIEC61850.ReadConfig(null))
+			if (!ServerIEC61850.ReadConfig(pathDirectory + "\\Settings.xml"))
 			{
 				Log.Write(@"Settings: ReadSettings finish with status false. Stop server", @"Error");
 			}
@@ -52,7 +55,7 @@ namespace ServerWPF
 
 		private void TimerLoadOscOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
 		{
-			if (UpdateModBus.StatusLoad(out var count))
+			if (ModBus.StatusLoad(out var count))
 			{
 				Dispatcher.Invoke(() => { ProgressBar.Value = Math.Round(count, 2);});
 				Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
@@ -78,11 +81,11 @@ namespace ServerWPF
 			else if (CheckedStart)
 			{
 				Host.Visibility = Visibility.Visible;
-				Host.Content = ServerIEC61850.ServerConfig.LocalIPAddr;
+				Host.Content = ServerIEC61850.ServerConfig.LocalIpAddr;
 				Port.Visibility = Visibility.Visible;
 				Port.Content = ServerIEC61850.ServerConfig.ServerPort;
 				
-				if (UpdateModBus.StartPort)
+				if (true) // ModBus.CheckModbus().IsStart
 				{
 					BaudRate.Visibility = Visibility.Visible;
 					BaudRate.Content = ConfigModBus.BaudRate;
@@ -142,7 +145,7 @@ namespace ServerWPF
 
 
 			//Парсим файл конфигурации
-			if (!ServerIEC61850.ParseFile(ServerIEC61850.ServerConfig.NameConfigFile, true))
+			if (!ServerIEC61850.ParseFile(true))
 			{
 				Log.Write(@"ParseFile: Finish with status false. Stop server", @"Error");
 				return;
@@ -156,7 +159,7 @@ namespace ServerWPF
 			}
 
 			//Создаем модель сервера
-			if (!ServerIEC61850.ConfigServer(null)) return;
+			if (!ServerIEC61850.ConfigServer()) return;
 
 			//Запуск сервера 
 			if (!ServerIEC61850.StartServer()) return;

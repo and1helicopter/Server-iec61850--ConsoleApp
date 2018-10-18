@@ -1,6 +1,6 @@
 ﻿namespace UniSerialPort
 {
-    public static class ModBusCRC
+    public static class ModBusCrc
     {
         #region CRC_TABLE
         static byte[] tableCRCLo = {
@@ -46,17 +46,16 @@
         };
         #endregion
 
-        public static void CalcCRC(byte[] buffer, int count, out byte crcLo, out byte crcHi)
+        public static void CalcCrc(byte[] buffer, int count, out byte crcLo, out byte crcHi)
         {
-            short i = 0;
-            short crcIndex = 0;
-            byte crcHi1 = 0xFF;
+            short i;
+	        byte crcHi1 = 0xFF;
             byte crcLo1 = 0xFF;
 
 
             for (i = 0; i < count; i++)
             {
-                crcIndex = (short)(crcLo1 ^ (buffer[i]));
+                var crcIndex = (short)(crcLo1 ^ (buffer[i]));
                 crcLo1 = (byte)(crcHi1 ^ tableCRCLo[crcIndex]);
                 crcHi1 = tableCRCHi[crcIndex];
             }
@@ -64,10 +63,10 @@
             crcLo = crcLo1;
             crcHi = crcHi1;
         }
-        public static void CalcCRC(byte[] buffer, int count, out byte[] txBuffer)
+        public static void CalcCrc(byte[] buffer, int count, out byte[] txBuffer)
         {
             byte crcLo, crcHi;
-            CalcCRC(buffer, count, out crcLo, out crcHi);
+            CalcCrc(buffer, count, out crcLo, out crcHi);
             txBuffer = new byte[count + 2];
             for (int i = 0; i < count; i++)
             {
@@ -76,12 +75,12 @@
             txBuffer[count] = crcLo;
             txBuffer[count + 1] = crcHi;
         }
-        public static bool CheckCRC(byte[] buffer, int count)
+        public static bool CheckCrc(byte[] buffer, int count)
         {
             if (buffer.Length < count) { return false; }
 
             byte crcLo, crcHi;
-            CalcCRC(buffer, count, out crcLo, out crcHi);
+            CalcCrc(buffer, count, out crcLo, out crcHi);
             if (crcLo != 0) return false;
             if (crcHi != 0) return false;
             return true;
@@ -95,7 +94,7 @@
             {
                 for (i = 0; i < dataCount; i++)
                 {
-                    outData[i] = (ushort)((((ushort)(buffer[dataOffset + i * 2])) << 8) | (ushort)(buffer[dataOffset + 1 + i * 2]));
+                    outData[i] = (ushort)((buffer[dataOffset + i * 2] << 8) | buffer[dataOffset + 1 + i * 2]);
                 }
             }
             catch

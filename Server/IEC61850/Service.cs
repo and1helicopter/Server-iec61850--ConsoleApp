@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.ServiceProcess;
 using ServerLib.Log;
-using ServerLib.Parser;
 
 namespace ServiceIec61850
 {
@@ -40,13 +39,13 @@ namespace ServiceIec61850
 				}
 
 				str = rootName + icdName;
-				if (!ServerLib.Server.ServerIEC61850.ParseFile(str, true))
+				if (!ServerLib.Server.ServerIEC61850.ParseFile(true))
                 {
                     eventLog.WriteEntry("Parse File Error", EventLogEntryType.Error);
                     return;
                 }
 
-				if (!ServerLib.Server.ServerIEC61850.ConfigServer(rootName))
+				if (!ServerLib.Server.ServerIEC61850.ConfigServer())
 	            {
 		            eventLog.WriteEntry("Config ServerIEC61850 Error", EventLogEntryType.Error);
 		            return;

@@ -8,8 +8,33 @@ using UniSerialPort;
 
 namespace ServerLib.ModBus
 {
-	public static  partial class UpdateModBus
+	public static  partial class ModBus
 	{
+		private static int _loadConfigStep;
+		private static int _indexChannel;
+		private static bool _waitingAnswer;
+
+		private static readonly int[] NowStatus = new int[32];
+		private static readonly int[] OldStatus = new int[32];
+
+		private static int _indexDownloadScope;
+		private static uint _oscilStartTemp;
+
+		private static bool _startDownloadScope;
+		private static bool _configScopeDownload;
+
+		internal static void InitConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
+		{
+			try
+			{
+				ConfigDownloadScope.InitConfigDownloadScope(enabele, remove, type, comtradeType, configurationAddr, oscilCmndAddr, pathScope, oscilNominalFrequency);
+			}
+			catch
+			{
+				Log.Log.Write(@"UpdateModBus: InitConfigDownloadScope finish with error", @"Warning");
+			}
+		}
+
 		private static void ScopoeRequest()
 		{
 			if (!ConfigDownloadScope.Enable || !SerialPort.IsOpen || _startDownloadScope || _waitingAnswer)
@@ -31,7 +56,7 @@ namespace ServerLib.ModBus
 		{
 			lock (Locker)
 			{
-				SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 8), 32, UpdateScopeStatus, null);
+				SerialPort.GetDataRtu((ushort)(ConfigDownloadScope.OscilCmndAddr + 8), 32, UpdateScopeStatus, null);
 				_waitingAnswer = true;
 			}
 		}
@@ -76,9 +101,9 @@ namespace ServerLib.ModBus
 
 					ushort addr = (ushort) (ConfigDownloadScope.OscilCmndAddr + 8 + index);
 
-					SerialPort.SetDataRTU(addr, null, RequestPriority.Normal, null, statusSet);
+					SerialPort.SetDataRtu(addr, null, RequestPriority.Normal, null, statusSet);
 					//Инициализируем скачивание осцллограммы
-					SerialPort.GetDataRTU(addr, 1, StartScopeLoad, index);
+					SerialPort.GetDataRtu(addr, 1, StartScopeLoad, index);
 				}
 				else
 				{
@@ -117,7 +142,7 @@ namespace ServerLib.ModBus
 		{
 			ushort addr = (ushort) (ConfigDownloadScope.OscilCmndAddr + 8 + index);
 
-			SerialPort.GetDataRTU(addr, 1, FinishScopeLoad, index);
+			SerialPort.GetDataRtu(addr, 1, FinishScopeLoad, index);
 		}
 
 		private static void FinishScopeLoad(bool dataOk, ushort[] paramRtu, object param)
@@ -141,7 +166,7 @@ namespace ServerLib.ModBus
 								Convert.ToUInt16(statusGet ) //^ (1 << 8 + Server.ServerIEC61850.ServerConfig.CodeDevice)
 							};
 
-							SerialPort.SetDataRTU(addr, null, RequestPriority.Normal, null, statusSet);
+							SerialPort.SetDataRtu(addr, null, RequestPriority.Normal, null, statusSet);
 						}
 					}
 				}
@@ -154,7 +179,7 @@ namespace ServerLib.ModBus
 			ushort addr = (ushort) (ConfigDownloadScope.OscilCmndAddr + 8 + index);
 			ushort[] statusSet = { 0 };
 
-			SerialPort.SetDataRTU(addr, null, RequestPriority.Normal, null, statusSet);
+			SerialPort.SetDataRtu(addr, null, RequestPriority.Normal, null, statusSet);
 		}
 
 		private static uint _loadOscilTemp;
@@ -184,7 +209,7 @@ namespace ServerLib.ModBus
 				{
 					lock (Locker)
 					{
-						SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe, null);
+						SerialPort.GetDataRtu((ushort)(ConfigDownloadScope.OscilCmndAddr + 72 + _indexDownloadScope * 2), 2, UpdateScopoe, null);
 					}
 				}
 					break;
@@ -195,7 +220,7 @@ namespace ServerLib.ModBus
 
 					lock (Locker)
 					{
-						SerialPort.GetDataRTU04((ushort)(oscilLoadTemp), 32, UpdateScopoe);
+						SerialPort.GetDataRtu04((ushort)(oscilLoadTemp), 32, UpdateScopoe, null);
 					}
 				}
 					break;
@@ -250,7 +275,7 @@ namespace ServerLib.ModBus
 		{
 			lock (Locker)
 			{
-				SerialPort.GetDataRTU((ushort)(ConfigDownloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile, null);
+				SerialPort.GetDataRtu((ushort)(ConfigDownloadScope.OscilCmndAddr + 136 + _indexDownloadScope * 6), 6, SaveToFile, null);
 			}
 		}
 

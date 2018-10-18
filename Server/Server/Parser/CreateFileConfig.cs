@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using IEC61850.Common;
 using ServerLib.DataClasses;
 
 namespace ServerLib.Parser
@@ -159,7 +158,7 @@ namespace ServerLib.Parser
 						try
 						{
 							var lol = (from x in ServerModel.ListEnumType
-									   where x.NameEnumType.ToUpperInvariant() == "CtlModels".ToUpperInvariant()
+									   where String.Equals(x.NameEnumType, "CtlModels", StringComparison.InvariantCultureIgnoreCase)
 									   select x).ToList().First();
 
 							var locsld = (from x in lol.ListEnumVal

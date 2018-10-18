@@ -1,8 +1,8 @@
 ﻿namespace UniSerialPort
 {
-    public enum TCPFunctions:int
+    public enum TcpFunctions
     {
-        TCPRead = 0,
-        TCPWrite = 1
+        TcpRead = 0,
+        TcpWrite = 1
     }
 }

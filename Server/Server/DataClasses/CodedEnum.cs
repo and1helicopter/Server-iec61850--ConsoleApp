@@ -1,5 +1,8 @@
-﻿namespace ServerLib.DataClasses
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ServerLib.DataClasses
 {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum DoublePoint
 	{
 		INTERMEDIATE_STATE,
@@ -8,6 +11,7 @@
 		BAD_STATE
 	}
 
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum DirectionalProtection 
 	{
 		UNKNOWN,
@@ -16,6 +20,7 @@
 		BOTH
 	}
 
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum SecurityViolation
 	{
 		UNKNOWN,

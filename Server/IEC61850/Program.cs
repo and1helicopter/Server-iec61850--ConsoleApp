@@ -9,12 +9,11 @@ namespace ServiceIec61850
         /// </summary>
         static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
-            {
-                new Service()
-            };
-            ServiceBase.Run(ServicesToRun);
+	        var servicesToRun = new ServiceBase[]
+	        {
+		        new Service()
+	        };
+	        ServiceBase.Run(servicesToRun);
         }
     }
 }

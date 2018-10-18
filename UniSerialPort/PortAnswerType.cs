@@ -1,8 +1,8 @@
 ﻿namespace UniSerialPort
 {
-    public enum PortAnswerType : int
+    public enum PortAnswerType
     {
         Byte = 0,
-        RTU = 1
+        Rtu = 1
     }
 }

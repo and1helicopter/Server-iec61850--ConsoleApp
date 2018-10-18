@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using IEC61850.Server;
-using ServerLib.DataClasses;
-using ServerLib.ModBus;
 
-namespace ServerLib.Update
+namespace ServerLib.DataClasses
 {
 	public static partial class UpdateDataObj
 	{
@@ -30,14 +27,16 @@ namespace ServerLib.Update
 			public abstract ushort Count { get; set; }
 			public abstract dynamic Value { get; set; }
 
-			public abstract void GetValueRequest();
-			public abstract void GetValueResponse(dynamic value);
+			public delegate void ClassResponseHandler(dynamic value, dynamic param, bool status);
+
+			public abstract void GetValueRequest(ClassResponseHandler responseHandler);
+			public abstract void GetValueResponse(dynamic value, bool status);
 
 			public abstract void SetValue(dynamic value);
 
-			public delegate void ClassStateHandlerRead(dynamic value);
-
+			public delegate void ClassStateHandlerRead(dynamic value, bool status);
 			public abstract event ClassStateHandlerRead ReadValueHandler;
+			public abstract bool IsReady { get; set; }
 		}
 
 		//Digital
@@ -48,49 +47,51 @@ namespace ServerLib.Update
 			public override dynamic Value { get; set; }
 			public string NameBitArray { get; set; }
 
-			public override void GetValueRequest()          //Read ModBus
+			public override void GetValueRequest(ClassResponseHandler responseHandler)          //Read ModBus
 			{
-				UpdateModBus.GetRequest(Addr, Count, this);    //Читаю значение по адресу
+				ModBus.ModBus.GetRequest(Addr, Count, new { item = this, response = responseHandler });    //Читаю значение по адресу
 			}
 
-			public override void GetValueResponse(dynamic value)
+			public override void GetValueResponse(dynamic value, bool status)
 			{
-				Value = value;
-				ReadValueHandler?.Invoke(this);
+				if(status) Value = value;
+				ReadValueHandler?.Invoke(this, status);
 			}
 
 			public override void SetValue(dynamic value)
 			{
-				UpdateModBus.SetRequest(Addr, value);
+				ModBus.ModBus.SetRequest(Addr, value);
 			}
 
 			public override event ClassStateHandlerRead ReadValueHandler;
+			public override bool IsReady { get; set; } = true;
 		}
 
 		//Analog
-		public class SourceClassAnalog : SourceClass, ISourceAnalog
+		public class SourceClassAnalog : SourceClass
 		{
 			public override ushort Addr { get; set; }
 			public override ushort Count { get; set; }
 			public override dynamic Value { get; set; }
 
-			public override void GetValueRequest()          //Read UpdateModBus
+			public override void GetValueRequest(ClassResponseHandler responseHandler)          //Read UpdateModBus
 			{
-				UpdateModBus.GetRequest(Addr, Count, this);    //Читаю значение по адресу
+				ModBus.ModBus.GetRequest(Addr, Count, new { item = this, response = responseHandler });    //Читаю значение по адресу
 			}
 
-			public override void GetValueResponse(dynamic value)
+			public override void GetValueResponse(dynamic value, bool status)
 			{
-				Value = value;
-				ReadValueHandler?.Invoke(this);
+				if (status) Value = value;
+				ReadValueHandler?.Invoke(this, status);
 			}
 
 			public override void SetValue(dynamic value)
 			{
-				UpdateModBus.SetRequest(Addr, value);
+				ModBus.ModBus.SetRequest(Addr, value);
 			}
 
 			public override event ClassStateHandlerRead ReadValueHandler;
+			public override bool IsReady { get; set; } = true;
 		}
 
 		interface ISourceDigital
@@ -127,7 +128,7 @@ namespace ServerLib.Update
 			
 			public abstract void AddSource(SourceClass source, string name);
 
-			protected abstract void OnReadValue(dynamic value);
+			protected abstract void OnReadValue(dynamic value, bool status);
 			internal abstract void WriteValue(dynamic value);
 			internal abstract void Qality(bool init = false);
 
@@ -175,7 +176,7 @@ namespace ServerLib.Update
 				}
 			}
 
-			protected override void OnReadValue(dynamic val)
+			protected override void OnReadValue(dynamic val, bool status)
 			{
 				try
 				{
@@ -204,6 +205,12 @@ namespace ServerLib.Update
 					
 					void IsReadValue(dynamic value)
 					{
+						if (!status)
+						{
+							BaseClass.UpdateQuality(NameDataObj, _iedServer, _iedModel);
+							return;
+						}
+
 						var source = value;
 						if (Dictionary.ContainsValue(source))
 						{
@@ -353,7 +360,7 @@ namespace ServerLib.Update
 				}
 			}
 
-			protected override void OnReadValue(dynamic val)
+			protected override void OnReadValue(dynamic val, bool status)
 			{
 				try
 				{
@@ -382,6 +389,12 @@ namespace ServerLib.Update
 
 					void IsReadValue(dynamic value)
 					{
+						if (!status)
+						{
+							BaseClass.UpdateQuality(NameDataObj, _iedServer, _iedModel);
+							return;
+						}
+
 						dynamic source = value;
 
 						if (Dictionary.ContainsValue(source))

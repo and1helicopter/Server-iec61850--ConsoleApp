@@ -1,92 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO.Ports;
-using System.Threading;
-using UniSerialPort;
 
 namespace ServerLib.ModBus
 {
-	public static partial class UpdateModBus
-	{
-		public static void ConfigModBusPort()
-		{
-			if (SerialPort.IsOpen)
-			{
-				Log.Log.Write("UpdateModBus port is open! Close UpdateModBus SerialPort and repeat.", "Error");
-				return;
-			}
-
-			SerialPort.SerialPortMode = SerialPortModes.RSMode;
-			SerialPort.BaudRate = ConfigModBus.BaudRate;
-			SerialPort.Parity = ConfigModBus.SerialPortParity;
-			SerialPort.StopBits = ConfigModBus.SerialPortStopBits;
-			SerialPort.PortName = ConfigModBus.ComPortName;
-			SerialPort.SlaveAddr = ConfigModBus.AddrPort;
-
-
-			Log.Log.Write("UpdateModBus! SerialPort configured", "Success");
-		}
-
-		private static bool OpenModBusPort()
-		{
-			try
-			{
-				lock (Locker)
-				{
-					SerialPort.Open();
-					SerialPort.SerialPortError += SerialPort_SerialPortError;
-					StartPort = true;
-					ErrorPort = false;
-					_waitingAnswer = false;
-				}
-				if (SerialPort.IsOpen)
-				{
-					_running = true;
-
-					if (_modbusThread == null)
-					{
-						_modbusThread = new Thread(ModBusRead)
-						{
-							Name = @"UpdateModBus"
-						};
-						_modbusThread.Start();
-					}
-
-					if (_configScopeDownload)
-					{
-
-					}
-				}
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
-		}
-
-		private static void SerialPort_SerialPortError(object sender, System.EventArgs e)
-		{
-			Log.Log.Write("UpdateModBus port: SerialPortError!", "Error");
-
-			ErrorPort = true;
-
-			SerialPort.requests.Clear();
-
-			CloseModBusPort();
-			StartPort = false;
-		}
-
-		private static void CloseModBusPort()
-		{
-			lock (Locker)
-			{
-				SerialPort.Close();
-			}
-		}
-	}
-
-	/* Настройки UpdateModBus port  */
-
+	/// <summary>
+	/// Setting ModBus Port
+	/// </summary>
 	public static class ConfigModBus
 	{
 		public static int BaudRate { get; private set; }
@@ -122,7 +41,7 @@ namespace ServerLib.ModBus
 					break;
 			}
 		}
-		
+
 		private static void ChangeSerialPortParity(string serialPortParity)
 		{
 			switch (serialPortParity)
@@ -147,15 +66,15 @@ namespace ServerLib.ModBus
 			switch (serialPortStopBits)
 			{
 				case @"One":
-				{
-					SerialPortStopBits = StopBits.One;
-					return;
-				}
+					{
+						SerialPortStopBits = StopBits.One;
+						return;
+					}
 				case @"Two":
-				{
-					SerialPortStopBits = StopBits.Two;
-					return;
-				}
+					{
+						SerialPortStopBits = StopBits.Two;
+						return;
+					}
 				default:
 					SerialPortStopBits = StopBits.One;
 					break;
@@ -197,7 +116,7 @@ namespace ServerLib.ModBus
 			PortList.Sort();
 		}
 
-		public static void InitConfigModBus(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort, byte addrPort)
+		internal static void InitConfigModBus(int serialPortSpeedIndex, string serialPortParity, string serialPortStopBits, string comPort, byte addrPort)
 		{
 			ChangeBaudRate(serialPortSpeedIndex);
 			ChangeSerialPortParity(serialPortParity);
@@ -206,6 +125,4 @@ namespace ServerLib.ModBus
 			ChangeAddrPort(addrPort);
 		}
 	}
-
-
 }

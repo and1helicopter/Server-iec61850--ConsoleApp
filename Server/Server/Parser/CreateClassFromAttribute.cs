@@ -18,17 +18,17 @@ namespace ServerLib.Parser
 			{
 				if (doc.Root == null)
 				{
-					Log.Log.Write("FileParseToAttribute: doc.Root == null", "Warning ");
+					Log.Log.Write("FileParseToAttribute: doc.Root == null", "Warning");
 					return false;
 				}
 
 				IEnumerable<XElement> xLd = (from x in doc.Descendants()
-					where x.Name.LocalName == "LDevice"
+					where String.Equals(x.Name.LocalName, "LDevice", StringComparison.InvariantCultureIgnoreCase)
 					select x).ToList();
 
 				if (!xLd.Any())
 				{
-					Log.Log.Write("FileParseToAttribute: LDevice == null", "Warning ");
+					Log.Log.Write("FileParseToAttribute: LDevice == null", "Warning");
 					return false;
 				}
 
@@ -37,7 +37,7 @@ namespace ServerLib.Parser
 					string pathNameLD = itemLd.NameLD;
 
 					var lditem = from x in xLd
-						where x.Attribute("inst")?.Value == pathNameLD
+						where String.Equals(x.Attribute("inst")?.Value, pathNameLD, StringComparison.InvariantCultureIgnoreCase)
 						select x;
 
 					var xLn = lditem.Elements().ToList();
@@ -56,7 +56,7 @@ namespace ServerLib.Parser
 							where x.Attribute("prefix")?.Value + x.Attribute("lnClass")?.Value + x.Attribute("inst")?.Value == pathNameLN
 							select x;
 
-						IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DOI".ToUpperInvariant()).ToList();
+						IEnumerable<XElement> xDoi = lnitem.Elements().Where(x => String.Equals(x.Name.LocalName, "DOI", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						foreach (var DO in itemLn.ListDO)
 						{
@@ -65,10 +65,10 @@ namespace ServerLib.Parser
 							//Проверяю на собственный формат 
 
 							XElement xElement = null;
-							if (xDoi.Count(x => x.Attribute("name")?.Value == nameDO) != 0)
+							if (xDoi.Count(x => String.Equals(x.Attribute("name")?.Value, nameDO, StringComparison.InvariantCultureIgnoreCase)) != 0)
 							{
 								xElement = (from x in xDoi
-									where x.Attribute("name")?.Value == nameDO
+									where String.Equals(x.Attribute("name")?.Value, nameDO, StringComparison.InvariantCultureIgnoreCase)
 									select x).First();
 							}
 
@@ -110,7 +110,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref sps.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"stVal", ref stVal);
 
@@ -135,7 +135,7 @@ namespace ServerLib.Parser
 					}
 					catch
 					{
-						Log.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error   ");
+						Log.Log.Write("CreateClassFromAttribute.GetDo: SPS finish whith status false", "Error");
 						return;
 					}
 				case "DPS":
@@ -157,7 +157,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref dps.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"stVal", ref stVal);
 
@@ -204,7 +204,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref ins.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"stVal", ref stVal);
 
@@ -225,7 +225,7 @@ namespace ServerLib.Parser
 					}
 					catch
 					{
-						Log.Log.Write("CreateClassFromAttribute.GetDo: INS finish whith status false", "Error   ");
+						Log.Log.Write("CreateClassFromAttribute.GetDo: INS finish whith status false", "Error");
 						return;
 					}
 				case "ACT":
@@ -255,7 +255,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref act.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"general", ref general);
 						SetAddres(list, xElement, itemDo, @"phsA", ref phsA);
@@ -330,7 +330,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref acd.d);
 
-						var list = xElement.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"general", ref general);
 						SetAddres(list, xElement, itemDo, @"phsA", ref phsA);
@@ -399,7 +399,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref sec.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"cnt", ref cnt);
 						SetAddres(list, xElement, itemDo, @"sev", ref sev);
@@ -445,7 +445,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref bcr.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"actVal", ref actVal);
 
@@ -466,7 +466,7 @@ namespace ServerLib.Parser
 					}
 					catch
 					{
-						Log.Log.Write("CreateClassFromAttribute.GetDo: BCR finish whith status false", "Error   ");
+						Log.Log.Write("CreateClassFromAttribute.GetDo: BCR finish whith status false", "Error");
 						return;
 					}
 				#endregion
@@ -501,17 +501,17 @@ namespace ServerLib.Parser
 
 						if (xElement?.Attribute("name") != null)
 						{
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "units") != 0)
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "units", StringComparison.InvariantCultureIgnoreCase)) != 0)
 							{
-								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "units");
+								var temp = xElement.Elements().First(x => String.Equals(x.Attribute("name")?.Value, "units", StringComparison.InvariantCultureIgnoreCase));
 
 								SetAttributeInt32(temp, @"SIUnit", ref mv.Unit.SIUnit);
 								SetAttributeInt32(temp, @"multiplier", ref mv.Unit.Multiplier);
 							}
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "sVC") != 0)
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "sVC", StringComparison.InvariantCultureIgnoreCase)) != 0)
 							{
-								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "sVC");
+								var temp = xElement.Elements().First(x => String.Equals(x.Attribute("name")?.Value, "sVC", StringComparison.InvariantCultureIgnoreCase));
 
 								SetAttributeSingle(temp, @"scaleFactor", ref mv.sVC.ScaleFactor);
 								SetAttributeSingle(temp, @"offset", ref mv.sVC.Offset);
@@ -520,7 +520,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref mv.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"mag", ref mag);
 
@@ -541,7 +541,7 @@ namespace ServerLib.Parser
 					}
 					catch
 					{
-						Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error   ");
+						Log.Log.Write("CreateClassFromAttribute.GetDo: MV finish whith status false", "Error");
 						return;
 					}
 				case "CMV":
@@ -584,25 +584,25 @@ namespace ServerLib.Parser
 
 						if (xElement?.Attribute("name") != null)
 						{
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "units") != 0)
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "units", StringComparison.InvariantCultureIgnoreCase)) != 0)
 							{
-								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "units");
+								var temp = xElement.Elements().First(x => String.Equals(x.Attribute("name")?.Value, "units", StringComparison.InvariantCultureIgnoreCase));
 
 								SetAttributeInt32(temp, @"SIUnit", ref cmv.Unit.SIUnit);
 								SetAttributeInt32(temp, @"multiplier", ref cmv.Unit.Multiplier);
 							}
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "magSVC") != 0)
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "magSVC", StringComparison.InvariantCultureIgnoreCase)) != 0)
 							{
-								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "magSVC");
+								var temp = xElement.Elements().First(x => String.Equals(x.Attribute("name")?.Value, "magSVC", StringComparison.InvariantCultureIgnoreCase));
 
 								SetAttributeSingle(temp, @"scaleFactor", ref cmv.magSVC.ScaleFactor);
 								SetAttributeSingle(temp, @"offset", ref cmv.magSVC.Offset);
 							}
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "angSVC") != 0)
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "angSVC", StringComparison.InvariantCultureIgnoreCase)) != 0)
 							{
-								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "angSVC");
+								var temp = xElement.Elements().First(x => String.Equals(x.Attribute("name")?.Value, "angSVC", StringComparison.InvariantCultureIgnoreCase));
 
 								SetAttributeSingle(temp, @"scaleFactor", ref cmv.angSVC.ScaleFactor);
 								SetAttributeSingle(temp, @"offset", ref cmv.angSVC.Offset);
@@ -611,7 +611,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref cmv.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 						
 						SetAddres(list, xElement, itemDo, @"mag", @"cVal", ref mag);
 						SetAddres(list, xElement, itemDo, @"ang", @"cVal", ref ang);
@@ -634,7 +634,7 @@ namespace ServerLib.Parser
 					}
 					catch
 					{
-						Log.Log.Write("CreateClassFromAttribute.GetDo: CMV finish whith status false", "Error   ");
+						Log.Log.Write("CreateClassFromAttribute.GetDo: CMV finish whith status false", "Error");
 						return;
 					}
 				case "SAV":
@@ -666,17 +666,17 @@ namespace ServerLib.Parser
 
 						if (xElement?.Attribute("name") != null)
 						{
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "units") != 0)
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "units", StringComparison.InvariantCultureIgnoreCase)) != 0)
 							{
-								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "units");
+								var temp = xElement.Elements().First(x => String.Equals(x.Attribute("name")?.Value, "units", StringComparison.InvariantCultureIgnoreCase));
 
 								SetAttributeInt32(temp, @"SIUnit", ref sav.Unit.SIUnit);
 								SetAttributeInt32(temp, @"multiplier", ref sav.Unit.Multiplier);
 							}
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "sVC") != 0)
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "sVC", StringComparison.InvariantCultureIgnoreCase)) != 0)
 							{
-								var temp = xElement.Elements().First(x => x.Attribute("name")?.Value == "sVC");
+								var temp = xElement.Elements().First(x => String.Equals(x.Attribute("name")?.Value, "sVC", StringComparison.InvariantCultureIgnoreCase));
 
 								SetAttributeSingle(temp, @"scaleFactor", ref sav.sVC.ScaleFactor);
 								SetAttributeSingle(temp, @"offset", ref sav.sVC.Offset);
@@ -685,7 +685,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref sav.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"instMag", ref instMag);
 
@@ -718,9 +718,9 @@ namespace ServerLib.Parser
 						{
 							var ddd = path;
 
-							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DOI".ToUpperInvariant()).ToList();
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => String.Equals(x.Name.LocalName, "DOI", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-							var fff = xDoi.First(x=>x.Attribute("name")?.Value == item.NameDO);
+							var fff = xDoi.First(x=>String.Equals(x.Attribute("name")?.Value, item.NameDO, StringComparison.InvariantCultureIgnoreCase));
 
 							GetDo(item, $"{ddd}.{itemDo.NameDO}", fff);
 						}
@@ -757,9 +757,9 @@ namespace ServerLib.Parser
 						{
 							var ddd = path;
 
-							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DOI".ToUpperInvariant()).ToList();
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => String.Equals(x.Name.LocalName, "DOI", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-							var fff = xDoi.First(x => x.Attribute("name")?.Value == item.NameDO);
+							var fff = xDoi.First(x => String.Equals(x.Attribute("name")?.Value, item.NameDO, StringComparison.InvariantCultureIgnoreCase));
 
 							GetDo(item, $"{ddd}.{itemDo.NameDO}", fff);
 						}
@@ -796,14 +796,14 @@ namespace ServerLib.Parser
 						{
 							var ddd = path;
 
-							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DOI".ToUpperInvariant()).ToList();
+							IEnumerable<XElement> xDoi = xElement.Elements().Where(x => String.Equals(x.Name.LocalName, "DOI", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-							var fff = xDoi.First(x => x.Attribute("name")?.Value == item.NameDO);
+							var fff = xDoi.First(x => String.Equals(x.Attribute("name")?.Value, item.NameDO, StringComparison.InvariantCultureIgnoreCase));
 
 							GetDo(item, $"{ddd}.{itemDo.NameDO}", fff);
 						}
 
-						var del = new DelClass()
+						var del = new DelClass
 						{
 							d = d
 						};
@@ -860,7 +860,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref spc.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"stVal", ref stval);
 
@@ -909,7 +909,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref dpc.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"stVal", ref stval);
 
@@ -957,7 +957,7 @@ namespace ServerLib.Parser
 
 						SetAttributeString(xElement, @"d", ref inc.d);
 
-						var list = xElement?.Elements().Where(x => x.Name.LocalName == "private").ToList();
+						var list = xElement?.Elements().Where(x => String.Equals(x.Name.LocalName, "private", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						SetAddres(list, xElement, itemDo, @"stVal", ref stval);
 
@@ -996,43 +996,43 @@ namespace ServerLib.Parser
 
 						if (xElement?.Attribute("name") != null)
 						{
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "vendor") != 0)
-								vendor = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "vendor").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "vendor", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								vendor = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "vendor", StringComparison.InvariantCultureIgnoreCase)).Value;
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "hwRev") != 0)
-								hwRev = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "hwRev").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "hwRev", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								hwRev = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "hwRev", StringComparison.InvariantCultureIgnoreCase)).Value;
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "swRev") != 0)
-								swRev = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "swRev").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "swRev", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								swRev = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "swRev", StringComparison.InvariantCultureIgnoreCase)).Value;
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "location") != 0)
-								location = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "location").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "location", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								location = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "location", StringComparison.InvariantCultureIgnoreCase)).Value;
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "model") != 0)
-								model = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "model").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "model", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								model = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "model", StringComparison.InvariantCultureIgnoreCase)).Value;
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "serNum") != 0)
-								serNum = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "serNum").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "serNum", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								serNum = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "serNum", StringComparison.InvariantCultureIgnoreCase)).Value;
 						}
 						else
 						{
-							if (itemDo.ListDA.Count(x => x.NameDA == "vendor") != 0)
-								vendor = itemDo.ListDA.First(x => x.NameDA == "vendor")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "vendor", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								vendor = itemDo.ListDA.First(x => String.Equals(x.NameDA, "vendor", StringComparison.InvariantCultureIgnoreCase))?.Value;
 
-							if (itemDo.ListDA.Count(x => x.NameDA == "hwRev") != 0)
-								hwRev = itemDo.ListDA.First(x => x.NameDA == "hwRev")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "hwRev", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								hwRev = itemDo.ListDA.First(x => String.Equals(x.NameDA, "hwRev", StringComparison.InvariantCultureIgnoreCase))?.Value;
 
-							if (itemDo.ListDA.Count(x => x.NameDA == "swRev") != 0)
-								swRev = itemDo.ListDA.First(x => x.NameDA == "swRev")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "swRev", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								swRev = itemDo.ListDA.First(x => String.Equals(x.NameDA, "swRev", StringComparison.InvariantCultureIgnoreCase))?.Value;
 
-							if (itemDo.ListDA.Count(x => x.NameDA == "location") != 0)
-								location = itemDo.ListDA.First(x => x.NameDA == "location")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "location", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								location = itemDo.ListDA.First(x => String.Equals(x.NameDA, "location", StringComparison.InvariantCultureIgnoreCase))?.Value;
 
-							if (itemDo.ListDA.Count(x => x.NameDA == "model") != 0)
-								model = itemDo.ListDA.First(x => x.NameDA == "model")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "model", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								model = itemDo.ListDA.First(x => String.Equals(x.NameDA, "model", StringComparison.InvariantCultureIgnoreCase))?.Value;
 
-							if (itemDo.ListDA.Count(x => x.NameDA == "serNum") != 0)
-								serNum = itemDo.ListDA.First(x => x.NameDA == "serNum")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "serNum", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								serNum = itemDo.ListDA.First(x => String.Equals(x.NameDA, "serNum", StringComparison.InvariantCultureIgnoreCase))?.Value;
 						}
 
 						var pathNameDo = path + "." + itemDo.NameDO;
@@ -1072,31 +1072,31 @@ namespace ServerLib.Parser
 
 						if (xElement?.Attribute("name") != null)
 						{
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "configRev") != 0)
-								configRev = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "configRev").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "configRev", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								configRev = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "configRev", StringComparison.InvariantCultureIgnoreCase)).Value;
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "swRev") != 0)
-								swRev = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "swRev").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "swRev", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								swRev = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "swRev", StringComparison.InvariantCultureIgnoreCase)).Value;
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "vendor") != 0)
-								vendor = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "vendor").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "vendor", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								vendor = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "vendor", StringComparison.InvariantCultureIgnoreCase)).Value;
 
-							if (xElement.Elements().Count(x => x.Attribute("name")?.Value == "d") != 0)
-								d = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == "d").Value;
+							if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, "d", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								d = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, "d", StringComparison.InvariantCultureIgnoreCase)).Value;
 						}
 						else
 						{
-							if (itemDo.ListDA.Count(x => x.NameDA == "configRev") != 0)
-								configRev = itemDo.ListDA.First(x => x.NameDA == "configRev")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "configRev", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								configRev = itemDo.ListDA.First(x => String.Equals(x.NameDA, "configRev", StringComparison.InvariantCultureIgnoreCase))?.Value;
 
-							if (itemDo.ListDA.Count(x => x.NameDA == "swRev") != 0)
-								swRev = itemDo.ListDA.First(x => x.NameDA == "swRev")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "swRev", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								swRev = itemDo.ListDA.First(x => String.Equals(x.NameDA, "swRev", StringComparison.InvariantCultureIgnoreCase))?.Value;
 
-							if (itemDo.ListDA.Count(x => x.NameDA == "vendor") != 0)
-								vendor = itemDo.ListDA.First(x => x.NameDA == "vendor")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "vendor", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								vendor = itemDo.ListDA.First(x => String.Equals(x.NameDA, "vendor", StringComparison.InvariantCultureIgnoreCase))?.Value;
 
-							if (itemDo.ListDA.Count(x => x.NameDA == "d") != 0)
-								d = itemDo.ListDA.First(x => x.NameDA == "d")?.Value;
+							if (itemDo.ListDA.Count(x => String.Equals(x.NameDA, "d", StringComparison.InvariantCultureIgnoreCase)) != 0)
+								d = itemDo.ListDA.First(x => String.Equals(x.NameDA, "d", StringComparison.InvariantCultureIgnoreCase))?.Value;
 						}
 
 						var pathNameDo = path + "." + itemDo.NameDO;
@@ -1131,121 +1131,85 @@ namespace ServerLib.Parser
 		#region SetAttribute
 		private static void SetAttributeBoolean(XElement xElement, string name, ref bool? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					obj = Convert.ToBoolean(
-						xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			obj = Convert.ToBoolean(
+				xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value);
 		}
 
 		private static void SetAttributeDoublePoint(XElement xElement, string name, ref DoublePoint? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					obj = (DoublePoint)Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			obj = (DoublePoint)Convert.ToInt32(xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value);
 		}
 
 		private static void SetAttributeInt32(XElement xElement, string name, ref int? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					obj = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x =>
+				    String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			obj = Convert.ToInt32(xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value);
 		}
 
 		private static void SetAttributeUInt32(XElement xElement, string name, ref uint? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					obj = Convert.ToUInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x =>
+				    String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			obj = Convert.ToUInt32(xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value);
 		}
 
 		private static void SetAttributDirectionalProtection(XElement xElement, string name, ref DirectionalProtection? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					obj = (DirectionalProtection) Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x =>
+				    String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			obj = (DirectionalProtection)Convert.ToInt32(xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value);
 		}
 
 		private static void SetAttributeString(XElement xElement, string name, ref string obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					obj = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value;
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x =>
+				    String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			obj = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value;
 		}
 
 		private static void SetAttributeSecurityViolation(XElement xElement, string name, ref SecurityViolation? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					var tempValue = Convert.ToInt32(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
-					tempValue = tempValue > 4 ? 0 : tempValue;
-					obj = (SecurityViolation) tempValue;
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			var tempValue = Convert.ToInt32(xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value);
+			tempValue = tempValue > 4 ? 0 : tempValue;
+			obj = (SecurityViolation)tempValue;
 		}
 
 		private static void SetAttributeInt64(XElement xElement, string name, ref Int64? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					var tempValue = Convert.ToInt64(xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value);
-					obj = tempValue;
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			var tempValue = Convert.ToInt64(xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value);
+			obj = tempValue;
 		}
 
 		private static void SetAttributeSingle(XElement xElement, string name, ref Single? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					var val = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value.Replace('.', ',');
-					var tempValue = Convert.ToSingle(val);
-					obj = tempValue;
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			var val = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value.Replace('.', ',');
+			var tempValue = Convert.ToSingle(val);
+			obj = tempValue;
 		}
 
 		private static void SetAttributeCtlModel(XElement xElement, string name, ref ControlModel? obj)
 		{
-			if (xElement?.Attribute("name") != null)
-			{
-				if (xElement.Elements().Count(x => x.Attribute("name")?.Value == name) != 0)
-				{
-					var val = xElement.Elements().ToList().First(x => x.Attribute("name")?.Value == name).Value.ToLower();
-
-					var tempValue = new CtlModelsClass(val);
-					obj = (ControlModel?) tempValue.CtlModels;
-				}
-			}
+			if (xElement?.Attribute("name") == null) return;
+			if (xElement.Elements().Count(x =>
+				    String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+			var val = xElement.Elements().ToList().First(x => String.Equals(x.Attribute("name")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value.ToLower();
+			var tempValue = new CtlModelsClass(val);
+			obj = (ControlModel?)tempValue.CtlModels;
 		}
 		#endregion
 
@@ -1254,16 +1218,12 @@ namespace ServerLib.Parser
 		{
 			try
 			{
-				if (list.Count != 0)
-				{
-					if (itemDo.ListDA.Count(x => x.NameDA == name) != 0)
-					{
-						if (list.Count(x => x.Attribute("value")?.Value == name) != 0)
-							str = (from x in xElement.Descendants()
-								where x.Name.LocalName == "private"
-								select x).First(x => x.Attribute("value")?.Value == name).Value;
-					}
-				}
+				if (list.Count == 0) return;
+				if (itemDo.ListDA.Count(x => x.NameDA == name) == 0) return;
+				if (list.Count(x => String.Equals(x.Attribute("value")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+				str = (from x in xElement.Descendants()
+					where x.Name.LocalName == "private"
+					select x).First(x => String.Equals(x.Attribute("value")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value;
 			}
 			catch
 			{
@@ -1275,16 +1235,12 @@ namespace ServerLib.Parser
 		{
 			try
 			{
-				if (list.Count != 0)
-				{
-					if (itemDo.ListDA.Count(x => x.NameDA == nameBase) != 0)
-					{
-						if (list.Count(x => x.Attribute("value")?.Value == name) != 0)
-							str = (from x in xElement.Descendants()
-								where x.Name.LocalName == "private"
-								select x).First(x => x.Attribute("value")?.Value == name).Value;
-					}
-				}
+				if (list.Count == 0) return;
+				if (itemDo.ListDA.Count(x => x.NameDA == nameBase) == 0) return;
+				if (list.Count(x => String.Equals(x.Attribute("value")?.Value, name, StringComparison.InvariantCultureIgnoreCase)) == 0) return;
+				str = (from x in xElement.Descendants()
+					where x.Name.LocalName == "private"
+					select x).First(x => String.Equals(x.Attribute("value")?.Value, name, StringComparison.InvariantCultureIgnoreCase)).Value;
 			}
 			catch
 			{
@@ -1296,55 +1252,50 @@ namespace ServerLib.Parser
 		#region SetAddressD
 		private static void SetAddressD(UpdateDataObj.DestinationObjectDigital destination, List<UpdateDataObj.SourceClass> sourceList, string name, string str)
 		{
-			if (str != null)
-			{
-				GetAddrD(str, out int index, out string addr);
-				SetDestinationD(destination, sourceList, index, addr, name);
-			}
+			if (str == null) return;
+			GetAddrD(str, out int index, out string addr);
+			SetDestinationD(destination, sourceList, index, addr, name);
 		}
 
 
 		private static void SetAddressA(UpdateDataObj.DestinationObjectAnalog destination, string name, string str)
 		{
-			if (str != null)
+			if (str == null) return;
+			GetAddrA(str, out ushort count, out ushort addr);
+
+			var source = new UpdateDataObj.SourceClassAnalog
 			{
-				GetAddrA(str, out ushort count, out ushort addr);
+				Addr = addr,
+				Count = count
+			};
 
-				var source = new UpdateDataObj.SourceClassAnalog
-				{
-					Addr = addr,
-					Count = count
-				};
-
-				destination.AddSource(source, name);
-			}
+			destination.AddSource(source, name);
 		}
 		#endregion
 
 		private static void SetDestinationD(UpdateDataObj.DestinationObjectDigital destination, List<UpdateDataObj.SourceClass> sourceList, int index, string addr, string value)
 		{
-			if (sourceList.Count(x => ((UpdateDataObj.SourceClassDigital)x).NameBitArray == addr) != 0)
-			{
-				var source = (UpdateDataObj.SourceClassDigital)(from y in sourceList
-					where ((UpdateDataObj.SourceClassDigital)y).NameBitArray == addr
-					select y).First();
+			if (sourceList.Count(x => ((UpdateDataObj.SourceClassDigital) x).NameBitArray == addr) == 0) return;
 
-				destination.IndexData.Add(value, index);
-				destination.AddSource(source, value);
-			}
+			var source = (UpdateDataObj.SourceClassDigital)(from y in sourceList
+				where ((UpdateDataObj.SourceClassDigital)y).NameBitArray == addr
+				select y).First();
+
+			destination.IndexData.Add(value, index);
+			destination.AddSource(source, value);
 		}
 
 		private static void GetAddrD(string str, out int index, out string addr)
 		{
 			index = 0;
 			addr = "";
-			if (str != null)
-			{
-				var splitStr = str.Split(';');
 
-				index = Convert.ToInt32(splitStr[0].Split(':')[1]);
-				addr = splitStr[1].Split(':')[0];
-			}
+			if (str == null) return;
+
+			var splitStr = str.Split(';');
+
+			index = Convert.ToInt32(splitStr[0].Split(':')[1]);
+			addr = splitStr[1].Split(':')[0];
 		}
 
 		private static void GetAddrA(string str, out ushort count, out ushort addr)
@@ -1352,13 +1303,12 @@ namespace ServerLib.Parser
 			count = 1;
 			addr = 0;
 
-			if (str != null)
-			{
-				var splitStr = str.Split(';');
+			if (str == null) return;
 
-				count = Count(splitStr[1].Split(':')[1]);
-				addr = Convert.ToUInt16(splitStr[1].Split(':')[0]);
-			}
+			var splitStr = str.Split(';');
+
+			count = Count(splitStr[1].Split(':')[1]);
+			addr = Convert.ToUInt16(splitStr[1].Split(':')[0]);
 		}
 
 		private static ushort Count(string b)

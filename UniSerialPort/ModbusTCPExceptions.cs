@@ -1,6 +1,6 @@
 ﻿namespace UniSerialPort
 {
-    public enum ModbusTCPExceptions : byte
+    public enum ModbusTcpExceptions : byte
     {
         /// <summary>Constant for exception illegal function.</summary>
         ExcIllegalFunction = 1,

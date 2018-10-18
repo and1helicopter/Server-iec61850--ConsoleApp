@@ -75,7 +75,7 @@ namespace ServerLib.DataClasses
 			//допустимый возраст в мск
 
 			UpdateOldData(time.AddMilliseconds(_allowedAge) < DateTime.Now);
-			UpdateBadReference(ModBus.UpdateModBus.ErrorPort);
+			UpdateBadReference(ModBus.ModBus.Status.IsError);
 
 			//Проверки
 			UpdateQualityClass();

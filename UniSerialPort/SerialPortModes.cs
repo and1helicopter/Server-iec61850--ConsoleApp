@@ -1,8 +1,8 @@
 ﻿namespace UniSerialPort
 {
-    public enum SerialPortModes:int
+    public enum SerialPortModes
     {
-        RSMode = 0,
-        TCPMode = 1
+        RsMode = 0,
+        TcpMode = 1
     }
 }

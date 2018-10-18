@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using ServerLib.DataClasses;
 using ServerLib.Update;
 
 namespace ServerLib.Parser
@@ -19,12 +20,12 @@ namespace ServerLib.Parser
 				}
 
 				IEnumerable<XElement> xLd = (from x in doc.Descendants()
-					where x.Name.LocalName == "LDevice"
+					where String.Equals(x.Name.LocalName, "LDevice", StringComparison.InvariantCultureIgnoreCase)
 					select x).ToList();
 
 				if (!xLd.Any())
 				{
-					Log.Log.Write("FileParseToAttribute: LDevice == null", "Warning ");
+					Log.Log.Write("FileParseToAttribute: LDevice == null", "Warning");
 					return false;
 				}
 
@@ -32,7 +33,7 @@ namespace ServerLib.Parser
 				{
 					if (lditem.Attribute("inst") == null)
 					{
-						Log.Log.Write("FileParseToAttribute: LDevice.inst == null", "Warning ");
+						Log.Log.Write("FileParseToAttribute: LDevice.inst == null", "Warning");
 						continue;
 					}
 
@@ -40,13 +41,13 @@ namespace ServerLib.Parser
 
 					if (!xLn.Any())
 					{
-						Log.Log.Write("FileParseToAttribute: LN == null", "Warning ");
+						Log.Log.Write("FileParseToAttribute: LN == null", "Warning");
 						return false;
 					}
 
 					foreach (var lnitem in xLn)
 					{
-						if (lnitem.Attribute("type")?.Value.ToUpperInvariant() == "EnergocomplektBitArray".ToUpperInvariant() || lnitem.Attribute("type")?.Value.ToUpperInvariant() == "BitArray".ToUpperInvariant())
+						if (String.Equals(lnitem.Attribute("type")?.Value, "EnergocomplektBitArray", StringComparison.InvariantCultureIgnoreCase) || String.Equals(lnitem.Attribute("type")?.Value, "BitArray", StringComparison.InvariantCultureIgnoreCase))
 						{
 							try
 							{
@@ -65,14 +66,14 @@ namespace ServerLib.Parser
 							}
 							catch
 							{
-								Log.Log.Write("FileParseToAttribute: LN.type == BitArray", "Warning ");
+								Log.Log.Write("FileParseToAttribute: LN.type == BitArray", "Warning");
 								continue;
 							}
 						}
 
 						if (lnitem.Attribute("lnClass") == null || lnitem.Attribute("inst") == null)
 						{
-							Log.Log.Write("FileParseToAttribute: LN.lnClass == null or LN.inst == null", "Warning ");
+							Log.Log.Write("FileParseToAttribute: LN.lnClass == null or LN.inst == null", "Warning");
 						}
 					}
 				}

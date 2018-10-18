@@ -2,13 +2,13 @@
 {
     public class RequestUnit
     {
-        public AsynchSerialPort.DataRecieved DataRecieved;
-        public AsynchSerialPort.DataRecievedRTU DataRecievedRTU;
+        public readonly AsynchSerialPort.DataRecieved DataRecieved;
+        public readonly AsynchSerialPort.DataRecievedRtu DataRecievedRtu;
 
-        public byte[] TxBuffer;
-        public int ReceivedBytesThreshold;
-        public PortAnswerType PortAnswerType;
-        public int RTUReadCount { get; set; }
+        public readonly byte[] TxBuffer;
+        public readonly int ReceivedBytesThreshold;
+        public readonly PortAnswerType PortAnswerType;
+        public int RtuReadCount { get; set; }
         public object Param { get; set; }
 
         public RequestUnit(byte[] txBuffer, int receivedBytesThreshold, AsynchSerialPort.DataRecieved dataRecieved)
@@ -17,15 +17,15 @@
             TxBuffer = txBuffer;
             ReceivedBytesThreshold = receivedBytesThreshold;
             PortAnswerType = PortAnswerType.Byte;
-            RTUReadCount = 0;
+            RtuReadCount = 0;
         }
-        public RequestUnit(byte[] txBuffer, int receivedBytesThreshold, AsynchSerialPort.DataRecievedRTU dataRecievedRTU, int rtuReadCount, object param)
+        public RequestUnit(byte[] txBuffer, int receivedBytesThreshold, AsynchSerialPort.DataRecievedRtu dataRecievedRtu, int rtuReadCount, object param)
         {
-            DataRecievedRTU = dataRecievedRTU;
+            DataRecievedRtu = dataRecievedRtu;
             TxBuffer = txBuffer;
             ReceivedBytesThreshold = receivedBytesThreshold;
-            PortAnswerType = PortAnswerType.RTU;
-            RTUReadCount = rtuReadCount;
+            PortAnswerType = PortAnswerType.Rtu;
+            RtuReadCount = rtuReadCount;
             Param = param;
         }
 
@@ -33,27 +33,27 @@
         {
             return TxBuffer[0];
         }
-        public TCPFunctions GetTCPFunction()
+        public TcpFunctions GetTcpFunction()
         {
             if (TxBuffer[1] == 0x10)
             {
-                return TCPFunctions.TCPWrite;
+                return TcpFunctions.TcpWrite;
             }
             else
             {
-                return TCPFunctions.TCPRead;
+                return TcpFunctions.TcpRead;
             }
         }
-        public ushort GetTCPReadCount()
+        public ushort GetTcpReadCount()
         {
-            return (ushort)(TxBuffer[5]);
+            return TxBuffer[5];
         }
-        public ushort GetTCPStartAddr()
+        public ushort GetTcpStartAddr()
         {
             ushort u = (ushort)((TxBuffer[2]<<8) | TxBuffer[3]);
             return u;
         }
-        public ushort[] GetTCPWriteData()
+        public ushort[] GetTcpWriteData()
         {
             ushort count = (ushort)((TxBuffer[4] << 8) | TxBuffer[5]);
             ushort[] us = new ushort[count];

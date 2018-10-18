@@ -22,7 +22,7 @@ namespace ServerWPF
 		public void InitConfig()
 		{
 			PortTextBox.Text = ServerLib.Server.ServerIEC61850.ServerConfig.ServerPort.ToString();
-			HostTextBox.Text = ServerLib.Server.ServerIEC61850.ServerConfig.LocalIPAddr;
+			HostTextBox.Text = ServerLib.Server.ServerIEC61850.ServerConfig.LocalIpAddr;
 			AutostartCheckBox.IsChecked = ServerLib.Server.ServerIEC61850.ServerConfig.Autostart;
 			PathTextBox.Text = ServerLib.Server.ServerIEC61850.ServerConfig.NameConfigFile;
 
@@ -129,12 +129,12 @@ namespace ServerWPF
 		private void SetSettings()
 		{
 			ServerLib.Server.ServerIEC61850.ServerConfig.ServerPort = Convert.ToInt32(PortTextBox.Text);
-			ServerLib.Server.ServerIEC61850.ServerConfig.LocalIPAddr = HostTextBox.Text;
+			ServerLib.Server.ServerIEC61850.ServerConfig.LocalIpAddr = HostTextBox.Text;
 			ServerLib.Server.ServerIEC61850.ServerConfig.Autostart = Convert.ToBoolean(AutostartCheckBox.IsChecked.ToString());
 			ServerLib.Server.ServerIEC61850.ServerConfig.NameConfigFile = Convert.ToString(PathTextBox.Text);
 
-			ConfigModBus.InitConfigModBus(
-				Convert.ToInt32(BaudRateComboBox.Text), 
+			ModBus.InitConfigModBus(
+				BaudRateComboBox.Text, 
 				SerialPortParityComboBox.Text, 
 				SerialPortStopBitsComboBox.Text,
 				ComPortNameComboBox.Text, 

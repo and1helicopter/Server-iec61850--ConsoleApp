@@ -17,7 +17,7 @@ namespace ServerLib.Parser
 			}
 
 			IEnumerable<XElement> xLd = (from x in doc.Descendants()
-										 where x.Name.LocalName == "LDevice"
+										 where String.Equals(x.Name.LocalName, "LDevice", StringComparison.InvariantCultureIgnoreCase)
 										 select x).ToList();
 
 			if (!xLd.Any())
@@ -34,7 +34,7 @@ namespace ServerLib.Parser
 					continue;
 				}
 
-				var ld = lditem.Attribute("inst")?.Value;
+				//var ld = lditem.Attribute("inst")?.Value;
 
 				IEnumerable<XElement> xLn = lditem.Elements().ToList();
 
@@ -46,19 +46,17 @@ namespace ServerLib.Parser
 
 				foreach (var lnitem in xLn)
 				{
-				
-
-					string ln = lnitem.Attribute("prefix")?.Value + lnitem.Attribute("lnClass")?.Value + lnitem.Attribute("inst")?.Value;
+				//string ln = lnitem.Attribute("prefix")?.Value + lnitem.Attribute("lnClass")?.Value + lnitem.Attribute("inst")?.Value;
 
 					#region DataSet
-					IEnumerable<XElement> xDS = lnitem.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "DataSet".ToUpperInvariant()).ToList();
+					IEnumerable<XElement> xDS = lnitem.Elements().Where(x => String.Equals(x.Name.LocalName, "DataSet", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 					foreach (var dsitem in xDS)
 					{
 						string nameDS = dsitem.Attribute("name").Value;
 
-						IEnumerable<XElement> xDSElements = dsitem.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "FCD".ToUpperInvariant()
-																						 || x.Name.LocalName.ToUpperInvariant() == "FCDA").ToList();
+						IEnumerable<XElement> xDSElements = dsitem.Elements().Where(x => String.Equals(x.Name.LocalName, "FCD", StringComparison.InvariantCultureIgnoreCase)
+																						 || string.Equals(x.Name.LocalName, "FCDA", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						foreach (var dselement in xDSElements)
 						{
@@ -109,7 +107,7 @@ namespace ServerLib.Parser
 					#endregion
 
 					#region ReportControl
-					IEnumerable<XElement> xRCB = lnitem.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "ReportControl".ToUpperInvariant()).ToList();
+					IEnumerable<XElement> xRCB = lnitem.Elements().Where(x => String.Equals(x.Name.LocalName, "ReportControl", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 					foreach (XElement itemrcb in xRCB)
 					{
@@ -117,12 +115,12 @@ namespace ServerLib.Parser
 						{
 							string nameRCB = itemrcb.Attribute("name") != null ? itemrcb.Attribute("name").Value : "";
 							string refRCB = itemrcb.Attribute("ref") != null ? itemrcb.Attribute("ref").Value : nameRCB;
-							string bufferedRCB = itemrcb.Attribute("buffered") != null && itemrcb.Attribute("buffered").Value.ToLower() == "true" ? "BR" : "RP";
+							string bufferedRCB = itemrcb.Attribute("buffered") != null && String.Equals(itemrcb.Attribute("buffered").Value, "true", StringComparison.InvariantCultureIgnoreCase) ? "BR" : "RP";
 
-							bool indexed = itemrcb.Attribute("indexed") == null || itemrcb.Attribute("indexed").Value.ToLower() == "true";
+							bool indexed = itemrcb.Attribute("indexed") == null || String.Equals(itemrcb.Attribute("indexed").Value, "true", StringComparison.InvariantCultureIgnoreCase);
 
-							var rptEnabled = itemrcb.Elements().First(x => x.Name.LocalName.ToUpperInvariant() == "RptEnabled".ToUpperInvariant()).Attribute("max") != null
-								? Convert.ToInt32(itemrcb.Elements().First(x => x.Name.LocalName.ToUpperInvariant() == "RptEnabled".ToUpperInvariant()).Attribute("max").Value) : 1;
+							var rptEnabled = itemrcb.Elements().First(x => String.Equals(x.Name.LocalName, "RptEnabled", StringComparison.InvariantCultureIgnoreCase)).Attribute("max") != null
+								? Convert.ToInt32(itemrcb.Elements().First(x => String.Equals(x.Name.LocalName, "RptEnabled", StringComparison.InvariantCultureIgnoreCase)).Attribute("max").Value) : 1;
 
 							var rptId = itemrcb.Attribute("rptID") != null ? itemrcb.Attribute("rptID").Value : "";
 							var datSet = itemrcb.Attribute("datSet") != null ? itemrcb.Attribute("datSet").Value : null; // null accepted
@@ -134,44 +132,44 @@ namespace ServerLib.Parser
 							IEC61850.Common.TriggerOptions trgOptions = IEC61850.Common.TriggerOptions.NONE;
 
 							XElement xTrgOps = itemrcb.Elements()
-								.First(x => x.Name.LocalName.ToUpperInvariant() == "TrgOps".ToUpperInvariant());
+								.First(x => String.Equals(x.Name.LocalName, "TrgOps", StringComparison.InvariantCultureIgnoreCase));
 							if (xTrgOps != null)
 							{
-								if ((xTrgOps.Attribute("dchg") != null ? xTrgOps.Attribute("dchg").Value : "false").ToLower() == "true")
+								if (String.Equals((xTrgOps.Attribute("dchg") != null ? xTrgOps.Attribute("dchg").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									trgOptions |= IEC61850.Common.TriggerOptions.DATA_CHANGED;
-								if ((xTrgOps.Attribute("qchg") != null ? xTrgOps.Attribute("qchg").Value : "false").ToLower() == "true")
+								if (String.Equals((xTrgOps.Attribute("qchg") != null ? xTrgOps.Attribute("qchg").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									trgOptions |= IEC61850.Common.TriggerOptions.QUALITY_CHANGED;
-								if ((xTrgOps.Attribute("dupd") != null ? xTrgOps.Attribute("dupd").Value : "false").ToLower() == "true")
+								if (String.Equals((xTrgOps.Attribute("dupd") != null ? xTrgOps.Attribute("dupd").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									trgOptions |= IEC61850.Common.TriggerOptions.DATA_UPDATE;
-								if ((xTrgOps.Attribute("period") != null ? xTrgOps.Attribute("period").Value : "false").ToLower() == "true")
+								if (String.Equals((xTrgOps.Attribute("period") != null ? xTrgOps.Attribute("period").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									trgOptions |= IEC61850.Common.TriggerOptions.INTEGRITY;
-								if ((xTrgOps.Attribute("gi") != null ? xTrgOps.Attribute("gi").Value : "true").ToLower() == "true"
+								if (String.Equals((xTrgOps.Attribute("gi") != null ? xTrgOps.Attribute("gi").Value : "true"), "true", StringComparison.InvariantCultureIgnoreCase)
 								) // default true
 									trgOptions |= IEC61850.Common.TriggerOptions.GI;
 							}
 
 							// <OptFields seqNum="true" timeStamp="true" dataSet="true" reasonCode="true" dataRef="false" entryID="true" configRef="true" bufOvfl="true" />
 							IEC61850.Common.ReportOptions rptOptions = IEC61850.Common.ReportOptions.NONE;
-							XElement xOptFields = itemrcb.Elements().First(x => x.Name.LocalName.ToUpperInvariant() == "OptFields".ToUpperInvariant());
+							XElement xOptFields = itemrcb.Elements().First(x => String.Equals(x.Name.LocalName, "OptFields", StringComparison.InvariantCultureIgnoreCase));
 							if (xOptFields != null)
 							{
-								if ((xOptFields.Attribute("seqNum") != null ? xOptFields.Attribute("seqNum").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("seqNum") != null ? xOptFields.Attribute("seqNum").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.SEQ_NUM;
-								if ((xOptFields.Attribute("timeStamp") != null ? xOptFields.Attribute("timeStamp").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("timeStamp") != null ? xOptFields.Attribute("timeStamp").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.TIME_STAMP;
-								if ((xOptFields.Attribute("dataSet") != null ? xOptFields.Attribute("dataSet").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("dataSet") != null ? xOptFields.Attribute("dataSet").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.DATA_SET;
-								if ((xOptFields.Attribute("reasonCode") != null ? xOptFields.Attribute("reasonCode").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("reasonCode") != null ? xOptFields.Attribute("reasonCode").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.REASON_FOR_INCLUSION;
-								if ((xOptFields.Attribute("dataRef") != null ? xOptFields.Attribute("dataRef").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("dataRef") != null ? xOptFields.Attribute("dataRef").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.DATA_REFERENCE;
-								if ((xOptFields.Attribute("entryID") != null ? xOptFields.Attribute("entryID").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("entryID") != null ? xOptFields.Attribute("entryID").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.ENTRY_ID;
-								if ((xOptFields.Attribute("configRef") != null ? xOptFields.Attribute("configRef").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("configRef") != null ? xOptFields.Attribute("configRef").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.CONF_REV;
-								if ((xOptFields.Attribute("bufOvfl") != null ? xOptFields.Attribute("bufOvfl").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("bufOvfl") != null ? xOptFields.Attribute("bufOvfl").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.BUFFER_OVERFLOW;
-								if ((xOptFields.Attribute("segment") != null ? xOptFields.Attribute("segment").Value : "false").ToLower() == "true")
+								if (String.Equals((xOptFields.Attribute("segment") != null ? xOptFields.Attribute("segment").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 									rptOptions |= IEC61850.Common.ReportOptions.SEGMENTATION;
 							}
 
@@ -179,7 +177,7 @@ namespace ServerLib.Parser
 
 							string prefix = lnitem.Attribute("prefix") != null ? lnitem.Attribute("prefix").Value : "";
 							string lnClass = lnitem.Attribute("lnClass") != null ? lnitem.Attribute("lnClass").Value : "";
-							string lnInst = lnitem.Attribute("Inst".ToLowerInvariant()) != null ? lnitem.Attribute("Inst".ToLowerInvariant()).Value : "";
+							string lnInst = lnitem.Attribute("inst") != null ? lnitem.Attribute("inst").Value : "";
 							string fullName = String.Concat(prefix, lnClass, lnInst);
 
 							for (int i = 0; i < rptEnabled; i++)
@@ -207,47 +205,47 @@ namespace ServerLib.Parser
 					#endregion
 
 					#region LogControlBlock
-					IEnumerable<XElement> xLCB = lnitem.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "LogControl".ToUpperInvariant()).ToList();
+					//IEnumerable<XElement> xLCB = lnitem.Elements().Where(x => x.Name.LocalName.ToUpperInvariant() == "LogControl".ToUpperInvariant()).ToList();
 
-					foreach (var itemlcb in xLCB)
-					{
-						var nameLCB = itemlcb.Attribute("name") != null ? itemlcb.Attribute("name").Value : "";
-						var datSetLCB = itemlcb.Attribute("datSet") != null ? itemlcb.Attribute("datSet").Value : null; // null accepted
-						var refLCB = itemlcb.Attribute("ref") != null ? itemlcb.Attribute("ref").Value : $"{ld}/{ln}.{nameLCB}";
-						var logEnaLCB = itemlcb.Attribute("logEna") != null && (itemlcb.Attribute("logEna").Value.ToLower() == "true");
+					//foreach (var itemlcb in xLCB)
+					//{
+					//	var nameLCB = itemlcb.Attribute("name") != null ? itemlcb.Attribute("name").Value : "";
+					//	var datSetLCB = itemlcb.Attribute("datSet") != null ? itemlcb.Attribute("datSet").Value : null; // null accepted
+					//	var refLCB = itemlcb.Attribute("ref") != null ? itemlcb.Attribute("ref").Value : $"{ld}/{ln}.{nameLCB}";
+					//	var logEnaLCB = itemlcb.Attribute("logEna") != null && (itemlcb.Attribute("logEna").Value.ToLower() == "true");
 
-						IEC61850.Common.TriggerOptions trgOptions = IEC61850.Common.TriggerOptions.NONE;
-						XElement xTrgOps = itemlcb.Elements().First(x => x.Name.LocalName.ToUpperInvariant() == "TrgOps".ToUpperInvariant());
-						if (xTrgOps != null)
-						{
-							if ((xTrgOps.Attribute("dchg") != null ? xTrgOps.Attribute("dchg").Value : "false").ToLower() == "true")
-								trgOptions |= IEC61850.Common.TriggerOptions.DATA_CHANGED;
-							if ((xTrgOps.Attribute("qchg") != null ? xTrgOps.Attribute("qchg").Value : "false").ToLower() == "true")
-								trgOptions |= IEC61850.Common.TriggerOptions.QUALITY_CHANGED;
-							if ((xTrgOps.Attribute("dupd") != null ? xTrgOps.Attribute("dupd").Value : "false").ToLower() == "true")
-								trgOptions |= IEC61850.Common.TriggerOptions.DATA_UPDATE;
-							if ((xTrgOps.Attribute("period") != null ? xTrgOps.Attribute("period").Value : "false").ToLower() == "true")
-								trgOptions |= IEC61850.Common.TriggerOptions.INTEGRITY;
-							if ((xTrgOps.Attribute("gi") != null ? xTrgOps.Attribute("gi").Value : "true").ToLower() == "true") // default true
-								trgOptions |= IEC61850.Common.TriggerOptions.GI;
-						}
+					//	IEC61850.Common.TriggerOptions trgOptions = IEC61850.Common.TriggerOptions.NONE;
+					//	XElement xTrgOps = itemlcb.Elements().First(x => x.Name.LocalName.ToUpperInvariant() == "TrgOps".ToUpperInvariant());
+					//	if (xTrgOps != null)
+					//	{
+					//		if ((xTrgOps.Attribute("dchg") != null ? xTrgOps.Attribute("dchg").Value : "false").ToLower() == "true")
+					//			trgOptions |= IEC61850.Common.TriggerOptions.DATA_CHANGED;
+					//		if ((xTrgOps.Attribute("qchg") != null ? xTrgOps.Attribute("qchg").Value : "false").ToLower() == "true")
+					//			trgOptions |= IEC61850.Common.TriggerOptions.QUALITY_CHANGED;
+					//		if ((xTrgOps.Attribute("dupd") != null ? xTrgOps.Attribute("dupd").Value : "false").ToLower() == "true")
+					//			trgOptions |= IEC61850.Common.TriggerOptions.DATA_UPDATE;
+					//		if ((xTrgOps.Attribute("period") != null ? xTrgOps.Attribute("period").Value : "false").ToLower() == "true")
+					//			trgOptions |= IEC61850.Common.TriggerOptions.INTEGRITY;
+					//		if ((xTrgOps.Attribute("gi") != null ? xTrgOps.Attribute("gi").Value : "true").ToLower() == "true") // default true
+					//			trgOptions |= IEC61850.Common.TriggerOptions.GI;
+					//	}
 
-						var intgPdLCB = itemlcb.Attribute("intPeriod") != null ? Convert.ToUInt32(itemlcb.Attribute("intPeriod").Value) : 0;
-						var reasonCodeLCB = itemlcb.Attribute("reasonCode") != null && (itemlcb.Attribute("reasonCode").Value.ToLower() == "true");
+					//	var intgPdLCB = itemlcb.Attribute("intPeriod") != null ? Convert.ToUInt32(itemlcb.Attribute("intPeriod").Value) : 0;
+					//	var reasonCodeLCB = itemlcb.Attribute("reasonCode") != null && (itemlcb.Attribute("reasonCode").Value.ToLower() == "true");
 
-						try
-						{
-							if (ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN.First(y => y.NameLN == $"{ln}") != null)
-							{
-								ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN
-									.First(y => y.NameLN == $"{ln}").ListLCB.Add(new ServerModel.LCB(nameLCB, refLCB, logEnaLCB, datSetLCB, trgOptions, intgPdLCB, reasonCodeLCB));
-							}
-						}
-						catch
-						{
-							Log.Log.Write("FileParseToAttribute: LogControlBlock parse error", "Error ");
-						}
-					}
+					//	try
+					//	{
+					//		if (ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN.First(y => y.NameLN == $"{ln}") != null)
+					//		{
+					//			ServerModel.Model.ListLD.First(x => x.NameLD == ld).ListLN
+					//				.First(y => y.NameLN == $"{ln}").ListLCB.Add(new ServerModel.LCB(nameLCB, refLCB, logEnaLCB, datSetLCB, trgOptions, intgPdLCB, reasonCodeLCB));
+					//		}
+					//	}
+					//	catch
+					//	{
+					//		Log.Log.Write("FileParseToAttribute: LogControlBlock parse error", "Error ");
+					//	}
+					//}
 					#endregion
 
 					#region Log
@@ -259,7 +257,7 @@ namespace ServerLib.Parser
 					#endregion
 				}
 			}
-			Log.Log.Write("FileParseToAttribute: File parse success", "Success ");
+			Log.Log.Write("FileParseToAttribute: File parse success", "Success");
 			return true;
 		}
 	}

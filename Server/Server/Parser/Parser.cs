@@ -19,42 +19,40 @@ namespace ServerLib.Parser
 				return false;
 			}
 
-			if (doc.Root != null)
+			if (doc.Root == null) return false;
+			if (!ParseDocument(doc)) //Парсим классы модели
 			{
-				if (!ParseDocument(doc)) //Парсим классы модели
-				{
-					Log.Log.Write("ParseDocunent: Finish whith status false", "Error");
-					return false;
-				}
-
-				if (!CreateClassBitArray(doc)) //Парсим битовые поля
-				{
-					Log.Log.Write("CreateClassBitArray: Finish whith status false", "Error   ");
-					return false;
-				}
-
-				if (!CreateClassFromAttribute(doc))//Создаем обновляймые классы 
-				{
-					Log.Log.Write("CreateClassFromAttribute: Finish whith status false", "Error   ");
-					return false;
-				}
-
-				if (!CreateServices(doc))
-				{
-					Log.Log.Write("CreateServices: Finish whith status false", "Error");
-					return false;
-				}
-
-				if (dependencesModel)
-				{
-					if (!DependencesModel())
-					{
-						Log.Log.Write("DependencesModel: Finish whith status false", "Error");
-					}
-				}
-
-				SaveFileConfig(); //Создаем из объектной модели - конфигурационную 
+				Log.Log.Write("ParseDocunent: Finish whith status false", "Error");
+				return false;
 			}
+
+			if (!CreateClassBitArray(doc)) //Парсим битовые поля
+			{
+				Log.Log.Write("CreateClassBitArray: Finish whith status false", "Error   ");
+				return false;
+			}
+
+			if (!CreateClassFromAttribute(doc))//Создаем обновляймые классы 
+			{
+				Log.Log.Write("CreateClassFromAttribute: Finish whith status false", "Error   ");
+				return false;
+			}
+
+			if (!CreateServices(doc))
+			{
+				Log.Log.Write("CreateServices: Finish whith status false", "Error");
+				return false;
+			}
+
+			if (dependencesModel)
+			{
+				if (!DependencesModel())
+				{
+					Log.Log.Write("DependencesModel: Finish whith status false", "Error");
+				}
+			}
+
+			SaveFileConfig(); //Создаем из объектной модели - конфигурационную 
 
 			return true;
 		}

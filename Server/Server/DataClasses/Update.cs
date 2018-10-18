@@ -1,8 +1,9 @@
-﻿using IEC61850.Common;
+﻿using System.Linq;
+using IEC61850.Common;
 using IEC61850.Server;
-using ServerLib.DataClasses;
+using ServerLib.Update;
 
-namespace ServerLib.Update
+namespace ServerLib.DataClasses
 {
 	public static class UpdateServer
 	{
@@ -154,11 +155,35 @@ namespace ServerLib.Update
 			}
 		}
 
-		public static void InitQualityAndTime(IedServer iedServer, IedModel iedModel)
+		public static void InitQualityAndTime()
 		{
 			foreach (var item in UpdateDataObj.UpdateListDestination)
 			{
 				item.Qality(true);
+			}
+		}
+
+		internal static readonly ReadDataObjMethodWork UpdateReadDataObjMethodWork = new ReadDataObjMethodWork();
+
+		internal class ReadDataObjMethodWork: UpdateClass.CycleClass.MethodWork
+		{
+			internal override void Request(dynamic status)
+			{
+				var ready = (bool) status;
+				UpdateDataObj.SourceList.ForEach(source =>
+				{
+					if (source.IsReady || ready)
+					{
+						source.GetValueRequest(Response);
+						source.IsReady = false;
+					}
+				});
+			}
+
+			internal override void Response(dynamic value, dynamic source, bool status)
+			{
+				source.GetValueResponse(value, status);
+				source.IsReady = true;
 			}
 		}
 	}

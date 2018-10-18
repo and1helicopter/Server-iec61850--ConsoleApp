@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using IEC61850.Server;
 
-namespace ServerLib.Update
+namespace ServerLib.DataClasses
 {
 	public static partial class UpdateDataObj
 	{

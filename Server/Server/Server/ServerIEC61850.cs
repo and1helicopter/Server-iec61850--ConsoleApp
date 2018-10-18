@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
-using IEC61850.Common;
+using System.Threading;
 using IEC61850.Server;
 using ServerLib.DataClasses;
-using ServerLib.ModBus;
 using ServerLib.Update;
-
 
 namespace ServerLib.Server
 {
@@ -14,21 +12,23 @@ namespace ServerLib.Server
 		private static IedServer _iedServer;
 		private static IedModel _iedModel;
 
-		public static bool ConfigServer(string pathName)
+		public static bool ConfigServer()
 		{
 			try
 			{
 				//Создавать в дириктории с настройками
-				Directory.CreateDirectory(pathName != String.Empty ? $"{pathName}vmd-filestore\\" : "vmd-filestore\\");
+				var pathServer = $"{ServerConfig.NamePathDirectory}\\{ServerConfig.NameDirectoryServer}";
+				Directory.CreateDirectory(pathServer);
 
 				_iedModel = ConfigFileParser.CreateModelFromConfigFile(ServerConfig.NameModelFile);
 					// IedModel.CreateFromFile(ServerConfig.NameModelFile);
 				IedServerConfig config = new IedServerConfig
 				{
 					ReportBufferSize = 100000,
-					FileServiceBasePath = pathName != String.Empty ? $"{pathName}vmd-filestore\\" : "vmd-filestore\\"
+					FileServiceBasePath = pathServer
 				};
 				_iedServer = new IedServer(_iedModel, config);
+				_iedServer.SetLocalIpAddress(ServerConfig.LocalIpAddr);
 			}
 			catch 
 			{
@@ -39,9 +39,9 @@ namespace ServerLib.Server
 			UpdateServer.SetParams(_iedServer, _iedModel);			//Устаовка 
 			UpdateServer.InitUpdate(_iedServer, _iedModel);			//Заполнение данными
 			UpdateServer.InitHandlers(_iedServer, _iedModel);       //Установка оброботчиков событий
-			UpdateServer.InitQualityAndTime(_iedServer, _iedModel);
+			UpdateServer.InitQualityAndTime();
 
-			UpdateModBus.ConfigModBusPort();
+			UpdateClass.CycleClass.AddMethodWork(UpdateServer.UpdateReadDataObjMethodWork);
 
 			return true;
 		}
@@ -49,11 +49,18 @@ namespace ServerLib.Server
 		public static bool StartServer(){
 			if (_iedModel != null)
 			{
+				ModBus.ModBus.StartModBus();
 				_iedServer.Start(ServerConfig.ServerPort);
+
+				Thread xxxThread = new Thread(UpdateClass.CycleClass.Cycle)
+				{
+					Name = "Cycle",
+					IsBackground = true
+				};
+				xxxThread.Start();
 
 				Log.Log.Write(@"ServerIEC61850.StartServer: ServerIEC61850 started", @"Start");
 				
-				UpdateModBus.StartModBus();
 
 				GC.Collect();
 			}
@@ -71,7 +78,7 @@ namespace ServerLib.Server
 		{
 			try
 			{
-				UpdateModBus.CloseModBus();
+				ModBus.ModBus.CloseModBus();
 
 				if (_iedServer != null)
 				{
@@ -97,9 +104,9 @@ namespace ServerLib.Server
 			return true;
 		}
 
-		public static bool ParseFile(string pathName, bool dependencesModel)
+		public static bool ParseFile(bool dependencesModel)
 		{
-			return Parser.Parser.ParseFile(pathName, dependencesModel);
+			return Parser.Parser.ParseFile($"{ServerConfig.NamePathDirectory}\\{ServerConfig.NameConfigFile}", dependencesModel);
 		}
 
 		public static bool ReadConfig(string pathName)

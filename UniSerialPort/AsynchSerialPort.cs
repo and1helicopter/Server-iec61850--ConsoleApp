@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO.Ports;
-using System.Linq;
 using System.Xml.Linq;
 using System.Xml;
 using System.Threading;
@@ -10,725 +9,679 @@ using System.Threading;
 
 namespace UniSerialPort
 {
-    public class AsynchSerialPort
-    {
-
-        public delegate void DataRecieved(bool DataOk, byte[] RxBuffer);
-        public delegate void DataRecievedRTU(bool DataOk, ushort[] ParamRTU, object param);
-
-        public bool portError { get; private set; }//= false;
-        public event EventHandler SerialPortError;
-        public event EventHandler FatalSerialPortError;
-
-        SerialPort serialPort;
-        //System.Windows.Forms.Timer 
-
-        System.Timers.Timer requestTimer;
-
-        byte slaveAddr = 1;
-        public byte SlaveAddr
-        {
-            get { return slaveAddr; }
-            set { slaveAddr = value; }
-        }
-
-        public int BaudRate
-        {
-            get { return serialPort.BaudRate; }
-            set { serialPort.BaudRate = value; }
-        }
-
-        public Parity Parity
-        {
-            get { return serialPort.Parity; }
-            set { serialPort.Parity = value; }
-        }
-
-        public StopBits StopBits
-        {
-            get { return serialPort.StopBits; }
-            set { serialPort.StopBits = value; }
-        }
-
-        public string PortName
-        {
-            get { return serialPort.PortName; }
-            set { serialPort.PortName = value; }
-        }
-
-        public bool IsOpen
-        {
-
-            get 
-            {
-                if (serialPortMode == SerialPortModes.RSMode)
-                {
-                    return serialPort.IsOpen;
-                }
-                else
-                {
-                    if (tcpMaster == null) { return false; }
-                    return tcpMaster.Connected;
-                }
-            
-            }
-        }
-
-        bool portBusy = false;
-        public bool PortBusy
-        {
-            get { return portBusy; }
-        }
-
-        string ipAddress = "213.21.27.140";
-        public string IpAddress
-        {
-            get { return ipAddress; }
-            set { ipAddress = value; }
-        }
-
-
-        ushort portNum = 502;
-        public ushort PortNum
-        {
-            get { return portNum; }
-            set { portNum = value; }
-        }
-
-
-        SerialPortModes serialPortMode = SerialPortModes.RSMode;
-        public SerialPortModes SerialPortMode
-        {
-            get { return serialPortMode; }
-            set { serialPortMode = value; }
-        }
-        ModbusTCPMaster tcpMaster;
-
-        byte[] tcpReadData;
-        bool tcpWriteOk;
-
-        public void SetNewPortMode(SerialPortModes SerialPortMode)
-        {
-            if (IsOpen)
-            {
-                throw new Exception("Serial port is open!");
-            }
-
-            if (SerialPortMode == SerialPortModes.RSMode)
-            {
-                serialPortMode = SerialPortModes.RSMode;
-                if (tcpMaster != null)
-                {
-                    tcpMaster = null;
-                }
-            }
-            else
-            {
-                serialPortMode = SerialPortModes.TCPMode;
-            }
-        }
-
-        public AsynchSerialPort()
-        {
-            serialPort = new SerialPort();
-            serialPort.DataReceived +=new SerialDataReceivedEventHandler(serialPort_DataReceived);
-            requestTimer = new System.Timers.Timer
-            {
-                Interval = 10
-            };
-            requestTimer.Elapsed += requestTimer_Tick;
-            
-        }
-
-        public void Open()
-        {
-            portError = false;
-            portBusy = false;
-            if (serialPortMode == SerialPortModes.RSMode)
-            {
-                if (serialPort.IsOpen)
-                {
-                    return;
-                }
-                serialPort.Open();
-            }
-            else if (serialPortMode == SerialPortModes.TCPMode)
-            {
-                
-                tcpMaster = new ModbusTCPMaster(ipAddress, portNum);
-                tcpMaster.OnResponseData +=new ModbusTCPMaster.ResponseData(tcpMaster_OnResponseData);
-            }
-            requestTimer.Enabled = true; 
-        }
-
-        bool flagToClose = false;
-        public void Close()
-        {
-            if (serialPortMode == SerialPortModes.RSMode)
-            {
-                #region RS232Mode
-                if (!serialPort.IsOpen) { return; }
-                if (portError)
-                {
-                    try
-                    {
-                        serialPort.Close();
-                        flagToClose = false;
-                        requests.Clear();
-                        if (PortClosed != null) { PortClosed(null, null); }
-                    }
-                    catch
-                    {
-                        if (FatalSerialPortError != null)
-                        {
-                            FatalSerialPortError(serialPort, null);
-                        }
-                    }
-                    return;
-                }
-                flagToClose = true;
-                #endregion
-            }
-
-            if (serialPortMode == SerialPortModes.TCPMode)
-            {
-                #region TCPMode
-                requests.Clear();
-                if (tcpMaster == null) { if (PortClosed != null) { PortClosed(null, null); } return; }
-                if (!tcpMaster.Connected) { if (PortClosed != null) { PortClosed(null, null); } return; }
-                flagToClose = true;
-                if (PortClosed != null) { PortClosed(null, null); }
-                #endregion
-            }
-        }
-
-       
-        void CloseBody()
-        {
-            requestTimer.Enabled = false;
-            if (serialPortMode == SerialPortModes.RSMode)
-            {
-                serialPort.Close();
-            }
-            if (serialPortMode == SerialPortModes.TCPMode)
-            {
-                
-                try
-                {
-                    tcpMaster.Disconnnect();
-                }
-                catch
-                {
-                    throw new NotImplementedException();
-                }
-            }
-            flagToClose = false;
-            requests.Clear();
-            if (PortClosed != null) { PortClosed(null, null); }
-        }
-        public event EventHandler PortClosed;
-
-
-        EventWaitHandle waitSerialData = new AutoResetEvent(false);
-
-        void serialPort_DataReceived(object Sender, EventArgs e)
-        {
-            waitSerialData.Set();
-        }
-
-
-        void tcpMaster_OnResponseData(ushort ID, byte Unit, byte Function, byte[] Data)
-        {
-            if (Function == 0x03 || Function == 0x04)
-            {
-                tcpReadData = Data;
-                waitSerialData.Set();
-            }
-            else if (Function == 0x10)
-            {
-                tcpWriteOk = true;
-                waitSerialData.Set();
-            }
-        }
-
-
-        void SendDataBody(RequestUnit RequestUnit)
-        {
-            if (portError) { return; }
-            if (serialPortMode == SerialPortModes.TCPMode)
-            {
-                if (RequestUnit.PortAnswerType != PortAnswerType.RTU)
-                {
-                    throw new Exception("Invalid request  type");
-                }
-            }
-
-            if (serialPortMode == SerialPortModes.RSMode)
-            {
-                try
-                {
-                    if (serialPort.BytesToRead !=0)
-                    {
-                        byte[] buff = new byte[serialPort.BytesToRead+1];
-                        serialPort.Read(buff, 0, serialPort.BytesToRead);
-                    }
-                    Thread.Sleep(3);
-                    serialPort.Write(RequestUnit.TxBuffer, 0, RequestUnit.TxBuffer.Length);
-                }
-                catch
-                {
-                    portError = true;
-                    if (SerialPortError != null) { SerialPortError(serialPort, null); }
-                    return;
-
-                }
-            }
-
-            tcpReadData = null;
-            tcpWriteOk = false;
-            if (serialPortMode == SerialPortModes.TCPMode)
-            {
-                if (RequestUnit.GetTCPFunction() == TCPFunctions.TCPRead)
-                {
-                    tcpMaster.ReadHoldingRegister(1, RequestUnit.GetSlaveAddr(), RequestUnit.GetTCPStartAddr(), RequestUnit.GetTCPReadCount());
-                }
-                else
-                {
-                    tcpMaster.WriteMultipleRegister(1, RequestUnit.GetSlaveAddr(), RequestUnit.GetTCPStartAddr(), RequestUnit.GetTCPWriteData());
-                }
-            }
-
-            if (serialPortMode == SerialPortModes.RSMode)
-            {
-                waitSerialData.WaitOne(TimeSpan.FromMilliseconds(100));
-
-                for (int i = 0; i < 100; i++)
-                {
-                    if (serialPort.BytesToRead < RequestUnit.ReceivedBytesThreshold)
-                    {
-                        waitSerialData.WaitOne(TimeSpan.FromMilliseconds(10));
-                    }
-                    else break;
-                }
-            }
-
-            if (serialPortMode == SerialPortModes.TCPMode)
-            {
-                waitSerialData.WaitOne(TimeSpan.FromMilliseconds(3000));
-            }
-
-            bool dataOk = false;
-            #region RecieveRS232
-            if (serialPortMode == SerialPortModes.RSMode)
-            {
-                byte[] rxBuffer = new byte[0];
-
-                if (serialPort.BytesToRead >= RequestUnit.ReceivedBytesThreshold)
-                {
-                    int count = serialPort.BytesToRead;
-                    rxBuffer = new byte[count];
-
-                    try
-                    {
-                        serialPort.Read(rxBuffer, 0, count);
-                    }
-                    catch
-                    {
-                        portError = true;
-                        if (SerialPortError != null) { SerialPortError(serialPort, null); }
-                        return;
-                    }
-
-                    dataOk = true;
-                }
-                else
-                {
-                    // System.Windows.Forms.MessageBox.Show(RequestUnit.ReceivedBytesThreshold.ToString());
-                }
-
-                switch (RequestUnit.PortAnswerType)
-                {
-                    case PortAnswerType.Byte:
-                        {
-                            if (RequestUnit.DataRecieved != null)
-                            {
-                                RequestUnit.DataRecieved(dataOk, rxBuffer);
-                            } break;
-                        }
-                    case PortAnswerType.RTU:
-                        {
-                            ushort[] ubuff = new ushort[0];
-
-                            if (!ModBusCRC.CheckCRC(rxBuffer, rxBuffer.Length))
-                            {
-                                // System.Windows.Forms.MessageBox.Show("Ошибка CRC  " + rxBuffer.Length.ToString());
-                                dataOk = false;
-                            }
-                            else
-                            {
-                                if (rxBuffer[1] == 0x03 || rxBuffer[1] == 0x04)
-                                {
-                                    ModBusCRC.RemoveData(rxBuffer, 3, RequestUnit.RTUReadCount, out ubuff);
-                                }
-                                else
-                                {
-                                    ubuff = new ushort[0];
-                                }
-                                dataOk = true;
-                            }
-
-                            if (RequestUnit.DataRecievedRTU != null)
-                            {
-                                RequestUnit.DataRecievedRTU(dataOk, ubuff, RequestUnit.Param);
-                            }
-
-                        } break;
-                }
-            }
-            #endregion
-            #region RecieveTCP
-            if (serialPortMode == SerialPortModes.TCPMode)
-            {
-                if (RequestUnit.GetTCPFunction() == TCPFunctions.TCPRead)
-                {
-                    dataOk = (tcpReadData != null);
-                    ushort[] us = new ushort[0];
-                    if (dataOk) ModBusCRC.RemoveData(tcpReadData, 0, RequestUnit.RTUReadCount, out us);
-                    if (RequestUnit.DataRecievedRTU != null)
-                    {
-                        RequestUnit.DataRecievedRTU(dataOk, us, RequestUnit.Param);
-                    }
-                }
-                else
-                {
-                    ushort[] us = new ushort[0];
-                    if (RequestUnit.DataRecievedRTU != null)
-                    {
-                        RequestUnit.DataRecievedRTU(tcpWriteOk, us, RequestUnit.Param);
-                    }
-                }
-            }
-            #endregion
-
-            lock (locker)
-            {
-                bool b = CheckQueue(false);
-                portBusy = b;
-            }
-
-            
-        }
-
-        delegate void SendDataHandler(RequestUnit RequestUnit);
-        public void SendData(RequestUnit RequestUnit)
-        {
-            
-            if (!IsOpen) { return; }
-            lock (locker)
-            {
-                portBusy = true;
-            }
-            SendDataHandler senddelegate = new SendDataHandler(SendDataBody);
-            senddelegate.BeginInvoke(RequestUnit, null, null);
-        }
-
-        public Queue<RequestUnit> requests = new Queue<RequestUnit>();
-        public Queue<RequestUnit> requestsMain = new Queue<RequestUnit>();
-        public void AddRequest(byte[] TxBuffer, int ReceivedBytesThreshold, DataRecieved OnDataRecieved)
-        {
-            if (!IsOpen) { return; }
-            lock (locker)
-            {
-                requests.Enqueue(new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecieved));
-            }
-
-        }
-        void AddRequest(byte[] TxBuffer, int ReceivedBytesThreshold, DataRecievedRTU OnDataRecievedRTU, int RTUReadCount, RequestPriority RequestPriority, object param)
-        {
-            if (!IsOpen) { return; }
-            
-
-            if (RequestPriority == UniSerialPort.RequestPriority.High)
-            {
-                lock (locker)
-                {
-                    requestsMain.Enqueue(new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU, RTUReadCount, param));
-                }
-            }
-            else
-            {
-                lock (locker)
-                {
-                    var request = new RequestUnit(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU,RTUReadCount, param);
-                    requests.Enqueue(request);
-                }
-            }
-        }
-
-        public void AddRequest(byte[] TxBuffer, int ReceivedBytesThreshold, DataRecievedRTU OnDataRecievedRTU, RequestPriority RequestPriority, object param)
-        {
-            lock (locker)
-            {
-                AddRequest(TxBuffer, ReceivedBytesThreshold, OnDataRecievedRTU, 0, RequestPriority, param);
-            }
-        }
-
-
-        bool CheckQueue(bool CheckPortBusy)
-        {
-            lock (locker)
-            {
-                if (portBusy && CheckPortBusy) { return false; }
-            }
-
-            if (flagToClose) { CloseBody(); return false; }
-            if (!IsOpen) { return false; }
-
-            RequestUnit mu;
-            
-            lock (locker)
-            {
-                if (requestsMain.Count != 0)
-                {
-                    mu = requestsMain.Dequeue();
-                    SendData(mu);
-                    return true;
-                }
-            }
-
-            lock (locker)
-            {
-                if (requests.Count == 0) { return false; }
-                mu = requests.Dequeue();
-                SendData(mu);
-                return true;
-            }
-        }
-
-        object locker = new object();
-
-        void requestTimer_Tick(object sender, EventArgs e)
-        {
-                CheckQueue(true);
-        }
-
-        public void GetDataRTU(byte SlaveAddress, ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority, object param)
-        {
-            byte[] buffer = new byte[6];
-            buffer[0] = SlaveAddress;
-            buffer[1] = 0x03;
-            buffer[2] = (byte)((StartAddr >> 8) & 0xFF);
-            buffer[3] = (byte)(StartAddr & 0xFF);
-            buffer[4] = (byte)((WordCount >> 8) & 0xFF);
-            buffer[5] = (byte)(WordCount & 0xFF);
-            byte[] buffer1;
-            ModBusCRC.CalcCRC(buffer, 6, out buffer1);
-            AddRequest(buffer1, WordCount * 2 + 5, DataRecievedRTU, WordCount, RequestPriority, param);
-        }
-        public void GetDataRTU(ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, object param)
-        {
-            GetDataRTU(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority.Normal, param);
-        }
-        public void GetDataRTU(ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority, object param)
-        {
-            GetDataRTU(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority, param);
-        }
-
-        public void GetDataRTU04(byte SlaveAddress, ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority)
-        {
-            byte[] buffer = new byte[6];
-            buffer[0] = SlaveAddress;
-            buffer[1] = 0x04;
-            buffer[2] = (byte)((StartAddr >> 8) & 0xFF);
-            buffer[3] = (byte)(StartAddr & 0xFF);
-            buffer[4] = (byte)((WordCount >> 8) & 0xFF);
-            buffer[5] = (byte)(WordCount & 0xFF);
-            byte[] buffer1;
-            ModBusCRC.CalcCRC(buffer, 6, out buffer1);
-            AddRequest(buffer1, WordCount * 2 + 5, DataRecievedRTU, WordCount, RequestPriority, null);
-        }
-        public void GetDataRTU04(ushort StartAddr, ushort WordCount, DataRecievedRTU DataRecievedRTU)
-        {
-            GetDataRTU04(SlaveAddr, StartAddr, WordCount, DataRecievedRTU, RequestPriority.Normal);
-        }
-
-        public void SetDataRTU(byte SlaveAddress, ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority  RequestPriority, object param, params ushort[] Data)
-        {
-            if ((Data.Length > 32) || (Data.Length < 1))
-            {
-                if (DataRecievedRTU != null)
-                {
-                    DataRecievedRTU(false, new ushort[0], null);
-                }
-                return;
-            }
-            byte[] buffer = new byte[9+Data.Length*2];
-            buffer[0] = SlaveAddress;
-            buffer[1] = 0x10;
-            buffer[2] = (byte)((StartAddr >> 8) & 0xFF);
-            buffer[3] = (byte)(StartAddr & 0xFF);
-            buffer[4] = (byte)((Data.Length >> 8) & 0xFF);
-            buffer[5] = (byte)(Data.Length & 0xFF);
-            buffer[6] = (byte)(2 * Data.Length);
-
-            
-
-            for (int i = 0; i < Data.Length; i++)
-            {
-                buffer[7+i*2] = (byte)((Data[i] >> 8) & 0xFF);
-                buffer[8+i*2] = (byte)(Data[i] & 0xFF);
-            }
-            
-
-            byte[] buffer1;
-            ModBusCRC.CalcCRC(buffer, 7+Data.Length*2, out buffer1);
-            AddRequest(buffer1, 8, DataRecievedRTU, RequestPriority, param);
-        }
-        public void SetDataRTU(ushort StartAddr, DataRecievedRTU DataRecievedRTU, RequestPriority RequestPriority, object param, params ushort[] Data)
-        {
-            SetDataRTU(SlaveAddr, StartAddr, DataRecievedRTU, RequestPriority, param, Data);
-        }
-
-
-
-        public void SaveSettingsToFile(string FileName)
-        {
-            try
-            {
-                XmlTextWriter textWritter = new XmlTextWriter(FileName, Encoding.UTF8);
-                textWritter.WriteStartDocument();
-                textWritter.WriteStartElement("Setup");
-                textWritter.WriteEndElement();
-                textWritter.Close();
-            }
-            catch
-            {
-                throw new Exception("Error create file!");
-            }
-
-            XmlDocument document = new XmlDocument();
-            try
-            {
-                document.Load(FileName);
-            }
-            catch
-            {
-                throw new Exception("Error create file!");
-            }
-
-            XmlNode element = document.CreateElement("ComSettings");
-            document.DocumentElement.AppendChild(element); // указываем родителя
-
-            XmlAttribute attribute = document.CreateAttribute("PortName"); // создаём атрибут
-            attribute.Value = PortName;
-            element.Attributes.Append(attribute); // добавляем атрибут
-
-            attribute = document.CreateAttribute("Parity"); // создаём атрибут
-            attribute.Value = Parity.ToString();
-            element.Attributes.Append(attribute); // добавляем атрибут
-
-            attribute = document.CreateAttribute("BaudRate"); // создаём атрибут
-            attribute.Value = BaudRate.ToString();
-            element.Attributes.Append(attribute); // добавляем атрибут
-
-            attribute = document.CreateAttribute("StopBits"); // создаём атрибут
-            attribute.Value = StopBits.ToString();
-            element.Attributes.Append(attribute); // добавляем атрибут
-
-            attribute = document.CreateAttribute("SlaveAddr"); // создаём атрибут
-            attribute.Value = SlaveAddr.ToString();
-            element.Attributes.Append(attribute); // добавляем атрибут
-
-            attribute = document.CreateAttribute("IPAddr"); // создаём атрибут
-            attribute.Value = IpAddress;
-            element.Attributes.Append(attribute); // добавляем атрибут
-
-            attribute = document.CreateAttribute("IPPortNum"); // создаём атрибут
-            attribute.Value = portNum.ToString();
-            element.Attributes.Append(attribute); // добавляем атрибут
-
-            attribute = document.CreateAttribute("PortMode"); // создаём атрибут
-            attribute.Value = serialPortMode.ToString();
-            element.Attributes.Append(attribute); // добавляем атрибут
-
-            try
-            {
-                document.Save(FileName);
-            }
-            catch
-            {
-                throw new Exception("Error create file!");
-            }
-
-        }
-
-        public void LoadSettingsFromFile(string FileName)
-        {
-            XDocument document;
-            try
-            {
-                document = XDocument.Load(FileName);
-
-            }
-            catch
-            {
-                throw new Exception("Error open xml file!");
-            }
-
-            try
-            {
-                XElement element = document.Root.Element("ComSettings");
-                PortName = Convert.ToString(element.Attribute("PortName").Value);
-
-                PortNum = Convert.ToUInt16(element.Attribute("IPPortNum").Value.ToString());
-                IpAddress = element.Attribute("IPAddr").Value.ToString();
-
-                if (element.Attribute("PortMode").Value.ToString().ToUpper() == "RSMODE")
-                {
-                    serialPortMode = SerialPortModes.RSMode;
-                }
-                else
-                {
-                    serialPortMode = SerialPortModes.TCPMode;
-                }
-
-                BaudRate = Convert.ToInt32(element.Attribute("BaudRate").Value.ToString());
-                SlaveAddr = Convert.ToByte(element.Attribute("SlaveAddr").Value);
-
-                string strPar, strStops;
-
-                strPar = Convert.ToString(element.Attribute("Parity").Value);
-                strStops = Convert.ToString(element.Attribute("StopBits").Value);
-
-                if (strPar == "None")
-                {
-                    Parity = System.IO.Ports.Parity.None;
-                }
-                else if (strPar == "Even")
-                {
-                    Parity = System.IO.Ports.Parity.Even;
-                }
-                else
-                {
-                    Parity = System.IO.Ports.Parity.Odd;
-                }
-
-                if (strStops == "Two")
-                {
-                    StopBits = System.IO.Ports.StopBits.Two;
-                }
-                else
-                {
-                    StopBits = System.IO.Ports.StopBits.One;
-                }
-            }
-
-            catch
-            {
-                throw new Exception("Error load settings from file!");
-            }
-
-
-        }
-    }
+	public class AsynchSerialPort
+	{
+
+		public delegate void DataRecieved(bool dataOk, byte[] rxBuffer);
+		public delegate void DataRecievedRtu(bool dataOk, ushort[] paramRtu, object param);
+
+		public bool PortError { get; private set; }//= false;
+		public event EventHandler SerialPortError;
+		public event EventHandler FatalSerialPortError;
+
+		readonly SerialPort _serialPort;
+		//System.Windows.Forms.Timer 
+
+		readonly System.Timers.Timer _requestTimer;
+
+		public byte SlaveAddr { get; set; } = 1;
+
+		public int BaudRate
+		{
+			get => _serialPort.BaudRate;
+			set => _serialPort.BaudRate = value;
+		}
+
+		public Parity Parity
+		{
+			get => _serialPort.Parity;
+			set => _serialPort.Parity = value;
+		}
+
+		public StopBits StopBits
+		{
+			get => _serialPort.StopBits;
+			set => _serialPort.StopBits = value;
+		}
+
+		public string PortName
+		{
+			get => _serialPort.PortName;
+			set => _serialPort.PortName = value;
+		}
+
+		public bool IsOpen
+		{
+
+			get 
+			{
+				if (SerialPortMode == SerialPortModes.RsMode)
+				{
+					return _serialPort.IsOpen;
+				}
+				else
+				{
+					if (_tcpMaster == null) { return false; }
+					return _tcpMaster.Connected;
+				}
+			
+			}
+		}
+
+		public bool PortBusy { get; private set; }
+
+		public void UnsetPortBusy()
+		{
+			PortBusy = false;
+		}
+
+		public string IpAddress { get; set; } = "213.21.27.140";
+		public ushort PortNum { get; set; } = 502;
+		public SerialPortModes SerialPortMode { get; set; } = SerialPortModes.RsMode;
+
+		ModbusTcpMaster _tcpMaster;
+
+		byte[] _tcpReadData;
+		bool _tcpWriteOk;
+
+		public void SetNewPortMode(SerialPortModes serialPortMode)
+		{
+			if (IsOpen)
+			{
+				throw new Exception("Serial port is open!");
+			}
+
+			if (serialPortMode == SerialPortModes.RsMode)
+			{
+				SerialPortMode = SerialPortModes.RsMode;
+				_tcpMaster = null;
+			}
+			else
+			{
+				SerialPortMode = SerialPortModes.TcpMode;
+			}
+		}
+
+		public AsynchSerialPort()
+		{
+			_serialPort = new SerialPort();
+			_serialPort.DataReceived +=serialPort_DataReceived;
+			_requestTimer = new System.Timers.Timer
+			{
+				Interval = 10
+			};
+			_requestTimer.Elapsed += requestTimer_Tick;
+		}
+
+		public void Open()
+		{
+			PortError = false;
+			PortBusy = false;
+			if (SerialPortMode == SerialPortModes.RsMode)
+			{
+				if (_serialPort.IsOpen)
+				{
+					return;
+				}
+				_serialPort.Open();
+			}
+			else if (SerialPortMode == SerialPortModes.TcpMode)
+			{
+				
+				_tcpMaster = new ModbusTcpMaster(IpAddress, PortNum);
+				_tcpMaster.OnResponseData +=tcpMaster_OnResponseData;
+			}
+			_requestTimer.Enabled = true; 
+		}
+
+		private bool _flagToClose;
+		public void Close()
+		{
+			if (SerialPortMode == SerialPortModes.RsMode)
+			{
+				#region RS232Mode
+				if (!_serialPort.IsOpen) { return; }
+				if (PortError)
+				{
+					try
+					{
+						_serialPort.Close();
+						_flagToClose = false;
+						Requests.Clear();
+						PortClosed?.Invoke(null, null);
+					}
+					catch
+					{
+						FatalSerialPortError?.Invoke(_serialPort, null);
+					}
+					return;
+				}
+				_flagToClose = true;
+				#endregion
+			}
+
+			if (SerialPortMode == SerialPortModes.TcpMode)
+			{
+				#region TCPMode
+				Requests.Clear();
+				if (_tcpMaster == null) {
+					PortClosed?.Invoke(null, null);
+					return; }
+				if (!_tcpMaster.Connected) {
+					PortClosed?.Invoke(null, null);
+					return; }
+				_flagToClose = true;
+				PortClosed?.Invoke(null, null);
+				#endregion
+			}
+		}
+
+	   
+		void CloseBody()
+		{
+			_requestTimer.Enabled = false;
+			if (SerialPortMode == SerialPortModes.RsMode)
+			{
+				_serialPort.Close();
+			}
+			if (SerialPortMode == SerialPortModes.TcpMode)
+			{
+				
+				try
+				{
+					_tcpMaster.Disconnnect();
+				}
+				catch
+				{
+					//ignore
+				}
+			}
+			_flagToClose = false;
+			Requests.Clear();
+			PortClosed?.Invoke(null, null);
+		}
+		public event EventHandler PortClosed;
+
+
+		private readonly EventWaitHandle _waitSerialData = new AutoResetEvent(false);
+
+		void serialPort_DataReceived(object sender, EventArgs e)
+		{
+			_waitSerialData.Set();
+		}
+
+
+		void tcpMaster_OnResponseData(ushort id, byte unit, byte function, byte[] data)
+		{
+			if (function == 0x03 || function == 0x04)
+			{
+				_tcpReadData = data;
+				_waitSerialData.Set();
+			}
+			else if (function == 0x10)
+			{
+				_tcpWriteOk = true;
+				_waitSerialData.Set();
+			}
+		}
+
+
+		void SendDataBody(RequestUnit requestUnit)
+		{
+			if (PortError) { return; }
+			if (SerialPortMode == SerialPortModes.TcpMode)
+			{
+				if (requestUnit.PortAnswerType != PortAnswerType.Rtu)
+				{
+					throw new Exception("Invalid request  type");
+				}
+			}
+
+			if (SerialPortMode == SerialPortModes.RsMode)
+			{
+				try
+				{
+					if (_serialPort.BytesToRead !=0)
+					{
+						byte[] buff = new byte[_serialPort.BytesToRead+1];
+						_serialPort.Read(buff, 0, _serialPort.BytesToRead);
+					}
+					Thread.Sleep(3);
+					_serialPort.Write(requestUnit.TxBuffer, 0, requestUnit.TxBuffer.Length);
+				}
+				catch
+				{
+					PortError = true;
+					SerialPortError?.Invoke(_serialPort, null);
+					return;
+
+				}
+			}
+
+			_tcpReadData = null;
+			_tcpWriteOk = false;
+			if (SerialPortMode == SerialPortModes.TcpMode)
+			{
+				if (requestUnit.GetTcpFunction() == TcpFunctions.TcpRead)
+				{
+					_tcpMaster.ReadHoldingRegister(1, requestUnit.GetSlaveAddr(), requestUnit.GetTcpStartAddr(), requestUnit.GetTcpReadCount());
+				}
+				else
+				{
+					_tcpMaster.WriteMultipleRegister(1, requestUnit.GetSlaveAddr(), requestUnit.GetTcpStartAddr(), requestUnit.GetTcpWriteData());
+				}
+			}
+
+			if (SerialPortMode == SerialPortModes.RsMode)
+			{
+				_waitSerialData.WaitOne(TimeSpan.FromMilliseconds(100));
+
+				for (int i = 0; i < 100; i++)
+				{
+					if (_serialPort.BytesToRead < requestUnit.ReceivedBytesThreshold)
+					{
+						_waitSerialData.WaitOne(TimeSpan.FromMilliseconds(10));
+					}
+					else break;
+				}
+			}
+
+			if (SerialPortMode == SerialPortModes.TcpMode)
+			{
+				_waitSerialData.WaitOne(TimeSpan.FromMilliseconds(3000));
+			}
+
+			bool dataOk = false;
+			#region RecieveRS232
+			if (SerialPortMode == SerialPortModes.RsMode)
+			{
+				byte[] rxBuffer = new byte[0];
+
+				if (_serialPort.BytesToRead >= requestUnit.ReceivedBytesThreshold)
+				{
+					int count = _serialPort.BytesToRead;
+					rxBuffer = new byte[count];
+
+					try
+					{
+						_serialPort.Read(rxBuffer, 0, count);
+					}
+					catch
+					{
+						PortError = true;
+						SerialPortError?.Invoke(_serialPort, null);
+						return;
+					}
+
+					dataOk = true;
+				}
+				else
+				{
+					// System.Windows.Forms.MessageBox.Show(RequestUnit.ReceivedBytesThreshold.ToString());
+				}
+
+				switch (requestUnit.PortAnswerType)
+				{
+					case PortAnswerType.Byte:
+						{
+							if (requestUnit.DataRecieved != null)
+							{
+								requestUnit.DataRecieved(dataOk, rxBuffer);
+							} break;
+						}
+					case PortAnswerType.Rtu:
+						{
+							ushort[] ubuff = new ushort[0];
+
+							if (!ModBusCrc.CheckCrc(rxBuffer, rxBuffer.Length))
+							{
+								// System.Windows.Forms.MessageBox.Show("Ошибка CRC  " + rxBuffer.Length.ToString());
+								dataOk = false;
+							}
+							else
+							{
+								if (rxBuffer[1] == 0x03 || rxBuffer[1] == 0x04)
+								{
+									ModBusCrc.RemoveData(rxBuffer, 3, requestUnit.RtuReadCount, out ubuff);
+								}
+								else
+								{
+									ubuff = new ushort[0];
+								}
+								dataOk = true;
+							}
+
+							if (requestUnit.DataRecievedRtu != null)
+							{
+								requestUnit.DataRecievedRtu(dataOk, ubuff, requestUnit.Param);
+							}
+
+						} break;
+				}
+			}
+			#endregion
+			#region RecieveTCP
+			if (SerialPortMode == SerialPortModes.TcpMode)
+			{
+				if (requestUnit.GetTcpFunction() == TcpFunctions.TcpRead)
+				{
+					dataOk = (_tcpReadData != null);
+					ushort[] us = new ushort[0];
+					if (dataOk) ModBusCrc.RemoveData(_tcpReadData, 0, requestUnit.RtuReadCount, out us);
+					requestUnit.DataRecievedRtu?.Invoke(dataOk, us, requestUnit.Param);
+				}
+				else
+				{
+					ushort[] us = new ushort[0];
+					requestUnit.DataRecievedRtu?.Invoke(_tcpWriteOk, us, requestUnit.Param);
+				}
+			}
+			#endregion
+
+			lock (_locker)
+			{
+				bool b = CheckQueue(false);
+				PortBusy = b;
+			}
+
+			
+		}
+
+		delegate void SendDataHandler(RequestUnit requestUnit);
+
+		private void SendData(RequestUnit requestUnit)
+		{
+			
+			if (!IsOpen) { return; }
+			lock (_locker)
+			{
+				PortBusy = true;
+			}
+			SendDataHandler senddelegate = SendDataBody;
+			senddelegate.BeginInvoke(requestUnit, null, null);
+		}
+
+		public readonly Queue<RequestUnit> Requests = new Queue<RequestUnit>();
+		public readonly Queue<RequestUnit> RequestsMain = new Queue<RequestUnit>();
+		public void AddRequest(byte[] txBuffer, int receivedBytesThreshold, DataRecieved onDataRecieved)
+		{
+			if (!IsOpen) { return; }
+			lock (_locker)
+			{
+				Requests.Enqueue(new RequestUnit(txBuffer, receivedBytesThreshold, onDataRecieved));
+			}
+
+		}
+		private void AddRequest(byte[] txBuffer, int receivedBytesThreshold, DataRecievedRtu onDataRecievedRtu, int rtuReadCount, RequestPriority requestPriority, object param)
+		{
+			if (!IsOpen) { return; }
+
+			if (requestPriority == RequestPriority.High)
+			{
+				lock (_locker)
+				{
+					RequestsMain.Enqueue(new RequestUnit(txBuffer, receivedBytesThreshold, onDataRecievedRtu, rtuReadCount, param));
+				}
+			}
+			else
+			{
+				lock (_locker)
+				{
+					var request = new RequestUnit(txBuffer, receivedBytesThreshold, onDataRecievedRtu,rtuReadCount, param);
+					Requests.Enqueue(request);
+				}
+			}
+		}
+
+		private void AddRequest(byte[] txBuffer, int receivedBytesThreshold, DataRecievedRtu onDataRecievedRtu, RequestPriority requestPriority, object param)
+		{
+			lock (_locker)
+			{
+				AddRequest(txBuffer, receivedBytesThreshold, onDataRecievedRtu, 0, requestPriority, param);
+			}
+		}
+
+
+		bool CheckQueue(bool checkPortBusy)
+		{
+			lock (_locker)
+			{
+				if (PortBusy && checkPortBusy) { return false; }
+			}
+
+			if (_flagToClose) { CloseBody(); return false; }
+			if (!IsOpen) { return false; }
+
+			RequestUnit mu;
+			
+			lock (_locker)
+			{
+				if (RequestsMain.Count != 0)
+				{
+					mu = RequestsMain.Dequeue();
+					SendData(mu);
+					return true;
+				}
+			}
+
+			lock (_locker)
+			{
+				if (Requests.Count == 0) { return false; }
+				mu = Requests.Dequeue();
+				SendData(mu);
+				return true;
+			}
+		}
+
+		readonly object _locker = new object();
+
+		void requestTimer_Tick(object sender, EventArgs e)
+		{
+				CheckQueue(true);
+		}
+
+		private void GetDataRtu(byte slaveAddress, ushort startAddr, ushort wordCount, DataRecievedRtu dataRecievedRtu, RequestPriority requestPriority, object param)
+		{
+			byte[] buffer = new byte[6];
+			buffer[0] = slaveAddress;
+			buffer[1] = 0x03;
+			buffer[2] = (byte)((startAddr >> 8) & 0xFF);
+			buffer[3] = (byte)(startAddr & 0xFF);
+			buffer[4] = (byte)((wordCount >> 8) & 0xFF);
+			buffer[5] = (byte)(wordCount & 0xFF);
+			ModBusCrc.CalcCrc(buffer, 6, out var buffer1);
+			AddRequest(buffer1, wordCount * 2 + 5, dataRecievedRtu, wordCount, requestPriority, param);
+		}
+		public void GetDataRtu(ushort startAddr, ushort wordCount, DataRecievedRtu dataRecievedRtu, object param)
+		{
+			GetDataRtu(SlaveAddr, startAddr, wordCount, dataRecievedRtu, RequestPriority.Normal, param);
+		}
+		public void GetDataRtu(ushort startAddr, ushort wordCount, DataRecievedRtu dataRecievedRtu, RequestPriority requestPriority, object param)
+		{
+			GetDataRtu(SlaveAddr, startAddr, wordCount, dataRecievedRtu, requestPriority, param);
+		}
+
+		private void GetDataRtu04(byte slaveAddress, ushort startAddr, ushort wordCount, DataRecievedRtu dataRecievedRtu, RequestPriority requestPriority, object param)
+		{
+			byte[] buffer = new byte[6];
+			buffer[0] = slaveAddress;
+			buffer[1] = 0x04;
+			buffer[2] = (byte)((startAddr >> 8) & 0xFF);
+			buffer[3] = (byte)(startAddr & 0xFF);
+			buffer[4] = (byte)((wordCount >> 8) & 0xFF);
+			buffer[5] = (byte)(wordCount & 0xFF);
+			ModBusCrc.CalcCrc(buffer, 6, out var buffer1);
+			AddRequest(buffer1, wordCount * 2 + 5, dataRecievedRtu, wordCount, requestPriority, param);
+		}
+		public void GetDataRtu04(ushort startAddr, ushort wordCount, DataRecievedRtu dataRecievedRtu, object param)
+		{
+			GetDataRtu04(SlaveAddr, startAddr, wordCount, dataRecievedRtu, RequestPriority.Normal, param);
+		}
+
+		private void SetDataRtu(byte slaveAddress, ushort startAddr, DataRecievedRtu dataRecievedRtu, RequestPriority  requestPriority, object param, params ushort[] data)
+		{
+			if ((data.Length > 32) || (data.Length < 1))
+			{
+				dataRecievedRtu?.Invoke(false, new ushort[0], null);
+				return;
+			}
+			byte[] buffer = new byte[9+data.Length*2];
+			buffer[0] = slaveAddress;
+			buffer[1] = 0x10;
+			buffer[2] = (byte)((startAddr >> 8) & 0xFF);
+			buffer[3] = (byte)(startAddr & 0xFF);
+			buffer[4] = (byte)((data.Length >> 8) & 0xFF);
+			buffer[5] = (byte)(data.Length & 0xFF);
+			buffer[6] = (byte)(2 * data.Length);
+			
+			for (int i = 0; i < data.Length; i++)
+			{
+				buffer[7+i*2] = (byte)((data[i] >> 8) & 0xFF);
+				buffer[8+i*2] = (byte)(data[i] & 0xFF);
+			}
+
+			ModBusCrc.CalcCrc(buffer, 7+data.Length*2, out var buffer1);
+			AddRequest(buffer1, 8, dataRecievedRtu, requestPriority, param);
+		}
+
+		public void SetDataRtu(ushort startAddr, DataRecievedRtu dataRecievedRtu, RequestPriority requestPriority, object param, params ushort[] data)
+		{
+			SetDataRtu(SlaveAddr, startAddr, dataRecievedRtu, requestPriority, param, data);
+		}
+
+
+		// ReSharper disable once UnusedMember.Global
+		public void SaveSettingsToFile(string fileName)
+		{
+			try
+			{
+				XmlTextWriter textWritter = new XmlTextWriter(fileName, Encoding.UTF8);
+				textWritter.WriteStartDocument();
+				textWritter.WriteStartElement("Setup");
+				textWritter.WriteEndElement();
+				textWritter.Close();
+			}
+			catch
+			{
+				throw new Exception("Error create file!");
+			}
+
+			XmlDocument document = new XmlDocument();
+			try
+			{
+				document.Load(fileName);
+			}
+			catch
+			{
+				throw new Exception("Error create file!");
+			}
+
+			XmlNode element = document.CreateElement("ComSettings");
+			document.DocumentElement?.AppendChild(element); // указываем родителя
+
+			XmlAttribute attribute = document.CreateAttribute("PortName"); // создаём атрибут
+			attribute.Value = PortName;
+			if (element.Attributes != null)
+			{
+				element.Attributes.Append(attribute); // добавляем атрибут
+
+				attribute = document.CreateAttribute("Parity"); // создаём атрибут
+				attribute.Value = Parity.ToString();
+				element.Attributes.Append(attribute); // добавляем атрибут
+
+				attribute = document.CreateAttribute("BaudRate"); // создаём атрибут
+				attribute.Value = BaudRate.ToString();
+				element.Attributes.Append(attribute); // добавляем атрибут
+
+				attribute = document.CreateAttribute("StopBits"); // создаём атрибут
+				attribute.Value = StopBits.ToString();
+				element.Attributes.Append(attribute); // добавляем атрибут
+
+				attribute = document.CreateAttribute("SlaveAddr"); // создаём атрибут
+				attribute.Value = SlaveAddr.ToString();
+				element.Attributes.Append(attribute); // добавляем атрибут
+
+				attribute = document.CreateAttribute("IPAddr"); // создаём атрибут
+				attribute.Value = IpAddress;
+				element.Attributes.Append(attribute); // добавляем атрибут
+
+				attribute = document.CreateAttribute("IPPortNum"); // создаём атрибут
+				attribute.Value = PortNum.ToString();
+				element.Attributes.Append(attribute); // добавляем атрибут
+
+				attribute = document.CreateAttribute("PortMode"); // создаём атрибут
+				attribute.Value = SerialPortMode.ToString();
+				element.Attributes.Append(attribute); // добавляем атрибут
+			}
+
+			try
+			{
+				document.Save(fileName);
+			}
+			catch
+			{
+				throw new Exception("Error create file!");
+			}
+
+		}
+
+		// ReSharper disable once UnusedMember.Global
+		public void LoadSettingsFromFile(string fileName)
+		{
+			XDocument document;
+			try
+			{
+				document = XDocument.Load(fileName);
+
+			}
+			catch
+			{
+				throw new Exception("Error open xml file!");
+			}
+
+			try
+			{
+				XElement element = document.Root?.Element("ComSettings");
+				if (element != null)
+				{
+					PortName = Convert.ToString(element.Attribute("PortName")?.Value);
+
+					PortNum = Convert.ToUInt16(element.Attribute("IPPortNum")?.Value);
+					IpAddress = element.Attribute("IPAddr")?.Value;
+
+					SerialPortMode = element.Attribute("PortMode")?.Value.ToUpper() == "RSMODE"
+						? SerialPortModes.RsMode
+						: SerialPortModes.TcpMode;
+
+					BaudRate = Convert.ToInt32(element.Attribute("BaudRate")?.Value);
+					SlaveAddr = Convert.ToByte(element.Attribute("SlaveAddr")?.Value);
+
+					var strPar = Convert.ToString(element.Attribute("Parity")?.Value);
+					var strStops = Convert.ToString(element.Attribute("StopBits")?.Value);
+
+					switch (strPar)
+					{
+						case "None":
+							Parity = Parity.None;
+							break;
+						case "Even":
+							Parity = Parity.Even;
+							break;
+						default:
+							Parity = Parity.Odd;
+							break;
+					}
+
+					StopBits = strStops == "Two" ? StopBits.Two : StopBits.One;
+				}
+			}
+
+			catch
+			{
+				throw new Exception("Error load settings from file!");
+			}
+
+
+		}
+	}
 }
