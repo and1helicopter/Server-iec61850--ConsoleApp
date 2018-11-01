@@ -92,13 +92,15 @@
     <Compile Include="DataClasses\DependencesContols.cs" />
     <Compile Include="DataClasses\Update.cs" />
     <Compile Include="DataClasses\UpdateDataObj.cs" />
+    <Compile Include="DownloadScope\ConfigDownloadScope.cs" />
+    <Compile Include="DownloadScope\StructAddr.cs" />
     <Compile Include="Format\FormatConverter.cs" />
     <Compile Include="Format\FormatList.cs" />
     <Compile Include="Log\Log.cs" />
     <Compile Include="ModBus\Download.cs" />
-    <Compile Include="DownloadScope\DownloadScope.cs" />
+    <Compile Include="DownloadScope\DownloadScopePart1.cs" />
     <Compile Include="ModBus\ModBus.cs" />
-    <Compile Include="DownloadScope\ScopeConfig.cs" />
+    <Compile Include="DownloadScope\DownloadScopePart2.cs" />
     <Compile Include="ModBus\ConfigModBus.cs" />
     <Compile Include="Parser\CreateBitArray.cs" />
     <Compile Include="Parser\CreateClassFromAttribute.cs" />

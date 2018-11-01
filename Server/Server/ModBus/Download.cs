@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UniSerialPort;
+﻿using UniSerialPort;
 
 namespace ServerLib.ModBus
 {
@@ -11,6 +10,13 @@ namespace ServerLib.ModBus
 				SerialPort.GetDataRtu(addrGet, wordCount, DataGetResponse, param);
 		}
 
+		private static void DataGetRequest04(ushort addrGet, ushort wordCount, object param)
+		{
+			lock (Locker)
+				SerialPort.GetDataRtu04(addrGet, wordCount, DataGetResponse, param);
+		}
+
+
 		private static void DataSetRequest(ushort addrSet, ushort[] value)
 		{
 			lock (Locker)
@@ -21,8 +27,8 @@ namespace ServerLib.ModBus
 		{
 			lock (Locker)
 			{
-				var item = param.item;
-				var response = param.response;
+				var item = param.Item;
+				var response = param.Response;
 
 				response(paramRtu, item, dataOk);
 			}

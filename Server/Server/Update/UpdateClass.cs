@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace ServerLib.Update
 {
-	internal static class UpdateClass
+	public static class UpdateClass
 	{
-		internal static class CycleClass
+		public static class CycleClass
 		{
 			private static readonly List<MethodWork> ListMethodWorks = new List<MethodWork>();
 			private static readonly object Locker = new object();
@@ -41,6 +42,12 @@ namespace ServerLib.Update
 			{
 				internal abstract void Request(dynamic status);
 				internal abstract void Response(dynamic value, dynamic param, bool status);
+			}
+
+			public class ResponseObj
+			{
+				internal dynamic Item { get; set; }
+				internal dynamic Response { get; set; }
 			}
 		}
 	}

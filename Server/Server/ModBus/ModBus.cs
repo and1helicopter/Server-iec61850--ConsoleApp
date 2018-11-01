@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ServerLib.Update;
 using UniSerialPort;
 
 namespace ServerLib.ModBus
@@ -18,7 +19,8 @@ namespace ServerLib.ModBus
 			if (Status.IsStart) return false;
 			if (!ConfigModBusPort()) return false;
 
-			if (OpenModBusPort())
+			OpenModBusPort();
+			if(SerialPort.IsOpen)
 			{
 				Log.Log.Write(@"UpdateModBus: StartModBus!!!", @"Success");
 				Status.IsStart = true;
@@ -54,7 +56,7 @@ namespace ServerLib.ModBus
 
 		private static Thread _checkPortThread;
 
-		private static bool OpenModBusPort()
+		private static void OpenModBusPort()
 		{
 			try
 			{
@@ -65,13 +67,10 @@ namespace ServerLib.ModBus
 					_checkPortThread = new Thread(CheckPort) {Name = "CheckPort", IsBackground = true};
 					_checkPortThread.Start();
 				}
-
-				return true;
 			}
 			catch
 			{
 				Status.IsStart = false;
-				return false;
 			}
 		}
 
@@ -83,12 +82,9 @@ namespace ServerLib.ModBus
 		private static async Task RestartPort()
 		{
 			Thread.Sleep(100);
-			await TryClose();
-			await TryOpen();
+			await Task.Run((Action)CloseModBusPort);
+			await Task.Run((Action)OpenModBusPort); 
 		}
-
-		private static async Task TryOpen() => OpenModBusPort();
-		private static async Task TryClose() => CloseModBusPort();
 
 		private delegate void ChackHandler(dynamic val, dynamic obj, bool status);
 
@@ -138,7 +134,7 @@ namespace ServerLib.ModBus
 						else
 						{
 							Status.IsError = false;
-							GetRequest(255, 1, new { item = new object(), response = СhackHandlerDelegate });
+							GetRequest(255, 1, new UpdateClass.CycleClass.ResponseObj { Item = new object(), Response = СhackHandlerDelegate });
 							_count++;
 						}
 					}
@@ -162,7 +158,7 @@ namespace ServerLib.ModBus
 						else
 						{
 							Status.IsError = false;
-							GetRequest(255, 1, new { item = new object(), response = СhackHandlerDelegate });
+							GetRequest(255, 1, new UpdateClass.CycleClass.ResponseObj { Item = new object(), Response = СhackHandlerDelegate });
 							_count++;
 						}
 					}
@@ -259,12 +255,20 @@ namespace ServerLib.ModBus
 		/// <param name="wordCount">Count world get</param>
 		/// <param name="param">new {item = ... "item callback", response([value] , item, statusOk) = ..."what do when load data complete"}</param>
 		/// <returns>Callback function response([value], item, statusOk)</returns>
-		public static void GetRequest(ushort addrGet, ushort wordCount, object param)
+		public static void GetRequest(ushort addrGet, ushort wordCount, UpdateClass.CycleClass.ResponseObj param)
 		{
 			if(Status.IsStart && !Status.IsError)
 				DataGetRequest(addrGet, wordCount, param);
 			else 
 				DataGetResponse(false, new ushort[] {0}, param);
+		}
+
+		public static void GetRequest04(ushort addrGet, ushort wordCount, UpdateClass.CycleClass.ResponseObj param)
+		{
+			if (Status.IsStart && !Status.IsError)
+				DataGetRequest04(addrGet, wordCount, param);
+			else
+				DataGetResponse(false, new ushort[] { 0 }, param);
 		}
 
 		/// <summary>Set data</summary>

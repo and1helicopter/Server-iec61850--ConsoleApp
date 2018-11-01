@@ -34,7 +34,7 @@ namespace ServerLib.Settings
 				var elSg = xElement.Element("Settings_Global");
 				if (elSg != null)
 				{
-					ModBus.ConfigDownloadScope.InitConfigDownloadScope(
+					DownloadScope.ConfigDownloadScope.InitConfigDownloadScope(
 					 elSg.Attribute("DownloadScope") != null ? Convert.ToString(elSg.Attribute("DownloadScope")?.Value) : "false",
 					 elSg.Attribute("Remove") != null ? Convert.ToString(elSg.Attribute("Remove")?.Value) : "false",
 					 elSg.Attribute("TypeScope") != null ? elSg.Attribute("TypeScope")?.Value : "comtrade",
@@ -80,14 +80,14 @@ namespace ServerLib.Settings
 			 new XDocument(
 			  new XElement("Settings",
 			   new XElement("Settings_Global",
-				new XAttribute("DownloadScope", Convert.ToString(ModBus.ConfigDownloadScope.Enable)),
-				new XAttribute("Remove", Convert.ToString(ModBus.ConfigDownloadScope.Remove)),
-				new XAttribute("TypeScope", ModBus.ConfigDownloadScope.Type),
-				new XAttribute("ComtradeType", ModBus.ConfigDownloadScope.ComtradeType),
-				new XAttribute("ConfigurationAddr", Convert.ToString(ModBus.ConfigDownloadScope.ConfigurationAddr)),
-				new XAttribute("OscilCmndAddr", Convert.ToString(ModBus.ConfigDownloadScope.OscilCmndAddr)),
-				new XAttribute("PathScope", ModBus.ConfigDownloadScope.PathScope),
-				new XAttribute("OscilNominalFrequency", ModBus.ConfigDownloadScope.OscilNominalFrequency)),
+				new XAttribute("DownloadScope", Convert.ToString(DownloadScope.ConfigDownloadScope.Enable)),
+				new XAttribute("Remove", Convert.ToString(DownloadScope.ConfigDownloadScope.Remove)),
+				new XAttribute("TypeScope", DownloadScope.ConfigDownloadScope.Type),
+				new XAttribute("ComtradeType", DownloadScope.ConfigDownloadScope.ComtradeType),
+				new XAttribute("ConfigurationAddr", Convert.ToString(DownloadScope.ConfigDownloadScope.ConfigurationAddr)),
+				new XAttribute("OscilCmndAddr", Convert.ToString(DownloadScope.ConfigDownloadScope.OscilCmndAddr)),
+				new XAttribute("PathScope", DownloadScope.ConfigDownloadScope.PathScope),
+				new XAttribute("OscilNominalFrequency", DownloadScope.ConfigDownloadScope.OscilNominalFrequency)),
 			   new XElement("Settings_ModBus",
 				new XAttribute("BaudRate", Convert.ToString(ModBus.ConfigModBus.BaudRate)),
 				new XAttribute("SerialPortParity", Convert.ToString(ModBus.ConfigModBus.SerialPortParity)),

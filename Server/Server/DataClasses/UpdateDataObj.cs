@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using IEC61850.Server;
+using ServerLib.Update;
 
 namespace ServerLib.DataClasses
 {
@@ -49,7 +50,7 @@ namespace ServerLib.DataClasses
 
 			public override void GetValueRequest(ClassResponseHandler responseHandler)          //Read ModBus
 			{
-				ModBus.ModBus.GetRequest(Addr, Count, new { item = this, response = responseHandler });    //Читаю значение по адресу
+				ModBus.ModBus.GetRequest(Addr, Count, new UpdateClass.CycleClass.ResponseObj { Item = this, Response = responseHandler });    //Читаю значение по адресу
 			}
 
 			public override void GetValueResponse(dynamic value, bool status)
@@ -76,7 +77,7 @@ namespace ServerLib.DataClasses
 
 			public override void GetValueRequest(ClassResponseHandler responseHandler)          //Read UpdateModBus
 			{
-				ModBus.ModBus.GetRequest(Addr, Count, new { item = this, response = responseHandler });    //Читаю значение по адресу
+				ModBus.ModBus.GetRequest(Addr, Count, new UpdateClass.CycleClass.ResponseObj { Item = this, Response = responseHandler });    //Читаю значение по адресу
 			}
 
 			public override void GetValueResponse(dynamic value, bool status)

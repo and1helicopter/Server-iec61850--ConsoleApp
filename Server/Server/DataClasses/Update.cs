@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using IEC61850.Common;
+﻿using IEC61850.Common;
 using IEC61850.Server;
 using ServerLib.Update;
 
@@ -7,6 +6,11 @@ namespace ServerLib.DataClasses
 {
 	public static class UpdateServer
 	{
+		/// <summary>
+		/// Initialize update (Set default data)
+		/// </summary>
+		/// <param name="iedServer">Server object</param>
+		/// <param name="iedModel">Model object</param>
 		public static void InitUpdate(IedServer iedServer, IedModel iedModel)
 		{
 			foreach (var item in UpdateDataObj.UpdateListDestination)
@@ -15,17 +19,30 @@ namespace ServerLib.DataClasses
 			}
 		}
 
+		/// <summary>
+		/// Set server and model object
+		/// </summary>
+		/// <param name="iedServer">Server object</param>
+		/// <param name="iedModel">Model object</param>
 		public static void SetParams(IedServer iedServer, IedModel iedModel)
 		{
 			UpdateDataObj.SetParamsServer(iedServer, iedModel);
 		}
 
+		/// <summary>
+		/// Clear data server
+		/// </summary>
 		public static void Clear()
 		{
 			UpdateDataObj.SourceList?.Clear();
 			UpdateDataObj.UpdateListDestination?.Clear();
 		}
 
+		/// <summary>
+		/// Initialize handlers for write data server
+		/// </summary>
+		/// <param name="iedServer">Server object</param>
+		/// <param name="iedModel">Model object</param>
 		public static void InitHandlers(IedServer iedServer, IedModel iedModel)
 		{			
 			foreach (var itemDataObject in UpdateDataObj.UpdateListDestination)
@@ -155,6 +172,9 @@ namespace ServerLib.DataClasses
 			}
 		}
 
+		/// <summary>
+		/// Initialize quality and time for server data
+		/// </summary>
 		public static void InitQualityAndTime()
 		{
 			foreach (var item in UpdateDataObj.UpdateListDestination)
@@ -163,9 +183,9 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		internal static readonly ReadDataObjMethodWork UpdateReadDataObjMethodWork = new ReadDataObjMethodWork();
+		private static readonly ReadDataObjMethodWork UpdateReadDataObjMethodWork = new ReadDataObjMethodWork();
 
-		internal class ReadDataObjMethodWork: UpdateClass.CycleClass.MethodWork
+		private class ReadDataObjMethodWork: UpdateClass.CycleClass.MethodWork
 		{
 			internal override void Request(dynamic status)
 			{
@@ -185,6 +205,14 @@ namespace ServerLib.DataClasses
 				source.GetValueResponse(value, status);
 				source.IsReady = true;
 			}
+		}
+
+		/// <summary>
+		/// Initialize method update data
+		/// </summary>
+		public static void InitMethodWork()
+		{
+			UpdateClass.CycleClass.AddMethodWork(UpdateReadDataObjMethodWork);
 		}
 	}
 }

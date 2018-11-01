@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using IEC61850.Server;
+using IEC61850.TLS;
 using ServerLib.DataClasses;
 using ServerLib.Update;
 
@@ -11,6 +13,7 @@ namespace ServerLib.Server
 	{
 		private static IedServer _iedServer;
 		private static IedModel _iedModel;
+		private static Thread _cycleThread;
 
 		public static bool ConfigServer()
 		{
@@ -40,9 +43,7 @@ namespace ServerLib.Server
 			UpdateServer.InitUpdate(_iedServer, _iedModel);			//Заполнение данными
 			UpdateServer.InitHandlers(_iedServer, _iedModel);       //Установка оброботчиков событий
 			UpdateServer.InitQualityAndTime();
-
-			UpdateClass.CycleClass.AddMethodWork(UpdateServer.UpdateReadDataObjMethodWork);
-
+			UpdateServer.InitMethodWork();
 			return true;
 		}
 
@@ -52,12 +53,15 @@ namespace ServerLib.Server
 				ModBus.ModBus.StartModBus();
 				_iedServer.Start(ServerConfig.ServerPort);
 
-				Thread xxxThread = new Thread(UpdateClass.CycleClass.Cycle)
+				_cycleThread = new Thread(UpdateClass.CycleClass.Cycle)
 				{
 					Name = "Cycle",
 					IsBackground = true
 				};
-				xxxThread.Start();
+				_cycleThread.Start();
+
+				Thread.Sleep(1000);
+				DownloadScope.DownloadScope.StartThreadCheack();
 
 				Log.Log.Write(@"ServerIEC61850.StartServer: ServerIEC61850 started", @"Start");
 				

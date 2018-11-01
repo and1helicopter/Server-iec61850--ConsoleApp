@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using ServerLib.DownloadScope;
 using ServerLib.Format;
 using ServerLib.ModBus;
 using ServerLib.Log;
@@ -55,15 +56,15 @@ namespace ServerWPF
 
 		private void TimerLoadOscOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
 		{
-			if (ModBus.StatusLoad(out var count))
-			{
-				Dispatcher.Invoke(() => { ProgressBar.Value = Math.Round(count, 2);});
-				Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
-			}
-			else
-			{
-				Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
-			}
+			//if (StatusLoad(out var count))
+			//{
+			//	Dispatcher.Invoke(() => { ProgressBar.Value = Math.Round(count, 2);});
+			//	Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
+			//}
+			//else
+			//{
+			//	Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
+			//}
 		}
 		
 		private void Status()

@@ -4,6 +4,7 @@ using System.IO.Ports;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using ServerLib.DownloadScope;
 using ServerLib.ModBus;
 using ServerLib.Settings;
 
@@ -140,7 +141,7 @@ namespace ServerWPF
 				ComPortNameComboBox.Text, 
 				ConfigModBus.AddrPort);
 
-			ConfigDownloadScope.InitConfigDownloadScope(
+			DownloadScope.InitConfigDownloadScope(
 				Convert.ToString(DownloadScopeCheckBox.IsChecked),
 				Convert.ToString(RemoveAfterDownloadCheckBox.IsChecked),
 				TypeScopeComboBox.Text,
