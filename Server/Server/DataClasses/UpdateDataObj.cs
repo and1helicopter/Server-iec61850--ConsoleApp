@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using IEC61850.Server;
-using ServerLib.Update;
 
 namespace ServerLib.DataClasses
 {
 	public static partial class UpdateDataObj
 	{
-		public static readonly List<DestinationDataObject> UpdateListDestination = new List<DestinationDataObject>();
+		internal static readonly List<DestinationDataObject> UpdateListDestination = new List<DestinationDataObject>();
 		internal static readonly List<SourceClass> SourceList = new List<SourceClass>();
 		//Связанные данные Mod, Beh, Health обновляются связано
 		
@@ -50,7 +49,7 @@ namespace ServerLib.DataClasses
 
 			public override void GetValueRequest(ClassResponseHandler responseHandler)          //Read ModBus
 			{
-				ModBus.ModBus.GetRequest(Addr, Count, new UpdateClass.CycleClass.ResponseObj { Item = this, Response = responseHandler });    //Читаю значение по адресу
+				ModBus.ModBus.GetRequest(Addr, Count, new ModBusTaskController.ModBusTaskController.CycleClass.ResponseObj { Item = this, Response = responseHandler });    //Читаю значение по адресу
 			}
 
 			public override void GetValueResponse(dynamic value, bool status)
@@ -77,7 +76,7 @@ namespace ServerLib.DataClasses
 
 			public override void GetValueRequest(ClassResponseHandler responseHandler)          //Read UpdateModBus
 			{
-				ModBus.ModBus.GetRequest(Addr, Count, new UpdateClass.CycleClass.ResponseObj { Item = this, Response = responseHandler });    //Читаю значение по адресу
+				ModBus.ModBus.GetRequest(Addr, Count, new ModBusTaskController.ModBusTaskController.CycleClass.ResponseObj { Item = this, Response = responseHandler });    //Читаю значение по адресу
 			}
 
 			public override void GetValueResponse(dynamic value, bool status)

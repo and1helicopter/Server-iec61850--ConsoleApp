@@ -1,78 +1,15 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ServerLib.Update;
 using UniSerialPort;
 
 namespace ServerLib.ModBus
 {
 	public static partial class ModBus
 	{
-		private static readonly AsynchSerialPort SerialPort = new AsynchSerialPort();
-
 		private static readonly object Locker = new object();
-
-		/// <summary>Open Com Port</summary>
-		/// <returns>Success status</returns>
-		public static bool StartModBus()
-		{
-			if (Status.IsStart) return false;
-			if (!ConfigModBusPort()) return false;
-
-			OpenModBusPort();
-			if(SerialPort.IsOpen)
-			{
-				Log.Log.Write(@"UpdateModBus: StartModBus!!!", @"Success");
-				Status.IsStart = true;
-				return true;
-			}
-
-			Log.Log.Write(@"UpdateModBus port not open!", @"Error");
-			Status.IsStart = false;
-			return false;
-		}
-
-		private static bool ConfigModBusPort()
-		{
-			lock (Locker)
-			{
-				if (SerialPort.IsOpen)
-				{
-					Log.Log.Write("UpdateModBus port is open! Close UpdateModBus SerialPort and repeat.", "Error");
-					return false;
-				}
-
-				SerialPort.SerialPortMode = SerialPortModes.RsMode;
-				SerialPort.BaudRate = ConfigModBus.BaudRate;
-				SerialPort.Parity = ConfigModBus.SerialPortParity;
-				SerialPort.StopBits = ConfigModBus.SerialPortStopBits;
-				SerialPort.PortName = ConfigModBus.ComPortName;
-				SerialPort.SlaveAddr = ConfigModBus.AddrPort;
-
-				Log.Log.Write("UpdateModBus! SerialPort configured", "Success");
-				return true;
-			}
-		}
-
+		
 		private static Thread _checkPortThread;
-
-		private static void OpenModBusPort()
-		{
-			try
-			{
-				lock (Locker)
-				{
-					SerialPort.Open();
-
-					_checkPortThread = new Thread(CheckPort) {Name = "CheckPort", IsBackground = true};
-					_checkPortThread.Start();
-				}
-			}
-			catch
-			{
-				Status.IsStart = false;
-			}
-		}
 
 		private static async void RestartPortInit()
 		{
@@ -93,11 +30,11 @@ namespace ServerLib.ModBus
 		private static void Response(dynamic val, dynamic obj, bool status)
 		{
 			_count--;
-			Status.IsStart = true;
-			Status.IsError = false;
+			ModBusPort.IsStart = true;
+			ModBusPort.IsError = false;
 		}
 
-		private static int _count;
+		private static volatile int _count;
 
 		/// <summary>
 		/// Checked status Com Port
@@ -112,20 +49,24 @@ namespace ServerLib.ModBus
 
 				lock (Locker)
 				{
-					if (!SerialPort.PortError && !SerialPort.PortBusy && !SerialPort.IsOpen)
+					if (!ModBusPort.GetInstance().PortError && 
+					    !ModBusPort.GetInstance().PortBusy && 
+					    !ModBusPort.GetInstance().IsOpen)
 					{
-						Status.IsStart = false;
-						Status.IsError = false;
+						ModBusPort.IsStart = false;
+						ModBusPort.IsError = false;
 						Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
 						restartPortThread.Start();
 						work = false;
 					}
-					else if (!SerialPort.PortError && !SerialPort.PortBusy && SerialPort.IsOpen)
+					else if (!ModBusPort.GetInstance().PortError &&
+							 !ModBusPort.GetInstance().PortBusy &&
+							 ModBusPort.GetInstance().IsOpen)
 					{
-						Status.IsStart = true;
+						ModBusPort.IsStart = true;
 						if (_count > 5)
 						{
-							Status.IsError = true;
+							ModBusPort.IsError = true;
 							Log.Log.Write("UpdateModBus port: SerialPortError!", "Error");
 							Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
 							restartPortThread.Start();
@@ -133,97 +74,85 @@ namespace ServerLib.ModBus
 						}
 						else
 						{
-							Status.IsError = false;
-							GetRequest(255, 1, new UpdateClass.CycleClass.ResponseObj { Item = new object(), Response = СhackHandlerDelegate });
+							ModBusPort.IsError = false;
+							GetRequest(255, 1, new ModBusTaskController.ModBusTaskController.CycleClass.ResponseObj { Item = new object(), Response = СhackHandlerDelegate });
 							_count++;
 						}
 					}
-					else if (!SerialPort.PortError && SerialPort.PortBusy && !SerialPort.IsOpen)
+					else if (!ModBusPort.GetInstance().PortError && 
+					         ModBusPort.GetInstance().PortBusy && 
+					         !ModBusPort.GetInstance().IsOpen)
 					{
-						Status.IsStart = false;
-						Status.IsError = false;
-						SerialPort.UnsetPortBusy();
+						ModBusPort.IsStart = false;
+						ModBusPort.IsError = false;
+						ModBusPort.GetInstance().UnsetPortBusy();
 						Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
 						restartPortThread.Start();
 						work = false;
 					}
-					else if (!SerialPort.PortError && SerialPort.PortBusy && SerialPort.IsOpen)
+					else if (!ModBusPort.GetInstance().PortError && 
+					         ModBusPort.GetInstance().PortBusy && 
+					         ModBusPort.GetInstance().IsOpen)
 					{
-						Status.IsStart = true;
+						ModBusPort.IsStart = true;
 						if (_count > 5)
 						{
-							Status.IsError = true;
+							ModBusPort.IsError = true;
 							Log.Log.Write("UpdateModBus port: SerialPortError!", "Error");
+							//Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
+							//restartPortThread.Start();
+							//work = false;
 						}
 						else
 						{
-							Status.IsError = false;
-							GetRequest(255, 1, new UpdateClass.CycleClass.ResponseObj { Item = new object(), Response = СhackHandlerDelegate });
+							ModBusPort.IsError = false;
+							GetRequest(255, 1, new ModBusTaskController.ModBusTaskController.CycleClass.ResponseObj { Item = new object(), Response = СhackHandlerDelegate });
 							_count++;
 						}
 					}
-					else if (SerialPort.PortError && !SerialPort.PortBusy && !SerialPort.IsOpen)
+					else if (ModBusPort.GetInstance().PortError && 
+					         !ModBusPort.GetInstance().PortBusy && 
+					         !ModBusPort.GetInstance().IsOpen)
 					{
-						Status.IsStart = false;
-						Status.IsError = true;
+						ModBusPort.IsStart = false;
+						ModBusPort.IsError = true;
 						Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
 						restartPortThread.Start();
 						work = false;
 					}
-					else if (SerialPort.PortError && !SerialPort.PortBusy && SerialPort.IsOpen)
+					else if (ModBusPort.GetInstance().PortError && 
+					         !ModBusPort.GetInstance().PortBusy &&
+					         ModBusPort.GetInstance().IsOpen)
 					{
-						Status.IsStart = true;
-						Status.IsError = true;
+						ModBusPort.IsStart = true;
+						ModBusPort.IsError = true;
 						Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
 						restartPortThread.Start();
 						work = false;
 					}
-					else if (SerialPort.PortError && SerialPort.PortBusy && !SerialPort.IsOpen)
+					else if (ModBusPort.GetInstance().PortError && 
+					         ModBusPort.GetInstance().PortBusy && 
+					         !ModBusPort.GetInstance().IsOpen)
 					{
-						Status.IsStart = false;
-						Status.IsError = true;
-						SerialPort.UnsetPortBusy();
+						ModBusPort.IsStart = false;
+						ModBusPort.IsError = true;
+						ModBusPort.GetInstance().UnsetPortBusy();
 						Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
 						restartPortThread.Start();
 						work = false;
 					}
-					else if (SerialPort.PortError && SerialPort.PortBusy && SerialPort.IsOpen)
+					else if (ModBusPort.GetInstance().PortError &&
+					         ModBusPort.GetInstance().PortBusy &&
+					         ModBusPort.GetInstance().IsOpen)
 					{
-						Status.IsStart = true;
-						Status.IsError = true;
-						SerialPort.UnsetPortBusy();
+						ModBusPort.IsStart = true;
+						ModBusPort.IsError = true;
+						ModBusPort.GetInstance().UnsetPortBusy();
 						Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
 						restartPortThread.Start();
 						work = false;
 					}
 				}
-			}
-		}
-
-
-
-		/// <summary>Close ModBus Port</summary>
-		/// <returns>IsClose = !IsOpen</returns>
-		public static bool CloseModBus()
-		{
-			try
-			{
-				CloseModBusPort();
-				Log.Log.Write(@"UpdateModBus: CloseModBus", @"Success");
-				return true;
-			}
-			catch
-			{
-				Log.Log.Write(@"UpdateModBus: CloseModBus", @"Error");
-				return false;
-			}
-		}
-
-		private static void CloseModBusPort()
-		{
-			lock (Locker)
-			{
-				if(SerialPort.IsOpen) SerialPort.Close();
 			}
 		}
 
@@ -255,17 +184,22 @@ namespace ServerLib.ModBus
 		/// <param name="wordCount">Count world get</param>
 		/// <param name="param">new {item = ... "item callback", response([value] , item, statusOk) = ..."what do when load data complete"}</param>
 		/// <returns>Callback function response([value], item, statusOk)</returns>
-		public static void GetRequest(ushort addrGet, ushort wordCount, UpdateClass.CycleClass.ResponseObj param)
+		public static void GetRequest(ushort addrGet, ushort wordCount, ModBusTaskController.ModBusTaskController.CycleClass.ResponseObj param)
 		{
-			if(Status.IsStart && !Status.IsError)
+			if(ModBusPort.IsStart && !ModBusPort.IsError)
 				DataGetRequest(addrGet, wordCount, param);
 			else 
 				DataGetResponse(false, new ushort[] {0}, param);
 		}
 
-		public static void GetRequest04(ushort addrGet, ushort wordCount, UpdateClass.CycleClass.ResponseObj param)
+		/// <summary>Get data</summary>
+		/// <param name="addrGet">Address get</param>
+		/// <param name="wordCount">Count world get</param>
+		/// <param name="param">new {item = ... "item callback", response([value] , item, statusOk) = ..."what do when load data complete"}</param>
+		/// <returns>Callback function response([value], item, statusOk)</returns>
+		public static void GetRequest04(ushort addrGet, ushort wordCount, ModBusTaskController.ModBusTaskController.CycleClass.ResponseObj param)
 		{
-			if (Status.IsStart && !Status.IsError)
+			if (ModBusPort.IsStart && !ModBusPort.IsError)
 				DataGetRequest04(addrGet, wordCount, param);
 			else
 				DataGetResponse(false, new ushort[] { 0 }, param);
@@ -276,24 +210,154 @@ namespace ServerLib.ModBus
 		/// <param name="value">Value set</param>
 		public static void SetRequest(ushort addrGet, ushort[] value)
 		{
-			if (Status.IsStart && !Status.IsError)
+			if (ModBusPort.IsStart && !ModBusPort.IsError)
 				DataSetRequest(addrGet, value);
 		}
 
-		/// <summary>
-		/// Status
-		/// </summary>
-		public static class Status
+		/// <summary>Open Com Port</summary>
+		/// <returns>Success status</returns>
+		public static bool StartModBus()
 		{
-			public static bool IsError { get; set; }
-			public static bool IsStart { get; set; }
-			public  static bool IsEmpty { get {
+			if (ModBusPort.IsStart) return false;
+			if (!ConfigModBusPort()) return false;
+			OpenModBusPort();
+			if (ModBusPort.GetInstance().IsOpen)
+			{
+				Log.Log.Write(@"UpdateModBus: StartModBus!!!", @"Success");
+				ModBusPort.IsStart = true;
+				return true;
+			}
+
+			Log.Log.Write(@"UpdateModBus port not open!", @"Error");
+			ModBusPort.IsStart = false;
+			return false;
+		}
+
+		private static bool ConfigModBusPort()
+		{
+			lock (Locker)
+			{
+				if (ModBusPort.GetInstance().IsOpen)
+				{
+					Log.Log.Write("UpdateModBus port is open! Close UpdateModBus SerialPort and repeat.", "Error");
+					return false;
+				}
+
+				ModBusPort.GetInstance().SerialPortMode = SerialPortModes.RsMode;
+				ModBusPort.GetInstance().BaudRate = ConfigModBus.BaudRate;
+				ModBusPort.GetInstance().Parity = ConfigModBus.SerialPortParity;
+				ModBusPort.GetInstance().StopBits = ConfigModBus.SerialPortStopBits;
+				ModBusPort.GetInstance().PortName = ConfigModBus.ComPortName;
+				ModBusPort.GetInstance().SlaveAddr = ConfigModBus.AddrPort;
+
+				Log.Log.Write("UpdateModBus! SerialPort configured", "Success");
+				return true;
+			}
+		}
+
+		private static void OpenModBusPort()
+		{
+			try
+			{
 				lock (Locker)
 				{
-					return SerialPort.Requests.Count == 0;
+					ModBusPort.GetInstance().Open();
+					_checkPortThread = new Thread(CheckPort) { Name = "CheckPort", IsBackground = true };
+					_checkPortThread.Start();
 				}
-			} }
+			}
+			catch
+			{
+				ModBusPort.IsStart = false;
+			}
+		}
 
+		/// <summary>Close ModBus Port</summary>
+		/// <returns>IsClose = !IsOpen</returns>
+		public static bool CloseModBus()
+		{
+			try
+			{
+				lock (Locker)
+				{
+					_checkPortThread.Abort();
+					_checkPortThread = null;
+					_count = 0;
+				}
+
+				ModBusPort.Abort();
+
+				Log.Log.Write(@"UpdateModBus: CloseModBus", @"Success");
+				return true;
+			}
+			catch
+			{
+				Log.Log.Write(@"UpdateModBus: CloseModBus", @"Error");
+				return false;
+			}
+		}
+
+		private static void CloseModBusPort()
+		{
+			lock (Locker)
+			{
+				ModBusPort.Close();
+			}
+		}
+
+		internal class ModBusPort
+		{
+			private static AsynchSerialPort _instance;
+
+			public static AsynchSerialPort GetInstance()
+			{
+				return _instance ?? (_instance = new AsynchSerialPort());
+			}
+
+			public static void Close()
+			{
+				if(_instance != null)
+					if (_instance.IsOpen)
+					{
+						_instance.UnsetPortBusy();
+						_instance.Close();
+					}
+			}
+
+			public static void QueueClear()
+			{
+				_instance?.Requests.Clear();
+				_instance?.RequestsMain.Clear();
+			}
+
+			public static void Abort()
+			{
+				if (_instance != null)
+					if (_instance.IsOpen)
+					{
+						_instance.UnsetPortBusy();
+						_instance.Close();
+					}
+
+				IsError = false;
+				IsStart = false;
+			}
+
+			internal static bool IsError { get; set; }
+			internal static bool IsStart { get; set; }
+			internal static bool IsEmpty { get {
+				lock (Locker)
+				{
+					try
+					{
+						return _instance?.Requests.Count == 0;
+					}
+					catch 
+					{
+						return false;
+					}
+				}
+			}}
 		}
 	}
 }

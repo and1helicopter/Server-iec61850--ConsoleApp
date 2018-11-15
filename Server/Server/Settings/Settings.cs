@@ -42,7 +42,9 @@ namespace ServerLib.Settings
 					 elSg.Attribute("ConfigurationAddr") != null ? Convert.ToString(elSg.Attribute("ConfigurationAddr")?.Value) : "512",
 					 elSg.Attribute("OscilCmndAddr") != null ? Convert.ToString(elSg.Attribute("OscilCmndAddr")?.Value) : "4092",
 					 elSg.Attribute("PathScope") != null ? elSg.Attribute("PathScope")?.Value : "Scope",
-					 elSg.Attribute("OscilNominalFrequency") != null ? elSg.Attribute("OscilNominalFrequency")?.Value : "50");
+					 elSg.Attribute("OscilNominalFrequency") != null ? elSg.Attribute("OscilNominalFrequency")?.Value : "50",
+					 elSg.Attribute("TimeWait") != null ? elSg.Attribute("TimeWait")?.Value : "1800000",
+					 elSg.Attribute("TimeWaitEnable") != null ? elSg.Attribute("TimeWaitEnable")?.Value : "false");
 				}
 				var elSm = xElement.Element("Settings_ModBus");
 				if (elSm != null)
@@ -87,7 +89,9 @@ namespace ServerLib.Settings
 				new XAttribute("ConfigurationAddr", Convert.ToString(DownloadScope.ConfigDownloadScope.ConfigurationAddr)),
 				new XAttribute("OscilCmndAddr", Convert.ToString(DownloadScope.ConfigDownloadScope.OscilCmndAddr)),
 				new XAttribute("PathScope", DownloadScope.ConfigDownloadScope.PathScope),
-				new XAttribute("OscilNominalFrequency", DownloadScope.ConfigDownloadScope.OscilNominalFrequency)),
+				new XAttribute("OscilNominalFrequency", DownloadScope.ConfigDownloadScope.OscilNominalFrequency),
+				new XAttribute("TimeWait", DownloadScope.ConfigDownloadScope.TimeWait),
+				new XAttribute("TimeWaitEnable", DownloadScope.ConfigDownloadScope.TimeWaitEnable)),
 			   new XElement("Settings_ModBus",
 				new XAttribute("BaudRate", Convert.ToString(ModBus.ConfigModBus.BaudRate)),
 				new XAttribute("SerialPortParity", Convert.ToString(ModBus.ConfigModBus.SerialPortParity)),

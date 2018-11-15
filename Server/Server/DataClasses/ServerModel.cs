@@ -214,6 +214,12 @@ namespace ServerLib.DataClasses
 				LCBreasonCode = reasonCode;
 			}
 		}
+
+		public static void Clear()
+		{
+			Model.Clear();
+
+		}
 	}
 }
 

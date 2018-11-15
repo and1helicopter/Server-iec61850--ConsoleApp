@@ -43,7 +43,6 @@ F:\project\Scope (Client)\Scope (Client)\UniSerialPort\obj\Debug\AsynchSerialPor
 F:\project\Scope (Client)\Scope (Client)\UniSerialPort\obj\Debug\UniSerialPort.csprojAssemblyReference.cache
 F:\project\Server-iec61850--ConsoleApp\UniSerialPort\bin\Debug\AsynchSerialPort.dll
 F:\project\Server-iec61850--ConsoleApp\UniSerialPort\bin\Debug\AsynchSerialPort.pdb
-F:\project\Server-iec61850--ConsoleApp\UniSerialPort\obj\Debug\UniSerialPort.csprojAssemblyReference.cache
 F:\project\Server-iec61850--ConsoleApp\UniSerialPort\obj\Debug\UniSerialPort.csproj.CoreCompileInputs.cache
 F:\project\Server-iec61850--ConsoleApp\UniSerialPort\obj\Debug\AsynchSerialPort.dll
 F:\project\Server-iec61850--ConsoleApp\UniSerialPort\obj\Debug\AsynchSerialPort.pdb

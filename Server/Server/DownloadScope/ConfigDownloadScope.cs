@@ -15,8 +15,8 @@ namespace ServerLib.DownloadScope
 		public static ushort OscilCmndAddr { get; private set; }
 		public static string PathScope { get; private set; }
 		public static string OscilNominalFrequency { get; private set; }
-		public static int TimeWait { get; private set; } = 600000;
-		public static bool TimeWaitEnable { get; private set; } = true;
+		public static int TimeWait { get; private set; }
+		public static bool TimeWaitEnable { get; private set; }
 
 		private static void ChangeEnabale(bool enable)
 		{
@@ -82,8 +82,21 @@ namespace ServerLib.DownloadScope
 		{
 			OscilNominalFrequency = oscilNominalFrequency;
 		}
-		
-		internal static void InitConfigDownloadScope(string enabele, string remove, string type, string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope, string oscilNominalFrequency)
+
+
+		private static void ChangeTimeWait(int timeWait)
+		{
+			TimeWait = timeWait;
+		}
+
+		private static void ChangeTimeWaitEnable(bool timeWaitEnable)
+		{
+			TimeWaitEnable = timeWaitEnable;
+		}
+
+		internal static void InitConfigDownloadScope(string enabele, string remove, string type,
+			string comtradeType, string configurationAddr, string oscilCmndAddr, string pathScope,
+			string oscilNominalFrequency, string timeWait, string timeWaitEnable)
 		{
 			ChangeType(type);
 			ChangeComtradeType(comtradeType);
@@ -96,6 +109,8 @@ namespace ServerLib.DownloadScope
 				ChangeRemove(Convert.ToBoolean(remove));
 				ChangeConfigurationAddr(Convert.ToUInt16(configurationAddr));
 				ChangeOscilCmndAddr(Convert.ToUInt16(oscilCmndAddr));
+				ChangeTimeWait(Convert.ToInt32(timeWait));
+				ChangeTimeWaitEnable(Convert.ToBoolean(timeWaitEnable));
 			}
 			catch
 			{
@@ -103,6 +118,8 @@ namespace ServerLib.DownloadScope
 				Log.Log.Write("UpdateModBus: DownloadScope.InitConfigDownloadScope finish with error - Scope = disable ", "Warning ");
 			}
 		}
+
+
 	}
 
 }

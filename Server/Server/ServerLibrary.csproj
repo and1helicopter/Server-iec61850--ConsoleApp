@@ -43,7 +43,7 @@
     </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -98,9 +98,8 @@
     <Compile Include="Format\FormatList.cs" />
     <Compile Include="Log\Log.cs" />
     <Compile Include="ModBus\Download.cs" />
-    <Compile Include="DownloadScope\DownloadScopePart1.cs" />
+    <Compile Include="DownloadScope\DownloadScope.cs" />
     <Compile Include="ModBus\ModBus.cs" />
-    <Compile Include="DownloadScope\DownloadScopePart2.cs" />
     <Compile Include="ModBus\ConfigModBus.cs" />
     <Compile Include="Parser\CreateBitArray.cs" />
     <Compile Include="Parser\CreateClassFromAttribute.cs" />
@@ -120,7 +119,7 @@
     <Compile Include="Server\ServerIEC61850.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Settings.cs" />
-    <Compile Include="Update\UpdateClass.cs" />
+    <Compile Include="ModBusTaskController\ModBusTaskController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

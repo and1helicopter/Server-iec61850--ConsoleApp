@@ -73,6 +73,8 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
+*.dtp
+*.dtp.DotSettings
 
 # Chutzpah Test files
 _Chutzpah*

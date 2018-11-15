@@ -61,13 +61,13 @@ namespace ServerLib.DataClasses
 				if (BaseModDataObject != null)
 				{
 					BaseModDataObject.BaseClass.UpdateClass(tempValue);
-					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, _iedServer, _iedModel, false);
+					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, null, null, false);
 				}
 
 				if (BaseBehDataObject != null)
 				{
 					BaseBehDataObject.BaseClass.UpdateClass(tempValue);
-					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, _iedServer, _iedModel, false);
+					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, null, null, false);
 				}
 
 				UpdateModDependences();

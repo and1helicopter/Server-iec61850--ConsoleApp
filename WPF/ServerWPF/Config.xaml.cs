@@ -149,8 +149,9 @@ namespace ServerWPF
 				Convert.ToString(int.Parse(ConfigurationAddrTextBox.Text.Remove(0,2), System.Globalization.NumberStyles.HexNumber)),
 				Convert.ToString(int.Parse(OscilCmndAddrTextBox.Text.Remove(0, 2), System.Globalization.NumberStyles.HexNumber)),
 				PathScopeTextBox.Text + "\\",
-				Convert.ToString(OscilNominalFrequencyTextBox.Text)
-				);
+				Convert.ToString(OscilNominalFrequencyTextBox.Text),
+				Convert.ToString(300000),
+				Convert.ToString(false));
 		}
 
 		private void Button_Click(object sender, RoutedEventArgs e)

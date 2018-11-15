@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 
-namespace ServerLib.Update
+namespace ServerLib.ModBusTaskController
 {
-	public static class UpdateClass
+	public static class ModBusTaskController
 	{
 		public static class CycleClass
 		{
@@ -19,17 +18,25 @@ namespace ServerLib.Update
 					if(!ListMethodWorks.Contains(methodWork))
 						ListMethodWorks.Add(methodWork);
 				}
-			}			
+			}
+
+			internal static void RemoveAllMethodWork()
+			{
+				lock (Locker) ListMethodWorks.Clear();
+			}
 
 			internal static void Cycle()
 			{
+				Thread.Sleep(1000);
+
 				while (true)
 				{
 					lock (Locker)
 					{
+						var status = ModBus.ModBus.ModBusPort.IsEmpty || ModBus.ModBus.ModBusPort.IsError;
+
 						ListMethodWorks.ForEach(methodWork =>
 						{
-							var status = ModBus.ModBus.Status.IsEmpty || ModBus.ModBus.Status.IsError;
 							methodWork.Request(status);
 						});
 					}

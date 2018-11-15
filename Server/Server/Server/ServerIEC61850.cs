@@ -1,11 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.IO;
 using System.Threading;
 using IEC61850.Server;
-using IEC61850.TLS;
 using ServerLib.DataClasses;
-using ServerLib.Update;
 
 namespace ServerLib.Server
 {
@@ -15,6 +11,10 @@ namespace ServerLib.Server
 		private static IedModel _iedModel;
 		private static Thread _cycleThread;
 
+		/// <summary>
+		/// Configuration Server IEC61850
+		/// </summary>
+		/// <returns>Return result configuration</returns>
 		public static bool ConfigServer()
 		{
 			try
@@ -24,10 +24,10 @@ namespace ServerLib.Server
 				Directory.CreateDirectory(pathServer);
 
 				_iedModel = ConfigFileParser.CreateModelFromConfigFile(ServerConfig.NameModelFile);
-					// IedModel.CreateFromFile(ServerConfig.NameModelFile);
+				
 				IedServerConfig config = new IedServerConfig
 				{
-					ReportBufferSize = 100000,
+					ReportBufferSize = 10000,
 					FileServiceBasePath = pathServer
 				};
 				_iedServer = new IedServer(_iedModel, config);
@@ -39,34 +39,40 @@ namespace ServerLib.Server
 				return false;
 			}
 
-			UpdateServer.SetParams(_iedServer, _iedModel);			//Устаовка 
-			UpdateServer.InitUpdate(_iedServer, _iedModel);			//Заполнение данными
+			UpdateServer.SetParams(_iedServer, _iedModel);          //Устаовка 
+			UpdateServer.InitUpdate(_iedServer, _iedModel);         //Заполнение данными
 			UpdateServer.InitHandlers(_iedServer, _iedModel);       //Установка оброботчиков событий
 			UpdateServer.InitQualityAndTime();
 			UpdateServer.InitMethodWork();
+			DownloadScope.DownloadScope.InitMethodWork();
 			return true;
 		}
 
+		/// <summary>
+		/// Start setver IEC 61850
+		/// </summary>
+		/// <returns>Return result start</returns>
 		public static bool StartServer(){
 			if (_iedModel != null)
 			{
 				ModBus.ModBus.StartModBus();
 				_iedServer.Start(ServerConfig.ServerPort);
 
-				_cycleThread = new Thread(UpdateClass.CycleClass.Cycle)
+				if (_iedServer.IsRunning())
 				{
-					Name = "Cycle",
-					IsBackground = true
-				};
-				_cycleThread.Start();
+					_cycleThread = new Thread(ModBusTaskController.ModBusTaskController.CycleClass.Cycle)
+					{
+						Name = "Cycle",
+						IsBackground = true
+					};
+					_cycleThread.Start();
 
-				Thread.Sleep(1000);
-				DownloadScope.DownloadScope.StartThreadCheack();
-
-				Log.Log.Write(@"ServerIEC61850.StartServer: ServerIEC61850 started", @"Start");
-				
-
-				GC.Collect();
+					Log.Log.Write(@"ServerIEC61850.StartServer: ServerIEC61850 started", @"Start");
+				}
+				else
+				{
+					return false;
+				}
 			}
 			else
 			{
@@ -78,23 +84,34 @@ namespace ServerLib.Server
 			return true;
 		}
 
+		/// <summary>
+		/// Stop server IEC61850
+		/// </summary>
+		/// <returns>Return result stop</returns>
 		public static bool StopServer()
 		{
 			try
 			{
+				ModBusTaskController.ModBusTaskController.CycleClass.RemoveAllMethodWork();
 				ModBus.ModBus.CloseModBus();
 
 				if (_iedServer != null)
 				{
 					if (_iedServer.IsRunning())
 					{
+						_cycleThread.Abort();
+						_cycleThread = null;
+
 						_iedServer.Stop();
 						_iedServer.Destroy();
 						_iedServer = null;
+						_iedModel.Destroy();
+						_iedModel = null;
 					}
 				}
-				
+
 				ServerModel.Model?.Clear();
+				DownloadScope.DownloadScope.StopDownloadScope();
 				UpdateServer.Clear();
 
 				Log.Log.Write(@"ServerIEC61850.StopServer: ServerIEC61850 stoped", @"Stop");
@@ -108,11 +125,21 @@ namespace ServerLib.Server
 			return true;
 		}
 
+		/// <summary>
+		/// Parse file model to sever model
+		/// </summary>
+		/// <param name="dependencesModel">Dependences Model</param>
+		/// <returns>Return result parse</returns>
 		public static bool ParseFile(bool dependencesModel)
 		{
 			return Parser.Parser.ParseFile($"{ServerConfig.NamePathDirectory}\\{ServerConfig.NameConfigFile}", dependencesModel);
 		}
 
+		/// <summary>
+		/// Read Config file
+		/// </summary>
+		/// <param name="pathName">Path configuration file</param>
+		/// <returns>Return result read</returns>
 		public static bool ReadConfig(string pathName)
 		{
 			return Settings.Settings.ReadSettings(pathName);

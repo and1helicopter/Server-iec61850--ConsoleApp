@@ -1,6 +1,5 @@
 ﻿using IEC61850.Common;
 using IEC61850.Server;
-using ServerLib.Update;
 
 namespace ServerLib.DataClasses
 {
@@ -36,6 +35,8 @@ namespace ServerLib.DataClasses
 		{
 			UpdateDataObj.SourceList?.Clear();
 			UpdateDataObj.UpdateListDestination?.Clear();
+			UpdateDataObj.ModHead.DependencesGroupes.Clear();
+			UpdateDataObj.SetParamsServer(null, null);
 		}
 
 		/// <summary>
@@ -183,10 +184,15 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		private static readonly ReadDataObjMethodWork UpdateReadDataObjMethodWork = new ReadDataObjMethodWork();
-
-		private class ReadDataObjMethodWork: UpdateClass.CycleClass.MethodWork
+		private class ReadDataObjMethodWork: ModBusTaskController.ModBusTaskController.CycleClass.MethodWork
 		{
+			private static readonly ReadDataObjMethodWork Instance = new ReadDataObjMethodWork();
+
+			internal static ReadDataObjMethodWork GetInstance()
+			{
+				return Instance;
+			}
+
 			internal override void Request(dynamic status)
 			{
 				var ready = (bool) status;
@@ -212,7 +218,7 @@ namespace ServerLib.DataClasses
 		/// </summary>
 		public static void InitMethodWork()
 		{
-			UpdateClass.CycleClass.AddMethodWork(UpdateReadDataObjMethodWork);
+			ModBusTaskController.ModBusTaskController.CycleClass.AddMethodWork(ReadDataObjMethodWork.GetInstance());
 		}
 	}
 }
