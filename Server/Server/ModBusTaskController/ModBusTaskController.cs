@@ -41,7 +41,7 @@ namespace ServerLib.ModBusTaskController
 						});
 					}
 
-					Thread.Sleep(10);
+					Thread.Sleep(1);
 				}
 			}
 

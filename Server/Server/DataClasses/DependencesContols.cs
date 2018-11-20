@@ -3,7 +3,7 @@ using IEC61850.Server;
 
 namespace ServerLib.DataClasses
 {
-	public static partial class UpdateDataObj
+	public static partial class DataObj
 	{
 		public static class ModHead
 		{

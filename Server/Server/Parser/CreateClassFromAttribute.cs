@@ -115,20 +115,20 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 						
-						var destination = new UpdateDataObj.DestinationObjectDigital
+						var destination = new DataObj.DestinationObjectDigital
 						{
 							BaseClass = sps,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						var sourceList = (from x in UpdateDataObj.SourceList
-								  where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+						var sourceList = (from x in DataObj.SourceList
+								  where x.GetType() == typeof(DataObj.SourceClassDigital)
 								  select x).ToList();
 
 						SetAddressD(destination, sourceList, @"stVal", stVal);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -162,20 +162,20 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectDigital
+						var destination = new DataObj.DestinationObjectDigital
 						{
 							BaseClass = dps,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						var sourceList = (from x in UpdateDataObj.SourceList
-							where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+						var sourceList = (from x in DataObj.SourceList
+							where x.GetType() == typeof(DataObj.SourceClassDigital)
 							select x).ToList();
 
 						SetAddressD(destination, sourceList, @"stVal", stVal);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -209,7 +209,7 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = ins,
 							NameDataObj = pathNameDo,
@@ -218,7 +218,7 @@ namespace ServerLib.Parser
 
 						SetAddressA(destination, @"stVal", stVal);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -264,15 +264,15 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectDigital
+						var destination = new DataObj.DestinationObjectDigital
 						{
 							BaseClass = act,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						var sourceList = (from x in UpdateDataObj.SourceList
-										  where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+						var sourceList = (from x in DataObj.SourceList
+										  where x.GetType() == typeof(DataObj.SourceClassDigital)
 										  select x).ToList();
 
 						SetAddressD(destination, sourceList, @"general", general);
@@ -281,7 +281,7 @@ namespace ServerLib.Parser
 						SetAddressD(destination, sourceList, @"phsC", phsC);
 						SetAddressD(destination, sourceList, @"neut", neut);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -345,15 +345,15 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectDigital
+						var destination = new DataObj.DestinationObjectDigital
 						{
 							BaseClass = acd,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						var sourceList = (from x in UpdateDataObj.SourceList
-										  where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+						var sourceList = (from x in DataObj.SourceList
+										  where x.GetType() == typeof(DataObj.SourceClassDigital)
 										  select x).ToList();
 
 						SetAddressD(destination, sourceList, @"general", general);
@@ -368,7 +368,7 @@ namespace ServerLib.Parser
 						SetAddressD(destination, sourceList, @"dirPhsC", dirPhsC);
 						SetAddressD(destination, sourceList, @"dirNeut", dirNeut);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 						return;
 					}
 					catch
@@ -405,7 +405,7 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = sec,
 							NameDataObj = pathNameDo,
@@ -415,7 +415,7 @@ namespace ServerLib.Parser
 						SetAddressA(destination, @"cnt", cnt);
 						SetAddressA(destination, @"sev", sev);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -450,7 +450,7 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = bcr,
 							NameDataObj = pathNameDo,
@@ -459,7 +459,7 @@ namespace ServerLib.Parser
 
 						SetAddressA(destination, @"actVal", actVal);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -525,7 +525,7 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = mv,
 							NameDataObj = pathNameDo,
@@ -534,7 +534,7 @@ namespace ServerLib.Parser
 
 						SetAddressA(destination, @"mag", mag);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);				
+						DataObj.UpdateListDestination.Add(destination);				
 
 						return;
 					}
@@ -617,7 +617,7 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = cmv,
 							NameDataObj = pathNameDo,
@@ -627,7 +627,7 @@ namespace ServerLib.Parser
 						SetAddressA(destination, @"mag", mag);
 						SetAddressA(destination, @"ang", ang);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -690,7 +690,7 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = sav,
 							NameDataObj = pathNameDo,
@@ -699,7 +699,7 @@ namespace ServerLib.Parser
 
 						SetAddressA(destination, @"instMag", instMag);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -731,14 +731,14 @@ namespace ServerLib.Parser
 						
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = wye,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -770,14 +770,14 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = del,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -809,14 +809,14 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = del,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -865,20 +865,20 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectDigital
+						var destination = new DataObj.DestinationObjectDigital
 						{
 							BaseClass = spc,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						var sourceList = (from x in UpdateDataObj.SourceList
-							where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+						var sourceList = (from x in DataObj.SourceList
+							where x.GetType() == typeof(DataObj.SourceClassDigital)
 							select x).ToList();
 
 						SetAddressD(destination, sourceList, @"stVal", stval);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -914,20 +914,20 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectDigital
+						var destination = new DataObj.DestinationObjectDigital
 						{
 							BaseClass = dpc,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						var sourceList = (from x in UpdateDataObj.SourceList
-							where x.GetType() == typeof(UpdateDataObj.SourceClassDigital)
+						var sourceList = (from x in DataObj.SourceList
+							where x.GetType() == typeof(DataObj.SourceClassDigital)
 							select x).ToList();
 
 						SetAddressD(destination, sourceList, @"stVal", stval);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 						
 						return;
 					}
@@ -962,7 +962,7 @@ namespace ServerLib.Parser
 
 						var pathNameDo = path + "." + itemDo.NameDO;
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = inc,
 							NameDataObj = pathNameDo,
@@ -971,7 +971,7 @@ namespace ServerLib.Parser
 
 						SetAddressA(destination, @"stVal", stval);
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -1045,14 +1045,14 @@ namespace ServerLib.Parser
 							serNum = serNum
 						};
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = dpl,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -1107,14 +1107,14 @@ namespace ServerLib.Parser
 							d = d
 						};
 
-						var destination = new UpdateDataObj.DestinationObjectAnalog
+						var destination = new DataObj.DestinationObjectAnalog
 						{
 							BaseClass = lpl,
 							NameDataObj = pathNameDo,
 							IsOn = true
 						};
 
-						UpdateDataObj.UpdateListDestination.Add(destination);
+						DataObj.UpdateListDestination.Add(destination);
 
 						return;
 					}
@@ -1249,7 +1249,7 @@ namespace ServerLib.Parser
 		#endregion
 
 		#region SetAddressD
-		private static void SetAddressD(UpdateDataObj.DestinationObjectDigital destination, List<UpdateDataObj.SourceClass> sourceList, string name, string str)
+		private static void SetAddressD(DataObj.DestinationObjectDigital destination, List<DataObj.SourceClass> sourceList, string name, string str)
 		{
 			if (str == null) return;
 			GetAddrD(str, out int index, out string addr);
@@ -1257,12 +1257,12 @@ namespace ServerLib.Parser
 		}
 
 
-		private static void SetAddressA(UpdateDataObj.DestinationObjectAnalog destination, string name, string str)
+		private static void SetAddressA(DataObj.DestinationObjectAnalog destination, string name, string str)
 		{
 			if (str == null) return;
 			GetAddrA(str, out ushort count, out ushort addr);
 
-			var source = new UpdateDataObj.SourceClassAnalog
+			var source = new DataObj.SourceClassAnalog
 			{
 				Addr = addr,
 				Count = count
@@ -1272,12 +1272,12 @@ namespace ServerLib.Parser
 		}
 		#endregion
 
-		private static void SetDestinationD(UpdateDataObj.DestinationObjectDigital destination, List<UpdateDataObj.SourceClass> sourceList, int index, string addr, string value)
+		private static void SetDestinationD(DataObj.DestinationObjectDigital destination, List<DataObj.SourceClass> sourceList, int index, string addr, string value)
 		{
-			if (sourceList.Count(x => ((UpdateDataObj.SourceClassDigital) x).NameBitArray == addr) == 0) return;
+			if (sourceList.Count(x => ((DataObj.SourceClassDigital) x).NameBitArray == addr) == 0) return;
 
-			var source = (UpdateDataObj.SourceClassDigital)(from y in sourceList
-				where ((UpdateDataObj.SourceClassDigital)y).NameBitArray == addr
+			var source = (DataObj.SourceClassDigital)(from y in sourceList
+				where ((DataObj.SourceClassDigital)y).NameBitArray == addr
 				select y).First();
 
 			destination.IndexData.Add(value, index);

@@ -54,7 +54,7 @@ namespace ServerLib.Parser
 								var addrBitArray = Convert.ToUInt16(lnitem.Value.Split(';')[1]);
 
 								//Новый объект source
-								UpdateDataObj.SourceList.Add(new UpdateDataObj.SourceClassDigital()
+								DataObj.SourceList.Add(new DataObj.SourceClassDigital()
 								{
 									Addr = addrBitArray,
 									Count = 1,

@@ -99,6 +99,7 @@ namespace ServerLib.ModBus
 						{
 							ModBusPort.IsError = true;
 							Log.Log.Write("UpdateModBus port: SerialPortError!", "Error");
+							ModBusPort.GetInstance().UnsetPortBusy();
 							//Thread restartPortThread = new Thread(RestartPortInit) { Name = "RestartPort", IsBackground = true };
 							//restartPortThread.Start();
 							//work = false;

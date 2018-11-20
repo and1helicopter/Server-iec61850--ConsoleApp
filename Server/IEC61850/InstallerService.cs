@@ -15,7 +15,7 @@ namespace ServiceIec61850
 
 			serviceInstaller = new ServiceInstaller
 			{
-				StartType = ServiceStartMode.Manual,
+				StartType = ServiceStartMode.Automatic,
 				ServiceName = "ServiceIEC61850",
 				DisplayName = "Служба сервера IEC61850",
 				Description = "Сервер IEC 61850"

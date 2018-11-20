@@ -5,6 +5,7 @@ using System.IO.Ports;
 using System.Xml.Linq;
 using System.Xml;
 using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace UniSerialPort
@@ -22,7 +23,7 @@ namespace UniSerialPort
 		readonly SerialPort _serialPort;
 		//System.Windows.Forms.Timer 
 
-		readonly System.Timers.Timer _requestTimer;
+	//	readonly System.Timers.Timer _requestTimer;
 
 		public byte SlaveAddr { get; set; } = 1;
 
@@ -106,11 +107,28 @@ namespace UniSerialPort
 		{
 			_serialPort = new SerialPort();
 			_serialPort.DataReceived +=serialPort_DataReceived;
-			_requestTimer = new System.Timers.Timer
+
+			//_cancelTokenSource = new CancellationTokenSource();
+			//_requestTimer = new System.Timers.Timer
+			//{
+			//	Interval = 10
+			//};
+			//_requestTimer.Elapsed += requestTimer_Tick;
+		}
+
+		private CancellationTokenSource _cancelTokenSource;
+		private CancellationToken _token;
+
+		private async void ReadTimeOutAsync()
+		{
+			await Task.Run(() => 
 			{
-				Interval = 10
-			};
-			_requestTimer.Elapsed += requestTimer_Tick;
+				while (!_token.IsCancellationRequested)
+				{
+					if(!PortBusy) CheckQueue(true);
+					Thread.Sleep(1);
+				}
+			}, _token);
 		}
 
 		public void Open()
@@ -131,7 +149,12 @@ namespace UniSerialPort
 				_tcpMaster = new ModbusTcpMaster(IpAddress, PortNum);
 				_tcpMaster.OnResponseData +=tcpMaster_OnResponseData;
 			}
-			_requestTimer.Enabled = true; 
+
+			_cancelTokenSource = new CancellationTokenSource();
+			_token = _cancelTokenSource.Token;
+
+			//Запуск функции
+			ReadTimeOutAsync();
 		}
 
 		private bool _flagToClose;
@@ -179,7 +202,10 @@ namespace UniSerialPort
 	   
 		void CloseBody()
 		{
-			_requestTimer.Enabled = false;
+			//Остановка 
+			_cancelTokenSource.Cancel();
+			_cancelTokenSource.Dispose();
+			//_requestTimer.Enabled = false;
 			if (SerialPortMode == SerialPortModes.RsMode)
 			{
 				_serialPort.Close();
@@ -246,7 +272,7 @@ namespace UniSerialPort
 						byte[] buff = new byte[_serialPort.BytesToRead+1];
 						_serialPort.Read(buff, 0, _serialPort.BytesToRead);
 					}
-					Thread.Sleep(3);
+					//Thread.Sleep(3);
 					_serialPort.Write(requestUnit.TxBuffer, 0, requestUnit.TxBuffer.Length);
 				}
 				catch
@@ -475,10 +501,7 @@ namespace UniSerialPort
 
 		readonly object _locker = new object();
 
-		void requestTimer_Tick(object sender, EventArgs e)
-		{
-				CheckQueue(true);
-		}
+
 
 		private void GetDataRtu(byte slaveAddress, ushort startAddr, ushort wordCount, DataRecievedRtu dataRecievedRtu, RequestPriority requestPriority, object param)
 		{

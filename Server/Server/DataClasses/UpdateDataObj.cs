@@ -1,513 +1,225 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using IEC61850.Common;
 using IEC61850.Server;
 
 namespace ServerLib.DataClasses
 {
-	public static partial class UpdateDataObj
+	public static class UpdateServer
 	{
-		internal static readonly List<DestinationDataObject> UpdateListDestination = new List<DestinationDataObject>();
-		internal static readonly List<SourceClass> SourceList = new List<SourceClass>();
-		//Связанные данные Mod, Beh, Health обновляются связано
-		
-		private static IedServer _iedServer;
-		private static IedModel _iedModel;
-
-		internal static void SetParamsServer(IedServer iedServer, IedModel iedModel)
+		/// <summary>
+		/// Initialize update (Set default data)
+		/// </summary>
+		/// <param name="iedServer">Server object</param>
+		/// <param name="iedModel">Model object</param>
+		public static void InitUpdate(IedServer iedServer, IedModel iedModel)
 		{
-			_iedServer = iedServer;
-			_iedModel = iedModel;
-		}
-
-		#region Source
-		//Базовый класс
-		public abstract class SourceClass
-		{
-			public abstract ushort Addr { get; set; }
-			public abstract ushort Count { get; set; }
-			public abstract dynamic Value { get; set; }
-
-			public delegate void ClassResponseHandler(dynamic value, dynamic param, bool status);
-
-			public abstract void GetValueRequest(ClassResponseHandler responseHandler);
-			public abstract void GetValueResponse(dynamic value, bool status);
-
-			public abstract void SetValue(dynamic value);
-
-			public delegate void ClassStateHandlerRead(dynamic value, bool status);
-			public abstract event ClassStateHandlerRead ReadValueHandler;
-			public abstract bool IsReady { get; set; }
-		}
-
-		//Digital
-		public class SourceClassDigital : SourceClass, ISourceDigital
-		{
-			public override ushort Addr { get; set; }
-			public override ushort Count { get; set; }
-			public override dynamic Value { get; set; }
-			public string NameBitArray { get; set; }
-
-			public override void GetValueRequest(ClassResponseHandler responseHandler)          //Read ModBus
+			foreach (var item in DataObj.UpdateListDestination)
 			{
-				ModBus.ModBus.GetRequest(Addr, Count, new ModBusTaskController.ModBusTaskController.CycleClass.ResponseObj { Item = this, Response = responseHandler });    //Читаю значение по адресу
+				item.BaseClass.InitServer(item.NameDataObj, iedServer, iedModel);
 			}
-
-			public override void GetValueResponse(dynamic value, bool status)
-			{
-				if(status) Value = value;
-				ReadValueHandler?.Invoke(this, status);
-			}
-
-			public override void SetValue(dynamic value)
-			{
-				ModBus.ModBus.SetRequest(Addr, value);
-			}
-
-			public override event ClassStateHandlerRead ReadValueHandler;
-			public override bool IsReady { get; set; } = true;
 		}
 
-		//Analog
-		public class SourceClassAnalog : SourceClass
+		/// <summary>
+		/// Set server and model object
+		/// </summary>
+		/// <param name="iedServer">Server object</param>
+		/// <param name="iedModel">Model object</param>
+		public static void SetParams(IedServer iedServer, IedModel iedModel)
 		{
-			public override ushort Addr { get; set; }
-			public override ushort Count { get; set; }
-			public override dynamic Value { get; set; }
-
-			public override void GetValueRequest(ClassResponseHandler responseHandler)          //Read UpdateModBus
-			{
-				ModBus.ModBus.GetRequest(Addr, Count, new ModBusTaskController.ModBusTaskController.CycleClass.ResponseObj { Item = this, Response = responseHandler });    //Читаю значение по адресу
-			}
-
-			public override void GetValueResponse(dynamic value, bool status)
-			{
-				if (status) Value = value;
-				ReadValueHandler?.Invoke(this, status);
-			}
-
-			public override void SetValue(dynamic value)
-			{
-				ModBus.ModBus.SetRequest(Addr, value);
-			}
-
-			public override event ClassStateHandlerRead ReadValueHandler;
-			public override bool IsReady { get; set; } = true;
+			DataObj.SetParamsServer(iedServer, iedModel);
 		}
 
-		interface ISourceDigital
+		/// <summary>
+		/// Clear data server
+		/// </summary>
+		public static void Clear()
 		{
-			string NameBitArray { get; set; }
+			DataObj.SourceList?.Clear();
+			DataObj.UpdateListDestination?.Clear();
+			DataObj.ModHead.DependencesGroupes.Clear();
+			DataObj.SetParamsServer(null, null);
 		}
 
-		interface ISourceAnalog
-		{
-			
-		}
-		#endregion
-
-		public abstract class DestinationDataObject
-		{
-			public abstract string NameDataObj { get; set; }			//Путь до класса (destination)
-			public abstract BaseClass BaseClass { get; set; }			//Ссылка на объект управления
-			protected abstract bool IsReady { get; set; }				//Готов к обновлению
-			public abstract bool IsBusy { get; set; }					//Занят
-
-			//Статусы контроля
-			public abstract bool IsOn { get; set; }
-			public abstract bool IsBlock { get; set; }
-			public abstract bool IsTest { get; set; }
-			public abstract bool IsTestBlock { get; set; }
-			public abstract bool IsOff { get; set; }
-
-			protected abstract bool IsErrorReadValue { get; set; }
-			protected abstract bool IsErrorWriteValue { get; set; }
-
-			protected abstract Dictionary<string, bool> ReadValue { get; set; }				//
-			protected abstract Dictionary<string, SourceClass> Dictionary { get; set; }
-			protected abstract List<SourceClass> SourceItem { get; set; }					//Подписка на 
-			
-			public abstract void AddSource(SourceClass source, string name);
-
-			protected abstract void OnReadValue(dynamic value, bool status);
-			internal abstract void WriteValue(dynamic value);
-			internal abstract void Qality(bool init = false);
-
-			//Обработчик для изменения статуса Mod, Beh, Health
-			public delegate void ClassStateHandlerWrite(dynamic value);
-			public abstract event ClassStateHandlerWrite WriteValueHandler;
-			public abstract event ClassStateHandlerWrite ReadValueHandler;
-
-			protected abstract void ResetReady();
-		}
-
-		//Digital
-		public class DestinationObjectDigital : DestinationDataObject, IDestinationDigital
-		{
-			public override string NameDataObj { get; set; }
-			public override BaseClass BaseClass { get; set; }
-			protected override bool IsReady { get; set; }
-			public override bool IsBusy { get; set; }
-
-			//Статусы контроля
-			public override bool IsOn { get; set; }
-			public override bool IsBlock { get; set; }
-			public override bool IsTest { get; set; }
-			public override bool IsTestBlock { get; set; }
-			public override bool IsOff { get; set; }
-
-			protected override bool IsErrorReadValue { get; set; }
-			protected override bool IsErrorWriteValue { get; set; }
-
-			protected override Dictionary<string, bool> ReadValue { get; set; } = new Dictionary<string, bool>();
-			protected override Dictionary<string, SourceClass> Dictionary { get; set; } = new Dictionary<string, SourceClass>();
-			protected override List<SourceClass> SourceItem { get; set; } = new List<SourceClass>();
-
-			public Dictionary<string, int> IndexData { get; set; } = new Dictionary<string, int>();
-
-			public override void AddSource(SourceClass source, string name)
+		/// <summary>
+		/// Initialize handlers for write data server
+		/// </summary>
+		/// <param name="iedServer">Server object</param>
+		/// <param name="iedModel">Model object</param>
+		public static void InitHandlers(IedServer iedServer, IedModel iedModel)
+		{			
+			foreach (var itemDataObject in DataObj.UpdateListDestination)
 			{
-				ReadValue.Add(name, false);
-				Dictionary.Add(name, source);
+				var temp = (DataObject)iedModel.GetModelNodeByShortObjectReference(itemDataObject.NameDataObj);
 
-				if (!SourceItem.Contains(source))
+				if (itemDataObject.BaseClass.GetType() == typeof(SpcClass))
 				{
-					SourceItem.Add(source);
-					source.ReadValueHandler += OnReadValue;
-				}
-			}
-
-			protected override void OnReadValue(dynamic val, bool status)
-			{
-				try
-				{
-					//ReadValueHandler?.Invoke(val);
-
-					if (IsOn)
-					{
-						IsReadValue(val);
-					}
-					else if (IsBlock)
-					{
-
-					}
-					else if (IsTest)
-					{
-						IsReadValue(val);
-					}
-					else if (IsTestBlock)
-					{
-
-					}
-					else if (IsOff)
-					{
-
-					}
-					
-					void IsReadValue(dynamic value)
-					{
-						if (!status)
+					object tempParam = ((SpcClass)itemDataObject.BaseClass).ctlModel;
+						
+					iedServer.SetCheckHandler(temp,
+						(controlObject, parameter, ctlVal, test, interlockCheck, connection) =>
 						{
-							BaseClass.UpdateQuality(NameDataObj, _iedServer, _iedModel);
-							return;
-						}
+							var result = CheckHandlerResult.ACCEPTED;
+							return result;
+						},
+						tempParam);
 
-						var source = value;
-						if (Dictionary.ContainsValue(source))
+					iedServer.SetWaitForExecutionHandler(temp,
+						(controlObject, parameter, ctlVal, test, synchroCheck) =>
 						{
-							var tempValNameList = Dictionary.Where(x => x.Value == source);
-							foreach (var tempValName in tempValNameList)
+							var result = ControlHandlerResult.OK;
+							return result;
+						}, 
+						tempParam);
+
+					iedServer.SetControlHandler(temp, 
+						(controlObject, parameter, ctlVal, test) =>
+						{
+							if (ctlVal.GetType() != MmsType.MMS_BOOLEAN)
+								return ControlHandlerResult.FAILED;
+
+							if (!test)
 							{
-								var tempIndex = IndexData[tempValName.Key];
-
-								var tempValue = new { Value = source.Value[0], Index = tempIndex, tempValName.Key };
-								BaseClass.UpdateClass(tempValue);
-								ReadValue[tempValName.Key] = true;
+								var tempValue = new
+								{
+									Key = "stVal",
+									Value = ctlVal.GetBoolean()
+								};
+								itemDataObject.WriteValue(tempValue);
 							}
 
-							if (!ReadValue.ContainsValue(false))
-								IsReady = true;
-						}
-
-						if (IsReady)
-						{
-							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, false);
-							ResetReady();
-						}
-					}
+							return ControlHandlerResult.OK;
+						},
+						tempParam);
 				}
-				catch
+				else if (itemDataObject.BaseClass.GetType() == typeof(DpcClass))
 				{
-					if (!IsErrorReadValue)
-					{
-						Log.Log.Write($"Destination ReadValue Error {val.GetType()}", "Warrning");
-						IsErrorReadValue = true;
-					}
-				}
-			}
-
-			internal override void WriteValue(dynamic val)
-			{
-				try
-				{
-					//WriteValueHandler?.Invoke(val);
-
-					if (IsOn)
-					{
-
-						IsWriteValue(val);
-					}
-					else if (IsBlock)
-					{
-
-					}
-					else if (IsTest)
-					{
-						IsWriteValue(val);
-					}
-					else if (IsTestBlock)
-					{
-
-					}
-					else if (IsOff)
-					{
-
-					}
-
-					void IsWriteValue(dynamic value)
-					{
-						if (Dictionary.Count != 0)
+					object tempParam = ((DpcClass)itemDataObject.BaseClass).ctlModel;
+						
+					iedServer.SetCheckHandler(temp,
+						(controlObject, parameter, ctlVal, test, interlockCheck, connection) =>
 						{
-							//Отправить значение на плату				
-							var index = IndexData[value.Key];
-							var source = Dictionary[value.Key];
-							var oldValue = (SourceClassDigital)source;
-							var newValue = new
+							var result = CheckHandlerResult.ACCEPTED;
+							return result;
+						},
+						tempParam);
+
+					iedServer.SetWaitForExecutionHandler(temp,
+						(controlObject, parameter, ctlVal, test, synchroCheck) =>
+						{
+							var result = ControlHandlerResult.OK;
+							return result;
+						}, 
+						tempParam);
+
+					iedServer.SetControlHandler(temp, 
+						(controlObject, parameter, ctlVal, test) =>
+						{
+							if (ctlVal.GetType() != MmsType.MMS_BOOLEAN)
+								return ControlHandlerResult.FAILED;
+
+							if (!test)
 							{
-								Index = index,
-								value.Value
-							};
-
-							var xxx = BaseClass.SetValue(oldValue.Value, newValue, value.Key);
-
-							source.SetValue(xxx);
-						}
-					}
-				}
-				catch
-				{
-					if (!IsErrorWriteValue)
-					{
-						Log.Log.Write($"Destination WriteValue Error {val.GetType()}", "Warrning");
-						IsErrorWriteValue = true;
-					}
-				}
-			}
-
-			internal override void Qality(bool init = false)
-			{
-				BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, init);
-			}
-
-			public override event ClassStateHandlerWrite WriteValueHandler;
-			public override event ClassStateHandlerWrite ReadValueHandler;
-
-			protected override void ResetReady()
-			{
-				foreach (var item in ReadValue.ToList())
-				{
-					ReadValue[item.Key] = false;
-				}
-
-				IsReady = true;
-			}
-		}
-
-		public class DestinationObjectAnalog : DestinationDataObject, IDestinationAnalog
-		{
-			public override string NameDataObj { get; set; }
-			public override BaseClass BaseClass { get; set; }
-			protected override bool IsReady { get; set; }
-			public override bool IsBusy { get; set; }
-
-			//Статусы контроля
-			public override bool IsOn { get; set; }
-			public override bool IsBlock { get; set; }
-			public override bool IsTest { get; set; }
-			public override bool IsTestBlock { get; set; }
-			public override bool IsOff { get; set; }
-
-			protected override bool IsErrorReadValue { get; set; }
-			protected override bool IsErrorWriteValue { get; set; }
-
-			protected override Dictionary<string, bool> ReadValue { get; set; } = new Dictionary<string, bool>();
-			protected override Dictionary<string, SourceClass> Dictionary { get; set; } = new Dictionary<string, SourceClass>();
-			protected override List<SourceClass> SourceItem { get; set; } = new List<SourceClass>();
-
-			public override void AddSource(SourceClass source, string name)
-			{
-				ReadValue.Add(name, false);
-				Dictionary.Add(name, source);
-
-				if (!SourceList.Contains(source))
-				{
-					SourceList.Add(source);
-				}
-
-				if (!SourceItem.Contains(source))
-				{
-					SourceItem.Add(source);
-					source.ReadValueHandler += OnReadValue;
-				}
-			}
-
-			protected override void OnReadValue(dynamic val, bool status)
-			{
-				try
-				{
-					ReadValueHandler?.Invoke(val);
-
-					if (IsOn)
-					{
-						IsReadValue(val);
-					}
-					else if (IsBlock)
-					{
-
-					}
-					else if (IsTest)
-					{
-						IsReadValue(val);
-					}
-					else if (IsTestBlock)
-					{
-
-					}
-					else if (IsOff)
-					{
-
-					}
-
-					void IsReadValue(dynamic value)
-					{
-						if (!status)
-						{
-							BaseClass.UpdateQuality(NameDataObj, _iedServer, _iedModel);
-							return;
-						}
-
-						dynamic source = value;
-
-						if (Dictionary.ContainsValue(source))
-						{
-							var tempValNameList = Dictionary.Where(x => x.Value == source);
-
-							foreach (var tempValName in tempValNameList)
-							{
-								var tempValue = new { source.Value, tempValName.Key };
-								BaseClass.UpdateClass(tempValue);
-								ReadValue[tempValName.Key] = true;
+								var tempValue = new
+								{
+									Key = "stVal",
+									Value = ctlVal.GetBoolean()
+								};
+								itemDataObject.WriteValue(tempValue);
 							}
 
-							if (!ReadValue.ContainsValue(false))
-								IsReady = true;
-						}
-						if (IsReady)
-						{
-							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, false);
-							ResetReady();
-						}
-					}
+							return ControlHandlerResult.OK;
+						},
+						tempParam);
 				}
-				catch
+				else if (itemDataObject.BaseClass.GetType() == typeof(IncClass))
 				{
-					if (!IsErrorReadValue)
-					{
-						Log.Log.Write($"Destination ReadValue Error {val.GetType()}", "Warrning");
-						IsErrorReadValue = true;
-					}				
-				}
-			}
-
-			internal override void WriteValue(dynamic val)
-			{
-				try
-				{
-					WriteValueHandler?.Invoke(val);         //Событие WriteValueHandler
-
-					if (IsOn)
-					{
-						IsWriteValue(val);
-					}
-					else if (IsBlock)
-					{
-					}
-					else if (IsTest)
-					{
-						IsWriteValue(val);
-					}
-					else if (IsTestBlock)
-					{
-					}
-					else if (IsOff)
-					{
-					}
-
-					void IsWriteValue(dynamic value)
-					{
-
-						if (Dictionary.Count != 0)
+					object tempParam = ((IncClass)itemDataObject.BaseClass).ctlModel;
+						
+					iedServer.SetCheckHandler(temp,
+						(controlObject, parameter, ctlVal, test, interlockCheck, connection) =>
 						{
-							var source = (SourceClass)Dictionary?[value.Key];
+							var result = CheckHandlerResult.ACCEPTED;
+							return result;
+						},
+						tempParam);
 
-							var newValue = new
+					iedServer.SetWaitForExecutionHandler(temp,
+						(controlObject, parameter, ctlVal, test, synchroCheck) =>
+						{
+							var result = ControlHandlerResult.OK;
+							return result;
+						}, 
+						tempParam);
+
+					iedServer.SetControlHandler(temp, 
+						(controlObject, parameter, ctlVal, test) =>
+						{
+							if (ctlVal.GetType() != MmsType.MMS_INTEGER)
+								return ControlHandlerResult.FAILED;
+
+							if (!test)
 							{
-								source.Count,
-								value.Value
-							};
-							var tempValue = BaseClass.SetValue(null, newValue, value.Key);
+								var tempValue = new
+								{
+									Key = "stVal",
+									Value = ctlVal.ToInt32()
+								};
+								itemDataObject.WriteValue(tempValue);
+							}
 
-							source.SetValue(tempValue);
-						}
-					}
+							return ControlHandlerResult.OK;
+						},
+						tempParam);
 				}
-				catch 
+			}
+		}
+
+		/// <summary>
+		/// Initialize quality and time for server data
+		/// </summary>
+		public static void InitQualityAndTime()
+		{
+			foreach (var item in DataObj.UpdateListDestination)
+			{
+				item.Qality(true);
+			}
+		}
+
+		private class ReadDataObjMethodWork: ModBusTaskController.ModBusTaskController.CycleClass.MethodWork
+		{
+			private static readonly ReadDataObjMethodWork Instance = new ReadDataObjMethodWork();
+
+			internal static ReadDataObjMethodWork GetInstance()
+			{
+				return Instance;
+			}
+
+
+			internal override void Request(dynamic status)
+			{
+				var ready = (bool) status;
+				DataObj.SourceList.ForEach(source =>
 				{
-					if (!IsErrorWriteValue)
+					if (source.IsReady || ready)
 					{
-						Log.Log.Write($"Destination WriteValue Error {val.GetType()}", "Warrning");
-						IsErrorWriteValue = true;
+						source.GetValueRequest(Response);
+						source.IsReady = false;
 					}
-				}
+				});
 			}
 
-			internal override void Qality(bool init=false)
+			internal override void Response(dynamic value, dynamic source, bool status)
 			{
-				BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, init);
-			}
-
-			public override event ClassStateHandlerWrite WriteValueHandler;
-			public override event ClassStateHandlerWrite ReadValueHandler;
-
-			protected override void ResetReady()
-			{
-				foreach (var item in ReadValue.ToList())
-				{
-					ReadValue[item.Key] = false;
-				}
-
-				IsReady = true; 
+				source.GetValueResponse(value, status);
+				source.IsReady = true;
 			}
 		}
 
-		interface IDestinationDigital
+		/// <summary>
+		/// Initialize method update data
+		/// </summary>
+		public static void InitMethodWork()
 		{
-			Dictionary <string, int> IndexData { get; set; } 
-			//int IndexData { get; set; }             //Индекс для дискретного канала
-		}
-
-		interface IDestinationAnalog
-		{
-
+			ModBusTaskController.ModBusTaskController.CycleClass.AddMethodWork(ReadDataObjMethodWork.GetInstance());
 		}
 	}
 }

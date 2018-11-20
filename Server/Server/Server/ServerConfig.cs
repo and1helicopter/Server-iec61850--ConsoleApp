@@ -10,7 +10,7 @@
 			public static bool AdditionalParams { get; set; }			//Дополнительные возможности
 			
 			public static string NamePathDirectory { get; set; }		//Директория
-			public static string NameConfigFile { get; set; }			//Имя icd файла
+			public static string NameConfigFile { get; set; } = "ServerModel.icd";           //Имя icd файла
 			public static string NameModelFile { get; set; }			//Имя cfg файла
 			public static string NameDirectoryServer { get; set; }		//Рабочая директория сервера
 		}

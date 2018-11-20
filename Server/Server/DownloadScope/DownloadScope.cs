@@ -44,10 +44,9 @@ namespace ServerLib.DownloadScope
 		/// </summary>
 		public static void InitMethodWork()
 		{
-			ModBusTaskController.ModBusTaskController.CycleClass.AddMethodWork(ReadScopeObjMethodWork.GetInstace());
+			if(ConfigDownloadScope.Enable)
+				ModBusTaskController.ModBusTaskController.CycleClass.AddMethodWork(ReadScopeObjMethodWork.GetInstace());
 		}
-
-
 
 		private static readonly object LockRequest = new object();
 		private static bool LockRead { get; set; }

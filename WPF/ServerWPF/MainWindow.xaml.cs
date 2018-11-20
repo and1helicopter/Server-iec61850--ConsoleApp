@@ -143,10 +143,8 @@ namespace ServerWPF
 			
 			_checkedStop = false;
 			
-
-
 			//Парсим файл конфигурации
-			if (!ServerIEC61850.ParseFile(true))
+			if (!ServerIEC61850.ParseFile())
 			{
 				Log.Write(@"ParseFile: Finish with status false. Stop server", @"Error");
 				return;

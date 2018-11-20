@@ -4,7 +4,7 @@ namespace ServerLib.Parser
 {
 	public static partial class Parser
 	{
-		public static bool ParseFile(string filePath, bool dependencesModel)
+		public static bool ParseFile(string filePath)
 		{
 			// filePath = @"test.icd";
 			//читаем данные из файла
@@ -44,7 +44,7 @@ namespace ServerLib.Parser
 				return false;
 			}
 
-			if (dependencesModel)
+			if (true)
 			{
 				if (!DependencesModel())
 				{

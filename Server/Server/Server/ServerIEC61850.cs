@@ -130,9 +130,9 @@ namespace ServerLib.Server
 		/// </summary>
 		/// <param name="dependencesModel">Dependences Model</param>
 		/// <returns>Return result parse</returns>
-		public static bool ParseFile(bool dependencesModel)
+		public static bool ParseFile()
 		{
-			return Parser.Parser.ParseFile($"{ServerConfig.NamePathDirectory}\\{ServerConfig.NameConfigFile}", dependencesModel);
+			return Parser.Parser.ParseFile($"{ServerConfig.NamePathDirectory}\\{ServerConfig.NameConfigFile}");
 		}
 
 		/// <summary>

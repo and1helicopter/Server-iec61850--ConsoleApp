@@ -19,7 +19,7 @@ namespace ConsoleApp1
 				Log.Write(@"Settings: ReadSettings finish with status false. Stop server", @"Error");
 			}
 
-			if (!ServerIEC61850.ParseFile(true))
+			if (!ServerIEC61850.ParseFile())
 			{
 				Log.Write(@"ParseFile: Finish with status false. Stop server", @"Error");
 				return;
