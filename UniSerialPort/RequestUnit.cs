@@ -1,9 +1,32 @@
-﻿namespace UniSerialPort
+﻿using System.Linq;
+
+namespace UniSerialPort
 {
     public class RequestUnit
     {
         public readonly AsynchSerialPort.DataRecieved DataRecieved;
         public readonly AsynchSerialPort.DataRecievedRtu DataRecievedRtu;
+
+        public override int GetHashCode()
+        {
+            //TxBuffer.Count 
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            try
+            {
+                return TxBuffer.Length == ((RequestUnit)obj).TxBuffer.Length &&
+                       RtuReadCount == ((RequestUnit)obj).RtuReadCount &&
+                       Enumerable.SequenceEqual(TxBuffer, ((RequestUnit)obj).TxBuffer);
+            }
+            catch
+            {
+                return false;
+            }
+                
+        }
 
         public readonly byte[] TxBuffer;
         public readonly int ReceivedBytesThreshold;

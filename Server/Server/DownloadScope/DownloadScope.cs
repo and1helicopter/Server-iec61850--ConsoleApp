@@ -60,9 +60,9 @@ namespace ServerLib.DownloadScope
 				return Instance;
 			}
 
-			internal override void Request(dynamic status)
+			internal override void Request(dynamic restart)
 			{
-				var ready = (bool)status;
+				bool ready = (bool)restart;
 				lock (LockRequest)
 					if (!LockRead)
 						ready = true;
@@ -70,6 +70,9 @@ namespace ServerLib.DownloadScope
 					ScopeDataLoad.GetInstance().Loading();
 				}
 			}
+
+			internal override int MaxCountRequest { get; set; } = 1;
+			internal override int RequestCount { get; set; } = 1;
 
 			internal override void Response(dynamic value, dynamic source, bool status)
 			{
@@ -244,166 +247,173 @@ namespace ServerLib.DownloadScope
 
 			public void GetValueResponse(dynamic value, dynamic param, bool status)
 			{
-				if (!status)
-				{
-					lock (LockRequest) LockRead = false;
-					return;
-				}
-				var step = param.Step;
-				switch (step)
-				{
-					case 0: //Количество каналов 
-						NewScopeConfig.ChannelCount = value[0];
-						Step = 1;
-						break;
-					case 1: //Количество осциллограмм
-						NewScopeConfig.ScopeCount = value[0];
-						Step = 2;
-						break;
-					case 2: //Предыстория 
-						NewScopeConfig.HistoryCount = value[0];
-						Step = 3;
-						break;
-					case 3: //Делитель
-						NewScopeConfig.FreqCount = value[0];
-						Step = 4;
-						break;
-					case 4: //Режим работы
-						NewScopeConfig.OscilEnable = value[0];
-						Step = 5;
-						break;
-					case 5: //Размер осциллограммы 
-						NewScopeConfig.OscilSize = value[1] << 16;
-						NewScopeConfig.OscilSize += value[0];
-						Step = 6;
-						break;
-					case 6: //Частота выборки
-						NewScopeConfig.SampleRate = value[0];
-						if (NewScopeConfig.SampleRate == 0) return;
-						Step = 7;
-						break;
-					case 7: //Размер осциллограммы 
-						NewScopeConfig.OscilAllSize = (uint)(value[1] << 16);
-						NewScopeConfig.OscilAllSize += (value[0]);
-						if (NewScopeConfig.SampleRate == 0) return;
-						Step = 8;
-						break;
-					case 8: //Размер одной выборки
-						NewScopeConfig.SampleSize = value[0];
-						Step = 9;
-						break;
-					case 9: //Размер всей памяти 
-						NewScopeConfig.OscilHistCount = (uint)(value[1] << 16);
-						NewScopeConfig.OscilHistCount += value[0];
-						Step = 10;
-						break;
-					case 10: //Статус осциллогрофа
-						NewScopeConfig.StatusOscil = value[0];
-						Step = 11;
-						break;
-					case 11: //Адреса каналов 
-						NewScopeConfig.InitOscilAddr(value);
-						Step = 12;
-						break;
-					case 12: //Формат каналов 
-						NewScopeConfig.InitOscilFormat(value);
-						Step = 13;
-						break;
-					case 13: //Названия каналов 
-						if (NewScopeConfig.ChannelCount == 0) break;//Если в системе нет конфигурации
-						if (IndexChannel == 0) NewScopeConfig.ChannelName.Clear();
-						NewScopeConfig.InitChannelName(value);
-						if (IndexChannel == NewScopeConfig.ChannelCount - 1)
-						{
-							IndexChannel = 0;
-							Step = 14;
-						}
-						else
-						{
-							IndexChannel++;
-						}
-						break;
-					case 14: //Названия каналов 
-						if (IndexChannel == 0) NewScopeConfig.ChannelPhase.Clear();
-						NewScopeConfig.InitChannelPhase(value);
-						if (IndexChannel == NewScopeConfig.ChannelCount - 1)
-						{
-							IndexChannel = 0;
-							Step = 15;
-						}
-						else
-						{
-							IndexChannel++;
-						}
-						break;
-					case 15: //Названия каналов 
-						if (IndexChannel == 0) NewScopeConfig.ChannelCcbm.Clear();
-						NewScopeConfig.InitChannelCcbm(value);
-						if (IndexChannel == NewScopeConfig.ChannelCount - 1)
-						{
-							IndexChannel = 0;
-							Step = 16;
-						}
-						else
-						{
-							IndexChannel++;
-						}
-						break;
-					case 16: //Названия каналов 
-						if (IndexChannel == 0) NewScopeConfig.ChannelDemension.Clear();
-						NewScopeConfig.InitChannelDemension(value);
-						if (IndexChannel == NewScopeConfig.ChannelCount - 1)
-						{
-							IndexChannel = 0;
-							Step = 17;
-						}
-						else
-						{
-							IndexChannel++;
-						}
-						break;
-					case 17: //Названия каналов 
-						if (IndexChannel == 0) NewScopeConfig.ChannelType.Clear();
-						NewScopeConfig.InitChannelType(value);
-						if (IndexChannel == NewScopeConfig.ChannelCount - 1)
-						{
-							IndexChannel = 0;
-							Step = 18;
-						}
-						else
-						{
-							IndexChannel++;
-						}
-						break;
-					case 18: //
-						NewScopeConfig.InitStationName(value);
-						Step = 19;
-						break;
-					case 19: //Названия каналов 
-						NewScopeConfig.InitRecordingId(value);
-						Step = 20;
-						break;
-					case 20: //Названия каналов 
-						NewScopeConfig.InitTimeCode(value);
-						Step = 21;
-						break;
-					case 21: //Названия каналов 
-						NewScopeConfig.InitLocalCode(value);
-						Step = 22;
-						break;
-					case 22: //Названия каналов 
-						NewScopeConfig.InitTmqCode(value);
-						Step = 23;
-						break;
-					case 23: //Названия каналов 
-						NewScopeConfig.InitLeapsec(value);
-						CheackNewConfig();
-						Step = 0;
-						break;
-					default:
-						Step = 0;
-						return;
-				}
+                try
+                {
+                    if (!status)
+                    {
+                        lock (LockRequest) LockRead = false;
+                        return;
+                    }
+                    var step = param.Step;
+                    switch (step)
+                    {
+                        case 0: //Количество каналов 
+                            NewScopeConfig.ChannelCount = value[0];
+                            Step = 1;
+                            break;
+                        case 1: //Количество осциллограмм
+                            NewScopeConfig.ScopeCount = value[0];
+                            Step = 2;
+                            break;
+                        case 2: //Предыстория 
+                            NewScopeConfig.HistoryCount = value[0];
+                            Step = 3;
+                            break;
+                        case 3: //Делитель
+                            NewScopeConfig.FreqCount = value[0];
+                            Step = 4;
+                            break;
+                        case 4: //Режим работы
+                            NewScopeConfig.OscilEnable = value[0];
+                            Step = 5;
+                            break;
+                        case 5: //Размер осциллограммы 
+                            NewScopeConfig.OscilSize = value[1] << 16;
+                            NewScopeConfig.OscilSize += value[0];
+                            Step = 6;
+                            break;
+                        case 6: //Частота выборки
+                            NewScopeConfig.SampleRate = value[0];
+                            if (NewScopeConfig.SampleRate == 0) return;
+                            Step = 7;
+                            break;
+                        case 7: //Размер осциллограммы 
+                            NewScopeConfig.OscilAllSize = (uint)(value[1] << 16);
+                            NewScopeConfig.OscilAllSize += (value[0]);
+                            if (NewScopeConfig.SampleRate == 0) return;
+                            Step = 8;
+                            break;
+                        case 8: //Размер одной выборки
+                            NewScopeConfig.SampleSize = value[0];
+                            Step = 9;
+                            break;
+                        case 9: //Размер всей памяти 
+                            NewScopeConfig.OscilHistCount = (uint)(value[1] << 16);
+                            NewScopeConfig.OscilHistCount += value[0];
+                            Step = 10;
+                            break;
+                        case 10: //Статус осциллогрофа
+                            NewScopeConfig.StatusOscil = value[0];
+                            Step = 11;
+                            break;
+                        case 11: //Адреса каналов 
+                            NewScopeConfig.InitOscilAddr(value);
+                            Step = 12;
+                            break;
+                        case 12: //Формат каналов 
+                            NewScopeConfig.InitOscilFormat(value);
+                            Step = 13;
+                            break;
+                        case 13: //Названия каналов 
+                            if (NewScopeConfig.ChannelCount == 0) break;//Если в системе нет конфигурации
+                            if (IndexChannel == 0) NewScopeConfig.ChannelName.Clear();
+                            NewScopeConfig.InitChannelName(value);
+                            if (IndexChannel == NewScopeConfig.ChannelCount - 1)
+                            {
+                                IndexChannel = 0;
+                                Step = 14;
+                            }
+                            else
+                            {
+                                IndexChannel++;
+                            }
+                            break;
+                        case 14: //Названия каналов 
+                            if (IndexChannel == 0) NewScopeConfig.ChannelPhase.Clear();
+                            NewScopeConfig.InitChannelPhase(value);
+                            if (IndexChannel == NewScopeConfig.ChannelCount - 1)
+                            {
+                                IndexChannel = 0;
+                                Step = 15;
+                            }
+                            else
+                            {
+                                IndexChannel++;
+                            }
+                            break;
+                        case 15: //Названия каналов 
+                            if (IndexChannel == 0) NewScopeConfig.ChannelCcbm.Clear();
+                            NewScopeConfig.InitChannelCcbm(value);
+                            if (IndexChannel == NewScopeConfig.ChannelCount - 1)
+                            {
+                                IndexChannel = 0;
+                                Step = 16;
+                            }
+                            else
+                            {
+                                IndexChannel++;
+                            }
+                            break;
+                        case 16: //Названия каналов 
+                            if (IndexChannel == 0) NewScopeConfig.ChannelDemension.Clear();
+                            NewScopeConfig.InitChannelDemension(value);
+                            if (IndexChannel == NewScopeConfig.ChannelCount - 1)
+                            {
+                                IndexChannel = 0;
+                                Step = 17;
+                            }
+                            else
+                            {
+                                IndexChannel++;
+                            }
+                            break;
+                        case 17: //Названия каналов 
+                            if (IndexChannel == 0) NewScopeConfig.ChannelType.Clear();
+                            NewScopeConfig.InitChannelType(value);
+                            if (IndexChannel == NewScopeConfig.ChannelCount - 1)
+                            {
+                                IndexChannel = 0;
+                                Step = 18;
+                            }
+                            else
+                            {
+                                IndexChannel++;
+                            }
+                            break;
+                        case 18: //
+                            NewScopeConfig.InitStationName(value);
+                            Step = 19;
+                            break;
+                        case 19: //Названия каналов 
+                            NewScopeConfig.InitRecordingId(value);
+                            Step = 20;
+                            break;
+                        case 20: //Названия каналов 
+                            NewScopeConfig.InitTimeCode(value);
+                            Step = 21;
+                            break;
+                        case 21: //Названия каналов 
+                            NewScopeConfig.InitLocalCode(value);
+                            Step = 22;
+                            break;
+                        case 22: //Названия каналов 
+                            NewScopeConfig.InitTmqCode(value);
+                            Step = 23;
+                            break;
+                        case 23: //Названия каналов 
+                            NewScopeConfig.InitLeapsec(value);
+                            CheackNewConfig();
+                            Step = 0;
+                            break;
+                        default:
+                            Step = 0;
+                            return;
+                    }
+                }
+                catch
+                {
+
+                }	
 
 				lock (LockRequest) LockRead = false;
 

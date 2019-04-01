@@ -14,7 +14,7 @@ namespace ServerLib.DataClasses
 		{
 			foreach (var item in DataObj.UpdateListDestination)
 			{
-				item.BaseClass.InitServer(item.NameDataObj, iedServer, iedModel);
+				item.BaseClass.InitServer(item.NameDataObj, ref iedServer, ref iedModel);
 			}
 		}
 
@@ -193,18 +193,25 @@ namespace ServerLib.DataClasses
 				return Instance;
 			}
 
+			internal override int MaxCountRequest { get; set; } = 4;
+			internal override int RequestCount { get; set; } = DataObj.SourceList.Count;
+			private int CurrentIndex { get; set; }
 
-			internal override void Request(dynamic status)
+			internal override void Request(dynamic restart)
 			{
-				var ready = (bool) status;
-				DataObj.SourceList.ForEach(source =>
+				var ready = (bool)restart;
+
+				for (int requestNumber = 0; requestNumber < MaxCountRequest; requestNumber++)
 				{
-					if (source.IsReady || ready)
+					if (DataObj.SourceList[CurrentIndex].IsReady || ready)
 					{
-						source.GetValueRequest(Response);
-						source.IsReady = false;
+                        DataObj.SourceList[CurrentIndex].GetValueRequest(Response);
+						DataObj.SourceList[CurrentIndex].IsReady = false;
 					}
-				});
+
+					if (++CurrentIndex >= RequestCount)
+						CurrentIndex = 0;
+				}
 			}
 
 			internal override void Response(dynamic value, dynamic source, bool status)

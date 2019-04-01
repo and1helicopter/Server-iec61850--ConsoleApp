@@ -3,6 +3,7 @@ using System.Threading;
 using IEC61850.Server;
 using ServerLib.DataClasses;
 
+
 namespace ServerLib.Server
 {
 	public static partial class ServerIEC61850
@@ -24,14 +25,15 @@ namespace ServerLib.Server
 				Directory.CreateDirectory(pathServer);
 
 				_iedModel = ConfigFileParser.CreateModelFromConfigFile(ServerConfig.NameModelFile);
-				
-				IedServerConfig config = new IedServerConfig
-				{
-					ReportBufferSize = 10000,
-					FileServiceBasePath = pathServer
-				};
-				_iedServer = new IedServer(_iedModel, config);
-				_iedServer.SetLocalIpAddress(ServerConfig.LocalIpAddr);
+
+                //IedServerConfig config = new IedServerConfig
+                //{
+                //	ReportBufferSize = 10000,
+                //	FileServiceBasePath = pathServer
+                //};
+                //_iedServer = new IedServer(_iedModel, config);
+                _iedServer = new IedServer(_iedModel);
+                _iedServer.SetLocalIpAddress(ServerConfig.LocalIpAddr);
 			}
 			catch 
 			{
@@ -55,7 +57,7 @@ namespace ServerLib.Server
 		public static bool StartServer(){
 			if (_iedModel != null)
 			{
-				ModBus.ModBus.StartModBus();
+				if(!ModBus.ModBus.StartModBus()) return false;
 				_iedServer.Start(ServerConfig.ServerPort);
 
 				if (_iedServer.IsRunning())
@@ -63,11 +65,13 @@ namespace ServerLib.Server
 					_cycleThread = new Thread(ModBusTaskController.ModBusTaskController.CycleClass.Cycle)
 					{
 						Name = "Cycle",
-						IsBackground = true
+                        //IsBackground = true
 					};
 					_cycleThread.Start();
+                  //  _cycleThread.Join();
 
-					Log.Log.Write(@"ServerIEC61850.StartServer: ServerIEC61850 started", @"Start");
+
+                    Log.Log.Write(@"ServerIEC61850.StartServer: ServerIEC61850 started", @"Start");
 				}
 				else
 				{
@@ -90,17 +94,22 @@ namespace ServerLib.Server
 		/// <returns>Return result stop</returns>
 		public static bool StopServer()
 		{
+            
 			try
 			{
-				ModBusTaskController.ModBusTaskController.CycleClass.RemoveAllMethodWork();
-				ModBus.ModBus.CloseModBus();
-
-				if (_iedServer != null)
+                if (_iedServer != null)
 				{
-					if (_iedServer.IsRunning())
+                    ModBusTaskController.ModBusTaskController.CycleClass.SetWork(false);
+                   // _cycleThread.Join();
+                    ModBusTaskController.ModBusTaskController.CycleClass.RemoveAllMethodWork();
+
+                    //ModBus.ModBus.CloseModBus();
+
+                    if (_iedServer.IsRunning())
 					{
-						_cycleThread.Abort();
-						_cycleThread = null;
+                        //_cycleThread.Abort();
+                        //_cycleThread.Join();
+                        //_cycleThread = null;
 
 						_iedServer.Stop();
 						_iedServer.Destroy();
@@ -110,7 +119,7 @@ namespace ServerLib.Server
 					}
 				}
 
-				ServerModel.Model?.Clear();
+                ServerModel.Model?.Clear();
 				DownloadScope.DownloadScope.StopDownloadScope();
 				UpdateServer.Clear();
 

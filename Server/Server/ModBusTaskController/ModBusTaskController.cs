@@ -9,14 +9,36 @@ namespace ServerLib.ModBusTaskController
 		{
 			private static readonly List<MethodWork> ListMethodWorks = new List<MethodWork>();
 			private static readonly object Locker = new object();
+            private static volatile bool work = false;
+
+            private static bool GetWork()
+            {
+                bool status = false;
+                lock (Locker)
+                {
+                    status = work;
+                }
+                return status;
+            }
+
+            public static void SetWork(bool status)
+            {
+                lock (Locker)
+                {
+                    work = status;
+                }
+            }
 			
 
 			internal static void AddMethodWork(MethodWork methodWork)
 			{
 				lock (Locker)
 				{
-					if(!ListMethodWorks.Contains(methodWork))
+					if (!ListMethodWorks.Contains(methodWork))
+					{
 						ListMethodWorks.Add(methodWork);
+					}
+						
 				}
 			}
 
@@ -27,27 +49,41 @@ namespace ServerLib.ModBusTaskController
 
 			internal static void Cycle()
 			{
-				Thread.Sleep(1000);
+                //var IsStart = ModBus.ModBus.StartModBus();
 
-				while (true)
+                //if (!IsStart) return;
+                SetWork(true);
+                while (GetWork())
 				{
-					lock (Locker)
+					lock (ModBus.ModBus.Locker)
 					{
-						var status = ModBus.ModBus.ModBusPort.IsEmpty || ModBus.ModBus.ModBusPort.IsError;
+                        var status = System.DateTime.Now > ModBus.ModBus.ModBusPort.SuccessRead.AddMilliseconds(1000);
 
-						ListMethodWorks.ForEach(methodWork =>
+                        var start = ModBus.ModBus.ModBusPort.SerialPort.IsOpen && !ModBus.ModBus.ModBusPort.SerialPort.PortError;
+
+                        if (start)
 						{
-							methodWork.Request(status);
-						});
-					}
+							ListMethodWorks.ForEach(methodWork => { methodWork.Request(status); });
+						}
+                        
+                        // ModBus.ModBus.CheckPort();
 
-					Thread.Sleep(1);
+                        //else ModBus.ModBus.StartModBus();
+                    }
+
+                    // Кладем спать 
+                    Thread.Sleep(1);
 				}
-			}
 
-			internal abstract class MethodWork
+                ModBus.ModBus.CloseModBus();
+
+            }
+
+            internal abstract class MethodWork
 			{
-				internal abstract void Request(dynamic status);
+				internal abstract int MaxCountRequest { get; set; }
+				internal abstract int RequestCount { get; set; }
+				internal abstract void Request(dynamic restart);
 				internal abstract void Response(dynamic value, dynamic param, bool status);
 			}
 

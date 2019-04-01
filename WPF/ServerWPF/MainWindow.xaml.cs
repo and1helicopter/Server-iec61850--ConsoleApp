@@ -239,6 +239,6 @@ namespace ServerWPF
 		private void Window_Closed(object sender, EventArgs e)
 		{
 			ServerIEC61850.StopServer();
-		}
+        }
 	}
 }

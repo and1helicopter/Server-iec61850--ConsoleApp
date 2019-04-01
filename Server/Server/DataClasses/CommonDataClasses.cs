@@ -11,9 +11,9 @@ namespace ServerLib.DataClasses
 		public Quality q;
 
 		public abstract void UpdateClass(dynamic value);
-		public abstract void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init);
-		public abstract void UpdateQuality(string path, IedServer iedServer, IedModel iedModel);
-		public abstract void InitServer(string path, IedServer iedServer, IedModel iedModel);
+		public abstract void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init);
+		public abstract void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel);
+		public abstract void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel);
 		public abstract dynamic SetValue(dynamic oldValue, dynamic newValue, string name);
 
 		internal void GetBoolean(dynamic value, ref bool? obj)
@@ -292,7 +292,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+        public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -304,18 +304,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+			q = q.QualityCheckClass(t);
 
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 		
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -349,7 +349,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -361,18 +361,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+			q = q.QualityCheckClass(t);
 
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -406,7 +406,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -418,18 +418,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -481,7 +481,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -498,18 +498,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -582,7 +582,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -605,18 +605,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -648,7 +648,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -662,18 +662,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetStringValue(path + @".addr", d, iedModel, iedServer);
 			SetStringValue(path + @".addInfo", d, iedModel, iedServer);
@@ -711,7 +711,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -725,18 +725,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -776,7 +776,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -789,9 +789,9 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetInt32Value(path + @".units.SIUnit", Unit.SIUnit, iedModel, iedServer);
 			SetInt32Value(path + @".units.multiplier", Unit.Multiplier, iedModel, iedServer);
@@ -802,13 +802,13 @@ namespace ServerLib.DataClasses
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
 		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
@@ -851,7 +851,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -865,18 +865,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetInt32Value(path + @".units.SIUnit", Unit.SIUnit, iedModel, iedServer);
 			SetInt32Value(path + @".units.multiplier", Unit.Multiplier, iedModel, iedServer);
@@ -922,7 +922,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -935,18 +935,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetInt32Value(path + @".units.SIUnit", Unit.SIUnit, iedModel, iedServer);
 			SetInt32Value(path + @".units.multiplier", Unit.Multiplier, iedModel, iedServer);
@@ -972,21 +972,21 @@ namespace ServerLib.DataClasses
 
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -1006,21 +1006,21 @@ namespace ServerLib.DataClasses
 
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -1040,21 +1040,21 @@ namespace ServerLib.DataClasses
 
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			SetStringValue(path + @".d", d, iedModel, iedServer);
 		}
@@ -1117,7 +1117,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -1129,18 +1129,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetCtlModel(path + @".ctlModel", ctlModel, iedModel, iedServer);
 			SetStringValue(path + @".d", d, iedModel, iedServer);
@@ -1186,7 +1186,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -1198,18 +1198,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetCtlModel(path + @".ctlModel", ctlModel, iedModel, iedServer);
 			SetStringValue(path + @".d", d, iedModel, iedServer);
@@ -1246,7 +1246,7 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if(iedModel == null || iedServer == null) return;
 
@@ -1258,18 +1258,18 @@ namespace ServerLib.DataClasses
 			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 			if (iedModel == null || iedServer == null) return;
 
-			q = q.QualityCheckClass(DateTime.Now);
+            q = q.QualityCheckClass(t);
 
-			SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
+            SetQualityValue(path + @".q", q.Validity, iedModel, iedServer);
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 
 			SetCtlModel(path + @".ctlModel", ctlModel, iedModel, iedServer);
 			SetStringValue(path + @".d", d, iedModel, iedServer);
@@ -1306,7 +1306,7 @@ namespace ServerLib.DataClasses
 			throw new NotImplementedException();
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -1342,14 +1342,14 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 		}
 
 		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)
@@ -1372,7 +1372,7 @@ namespace ServerLib.DataClasses
 			throw new NotImplementedException();
 		}
 
-		public override void UpdateServer(string path, IedServer iedServer, IedModel iedModel, bool init)
+		public override void UpdateServer(string path, ref IedServer iedServer, ref IedModel iedModel, bool init)
 		{
 			if (iedModel == null || iedServer == null) return;
 
@@ -1400,14 +1400,14 @@ namespace ServerLib.DataClasses
 			}
 		}
 
-		public override void UpdateQuality(string path, IedServer iedServer, IedModel iedModel)
+		public override void UpdateQuality(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
 
 		}
 
-		public override void InitServer(string path, IedServer iedServer, IedModel iedModel)
+		public override void InitServer(string path, ref IedServer iedServer, ref IedModel iedModel)
 		{
-			UpdateServer(path, iedServer, iedModel, true);
+			UpdateServer(path, ref iedServer, ref iedModel, true);
 		}
 
 		public override dynamic SetValue(dynamic oldValue, dynamic newValue, string name)

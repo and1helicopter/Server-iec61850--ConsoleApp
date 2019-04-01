@@ -61,13 +61,17 @@ namespace ServerLib.DataClasses
 				if (BaseModDataObject != null)
 				{
 					BaseModDataObject.BaseClass.UpdateClass(tempValue);
-					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, null, null, false);
+                    IedServer iedServer = null;
+                    IedModel iedModel = null;
+                    BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, ref iedServer, ref iedModel, false);
 				}
 
 				if (BaseBehDataObject != null)
 				{
 					BaseBehDataObject.BaseClass.UpdateClass(tempValue);
-					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, null, null, false);
+                    IedServer iedServer = null;
+                    IedModel iedModel = null;
+                    BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, ref iedServer, ref iedModel, false);
 				}
 
 				UpdateModDependences();
@@ -244,14 +248,14 @@ namespace ServerLib.DataClasses
 				if (BaseModDataObject != null)
 				{
 					BaseModDataObject.BaseClass.UpdateClass(tempModValue);
-					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, _iedServer, _iedModel, false);
+					BaseModDataObject.BaseClass.UpdateServer(BaseModDataObject.NameDataObj, ref _iedServer, ref _iedModel, false);
 				}
 
 				var tempBehValue = new { Value = (int) ValBeh, val.Key };
 				if (BaseBehDataObject != null)
 				{
 					BaseBehDataObject.BaseClass.UpdateClass(tempBehValue);
-					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, _iedServer, _iedModel, false);
+					BaseBehDataObject.BaseClass.UpdateServer(BaseBehDataObject.NameDataObj, ref _iedServer, ref _iedModel, false);
 				}
 
 
@@ -312,7 +316,7 @@ namespace ServerLib.DataClasses
 					if (BaseHealthDataObject != null)
 					{
 						BaseHealthDataObject.BaseClass.UpdateClass(tempValue);
-						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel, false);
+						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, ref _iedServer, ref _iedModel, false);
 					}
 				}
 			}
@@ -347,7 +351,7 @@ namespace ServerLib.DataClasses
 					if (BaseHealthDataObject != null)
 					{
 						BaseHealthDataObject.BaseClass.UpdateClass(tempValue);
-						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, _iedServer, _iedModel, false);
+						BaseHealthDataObject.BaseClass.UpdateServer(BaseHealthDataObject.NameDataObj, ref _iedServer, ref _iedModel, false);
 					}
 
 					if ((int)ValHealth > (int)HealthHead.ValHealth)

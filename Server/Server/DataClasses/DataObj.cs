@@ -4,7 +4,7 @@ using IEC61850.Server;
 
 namespace ServerLib.DataClasses
 {
-	public static partial class UpdateDataObj
+	public static partial class DataObj
 	{
 		internal static readonly List<DestinationDataObject> UpdateListDestination = new List<DestinationDataObject>();
 		internal static readonly List<SourceClass> SourceList = new List<SourceClass>();
@@ -205,13 +205,13 @@ namespace ServerLib.DataClasses
 					
 					void IsReadValue(dynamic value)
 					{
-						if (!status)
-						{
-							BaseClass.UpdateQuality(NameDataObj, _iedServer, _iedModel);
-							return;
-						}
+                        if (!status)
+                        {
+                            BaseClass.UpdateQuality(NameDataObj, ref _iedServer, ref _iedModel);
+                            return;
+                        }
 
-						var source = value;
+                        var source = value;
 						if (Dictionary.ContainsValue(source))
 						{
 							var tempValNameList = Dictionary.Where(x => x.Value == source);
@@ -230,7 +230,7 @@ namespace ServerLib.DataClasses
 
 						if (IsReady)
 						{
-							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, false);
+							BaseClass.UpdateServer(NameDataObj, ref _iedServer, ref _iedModel, false);
 							ResetReady();
 						}
 					}
@@ -305,7 +305,7 @@ namespace ServerLib.DataClasses
 
 			internal override void Qality(bool init = false)
 			{
-				BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, init);
+				BaseClass.UpdateServer(NameDataObj, ref _iedServer, ref _iedModel, init);
 			}
 
 			public override event ClassStateHandlerWrite WriteValueHandler;
@@ -389,13 +389,13 @@ namespace ServerLib.DataClasses
 
 					void IsReadValue(dynamic value)
 					{
-						if (!status)
-						{
-							BaseClass.UpdateQuality(NameDataObj, _iedServer, _iedModel);
-							return;
-						}
+                        if (!status)
+                        {
+                            BaseClass.UpdateQuality(NameDataObj, ref _iedServer, ref _iedModel);
+                            return;
+                        }
 
-						dynamic source = value;
+                        dynamic source = value;
 
 						if (Dictionary.ContainsValue(source))
 						{
@@ -413,7 +413,7 @@ namespace ServerLib.DataClasses
 						}
 						if (IsReady)
 						{
-							BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, false);
+							BaseClass.UpdateServer(NameDataObj, ref _iedServer, ref _iedModel, false);
 							ResetReady();
 						}
 					}
@@ -482,7 +482,7 @@ namespace ServerLib.DataClasses
 
 			internal override void Qality(bool init=false)
 			{
-				BaseClass.UpdateServer(NameDataObj, _iedServer, _iedModel, init);
+				BaseClass.UpdateServer(NameDataObj, ref _iedServer, ref _iedModel, init);
 			}
 
 			public override event ClassStateHandlerWrite WriteValueHandler;

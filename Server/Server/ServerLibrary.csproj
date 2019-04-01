@@ -75,9 +75,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iec61850dotnet, Version=1.0.6362.22236, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="iec61850dotnet, Version=1.0.6451.17097, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\libiec\iec61850dotnet.dll</HintPath>
+      <HintPath>..\iec61850dotnet.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
@@ -90,8 +90,8 @@
     <Compile Include="DataClasses\CodedEnum.cs" />
     <Compile Include="DataClasses\DataAttributesClasses.cs" />
     <Compile Include="DataClasses\DependencesContols.cs" />
-    <Compile Include="DataClasses\Update.cs" />
     <Compile Include="DataClasses\UpdateDataObj.cs" />
+    <Compile Include="DataClasses\DataObj.cs" />
     <Compile Include="DownloadScope\ConfigDownloadScope.cs" />
     <Compile Include="DownloadScope\StructAddr.cs" />
     <Compile Include="Format\FormatConverter.cs" />

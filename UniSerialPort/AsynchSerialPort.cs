@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using System.Xml;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Linq;
 
 namespace UniSerialPort
 {
@@ -107,28 +107,20 @@ namespace UniSerialPort
 		{
 			_serialPort = new SerialPort();
 			_serialPort.DataReceived +=serialPort_DataReceived;
-
-			//_cancelTokenSource = new CancellationTokenSource();
-			//_requestTimer = new System.Timers.Timer
-			//{
-			//	Interval = 10
-			//};
-			//_requestTimer.Elapsed += requestTimer_Tick;
 		}
 
-		private CancellationTokenSource _cancelTokenSource;
-		private CancellationToken _token;
+		private static volatile bool _request = false;
 
 		private async void ReadTimeOutAsync()
 		{
 			await Task.Run(() => 
 			{
-				while (!_token.IsCancellationRequested)
+				while (_request)
 				{
 					if(!PortBusy) CheckQueue(true);
 					Thread.Sleep(1);
 				}
-			}, _token);
+			});
 		}
 
 		public void Open()
@@ -150,8 +142,9 @@ namespace UniSerialPort
 				_tcpMaster.OnResponseData +=tcpMaster_OnResponseData;
 			}
 
-			_cancelTokenSource = new CancellationTokenSource();
-			_token = _cancelTokenSource.Token;
+			_request = true;
+			//_cancelTokenSource = new CancellationTokenSource();
+			//_token = _cancelTokenSource.Token;
 
 			//Запуск функции
 			ReadTimeOutAsync();
@@ -203,12 +196,18 @@ namespace UniSerialPort
 		void CloseBody()
 		{
 			//Остановка 
-			_cancelTokenSource.Cancel();
-			_cancelTokenSource.Dispose();
+			_request = false;
+			//if (_cancelTokenSource != null)
+			//{
+			//	_cancelTokenSource.Cancel();
+			//	_cancelTokenSource.Dispose();
+			//	_cancelTokenSource = null;
+			//}
+
 			//_requestTimer.Enabled = false;
 			if (SerialPortMode == SerialPortModes.RsMode)
 			{
-				_serialPort.Close();
+                _serialPort.Close();
 			}
 			if (SerialPortMode == SerialPortModes.TcpMode)
 			{
@@ -446,17 +445,18 @@ namespace UniSerialPort
 			{
 				lock (_locker)
 				{
-					RequestsMain.Enqueue(new RequestUnit(txBuffer, receivedBytesThreshold, onDataRecievedRtu, rtuReadCount, param));
-				}
-			}
+                    var request = new RequestUnit(txBuffer, receivedBytesThreshold, onDataRecievedRtu, rtuReadCount, param);
+                    if (!RequestsMain.Any(req => req.Equals(request))) RequestsMain.Enqueue(request);
+                }
+            }
 			else
 			{
 				lock (_locker)
-				{
-					var request = new RequestUnit(txBuffer, receivedBytesThreshold, onDataRecievedRtu,rtuReadCount, param);
-					Requests.Enqueue(request);
-				}
-			}
+                {
+                    var request = new RequestUnit(txBuffer, receivedBytesThreshold, onDataRecievedRtu, rtuReadCount, param);
+                    if(!Requests.Any(req => req.Equals(request))) Requests.Enqueue(request);
+                }
+            }
 		}
 
 		private void AddRequest(byte[] txBuffer, int receivedBytesThreshold, DataRecievedRtu onDataRecievedRtu, RequestPriority requestPriority, object param)
@@ -475,7 +475,10 @@ namespace UniSerialPort
 				if (PortBusy && checkPortBusy) { return false; }
 			}
 
-			if (_flagToClose) { CloseBody(); return false; }
+			if (_flagToClose) {
+                CloseBody();
+                return false;
+            }
 			if (!IsOpen) { return false; }
 
 			RequestUnit mu;
@@ -500,8 +503,6 @@ namespace UniSerialPort
 		}
 
 		readonly object _locker = new object();
-
-
 
 		private void GetDataRtu(byte slaveAddress, ushort startAddr, ushort wordCount, DataRecievedRtu dataRecievedRtu, RequestPriority requestPriority, object param)
 		{

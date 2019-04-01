@@ -198,8 +198,8 @@ namespace ServerLib.Parser
 										rptOptions |= IEC61850.Common.ReportOptions.CONF_REV;
 									if (String.Equals((xOptFields.Attribute("bufOvfl") != null ? xOptFields.Attribute("bufOvfl").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
 										rptOptions |= IEC61850.Common.ReportOptions.BUFFER_OVERFLOW;
-									if (String.Equals((xOptFields.Attribute("segment") != null ? xOptFields.Attribute("segment").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
-										rptOptions |= IEC61850.Common.ReportOptions.SEGMENTATION;
+									//if (String.Equals((xOptFields.Attribute("segment") != null ? xOptFields.Attribute("segment").Value : "false"), "true", StringComparison.InvariantCultureIgnoreCase))
+									//	rptOptions |= IEC61850.Common.ReportOptions.SEGMENTATION;
 								}
 
 								string ldname = lditem.Attribute("inst")?.Value;

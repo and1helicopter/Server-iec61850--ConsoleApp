@@ -72,10 +72,11 @@ namespace ServerLib.DataClasses
 
 		public Quality QualityCheckClass(DateTime time)
 		{
-			//допустимый возраст в мск
+            //допустимый возраст в мск
+            UpdateOldData(time.AddMilliseconds(_allowedAge) < DateTime.Now);
 
-			UpdateOldData(time.AddMilliseconds(_allowedAge) < DateTime.Now);
-			UpdateBadReference(ModBus.ModBus.ModBusPort.IsError);
+            //UpdateOldData(time.AddMilliseconds(_allowedAge) < DateTime.Now);
+            UpdateBadReference(ModBus.ModBus.ModBusPort.SerialPort.PortError);
 
 			//Проверки
 			UpdateQualityClass();
